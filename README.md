@@ -2,14 +2,14 @@
 
 Package for creating Flash Player projectors
 
-[![npm](https://img.shields.io/npm/v/@shockpkg/src-projector.svg)](https://npmjs.com/package/@shockpkg/src-projector)
-[![node](https://img.shields.io/node/v/@shockpkg/src-projector.svg)](https://nodejs.org)
+[![npm](https://img.shields.io/npm/v/@shockpkg/swf-projector.svg)](https://npmjs.com/package/@shockpkg/swf-projector)
+[![node](https://img.shields.io/node/v/@shockpkg/swf-projector.svg)](https://nodejs.org)
 
-[![dependencies](https://david-dm.org/shockpkg/src-projector.svg)](https://david-dm.org/shockpkg/src-projector)
-[![size](https://packagephobia.now.sh/badge?p=@shockpkg/src-projector)](https://packagephobia.now.sh/result?p=@shockpkg/src-projector)
-[![downloads](https://img.shields.io/npm/dm/@shockpkg/src-projector.svg)](https://npmcharts.com/compare/@shockpkg/src-projector?minimal=true)
+[![dependencies](https://david-dm.org/shockpkg/swf-projector.svg)](https://david-dm.org/shockpkg/swf-projector)
+[![size](https://packagephobia.now.sh/badge?p=@shockpkg/swf-projector)](https://packagephobia.now.sh/result?p=@shockpkg/swf-projector)
+[![downloads](https://img.shields.io/npm/dm/@shockpkg/swf-projector.svg)](https://npmcharts.com/compare/@shockpkg/swf-projector?minimal=true)
 
-[![travis-ci](https://travis-ci.org/shockpkg/src-projector.svg?branch=master)](https://travis-ci.org/shockpkg/src-projector)
+[![travis-ci](https://travis-ci.org/shockpkg/swf-projector.svg?branch=master)](https://travis-ci.org/shockpkg/swf-projector)
 
 
 # Overview
