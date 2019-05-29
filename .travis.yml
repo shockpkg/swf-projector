@@ -1,0 +1,44 @@
+language: node_js
+
+matrix:
+  include:
+    - os: linux
+      node_js: 'v10.0.0'
+
+    - os: osx
+      osx_image: xcode10.2
+      node_js: 'v10.0.0'
+
+    - os: windows
+      node_js: 'v10.0.0'
+
+    - os: linux
+      node_js: 'v10.15.3'
+
+    - os: osx
+      osx_image: xcode10.2
+      node_js: 'v10.15.3'
+
+    - os: windows
+      node_js: 'v10.15.3'
+
+    - os: linux
+      node_js: 'v12.3.1'
+
+    - os: osx
+      osx_image: xcode10.2
+      node_js: 'v12.3.1'
+
+    - os: windows
+      node_js: 'v12.3.1'
+
+cache:
+  directories:
+    - 'node_modules'
+
+script:
+  - npm run shockpkg-install
+  - npm run clean
+  - npm run lint
+  - npm run build
+  - npm run test

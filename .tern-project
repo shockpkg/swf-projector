@@ -1,0 +1,19 @@
+{
+	"ecmaVersion": 9,
+	"libs": [
+		"ecmascript"
+	],
+	"loadEagerly": [
+	],
+	"dontLoad": [
+	],
+	"plugins": {
+		"es_modules": {},
+		"commonjs": {},
+		"node": {},
+		"complete_strings": {},
+		"doc_comment": {
+			"fullDocs": true
+		}
+	}
+}
