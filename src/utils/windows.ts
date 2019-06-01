@@ -108,15 +108,7 @@ export async function windowsRcedit(
 	if (options.versionStrings) {
 		opts['version-string'] = options.versionStrings;
 	}
-	await new Promise((resolve, reject) => {
-		rcedit(path, opts, (err: any) => {
-			if (err) {
-				reject(err);
-				return;
-			}
-			resolve();
-		});
-	});
+	await rcedit(path, opts);
 }
 
 /**
