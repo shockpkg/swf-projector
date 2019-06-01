@@ -4,7 +4,8 @@ import {
 	cleanProjectorDir,
 	fixtureFile,
 	getPackageFile,
-	platformIsMac
+	platformIsMac,
+	shouldTest
 } from '../util.spec';
 
 import {
@@ -16,7 +17,9 @@ interface ISample {
 	fixBrokenIconPaths?: boolean;
 }
 
-const samples: {[index: string]: ISample} = platformIsMac ? {
+const doTest = platformIsMac && shouldTest('macapp');
+
+const samples: {[index: string]: ISample} = doTest ? {
 	// First Mac APP bundle, broken icon, DMG:
 	'flash-player-9.0.28.0-mac-sa-debug': {
 		fixBrokenIconPaths: true

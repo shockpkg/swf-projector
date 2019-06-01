@@ -24,8 +24,6 @@ Reading DMG projector packages and removing Mac APP code signatures is only supp
 
 Features that modify Windows EXE resources requires either Windows or Wine in the path.
 
-Unfortunately, the newer 64-bit Linux Flash Players do not support projectors, see notes below for some options.
-
 
 # Usage
 
@@ -67,7 +65,7 @@ main().catch(err => {
 });
 ```
 
-### Linux
+### Linux 32-bit
 
 ```js
 import {ProjectorLinux} from '@shockpkg/swf-projector';
@@ -85,22 +83,24 @@ main().catch(err => {
 });
 ```
 
+### Linux 64-bit
 
-# Linux Notes
+```js
+import {ProjectorLinux} from '@shockpkg/swf-projector';
 
-Unfortunately, the newer 64-bit standalone Flash Players 24+ do not support the projector functionality.
-
-As an alternative, it's possible to open a specific SWF file in a standalone Flash Player by passing the file path as an argument, perhaps with a wrapper script.
-
-```sh
-#!/bin/sh
-
-./flashplayer movie.swf
+async function main() {
+	const projector = new ProjectorLinux({
+		player: 'player.tar.gz',
+		movieFile: 'movie.swf',
+		patchProjectorOffset: true // Necessary unless the binaries get fixed.
+	});
+	projector.write('out-dir-linux64', 'application');
+}
+main().catch(err => {
+	process.exitCode = 1;
+	console.error(err);
+});
 ```
-
-Additionally, if you omit the `movieFile` parameter to `ProjectorLinux`, you can write a plain standalone Flash Player, without making it into a projector (convenient for use with shockpkg pacakges).
-
-Unfortunately, the URL bar will remain, and the SWF will not have the extra privileges a proper projector gets (like fscommand exec).
 
 
 # Bugs

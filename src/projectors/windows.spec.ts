@@ -4,7 +4,8 @@ import {
 	cleanProjectorDir,
 	fixtureFile,
 	getPackageFile,
-	platformIsWindows
+	platformIsWindows,
+	shouldTest
 } from '../util.spec';
 
 import {
@@ -17,7 +18,7 @@ interface ISample {
 	lzma?: boolean;
 }
 
-const samples: {[index: string]: ISample} = {
+const samples: {[index: string]: ISample} = shouldTest('windows') ? {
 	// Only 3.0 32-bit:
 	'flash-player-3.0.8.0-windows-32bit-sa': {},
 
@@ -112,7 +113,7 @@ const samples: {[index: string]: ISample} = {
 		zlib: true,
 		lzma: true
 	}
-};
+} : {};
 
 const fileVersion = '3.14.15.92';
 const productVersion = '3.1.4.1';

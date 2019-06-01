@@ -23,6 +23,12 @@ export const platformIsWindows = (
 	(process.platform as string) === 'win64'
 );
 
+export const envFastTest = process.env.SWF_PROJECTOR_FAST_TEST || null;
+
+export function shouldTest(name: string) {
+	return !envFastTest || envFastTest === name;
+}
+
 export const specFixturesPath = pathJoin('spec', 'fixtures');
 export const specProjectorsPath = pathJoin('spec', 'projectors');
 

@@ -227,6 +227,8 @@ export abstract class Projector extends Object {
 	 * - m: Marker bytes
 	 * - s: Size, LE
 	 * - S: Size, BE
+	 * - l: Size, LE, 64-bit
+	 * - L: Size, BE, 64-bit
 	 *
 	 * @param file File to append to.
 	 * @param data Movie data.
@@ -257,6 +259,20 @@ export abstract class Projector extends Object {
 				case 'S': {
 					const b = Buffer.alloc(4);
 					b.writeUInt32BE(data.length, 0);
+					buffers.push(b);
+					break;
+				}
+				case 'l': {
+					// 64-bit, just write 32-bit, SWF cannot be larger.
+					const b = Buffer.alloc(8, 0);
+					b.writeUInt32LE(data.length, 0);
+					buffers.push(b);
+					break;
+				}
+				case 'L': {
+					// 64-bit, just write 32-bit, SWF cannot be larger.
+					const b = Buffer.alloc(8, 0);
+					b.writeUInt32BE(data.length, 4);
 					buffers.push(b);
 					break;
 				}

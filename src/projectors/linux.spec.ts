@@ -3,19 +3,19 @@
 import {
 	cleanProjectorDir,
 	fixtureFile,
-	getPackageFile
+	getPackageFile,
+	shouldTest
 } from '../util.spec';
 
 import {
 	ProjectorLinux
 } from './linux';
 
-// tslint:disable-next-line no-empty-interface
 interface ISample {
 	lzma?: boolean;
 }
 
-const samples: {[index: string]: ISample} = {
+const samples: {[index: string]: ISample} = shouldTest('linux') ? {
 	// Only 6.0, first version:
 	'flash-player-6.0.79.0-linux-sa': {},
 
@@ -56,31 +56,8 @@ const samples: {[index: string]: ISample} = {
 	// Last 11.2 debug, last i386, before long release break:
 	'flash-player-11.2.202.644-linux-i386-sa-debug': {
 		lzma: true
-	},
-
-	// Unfortuantely, it seems the deprecated Projector functionality is dead.
-	// The newer 64-bit releases do not support it.
-
-	// // First 24.0 release, first x86_64:
-	// 'flash-player-24.0.0.186-linux-x86_64-sa': {
-	// 	lzma: true
-	// },
-	//
-	// // First 24.0 debug, first x86_64:
-	// 'flash-player-24.0.0.186-linux-x86_64-sa-debug': {
-	// 	lzma: true
-	// },
-	//
-	// // Latest release:
-	// 'flash-player-32.0.0.192-linux-x86_64-sa': {
-	// 	lzma: true
-	// },
-	//
-	// // Latest debug:
-	// 'flash-player-32.0.0.192-linux-x86_64-sa-debug': {
-	// 	lzma: true
-	// }
-};
+	}
+} : {};
 
 describe('projectors/linux', () => {
 	describe('ProjectorLinux', () => {
