@@ -233,7 +233,9 @@ export async function linux64PatchProjectorOffset(file: string) {
 				continue;
 			}
 			if (foundOffset !== -1) {
-				throw new Error('Multiple patch candidates found');
+				throw new Error(
+					'Multiple projector offset patch candidates found'
+				);
 			}
 
 			// Remember patch to apply.
@@ -242,7 +244,7 @@ export async function linux64PatchProjectorOffset(file: string) {
 		}
 	}
 	if (foundOffset === -1) {
-		throw new Error('No patch candidates found');
+		throw new Error('No projector offset patch candidates found');
 	}
 
 	// Apply the patch to the buffer, and write to file.
