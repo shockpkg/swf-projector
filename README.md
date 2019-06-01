@@ -86,10 +86,10 @@ main().catch(err => {
 ### Linux 64-bit
 
 ```js
-import {ProjectorLinux} from '@shockpkg/swf-projector';
+import {ProjectorLinux64} from '@shockpkg/swf-projector';
 
 async function main() {
-	const projector = new ProjectorLinux({
+	const projector = new ProjectorLinux64({
 		player: 'player.tar.gz',
 		movieFile: 'movie.swf',
 		patchProjectorOffset: true // Necessary unless the binaries get fixed.
