@@ -23,7 +23,7 @@
 		"build": "nps build",
 		"test": "nps test",
 		"watch": "nps watch",
-		"prepack": "nps clean lint build test"
+		"prepack": "nps clean lint build"
 	},
 	"repository": "https://github.com/shockpkg/swf-projector.git",
 	"bugs": "https://github.com/shockpkg/swf-projector/issues",
