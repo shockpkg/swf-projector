@@ -39,7 +39,7 @@ async function main() {
 		player: 'player.zip',
 		movieFile: 'movie.swf'
 	});
-	projector.write('out-dir-windows', 'application.exe');
+	await projector.write('out-dir-windows', 'application.exe');
 }
 main().catch(err => {
 	process.exitCode = 1;
@@ -57,7 +57,7 @@ async function main() {
 		player: 'player.dmg',
 		movieFile: 'movie.swf'
 	});
-	projector.write('out-dir-macapp', 'application.app');
+	await projector.write('out-dir-macapp', 'application.app');
 }
 main().catch(err => {
 	process.exitCode = 1;
@@ -75,7 +75,7 @@ async function main() {
 		player: 'player.tar.gz',
 		movieFile: 'movie.swf'
 	});
-	projector.write('out-dir-linux', 'application');
+	await projector.write('out-dir-linux', 'application');
 }
 main().catch(err => {
 	process.exitCode = 1;
@@ -94,7 +94,7 @@ async function main() {
 		movieFile: 'movie.swf',
 		patchProjectorOffset: true // Necessary unless the binaries get fixed.
 	});
-	projector.write('out-dir-linux64', 'application');
+	await projector.write('out-dir-linux64', 'application');
 }
 main().catch(err => {
 	process.exitCode = 1;
