@@ -83,7 +83,9 @@ const samples: {[index: string]: ISample} = shouldTest('linux64') ? {
 	'flash-player-32.0.0.171-linux-x86_64-sa': {},
 	'flash-player-32.0.0.171-linux-x86_64-sa-debug': {},
 	'flash-player-32.0.0.192-linux-x86_64-sa': {},
-	'flash-player-32.0.0.192-linux-x86_64-sa-debug': {}
+	'flash-player-32.0.0.192-linux-x86_64-sa-debug': {},
+	'flash-player-32.0.0.207-linux-x86_64-sa': {},
+	'flash-player-32.0.0.207-linux-x86_64-sa-debug': {}
 } : {};
 
 describe('projectors/linux64', () => {

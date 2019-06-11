@@ -88,12 +88,12 @@ const samples: {[index: string]: ISample} = doTest ? {
 	},
 
 	// Latest release:
-	'flash-player-32.0.0.192-mac-sa': {
+	'flash-player-32.0.0.207-mac-sa': {
 		lzma: true
 	},
 
 	// Latest debug:
-	'flash-player-32.0.0.192-mac-sa-debug': {
+	'flash-player-32.0.0.207-mac-sa-debug': {
 		lzma: true
 	}
 } : {};
