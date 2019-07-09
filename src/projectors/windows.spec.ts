@@ -103,13 +103,13 @@ const samples: {[index: string]: ISample} = shouldTest('windows') ? {
 	},
 
 	// Latest release:
-	'flash-player-32.0.0.207-windows-sa': {
+	'flash-player-32.0.0.223-windows-sa': {
 		zlib: true,
 		lzma: true
 	},
 
 	// Latest debug:
-	'flash-player-32.0.0.207-windows-sa-debug': {
+	'flash-player-32.0.0.223-windows-sa-debug': {
 		zlib: true,
 		lzma: true
 	}
