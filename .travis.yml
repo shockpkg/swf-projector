@@ -13,24 +13,24 @@ matrix:
       node_js: 'v10.0.0'
 
     - os: linux
-      node_js: 'v10.15.3'
+      node_js: 'v10.16.0'
 
     - os: osx
       osx_image: xcode10.2
-      node_js: 'v10.15.3'
+      node_js: 'v10.16.0'
 
     - os: windows
-      node_js: 'v10.15.3'
+      node_js: 'v10.16.0'
 
     - os: linux
-      node_js: 'v12.3.1'
+      node_js: 'v12.6.0'
 
     - os: osx
       osx_image: xcode10.2
-      node_js: 'v12.3.1'
+      node_js: 'v12.6.0'
 
     - os: windows
-      node_js: 'v12.3.1'
+      node_js: 'v12.6.0'
 
 cache:
   directories:
