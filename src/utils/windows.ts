@@ -1,8 +1,9 @@
-import nodeRequireFunction from 'node-require-function';
 import {
 	dirname as pathDirname,
 	join as pathJoin
 } from 'path';
+
+import nodeRequireFunction from 'node-require-function';
 // @ts-ignore
 import rcedit from 'rcedit';
 
@@ -20,7 +21,7 @@ const isWindows =
 /**
  * Get signtool binary location.
  *
- * @return Path to signtool binary.
+ * @returns Path to signtool binary.
  */
 function locateSigntool() {
 	if (locateSigntoolCache) {
@@ -35,7 +36,7 @@ function locateSigntool() {
 	do {
 		path = pathDirname(path);
 	}
-	while (path && !/[\/\\]signtool$/i.test(path));
+	while (path && !/[/\\]signtool$/i.test(path));
 
 	let arch = 'x86';
 	if (isWindows && process.arch === 'x64') {
@@ -55,31 +56,32 @@ export interface IRceditOptionsVersionStrings {
 }
 
 export interface IRceditOptions {
+
 	/**
 	 * Icon path.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	iconPath?: string | null;
 
 	/**
 	 * File version.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	fileVersion?: string | null;
 
 	/**
 	 * Product version.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	productVersion?: string | null;
 
 	/**
 	 * Version strings.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	versionStrings?: IRceditOptionsVersionStrings | null;
 }

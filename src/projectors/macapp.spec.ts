@@ -1,4 +1,4 @@
-// tslint:disable:completed-docs
+/* eslint-env jasmine */
 
 import {
 	cleanProjectorDir,

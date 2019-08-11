@@ -1,19 +1,15 @@
 import {
+	join as pathJoin
+} from 'path';
+
+import {
 	ArchiveDir,
 	fsChmod,
 	fsUtimes,
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
-import {
-	ensureDir as fseEnsureDir,
-	move as fseMove,
-	remove as fseRemove,
-	stat as fseStat,
-} from 'fs-extra';
-import {
-	join as pathJoin
-} from 'path';
+import fse from 'fs-extra';
 
 import {
 	IProjectorOptions,
@@ -33,66 +29,67 @@ import {
 } from '../utils/mac';
 
 export interface IProjectorMacAppOptions extends IProjectorOptions {
+
 	/**
 	 * Binary name, also renames rsrc and icns.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	binaryName?: string | null;
 
 	/**
 	 * Icon file.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	iconFile?: string | null;
 
 	/**
 	 * Icon data.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	iconData?: Buffer | null;
 
 	/**
 	 * Info.plist file.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	infoPlistFile?: string | null;
 
 	/**
 	 * Info.plist data.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	infoPlistData?: Buffer | null;
 
 	/**
 	 * PkgInfo file.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	pkgInfoFile?: string | null;
 
 	/**
 	 * PkgInfo data.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	pkgInfoData?: Buffer | null;
 
 	/**
 	 * Update the bundle name in Info.plist.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	updateBundleName?: boolean;
 
 	/**
 	 * Remove the file associations in Info.plist.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	removeFileAssociations?: boolean;
 
@@ -101,21 +98,21 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	 * Modern projectors are codesigned so that any changes breaks it.
 	 * No signature is better than a broken one.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	removeCodeSignature?: boolean;
 
 	/**
 	 * Path to codesign binary.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	codesignPath?: string | null;
 
 	/**
 	 * Fix broken icon paths in Info.plist (old projectors).
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	fixBrokenIconPaths?: boolean;
 }
@@ -129,63 +126,63 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Binary name, also renames rsrc and icns.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public binaryName: string | null;
 
 	/**
 	 * Icon file.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public iconFile: string | null;
 
 	/**
 	 * Icon data.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public iconData: Buffer | null;
 
 	/**
 	 * Info.plist file.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public infoPlistFile: string | null;
 
 	/**
 	 * Info.plist data.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public infoPlistData: string | string[] | Buffer | null;
 
 	/**
 	 * PkgInfo file.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public pkgInfoFile: string | null;
 
 	/**
 	 * PkgInfo data.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public pkgInfoData: string | Buffer | null;
 
 	/**
 	 * Update the bundle name in Info.plist.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	public updateBundleName: boolean;
 
 	/**
 	 * Remove the file associations in Info.plist.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	public removeFileAssociations: boolean;
 
@@ -194,21 +191,21 @@ export class ProjectorMacApp extends Projector {
 	 * Modern projectors are codesigned so that any changes breaks it.
 	 * No signature is better than a broken one.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	public removeCodeSignature: boolean;
 
 	/**
 	 * Path to codesign binary.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public codesignPath: string | null;
 
 	/**
 	 * Fix broken icon paths in Info.plist (old projectors).
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	public fixBrokenIconPaths: boolean;
 
@@ -232,6 +229,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Projector file extension.
+	 *
+	 * @returns File extension.
 	 */
 	public get projectorExtension() {
 		return '.app';
@@ -239,6 +238,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * If icon is specified.
+	 *
+	 * @returns Is specified.
 	 */
 	public get hasIcon() {
 		return !!(this.iconData || this.iconFile);
@@ -246,6 +247,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * If Info.plist is specified.
+	 *
+	 * @returns Is specified.
 	 */
 	public get hasInfoPlist() {
 		return !!(this.infoPlistData || this.infoPlistFile);
@@ -253,6 +256,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * If PkgInfo is specified.
+	 *
+	 * @returns Is specified.
 	 */
 	public get hasPkgInfo() {
 		return !!(this.pkgInfoData || this.pkgInfoFile);
@@ -260,6 +265,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Get app icon name, custom.
+	 *
+	 * @returns File name.
 	 */
 	public get appIconNameCustom() {
 		const n = this.binaryName;
@@ -268,6 +275,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Get app rsrc name, custom.
+	 *
+	 * @returns File name.
 	 */
 	public get appRsrcNameCustom() {
 		const n = this.binaryName;
@@ -276,6 +285,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Get app movie path.
+	 *
+	 * @returns File path.
 	 */
 	public get appPathMovie() {
 		return 'Contents/Resources/movie.swf';
@@ -283,6 +294,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Get app Info.plist path.
+	 *
+	 * @returns File path.
 	 */
 	public get appPathInfoPlist() {
 		return 'Contents/Info.plist';
@@ -290,6 +303,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Get app PkgInfo path.
+	 *
+	 * @returns File path.
 	 */
 	public get appPathPkgInfo() {
 		return 'Contents/PkgInfo';
@@ -300,7 +315,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @param name Save name.
 	 * @param binaryName Binary name.
-	 * @return Binary path.
+	 * @returns Binary path.
 	 */
 	public getBinaryPath(name: string, binaryName: string) {
 		return `${name}/Contents/MacOS/${binaryName}`;
@@ -312,7 +327,7 @@ export class ProjectorMacApp extends Projector {
 	 * @param name Save name.
 	 * @param binaryName Binary name.
 	 * @param addExt Add extension.
-	 * @return Rsrc path.
+	 * @returns Rsrc path.
 	 */
 	public getRsrcPath(name: string, binaryName: string, addExt = false) {
 		const ext = addExt ? '.rsrc' : '';
@@ -324,7 +339,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @param name Save name.
 	 * @param iconName Icon name.
-	 * @return Icon path.
+	 * @returns Icon path.
 	 */
 	public getIconPath(name: string, iconName: string) {
 		return `${name}/Contents/Resources/${iconName}`;
@@ -333,7 +348,7 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Get icon data if any specified, from data or file.
 	 *
-	 * @return Icon data or null.
+	 * @returns Icon data or null.
 	 */
 	public async getIconData() {
 		return this._dataFromBufferOrFile(
@@ -345,7 +360,7 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Get Info.plist data if any specified, from data or file.
 	 *
-	 * @return Info.plist data or null.
+	 * @returns Info.plist data or null.
 	 */
 	public async getInfoPlistData() {
 		return this._dataFromValueOrFile(
@@ -359,7 +374,7 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Get PkgInfo data if any specified, from data or file.
 	 *
-	 * @return PkgInfo data or null.
+	 * @returns PkgInfo data or null.
 	 */
 	public async getPkgInfoData() {
 		return this._dataFromValueOrFile(
@@ -374,7 +389,7 @@ export class ProjectorMacApp extends Projector {
 	 * Get the movie path.
 	 *
 	 * @param name Save name.
-	 * @return Icon path.
+	 * @returns Icon path.
 	 */
 	public getMoviePath(name: string) {
 		return `${name}/${this.appPathMovie}`;
@@ -384,7 +399,7 @@ export class ProjectorMacApp extends Projector {
 	 * Get the Info.plist path.
 	 *
 	 * @param name Save name.
-	 * @return Icon path.
+	 * @returns Icon path.
 	 */
 	public getInfoPlistPath(name: string) {
 		return `${name}/${this.appPathInfoPlist}`;
@@ -394,7 +409,7 @@ export class ProjectorMacApp extends Projector {
 	 * Get the PkgInfo path.
 	 *
 	 * @param name Save name.
-	 * @return Icon path.
+	 * @returns Icon path.
 	 */
 	public getPkgInfoPath(name: string) {
 		return `${name}/${this.appPathPkgInfo}`;
@@ -405,10 +420,9 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @param xml Plist code.
 	 * @param name Application name.
-	 * @return Updated XML.
+	 * @returns Updated XML.
 	 */
 	public updateInfoPlistCode(xml: string, name: string) {
-		// tslint:disable-next-line no-this-assignment
 		const {
 			binaryName,
 			appIconNameCustom,
@@ -456,7 +470,7 @@ export class ProjectorMacApp extends Projector {
 	 */
 	protected async _writePlayer(path: string, name: string) {
 		const player = this.getPlayerPath();
-		const stat = await fseStat(player);
+		const stat = await fse.stat(player);
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
 
 		if (
@@ -478,13 +492,13 @@ export class ProjectorMacApp extends Projector {
 	 */
 	protected async _writePlayerFile(path: string, name: string) {
 		const player = this.getPlayerPath();
-		const stat = await fseStat(player);
+		const stat = await fse.stat(player);
 		if (!stat.isDirectory()) {
 			throw new Error(`Path is not directory: ${player}`);
 		}
 
 		const playerOut = pathJoin(path, name);
-		await fseEnsureDir(playerOut);
+		await fse.ensureDir(playerOut);
 
 		// Open directory as archive, for copying.
 		const archive = new ArchiveDir(player);
@@ -526,6 +540,7 @@ export class ProjectorMacApp extends Projector {
 				volumePath.substr(0, slashIndex) : volumePath;
 			const baseLower = base.toLowerCase();
 
+			// eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
 			if (baseLower.charAt(0) === '.') {
 				return;
 			}
@@ -595,7 +610,6 @@ export class ProjectorMacApp extends Projector {
 	 * @param name Save name.
 	 */
 	protected async _fixPlayer(path: string, name: string) {
-		// tslint:disable-next-line no-this-assignment
 		const {fixBrokenIconPaths} = this;
 		if (!fixBrokenIconPaths) {
 			return;
@@ -679,7 +693,7 @@ export class ProjectorMacApp extends Projector {
 		);
 
 		// Cleanup signature directory that may be left behind.
-		await fseRemove(pathJoin(path, name, 'Contents', '_CodeSignature'));
+		await fse.remove(pathJoin(path, name, 'Contents', '_CodeSignature'));
 	}
 
 	/**
@@ -689,7 +703,6 @@ export class ProjectorMacApp extends Projector {
 	 * @param name Save name.
 	 */
 	protected async _updateBinaryName(path: string, name: string) {
-		// tslint:disable-next-line no-this-assignment
 		const {
 			binaryName,
 			appIconNameCustom,
@@ -714,23 +727,22 @@ export class ProjectorMacApp extends Projector {
 			const binaryPathOld = this.getBinaryPath(name, executableName);
 			const binaryPathNew = this.getBinaryPath(name, binaryName);
 
-			await fseMove(
+			await fse.move(
 				pathJoin(path, binaryPathOld),
 				pathJoin(path, binaryPathNew)
 			);
-			await fseMove(
+			await fse.move(
 				pathJoin(path, rsrcPathOld),
 				pathJoin(path, rsrcPathNew)
 			);
 		}
 
-		// tslint:disable-next-line: early-exit
 		if (appIconNameCustom) {
 			const iconName = this._readInfoPlistIcon(xml);
 			const iconPathOld = this.getIconPath(name, iconName);
 			const iconPathNew = this.getIconPath(name, appIconNameCustom);
 
-			await fseMove(
+			await fse.move(
 				pathJoin(path, iconPathOld),
 				pathJoin(path, iconPathNew)
 			);
@@ -777,6 +789,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @param path Save path.
 	 * @param name Save name.
+	 * @returns File data.
 	 */
 	protected async _readInfoPlist(path: string, name: string) {
 		const file = pathJoin(path, this.getInfoPlistPath(name));
@@ -791,6 +804,7 @@ export class ProjectorMacApp extends Projector {
 	 * Read executable name from Info.plist XML.
 	 *
 	 * @param xml XML string.
+	 * @returns Field value.
 	 */
 	protected _readInfoPlistExecutable(xml: string) {
 		const tag = infoPlistRead(xml, 'CFBundleExecutable');
@@ -805,6 +819,7 @@ export class ProjectorMacApp extends Projector {
 	 * Read icon name from Info.plist XML.
 	 *
 	 * @param xml XML string.
+	 * @returns Field value.
 	 */
 	protected _readInfoPlistIcon(xml: string) {
 		const tag = infoPlistRead(xml, 'CFBundleIconFile');

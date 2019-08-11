@@ -1,3 +1,7 @@
+/* eslint import/no-extraneous-dependencies: ["error", {devDependencies: true}] */
+/* eslint-disable jsdoc/require-jsdoc */
+/* eslint-disable @typescript-eslint/promise-function-async */
+
 import fs from 'fs';
 import path from 'path';
 import stream from 'stream';
@@ -43,6 +47,32 @@ async function babelTarget(src, srcOpts, dest, modules) {
 			preset[1].modules = modules;
 		}
 	}
+	if (!modules) {
+		babelOptions.plugins.push([
+			'esm-resolver', {
+				source: {
+					extensions: [
+						[
+							['.js', '.mjs', '.jsx', '.mjsx', '.ts', '.tsx'],
+							'.mjs'
+						]
+					]
+				},
+				submodule: {
+					extensions: ['.mjs', '.js']
+				},
+				module: {
+					entry: [
+						{
+							type: 'file',
+							path: './module',
+							extensions: ['.mjs', '.js']
+						}
+					]
+				}
+			}
+		]);
+	}
 
 	// Read the package JSON.
 	const pkg = await packageJSON();
@@ -85,18 +115,7 @@ async function babelTarget(src, srcOpts, dest, modules) {
 
 async function eslint(strict) {
 	try {
-		await exec('eslint', ['.']);
-	}
-	catch (err) {
-		if (strict) {
-			throw err;
-		}
-	}
-}
-
-async function tslint(strict) {
-	try {
-		await exec('tslint', ['-p', '.', '-t', 'stylish']);
+		await exec('eslint', ['--ext', 'js,mjs,jsx,mjsx,ts,tsx', '.']);
 	}
 	catch (err) {
 		if (strict) {
@@ -135,32 +154,22 @@ gulp.task('clean', gulp.parallel([
 
 // lint (watch)
 
-gulp.task('lintw:js', async () => {
+gulp.task('lintw:es', async () => {
 	await eslint(false);
 });
 
-gulp.task('lintw:ts', async () => {
-	await tslint(false);
-});
-
 gulp.task('lintw', gulp.parallel([
-	'lintw:js',
-	'lintw:ts'
+	'lintw:es'
 ]));
 
 // lint
 
-gulp.task('lint:js', async () => {
+gulp.task('lint:es', async () => {
 	await eslint(true);
 });
 
-gulp.task('lint:ts', async () => {
-	await tslint(true);
-});
-
 gulp.task('lint', gulp.parallel([
-	'lint:js',
-	'lint:ts'
+	'lint:es'
 ]));
 
 // build

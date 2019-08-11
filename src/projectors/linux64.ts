@@ -14,14 +14,14 @@ import {
 	ProjectorLinux
 } from './linux';
 
-// tslint:disable-next-line no-empty-interface
 export interface IProjectorLinux64Options extends IProjectorLinuxOptions {
+
 	/**
 	 * Attempt to patch the projector offset reading code.
 	 * Necessary to work around broken projector logic in standalone players.
 	 * Set to true to automaticly patch the code if possible.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	patchProjectorOffset?: boolean;
 }
@@ -37,7 +37,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 * Necessary to work around broken projector logic in standalone players.
 	 * Set to true to automaticly patch the code if possible.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	public patchProjectorOffset: boolean;
 
@@ -49,6 +49,8 @@ export class ProjectorLinux64 extends ProjectorLinux {
 
 	/**
 	 * The movie appended marker.
+	 *
+	 * @returns Hex string.
 	 */
 	public get movieAppendMarker() {
 		return '563412FAFFFFFFFF';
@@ -61,7 +63,6 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 * @param name Save name.
 	 */
 	protected async _modifyPlayer(path: string, name: string) {
-		// tslint:disable-next-line no-this-assignment
 		const {patchProjectorOffset} = this;
 
 		// Skip if no patching was requested.

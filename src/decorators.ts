@@ -1,10 +1,10 @@
 /**
  * Decorate property with defaults.
  *
- * @param enumerable Is enumerable
- * @param configurable Is configurable
- * @param writable Is writable
- * @return Decorator function.
+ * @param enumerable Is enumerable.
+ * @param configurable Is configurable.
+ * @param writable Is writable.
+ * @returns Decorator function.
  */
 export function property(
 	enumerable = true,
@@ -26,10 +26,10 @@ export function property(
 /**
  * Decorate method with defaults.
  *
- * @param enumerable Is enumerable
- * @param configurable Is configurable
- * @param writable Is writable
- * @return Decorator function.
+ * @param enumerable Is enumerable.
+ * @param configurable Is configurable.
+ * @param writable Is writable.
+ * @returns Decorator function.
  */
 export function method(
 	enumerable = false,

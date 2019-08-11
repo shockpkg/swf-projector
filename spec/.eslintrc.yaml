@@ -29,6 +29,17 @@ rules:
   template-curly-spacing: off
   yield-star-spacing: off
 
+  # Import plugin:
+  import/no-extraneous-dependencies:
+  - error
+  - devDependencies: true
+
+  # JSDoc plugin:
+  jsdoc/require-jsdoc: off
+
+  # TypeScript plugin:
+  '@typescript-eslint/no-require-imports': off
+
 parserOptions:
   ecmaVersion: 5
   sourceType: script

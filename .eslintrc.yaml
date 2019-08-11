@@ -1,6 +1,14 @@
+parser: '@typescript-eslint/parser'
+
+plugins:
+- import
+- eslint-plugin-jsdoc
+- '@typescript-eslint'
+
 parserOptions:
   ecmaVersion: 9
   sourceType: module
+  project: ./tsconfig.json
 
 env:
   es6: true
@@ -13,13 +21,13 @@ rules:
   getter-return:
   - error
   - allowImplicit: true
+  no-async-promise-executor: error
   no-await-in-loop: error
   no-compare-neg-zero: error
-  no-cond-assign:
-  - error
-  - except-parens
+  no-cond-assign: error
   no-console: error
   no-constant-condition: error
+  no-control-regex: error
   no-debugger: error
   no-dupe-args: error
   no-dupe-keys: error
@@ -30,11 +38,10 @@ rules:
   no-extra-boolean-cast: error
   no-extra-semi: error
   no-func-assign: error
-  no-inner-declarations:
-  - error
-  - functions
+  no-inner-declarations: error
   no-invalid-regexp: error
   no-irregular-whitespace: error
+  no-misleading-character-class: error
   no-obj-calls: error
   no-prototype-builtins: error
   no-regex-spaces: error
@@ -48,16 +55,11 @@ rules:
   valid-typeof: error
 
   # Best Practices:
-  accessor-pairs:
-  - error
-  - getWithoutSet: true
-    setWithoutGet: true
+  accessor-pairs: error
   array-callback-return: error
   block-scoped-var: error
   consistent-return: error
-  curly:
-  - error
-  - all
+  curly: error
   default-case: error
   dot-location:
   - error
@@ -65,21 +67,22 @@ rules:
   dot-notation:
   - error
   - allowKeywords: true
-    allowPattern: ''
   eqeqeq: error
   guard-for-in: error
+  max-classes-per-file:
+  - error
+  - 1
   no-alert: error
   no-caller: error
   no-case-declarations: error
   no-div-regex: error
   no-else-return: error
-  no-empty-function: error
+  # Using @typescript-eslint/no-empty-function
+  # no-empty-function: error
   no-empty-pattern: error
   no-eq-null: error
   no-eval: error
-  no-extend-native:
-  - error
-  - exceptions: []
+  no-extend-native: error
   no-extra-bind: error
   no-extra-label: error
   no-fallthrough: error
@@ -103,12 +106,8 @@ rules:
   no-octal: error
   no-octal-escape: error
   no-proto: error
-  no-redeclare:
-  - error
-  - builtinGlobals: false
-  no-return-assign:
-  - error
-  - except-parens
+  no-redeclare: error
+  no-return-assign: error
   no-return-await: error
   no-script-url: error
   no-self-assign: error
@@ -116,35 +115,22 @@ rules:
   no-sequences: error
   no-throw-literal: error
   no-unmodified-loop-condition: error
-  no-unused-expressions:
-  - error
-  - allowShortCircuit: false
-    allowTernary: false
+  no-unused-expressions: error
   no-unused-labels: error
   no-useless-call: error
+  no-useless-catch: error
   no-useless-concat: error
   no-useless-escape: error
   no-void: error
-  no-warning-comments:
-  - warn
-  - terms:
-    - todo
-    - fixme
-    - xxx
-    location: start
+  no-warning-comments: warn
   no-with: error
-  radix:
-  - error
-  - always
-  require-await: error
+  radix: error
+  # Using @typescript-eslint/require-await
+  # require-await: error
   wrap-iife:
   - error
   - inside
-  yoda:
-  - error
-  - never
-  - exceptRange: false
-    onlyEquality: false
+  yoda: error
 
   # Strict Mode:
   strict:
@@ -152,7 +138,6 @@ rules:
   - global
 
   # Variables:
-  no-catch-shadow: error
   no-delete-var: error
   no-label-var: error
   no-shadow-restricted-names: error
@@ -161,15 +146,15 @@ rules:
   - typeof: true
   no-undef-init: error
   no-undefined: error
-  no-unused-vars:
-  - error
-  - vars: all
-    args: none
-    varsIgnorePattern: ''
-    argsIgnorePattern: ''
-  no-use-before-define:
-  - error
-  - nofunc
+  # Using @typescript-eslint/no-unused-vars
+  # no-unused-vars:
+  # - error
+  # - vars: all
+  #   args: none
+  # Using @typescript-eslint/no-use-before-define
+  # no-use-before-define:
+  # - error
+  # - nofunc
 
   # Node.js and CommonJS:
   callback-return:
@@ -177,6 +162,7 @@ rules:
   - - callback
     - cb
     - next
+    - done
   global-require: error
   handle-callback-err: error
   no-buffer-constructor: error
@@ -201,9 +187,9 @@ rules:
   - error
   - stroustrup
   - allowSingleLine: false
-  camelcase:
-  - error
-  - properties: always
+  # Using @typescript-eslint/camelcase
+  # camelcase:
+  # - error
   comma-dangle:
   - error
   - arrays: never
@@ -224,18 +210,19 @@ rules:
   eol-last:
   - error
   - unix
-  func-call-spacing:
-  - error
-  - never
+  # Using @typescript-eslint/func-call-spacing
+  # func-call-spacing:
+  # - error
   func-name-matching:
   - error
   - always
   - includeCommonJSModuleExports: false
-  indent:
-  - error
-  - tab
-  - SwitchCase: 1
-    VariableDeclarator: 1
+  # Using @typescript-eslint/indent
+  # indent:
+  # - error
+  # - tab
+  # - SwitchCase: 1
+  #   VariableDeclarator: 1
   jsx-quotes:
   - error
   - prefer-double
@@ -272,24 +259,20 @@ rules:
   - 4
   - ignoreComments: false
     ignoreUrls: true
+    ignorePattern: '^\s*(//|/\*)\s*eslint'
   max-nested-callbacks:
   - error
   - 4
   max-params:
   - error
   - 8
-  new-cap:
-  - error
-  - newIsCap: true
-    capIsNew: true
-    newIsCapExceptions: []
-    capIsNewExceptions: []
-    properties: true
+  new-cap: error
   new-parens: error
   newline-per-chained-call:
   - error
   - ignoreChainWithDepth: 2
-  no-array-constructor: error
+  # Using @typescript-eslint/no-array-constructor
+  # no-array-constructor: error
   no-bitwise: error
   no-inline-comments: error
   no-lonely-if: error
@@ -329,23 +312,24 @@ rules:
   - error
   - never
   padding-line-between-statements:
-    - error
-    - blankLine: "always"
-      prev: "directive"
-      next: "*"
+  - error
+  - blankLine: "always"
+    prev: "directive"
+    next: "*"
   quote-props:
   - error
   - as-needed
-  - keywords: true
+  - keywords: false
     unnecessary: true
     numbers: true
   quotes:
   - error
   - single
   - avoid-escape
-  semi:
-  - error
-  - always
+  # Using @typescript-eslint/semi
+  # semi:
+  # - error
+  # - always
   semi-spacing:
   - error
   - before: false
@@ -372,13 +356,6 @@ rules:
   spaced-comment:
   - error
   - always
-  - line:
-      exceptions: []
-      markers: []
-    block:
-      exceptions: []
-      markers:
-      - "!"
   switch-colon-spacing:
   - error
   - after: true
@@ -449,3 +426,146 @@ rules:
   - error
   - before: true
     after: false
+
+  # Import plugin:
+  import/no-default-export: error
+  import/no-deprecated: warn
+  import/no-duplicates: warn
+  import/no-extraneous-dependencies:
+  - error
+  - devDependencies: false
+    optionalDependencies: false
+    peerDependencies: false
+  import/no-internal-modules: error
+  import/no-unassigned-import: error
+  import/order:
+  - error
+  - groups:
+    - builtin
+    - external
+    - parent
+    - sibling
+    - index
+    newlines-between: always
+
+  # JSDoc plugin:
+  jsdoc/check-alignment: warn
+  jsdoc/check-indentation: warn
+  jsdoc/check-param-names: warn
+  jsdoc/check-syntax: warn
+  jsdoc/check-tag-names: warn
+  jsdoc/check-types: warn
+  jsdoc/implements-on-classes: warn
+  jsdoc/match-description:
+  - warn
+  - tags:
+      param: true
+      returns: true
+  jsdoc/newline-after-description: warn
+  jsdoc/no-types: warn
+  jsdoc/no-undefined-types: warn
+  jsdoc/require-description-complete-sentence:
+  - warn
+  - tags:
+    - see
+    - copyright
+  jsdoc/require-description: warn
+  jsdoc/require-jsdoc: warn
+  jsdoc/require-param-description: warn
+  jsdoc/require-param-name: warn
+  # Using TypeScript
+  # jsdoc/require-param-type: warn
+  jsdoc/require-param: warn
+  jsdoc/require-returns-check: warn
+  jsdoc/require-returns-description: warn
+  # Using TypeScript
+  # jsdoc/require-returns-type: warn
+  jsdoc/require-returns: warn
+  jsdoc/valid-types: warn
+
+  # TypeScript Simple:
+  '@typescript-eslint/adjacent-overload-signatures': error
+  '@typescript-eslint/array-type':
+  - error
+  - array
+  '@typescript-eslint/camelcase': error
+  '@typescript-eslint/class-name-casing': error
+  # '@typescript-eslint/consistent-type-assertions': error
+  '@typescript-eslint/consistent-type-definitions': error
+  '@typescript-eslint/explicit-member-accessibility':
+  - error
+  - overrides:
+      constructors: no-public
+  '@typescript-eslint/func-call-spacing': error
+  '@typescript-eslint/indent':
+  - error
+  - tab
+  - SwitchCase: 1
+    VariableDeclarator: 1
+  '@typescript-eslint/interface-name-prefix':
+  - error
+  - always
+  '@typescript-eslint/member-delimiter-style': error
+  '@typescript-eslint/member-naming':
+  - error
+  - public: '^[^_]'
+    protected: '^_[^_]'
+    private: '^__[^_]'
+  '@typescript-eslint/member-ordering':
+  - error
+  - default:
+    - public-static-field
+    - private-static-field
+    - public-instance-field
+    - private-instance-field
+    - public-constructor
+    - private-constructor
+    - public-instance-method
+    - protected-instance-method
+    - private-instance-method
+  '@typescript-eslint/no-array-constructor': error
+  '@typescript-eslint/no-empty-function': error
+  '@typescript-eslint/no-empty-interface': error
+  '@typescript-eslint/no-for-in-array': error
+  '@typescript-eslint/no-misused-new': error
+  '@typescript-eslint/no-namespace': error
+  '@typescript-eslint/no-parameter-properties': error
+  '@typescript-eslint/no-require-imports': error
+  '@typescript-eslint/no-this-alias':
+  - error
+  - allowDestructuring: true
+  '@typescript-eslint/no-unused-vars':
+  - error
+  - vars: all
+    args: none
+  '@typescript-eslint/no-use-before-define':
+  - error
+  - nofunc
+  '@typescript-eslint/no-var-requires': error
+  '@typescript-eslint/prefer-for-of': error
+  '@typescript-eslint/prefer-function-type': error
+  '@typescript-eslint/prefer-namespace-keyword': error
+  '@typescript-eslint/semi':
+  - error
+  - always
+  '@typescript-eslint/type-annotation-spacing':
+  - error
+  - before: false
+    after: true
+    overrides:
+      arrow:
+        before: true
+  '@typescript-eslint/unified-signatures': error
+
+  # TypeScript Project:
+  '@typescript-eslint/await-thenable': error
+  '@typescript-eslint/no-floating-promises': error
+  '@typescript-eslint/no-unnecessary-qualifier': error
+  '@typescript-eslint/no-unnecessary-type-assertion': error
+  '@typescript-eslint/prefer-includes': error
+  '@typescript-eslint/prefer-readonly': error
+  '@typescript-eslint/prefer-string-starts-ends-with': error
+  '@typescript-eslint/promise-function-async': error
+  # '@typescript-eslint/require-await': error
+  '@typescript-eslint/restrict-plus-operands': error
+  '@typescript-eslint/unbound-method': error

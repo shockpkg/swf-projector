@@ -12,6 +12,8 @@
 	],
 	"main": "lib/index",
 	"types": "lib/index.d.ts",
+	"module": "module.mjs",
+	"sideEffects": false,
 	"engines": {
 		"node": ">=10.0.0"
 	},
@@ -45,8 +47,13 @@
 		"@types/jasmine": "^3.4.0",
 		"@types/node": "^12.7.1",
 		"@types/sax": "^1.2.0",
+		"@typescript-eslint/eslint-plugin": "^1.13.0",
+		"@typescript-eslint/parser": "^1.13.0",
+		"babel-plugin-esm-resolver": "^2.1.0",
 		"del": "^5.0.0",
 		"eslint": "^6.1.0",
+		"eslint-plugin-import": "^2.18.2",
+		"eslint-plugin-jsdoc": "^15.8.0",
 		"execa": "^2.0.3",
 		"gulp": "^4.0.2",
 		"gulp-babel": "^8.0.0",
@@ -60,9 +67,6 @@
 		"jasmine-spec-reporter": "^4.2.1",
 		"nodemon": "^1.19.1",
 		"source-map-support": "^0.5.13",
-		"tslint": "^5.18.0",
-		"tslint-consistent-codestyle": "^1.15.1",
-		"tslint-eslint-rules": "^5.4.0",
 		"typescript": "^3.5.3"
 	},
 	"dependencies": {

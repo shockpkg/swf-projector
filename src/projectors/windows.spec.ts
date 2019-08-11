@@ -1,4 +1,4 @@
-// tslint:disable:completed-docs
+/* eslint-env jasmine */
 
 import {
 	cleanProjectorDir,
@@ -12,7 +12,6 @@ import {
 	ProjectorWindows
 } from './windows';
 
-// tslint:disable-next-line no-empty-interface
 interface ISample {
 	zlib?: boolean;
 	lzma?: boolean;
@@ -193,7 +192,6 @@ describe('projectors/windows', () => {
 					});
 				}
 
-				// tslint:disable-next-line: early-exit
 				if (platformIsWindows) {
 					it('rcedit', async () => {
 						const dir = await getDir('rcedit');

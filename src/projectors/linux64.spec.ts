@@ -1,4 +1,4 @@
-// tslint:disable:completed-docs
+/* eslint-env jasmine */
 
 import {
 	cleanProjectorDir,
@@ -11,7 +11,7 @@ import {
 	ProjectorLinux64
 } from './linux64';
 
-// tslint:disable-next-line no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 interface ISample {
 }
 

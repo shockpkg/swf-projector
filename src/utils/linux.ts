@@ -1,13 +1,10 @@
-import {
-	readFile as fseReadFile,
-	writeFile as fseWriteFile
-} from 'fs-extra';
+import fse from 'fs-extra';
 
 /**
  * Converts a hex string into a series of byte values, with unknowns being null.
  *
- * @param str Hex string
- * @return Bytes and null values.
+ * @param str Hex string.
+ * @returns Bytes and null values.
  */
 function patchHexToBytes(str: string) {
 	return (str.replace(/[\s\r\n]/g, '').match(/.{1,2}/g) || []).map(s => {
@@ -18,6 +15,9 @@ function patchHexToBytes(str: string) {
 	});
 }
 
+/* eslint-disable no-multi-spaces */
+/* eslint-disable line-comment-position */
+/* eslint-disable no-inline-comments */
 // A list of patch candidates, made to be partially position independant.
 // So long as the ASM does not change, these can be applited to future versions.
 // Essentially these replace the bad ELF header reading logic with new logic.
@@ -200,6 +200,9 @@ const linux64PatchProjectorOffsetPatches = [
 		].join(' '))
 	}
 ];
+/* eslint-enable no-multi-spaces */
+/* eslint-enable line-comment-position */
+/* eslint-enable no-inline-comments */
 
 /**
  * Attempt to patch Linux 64-bit projector offset code.
@@ -208,7 +211,7 @@ const linux64PatchProjectorOffsetPatches = [
  */
 export async function linux64PatchProjectorOffset(file: string) {
 	// Read projector into buffer.
-	const data = await fseReadFile(file);
+	const data = await fse.readFile(file);
 
 	// Search the buffer for patch candidates.
 	let foundOffset = -1;
@@ -254,5 +257,5 @@ export async function linux64PatchProjectorOffset(file: string) {
 			data[foundOffset + i] = b;
 		}
 	}
-	await fseWriteFile(file, data);
+	await fse.writeFile(file, data);
 }

@@ -1,23 +1,21 @@
 import {
+	join as pathJoin
+} from 'path';
+
+import {
 	fsChmod,
 	fsUtimes,
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
-import {
-	copyFile as fseCopyFile,
-	stat as fseStat
-} from 'fs-extra';
-import {
-	join as pathJoin
-} from 'path';
+import fse from 'fs-extra';
 
 import {
 	IProjectorOptions,
 	Projector
 } from '../projector';
 
-// tslint:disable-next-line no-empty-interface
+// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IProjectorLinuxOptions extends IProjectorOptions {
 }
 
@@ -33,6 +31,8 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Projector file extension.
+	 *
+	 * @returns File extension.
 	 */
 	public get projectorExtension() {
 		return '';
@@ -41,7 +41,7 @@ export class ProjectorLinux extends Projector {
 	/**
 	 * Get projector archive names, case insensitive.
 	 *
-	 * @return List of names known to be used in projectors.
+	 * @returns List of names known to be used in projectors.
 	 */
 	public getProjectorArchiveNames() {
 		return [
@@ -59,7 +59,7 @@ export class ProjectorLinux extends Projector {
 	 */
 	protected async _writePlayer(path: string, name: string) {
 		const player = this.getPlayerPath();
-		const stat = await fseStat(player);
+		const stat = await fse.stat(player);
 		const isDirectory = stat.isDirectory();
 
 		// Try reading as archive, fall back on assuming Linux binary.
@@ -88,13 +88,13 @@ export class ProjectorLinux extends Projector {
 	 */
 	protected async _writePlayerFile(path: string, name: string) {
 		const player = this.getPlayerPath();
-		const stat = await fseStat(player);
+		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
 			throw new Error(`Path is not file: ${player}`);
 		}
 
 		const playerOut = pathJoin(path, name);
-		await fseCopyFile(player, playerOut);
+		await fse.copyFile(player, playerOut);
 		await fsChmod(playerOut, modePermissionBits(stat.mode));
 		await fsUtimes(playerOut, stat.atime, stat.mtime);
 	}
@@ -128,8 +128,8 @@ export class ProjectorLinux extends Projector {
 			} = entry;
 
 			// The file should be user executable, assuming mode is available.
-			// tslint:disable-next-line: no-bitwise
-			const userExec = mode !== null ? !!(mode & 0b001000000) : null;
+			// eslint-disable-next-line no-bitwise
+			const userExec = mode === null ? null : !!(mode & 0b001000000);
 			if (userExec === false) {
 				return;
 			}

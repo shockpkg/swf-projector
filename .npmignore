@@ -13,8 +13,8 @@ node_modules
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+report.*.json
 *.tgz
-
 yarn.lock
 
 /package-lock.json
@@ -26,9 +26,7 @@ yarn.lock
 /.eslintrc.yaml
 /.tern-project
 /.travis.yml
-/package-scripts.yml
 /tsconfig.json
-/tslint.yaml
 /gulpfile.babel.js
 /nodemon.json
 /spec

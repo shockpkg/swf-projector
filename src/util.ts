@@ -1,31 +1,32 @@
 import {
-	Entry,
-	PathType
-} from '@shockpkg/archive-files';
-import {
 	spawn as childProcessSpawn,
 	SpawnOptions,
 	SpawnOptionsWithoutStdio
 } from 'child_process';
+
 import {
-	decodeXML,
-	encodeXML
-} from 'entities';
-import {
-	parser as saxParser
-} from 'sax';
+	Entry,
+	PathType
+} from '@shockpkg/archive-files';
+import * as entities from 'entities';
+import sax from 'sax';
+
+// Handle module loader differences between CJS and ESM.
+const decodeXML = entities.decodeXML || (entities as any).default.decodeXML;
+const encodeXML = entities.encodeXML || (entities as any).default.encodeXML;
 
 /**
  * Default value if value is undefined.
  *
  * @param value Value.
  * @param defaultValue Default value.
- * @return Value or the default value if undefined.
+ * @returns Value or the default value if undefined.
  */
 export function defaultValue<T, U>(
 	value: T,
 	defaultValue: U
 ): Exclude<T | U, undefined> {
+	// eslint-disable-next-line no-undefined
 	return value === undefined ? defaultValue : (value as any);
 }
 
@@ -33,7 +34,7 @@ export function defaultValue<T, U>(
  * Default null if value is undefined.
  *
  * @param value Value.
- * @return Value or null if undefined.
+ * @returns Value or null if undefined.
  */
 export function defaultNull<T>(value: T) {
 	return defaultValue(value, null);
@@ -43,7 +44,7 @@ export function defaultNull<T>(value: T) {
  * Default false if value is undefined.
  *
  * @param value Value.
- * @return Value or false if undefined.
+ * @returns Value or false if undefined.
  */
 export function defaultFalse<T>(value: T) {
 	return defaultValue(value, false);
@@ -53,7 +54,7 @@ export function defaultFalse<T>(value: T) {
  * Default true if value is undefined.
  *
  * @param value Value.
- * @return Value or true if undefined.
+ * @returns Value or true if undefined.
  */
 export function defaultTrue<T>(value: T) {
 	return defaultValue(value, true);
@@ -63,7 +64,7 @@ export function defaultTrue<T>(value: T) {
  * Check if Archive Entry is empty resource fork.
  *
  * @param entry Archive Entry.
- * @return Is empty resource fork.
+ * @returns Is empty resource fork.
  */
 export function entryIsEmptyResourceFork(entry: Entry) {
 	return entry.type === PathType.RESOURCE_FORK && !entry.size;
@@ -75,7 +76,7 @@ export function entryIsEmptyResourceFork(entry: Entry) {
  * @param path Path to match against.
  * @param start Search start.
  * @param nocase Match case-insensitive.
- * @return Returns path, or null.
+ * @returns Returns path, or null.
  */
 export function pathRelativeBase(
 	path: string,
@@ -99,7 +100,7 @@ export function pathRelativeBase(
  * @param path Path to match against.
  * @param start Search start.
  * @param nocase Match case-insensitive.
- * @return Returns true on match, else false.
+ * @returns Returns true on match, else false.
  */
 export function pathRelativeBaseMatch(
 	path: string,
@@ -123,7 +124,7 @@ export function pathRelativeBaseMatch(
  * @param path File path.
  * @param ext File extension.
  * @param nocase Match case-insensitive.
- * @return Path without file extension.
+ * @returns Path without file extension.
  */
 export function trimExtension(
 	path: string,
@@ -139,7 +140,7 @@ export function trimExtension(
  * Encode string for XML.
  *
  * @param value String value.
- * @return Escaped string.
+ * @returns Escaped string.
  */
 export function xmlEntitiesEncode(value: string) {
 	return encodeXML(value);
@@ -149,7 +150,7 @@ export function xmlEntitiesEncode(value: string) {
  * Decode string for XML.
  *
  * @param value Encoded value.
- * @return Decoded string.
+ * @returns Decoded string.
  */
 export function xmlEntitiesDecode(value: string) {
 	return decodeXML(value);
@@ -159,7 +160,7 @@ export function xmlEntitiesDecode(value: string) {
  * Encode string into plist string tag.
  *
  * @param value String value.
- * @return Plist string.
+ * @returns Plist string.
  */
 export function plistStringTagEncode(value: string) {
 	return `<string>${xmlEntitiesEncode(value)}</string>`;
@@ -169,7 +170,7 @@ export function plistStringTagEncode(value: string) {
  * Decode string from plist string tag.
  *
  * @param xml XML tag.
- * @return Plain string, or null.
+ * @returns Plain string, or null.
  */
 export function plistStringTagDecode(xml: string) {
 	const start = '<string>';
@@ -186,7 +187,7 @@ export function plistStringTagDecode(xml: string) {
  *
  * @param xml XML string.
  * @param key Plist dict key.
- * @return Found indexes or null.
+ * @returns Found indexes or null.
  */
 function infoPlistFind(
 	xml: string,
@@ -195,12 +196,12 @@ function infoPlistFind(
 	let replaceTagStart = -1;
 	let replaceTagEnd = -1;
 
-	const parser = saxParser(true, {});
+	const parser = sax.parser(true, {});
 
 	// Get the tag path in a consistent way.
 	const tagPath = () => {
 		const tags = [...(parser as any).tags];
-		const tag = (parser as any).tag;
+		const {tag} = (parser as any);
 		if (tag && tags[tags.length - 1] !== tag) {
 			tags.push(tag);
 		}
@@ -222,14 +223,17 @@ function infoPlistFind(
 	let keyTag = false;
 	let nextTag = false;
 
+	// eslint-disable-next-line @typescript-eslint/unbound-method
 	parser.onerror = err => {
 		throw err;
 	};
+	// eslint-disable-next-line @typescript-eslint/unbound-method
 	parser.ontext = text => {
 		if (keyTag && text === key) {
 			nextTag = true;
 		}
 	};
+	// eslint-disable-next-line @typescript-eslint/unbound-method
 	parser.onopentag = node => {
 		const tag = dictTag();
 		if (!tag) {
@@ -247,6 +251,7 @@ function infoPlistFind(
 			replaceTagStart = parser.startTagPosition - 1;
 		}
 	};
+	// eslint-disable-next-line @typescript-eslint/unbound-method
 	parser.onclosetag = node => {
 		const tag = dictTag();
 		if (!tag) {
@@ -279,7 +284,7 @@ function infoPlistFind(
  * @param xml XML string.
  * @param key Plist dict key.
  * @param value Plist dict value, XML tag.
- * @return Updated document.
+ * @returns Updated document.
  */
 export function infoPlistReplace(
 	xml: string,
@@ -301,7 +306,7 @@ export function infoPlistReplace(
  *
  * @param xml XML string.
  * @param key Plist dict key.
- * @return XML tag.
+ * @returns XML tag.
  */
 export function infoPlistRead(
 	xml: string,
@@ -317,7 +322,7 @@ export function infoPlistRead(
  * @param command Command path.
  * @param args Argument list.
  * @param options Options object.
- * @return Info object.
+ * @returns Info object.
  */
 export function spawn(
 	command: string,

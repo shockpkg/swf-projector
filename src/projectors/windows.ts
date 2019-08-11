@@ -1,16 +1,14 @@
 import {
+	join as pathJoin
+} from 'path';
+
+import {
 	fsChmod,
 	fsUtimes,
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
-import {
-	copyFile as fseCopyFile,
-	stat as fseStat
-} from 'fs-extra';
-import {
-	join as pathJoin
-} from 'path';
+import fse from 'fs-extra';
 
 import {
 	IProjectorOptions,
@@ -28,38 +26,39 @@ import {
 } from '../utils/windows';
 
 export interface IProjectorWindowsOptions extends IProjectorOptions {
+
 	/**
 	 * Icon file, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	iconFile?: string | null;
 
 	/**
 	 * Version strings, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	fileVersion?: string | null;
 
 	/**
 	 * Product version, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	productVersion?: string | null;
 
 	/**
 	 * Version strings, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	versionStrings?: IRceditOptionsVersionStrings | null;
 
 	/**
 	 * Remove the code signature.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	removeCodeSignature?: boolean;
 }
@@ -73,35 +72,35 @@ export class ProjectorWindows extends Projector {
 	/**
 	 * Icon file, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public iconFile: string | null;
 
 	/**
 	 * Version strings, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public fileVersion: string | null;
 
 	/**
 	 * Product version, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public productVersion: string | null;
 
 	/**
 	 * Version strings, requires Windows or Wine.
 	 *
-	 * @defaultValue null
+	 * @default null
 	 */
 	public versionStrings: IRceditOptionsVersionStrings | null;
 
 	/**
 	 * Remove the code signature.
 	 *
-	 * @defaultValue false
+	 * @default false
 	 */
 	public removeCodeSignature: boolean;
 
@@ -117,6 +116,8 @@ export class ProjectorWindows extends Projector {
 
 	/**
 	 * Projector file extension.
+	 *
+	 * @returns File extension.
 	 */
 	public get projectorExtension() {
 		return '.exe';
@@ -130,7 +131,7 @@ export class ProjectorWindows extends Projector {
 	 */
 	protected async _writePlayer(path: string, name: string) {
 		const player = this.getPlayerPath();
-		const stat = await fseStat(player);
+		const stat = await fse.stat(player);
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
 
 		if (
@@ -152,13 +153,13 @@ export class ProjectorWindows extends Projector {
 	 */
 	protected async _writePlayerFile(path: string, name: string) {
 		const player = this.getPlayerPath();
-		const stat = await fseStat(player);
+		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
 			throw new Error(`Path is not file: ${player}`);
 		}
 
 		const playerOut = pathJoin(path, name);
-		await fseCopyFile(player, playerOut);
+		await fse.copyFile(player, playerOut);
 		await fsChmod(playerOut, modePermissionBits(stat.mode));
 		await fsUtimes(playerOut, stat.atime, stat.mtime);
 	}
@@ -248,7 +249,6 @@ export class ProjectorWindows extends Projector {
 	 * @param name Save name.
 	 */
 	protected async _updateResources(path: string, name: string) {
-		// tslint:disable-next-line no-this-assignment
 		const {
 			iconFile,
 			fileVersion,

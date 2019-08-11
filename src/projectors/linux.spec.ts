@@ -1,4 +1,4 @@
-// tslint:disable:completed-docs
+/* eslint-env jasmine */
 
 import {
 	cleanProjectorDir,
@@ -85,7 +85,7 @@ describe('projectors/linux', () => {
 					const dir = await getDir('simple');
 					await (new ProjectorLinux({
 						player: await getPlayer(),
-						movieFile: fixtureFile('swf3.swf'),
+						movieFile: fixtureFile('swf3.swf')
 					})).write(dir, 'application');
 				});
 
@@ -93,17 +93,16 @@ describe('projectors/linux', () => {
 					const dir = await getDir('zlib');
 					await (new ProjectorLinux({
 						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-zlib.swf'),
+						movieFile: fixtureFile('swf6-zlib.swf')
 					})).write(dir, 'application');
 				});
 
-				// tslint:disable-next-line: early-exit
 				if (o.lzma) {
 					it('lzma', async () => {
 						const dir = await getDir('lzma');
 						await (new ProjectorLinux({
 							player: await getPlayer(),
-							movieFile: fixtureFile('swf14-lzma.swf'),
+							movieFile: fixtureFile('swf14-lzma.swf')
 						})).write(dir, 'application');
 					});
 				}
