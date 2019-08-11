@@ -327,6 +327,8 @@ export abstract class Projector extends Object {
 
 	/**
 	 * Projector file extension.
+	 *
+	 * @returns File extension.
 	 */
 	public abstract get projectorExtension(): string;
 
