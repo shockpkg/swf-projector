@@ -16,6 +16,7 @@ import gulpSourcemaps from 'gulp-sourcemaps';
 import gulpBabel from 'gulp-babel';
 import execa from 'execa';
 import del from 'del';
+import {Manager} from '@shockpkg/core'
 
 const readFile = util.promisify(fs.readFile);
 const pipeline = util.promisify(stream.pipeline);
@@ -379,10 +380,34 @@ gulp.task('shockpkg-install-ci', async () => {
 	]);
 });
 
-gulp.task('shockpkg-install-full', async () => {
-	await exec('shockpkg', ['update']);
+async function installFull(list) {
 	await exec('shockpkg', [
 		'install-full',
+		...list
+	]);
+	const keep = new Set(list);
+	const remove = new Set();
+	const manager = new Manager();
+	await manager.with(async manager => {
+		for (const entry of list) {
+			const pkg = manager.packageByUnique(entry);
+			for (let p = pkg.parent; p; p = p.parent) {
+				if (keep.has(p.name) || keep.has(p.sha256)) {
+					continue;
+				}
+				remove.add(p.name);
+			}
+		}
+	});
+	await exec('shockpkg', [
+		'remove',
+		...remove
+	]);
+}
+
+gulp.task('shockpkg-install-full', async () => {
+	await exec('shockpkg', ['update']);
+	await installFull([
 		...shockpkgWin,
 		...shockpkgMac,
 		...shockpkgLin
@@ -391,8 +416,7 @@ gulp.task('shockpkg-install-full', async () => {
 
 gulp.task('shockpkg-install-full-ci', async () => {
 	await exec('shockpkg', ['update']);
-	await exec('shockpkg', [
-		'install-full',
+	await installFull([
 		...shockpkgWin,
 		...(platformIsMac ? shockpkgMac : []),
 		...shockpkgLin
