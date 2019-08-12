@@ -19,6 +19,7 @@
 	},
 	"scripts": {
 		"shockpkg-install": "gulp shockpkg-install",
+		"shockpkg-install-ci": "gulp shockpkg-install-ci",
 		"clean": "gulp clean",
 		"lint": "gulp lint",
 		"build": "gulp build",
