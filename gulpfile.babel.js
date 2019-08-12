@@ -20,7 +20,138 @@ import del from 'del';
 const readFile = util.promisify(fs.readFile);
 const pipeline = util.promisify(stream.pipeline);
 
-export const platformIsMac = process.platform === 'darwin';
+const platformIsMac = process.platform === 'darwin';
+const shockpkgWin = [
+	'flash-player-3.0.8.0-windows-32bit-sa',
+	'flash-player-4.0.7.0-windows-sa',
+	'flash-player-5.0.30.0-windows-sa',
+	'flash-player-5.0.30.0-windows-sa-debug',
+	'flash-player-6.0.21.0-windows-sa',
+	'flash-player-6.0.79.0-windows-sa',
+	'flash-player-7.0.14.0-windows-sa',
+	'flash-player-7.0.19.0-windows-sa',
+	'flash-player-8.0.22.0-windows-sa',
+	'flash-player-8.0.42.0-windows-sa',
+	'flash-player-9.0.15.0-windows-sa-debug',
+	'flash-player-9.0.115.0-windows-sa',
+	'flash-player-9.0.280.0-windows-sa',
+	'flash-player-9.0.289.0-windows-sa',
+	'flash-player-10.0.12.36-windows-sa',
+	'flash-player-10.0.45.2-windows-sa',
+	'flash-player-10.3.183.90-windows-sa',
+	'flash-player-11.1.102.55-windows-32bit-sa',
+	'flash-player-32.0.0.223-windows-sa',
+	'flash-player-32.0.0.223-windows-sa-debug'
+];
+const shockpkgMac = [
+	'flash-player-9.0.28.0-mac-sa-debug',
+	'flash-player-9.0.45.0-mac-sa-debug',
+	'flash-player-9.0.115.0-mac-sa',
+	'flash-player-9.0.115.0-mac-sa-debug',
+	'flash-player-9.0.280.0-mac-sa',
+	'flash-player-9.0.289.0-mac-sa',
+	'flash-player-10.0.12.36-mac-sa',
+	'flash-player-10.0.45.2-mac-sa-debug',
+	'flash-player-10.1.53.64-mac-sa',
+	'flash-player-10.1.102.64-mac-sa',
+	'flash-player-10.2.152.26-mac-sa',
+	'flash-player-10.2.153.1-mac-sa',
+	'flash-player-10.2.159.1-mac-sa',
+	'flash-player-10.3.181.14-mac-sa',
+	'flash-player-10.3.183.90-mac-sa',
+	'flash-player-11.0.1.152-mac-sa',
+	'flash-player-11.1.102.55-mac-sa',
+	'flash-player-15.0.0.152-mac-sa-debug',
+	'flash-player-15.0.0.189-mac-sa-debug',
+	'flash-player-32.0.0.223-mac-sa',
+	'flash-player-32.0.0.223-mac-sa-debug'
+];
+const shockpkgLin = [
+	'flash-player-6.0.79.0-linux-sa',
+	'flash-player-9.0.115.0-linux-sa',
+	'flash-player-9.0.115.0-linux-sa-debug',
+	'flash-player-9.0.280.0-linux-sa',
+	'flash-player-9.0.289.0-linux-sa',
+	'flash-player-10.0.12.36-linux-sa',
+	'flash-player-10.3.183.90-linux-sa',
+	'flash-player-11.0.1.152-linux-i386-sa',
+	'flash-player-11.0.1.152-linux-i386-sa-debug',
+	'flash-player-11.1.102.55-linux-i386-sa',
+	'flash-player-11.2.202.644-linux-i386-sa',
+	'flash-player-11.2.202.644-linux-i386-sa-debug',
+	'flash-player-24.0.0.186-linux-x86_64-sa',
+	'flash-player-24.0.0.186-linux-x86_64-sa-debug',
+	'flash-player-24.0.0.194-linux-x86_64-sa',
+	'flash-player-24.0.0.194-linux-x86_64-sa-debug',
+	'flash-player-24.0.0.221-linux-x86_64-sa',
+	'flash-player-24.0.0.221-linux-x86_64-sa-debug',
+	'flash-player-25.0.0.127-linux-x86_64-sa',
+	'flash-player-25.0.0.127-linux-x86_64-sa-debug',
+	'flash-player-25.0.0.148-linux-x86_64-sa',
+	'flash-player-25.0.0.148-linux-x86_64-sa-debug',
+	'flash-player-25.0.0.171-linux-x86_64-sa',
+	'flash-player-25.0.0.171-linux-x86_64-sa-debug',
+	'flash-player-26.0.0.126-linux-x86_64-sa',
+	'flash-player-26.0.0.126-linux-x86_64-sa-debug',
+	'flash-player-26.0.0.131-linux-x86_64-sa',
+	'flash-player-26.0.0.131-linux-x86_64-sa-debug',
+	'flash-player-26.0.0.137-linux-x86_64-sa',
+	'flash-player-26.0.0.137-linux-x86_64-sa-debug',
+	'flash-player-26.0.0.151-linux-x86_64-sa',
+	'flash-player-26.0.0.151-linux-x86_64-sa-debug',
+	'flash-player-27.0.0.130-linux-x86_64-sa',
+	'flash-player-27.0.0.130-linux-x86_64-sa-debug',
+	'flash-player-27.0.0.159-linux-x86_64-sa',
+	'flash-player-27.0.0.159-linux-x86_64-sa-debug',
+	'flash-player-27.0.0.170-linux-x86_64-sa',
+	'flash-player-27.0.0.170-linux-x86_64-sa-debug',
+	'flash-player-27.0.0.183-linux-x86_64-sa',
+	'flash-player-27.0.0.183-linux-x86_64-sa-debug',
+	'flash-player-27.0.0.187-linux-x86_64-sa',
+	'flash-player-27.0.0.187-linux-x86_64-sa-debug',
+	'flash-player-28.0.0.126-linux-x86_64-sa',
+	'flash-player-28.0.0.126-linux-x86_64-sa-debug',
+	'flash-player-28.0.0.137-linux-x86_64-sa',
+	'flash-player-28.0.0.137-linux-x86_64-sa-debug',
+	'flash-player-28.0.0.161-linux-x86_64-sa',
+	'flash-player-28.0.0.161-linux-x86_64-sa-debug',
+	'flash-player-29.0.0.113-linux-x86_64-sa',
+	'flash-player-29.0.0.113-linux-x86_64-sa-debug',
+	'flash-player-29.0.0.140-linux-x86_64-sa',
+	'flash-player-29.0.0.140-linux-x86_64-sa-debug',
+	'flash-player-29.0.0.171-linux-x86_64-sa',
+	'flash-player-29.0.0.171-linux-x86_64-sa-debug',
+	'flash-player-30.0.0.113-linux-x86_64-sa',
+	'flash-player-30.0.0.113-linux-x86_64-sa-debug',
+	'flash-player-30.0.0.134-linux-x86_64-sa',
+	'flash-player-30.0.0.134-linux-x86_64-sa-debug',
+	'flash-player-30.0.0.154-linux-x86_64-sa',
+	'flash-player-30.0.0.154-linux-x86_64-sa-debug',
+	'flash-player-31.0.0.108-linux-x86_64-sa',
+	'flash-player-31.0.0.108-linux-x86_64-sa-debug',
+	'flash-player-31.0.0.122-linux-x86_64-sa',
+	'flash-player-31.0.0.122-linux-x86_64-sa-debug',
+	'flash-player-31.0.0.148-linux-x86_64-sa',
+	'flash-player-31.0.0.148-linux-x86_64-sa-debug',
+	'flash-player-31.0.0.153-linux-x86_64-sa',
+	'flash-player-31.0.0.153-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.101-linux-x86_64-sa',
+	'flash-player-32.0.0.101-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.114-linux-x86_64-sa',
+	'flash-player-32.0.0.114-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.142-linux-x86_64-sa',
+	'flash-player-32.0.0.142-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.156-linux-x86_64-sa',
+	'flash-player-32.0.0.156-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.171-linux-x86_64-sa',
+	'flash-player-32.0.0.171-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.192-linux-x86_64-sa',
+	'flash-player-32.0.0.192-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.207-linux-x86_64-sa',
+	'flash-player-32.0.0.207-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.223-linux-x86_64-sa',
+	'flash-player-32.0.0.223-linux-x86_64-sa-debug'
+];
 
 async function exec(cmd, args = []) {
 	await execa(cmd, args, {
@@ -228,166 +359,45 @@ gulp.task('watched', gulp.series([
 
 // shockpkg-install
 
-gulp.task('shockpkg-install:update', async () => {
+gulp.task('shockpkg-install', async () => {
 	await exec('shockpkg', ['update']);
-});
-
-gulp.task('shockpkg-install:install-win', async () => {
 	await exec('shockpkg', [
 		'install',
-		'flash-player-3.0.8.0-windows-32bit-sa',
-		'flash-player-4.0.7.0-windows-sa',
-		'flash-player-5.0.30.0-windows-sa',
-		'flash-player-5.0.30.0-windows-sa-debug',
-		'flash-player-6.0.21.0-windows-sa',
-		'flash-player-6.0.79.0-windows-sa',
-		'flash-player-7.0.14.0-windows-sa',
-		'flash-player-7.0.19.0-windows-sa',
-		'flash-player-8.0.22.0-windows-sa',
-		'flash-player-8.0.42.0-windows-sa',
-		'flash-player-9.0.15.0-windows-sa-debug',
-		'flash-player-9.0.115.0-windows-sa',
-		'flash-player-9.0.280.0-windows-sa',
-		'flash-player-9.0.289.0-windows-sa',
-		'flash-player-10.0.12.36-windows-sa',
-		'flash-player-10.0.45.2-windows-sa',
-		'flash-player-10.3.183.90-windows-sa',
-		'flash-player-11.1.102.55-windows-32bit-sa',
-		'flash-player-32.0.0.223-windows-sa',
-		'flash-player-32.0.0.223-windows-sa-debug'
+		...shockpkgWin,
+		...shockpkgMac,
+		...shockpkgLin
 	]);
 });
 
-gulp.task('shockpkg-install:install-mac', async () => {
+gulp.task('shockpkg-install-ci', async () => {
+	await exec('shockpkg', ['update']);
 	await exec('shockpkg', [
 		'install',
-		'flash-player-9.0.28.0-mac-sa-debug',
-		'flash-player-9.0.45.0-mac-sa-debug',
-		'flash-player-9.0.115.0-mac-sa',
-		'flash-player-9.0.115.0-mac-sa-debug',
-		'flash-player-9.0.280.0-mac-sa',
-		'flash-player-9.0.289.0-mac-sa',
-		'flash-player-10.0.12.36-mac-sa',
-		'flash-player-10.0.45.2-mac-sa-debug',
-		'flash-player-10.1.53.64-mac-sa',
-		'flash-player-10.1.102.64-mac-sa',
-		'flash-player-10.2.152.26-mac-sa',
-		'flash-player-10.2.153.1-mac-sa',
-		'flash-player-10.2.159.1-mac-sa',
-		'flash-player-10.3.181.14-mac-sa',
-		'flash-player-10.3.183.90-mac-sa',
-		'flash-player-11.0.1.152-mac-sa',
-		'flash-player-11.1.102.55-mac-sa',
-		'flash-player-15.0.0.152-mac-sa-debug',
-		'flash-player-15.0.0.189-mac-sa-debug',
-		'flash-player-32.0.0.223-mac-sa',
-		'flash-player-32.0.0.223-mac-sa-debug'
+		...shockpkgWin,
+		...(platformIsMac ? shockpkgMac : []),
+		...shockpkgLin
 	]);
 });
 
-gulp.task('shockpkg-install:install-lin', async () => {
+gulp.task('shockpkg-install-full', async () => {
+	await exec('shockpkg', ['update']);
 	await exec('shockpkg', [
-		'install',
-		'flash-player-6.0.79.0-linux-sa',
-		'flash-player-9.0.115.0-linux-sa',
-		'flash-player-9.0.115.0-linux-sa-debug',
-		'flash-player-9.0.280.0-linux-sa',
-		'flash-player-9.0.289.0-linux-sa',
-		'flash-player-10.0.12.36-linux-sa',
-		'flash-player-10.3.183.90-linux-sa',
-		'flash-player-11.0.1.152-linux-i386-sa',
-		'flash-player-11.0.1.152-linux-i386-sa-debug',
-		'flash-player-11.1.102.55-linux-i386-sa',
-		'flash-player-11.2.202.644-linux-i386-sa',
-		'flash-player-11.2.202.644-linux-i386-sa-debug',
-		'flash-player-24.0.0.186-linux-x86_64-sa',
-		'flash-player-24.0.0.186-linux-x86_64-sa-debug',
-		'flash-player-24.0.0.194-linux-x86_64-sa',
-		'flash-player-24.0.0.194-linux-x86_64-sa-debug',
-		'flash-player-24.0.0.221-linux-x86_64-sa',
-		'flash-player-24.0.0.221-linux-x86_64-sa-debug',
-		'flash-player-25.0.0.127-linux-x86_64-sa',
-		'flash-player-25.0.0.127-linux-x86_64-sa-debug',
-		'flash-player-25.0.0.148-linux-x86_64-sa',
-		'flash-player-25.0.0.148-linux-x86_64-sa-debug',
-		'flash-player-25.0.0.171-linux-x86_64-sa',
-		'flash-player-25.0.0.171-linux-x86_64-sa-debug',
-		'flash-player-26.0.0.126-linux-x86_64-sa',
-		'flash-player-26.0.0.126-linux-x86_64-sa-debug',
-		'flash-player-26.0.0.131-linux-x86_64-sa',
-		'flash-player-26.0.0.131-linux-x86_64-sa-debug',
-		'flash-player-26.0.0.137-linux-x86_64-sa',
-		'flash-player-26.0.0.137-linux-x86_64-sa-debug',
-		'flash-player-26.0.0.151-linux-x86_64-sa',
-		'flash-player-26.0.0.151-linux-x86_64-sa-debug',
-		'flash-player-27.0.0.130-linux-x86_64-sa',
-		'flash-player-27.0.0.130-linux-x86_64-sa-debug',
-		'flash-player-27.0.0.159-linux-x86_64-sa',
-		'flash-player-27.0.0.159-linux-x86_64-sa-debug',
-		'flash-player-27.0.0.170-linux-x86_64-sa',
-		'flash-player-27.0.0.170-linux-x86_64-sa-debug',
-		'flash-player-27.0.0.183-linux-x86_64-sa',
-		'flash-player-27.0.0.183-linux-x86_64-sa-debug',
-		'flash-player-27.0.0.187-linux-x86_64-sa',
-		'flash-player-27.0.0.187-linux-x86_64-sa-debug',
-		'flash-player-28.0.0.126-linux-x86_64-sa',
-		'flash-player-28.0.0.126-linux-x86_64-sa-debug',
-		'flash-player-28.0.0.137-linux-x86_64-sa',
-		'flash-player-28.0.0.137-linux-x86_64-sa-debug',
-		'flash-player-28.0.0.161-linux-x86_64-sa',
-		'flash-player-28.0.0.161-linux-x86_64-sa-debug',
-		'flash-player-29.0.0.113-linux-x86_64-sa',
-		'flash-player-29.0.0.113-linux-x86_64-sa-debug',
-		'flash-player-29.0.0.140-linux-x86_64-sa',
-		'flash-player-29.0.0.140-linux-x86_64-sa-debug',
-		'flash-player-29.0.0.171-linux-x86_64-sa',
-		'flash-player-29.0.0.171-linux-x86_64-sa-debug',
-		'flash-player-30.0.0.113-linux-x86_64-sa',
-		'flash-player-30.0.0.113-linux-x86_64-sa-debug',
-		'flash-player-30.0.0.134-linux-x86_64-sa',
-		'flash-player-30.0.0.134-linux-x86_64-sa-debug',
-		'flash-player-30.0.0.154-linux-x86_64-sa',
-		'flash-player-30.0.0.154-linux-x86_64-sa-debug',
-		'flash-player-31.0.0.108-linux-x86_64-sa',
-		'flash-player-31.0.0.108-linux-x86_64-sa-debug',
-		'flash-player-31.0.0.122-linux-x86_64-sa',
-		'flash-player-31.0.0.122-linux-x86_64-sa-debug',
-		'flash-player-31.0.0.148-linux-x86_64-sa',
-		'flash-player-31.0.0.148-linux-x86_64-sa-debug',
-		'flash-player-31.0.0.153-linux-x86_64-sa',
-		'flash-player-31.0.0.153-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.101-linux-x86_64-sa',
-		'flash-player-32.0.0.101-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.114-linux-x86_64-sa',
-		'flash-player-32.0.0.114-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.142-linux-x86_64-sa',
-		'flash-player-32.0.0.142-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.156-linux-x86_64-sa',
-		'flash-player-32.0.0.156-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.171-linux-x86_64-sa',
-		'flash-player-32.0.0.171-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.192-linux-x86_64-sa',
-		'flash-player-32.0.0.192-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.207-linux-x86_64-sa',
-		'flash-player-32.0.0.207-linux-x86_64-sa-debug',
-		'flash-player-32.0.0.223-linux-x86_64-sa',
-		'flash-player-32.0.0.223-linux-x86_64-sa-debug'
+		'install-full',
+		...shockpkgWin,
+		...shockpkgMac,
+		...shockpkgLin
 	]);
 });
 
-gulp.task('shockpkg-install', gulp.series([
-	'shockpkg-install:update',
-	'shockpkg-install:install-win',
-	'shockpkg-install:install-mac',
-	'shockpkg-install:install-lin'
-]));
-
-gulp.task('shockpkg-install-ci', gulp.series([
-	'shockpkg-install:update',
-	'shockpkg-install:install-win',
-	platformIsMac ? 'shockpkg-install:install-mac' : null,
-	'shockpkg-install:install-lin'
-].filter(Boolean)));
+gulp.task('shockpkg-install-full-ci', async () => {
+	await exec('shockpkg', ['update']);
+	await exec('shockpkg', [
+		'install-full',
+		...shockpkgWin,
+		...(platformIsMac ? shockpkgMac : []),
+		...shockpkgLin
+	]);
+});
 
 // prepack
 
