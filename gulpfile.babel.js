@@ -16,7 +16,7 @@ import gulpSourcemaps from 'gulp-sourcemaps';
 import gulpBabel from 'gulp-babel';
 import execa from 'execa';
 import del from 'del';
-import {Manager} from '@shockpkg/core'
+import {Manager} from '@shockpkg/core';
 
 const readFile = util.promisify(fs.readFile);
 const pipeline = util.promisify(stream.pipeline);
