@@ -414,6 +414,7 @@ async function installFull(list) {
 		if (!chain.length) {
 			continue;
 		}
+		// eslint-disable-next-line no-await-in-loop
 		await exec('shockpkg', [
 			'install-full',
 			pkg
@@ -426,6 +427,7 @@ async function installFull(list) {
 			continue;
 		}
 
+		// eslint-disable-next-line no-await-in-loop
 		await exec('shockpkg', [
 			'remove',
 			...remove
