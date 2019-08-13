@@ -380,29 +380,57 @@ gulp.task('shockpkg-install-ci', async () => {
 	]);
 });
 
+function packageParents(pkg) {
+	const r = [];
+	for (let p = pkg.parent; p; p = p.parent) {
+		r.push(p.name);
+	}
+	return r;
+}
+
 async function installFull(list) {
-	await exec('shockpkg', [
-		'install-full',
-		...list
-	]);
 	const keep = new Set(list);
-	const remove = new Set();
+	const chains = [];
 	const manager = new Manager();
 	await manager.with(async manager => {
 		for (const entry of list) {
 			const pkg = manager.packageByUnique(entry);
-			for (let p = pkg.parent; p; p = p.parent) {
-				if (keep.has(p.name) || keep.has(p.sha256)) {
-					continue;
-				}
-				remove.add(p.name);
-			}
+			chains.push([...packageParents(pkg).reverse(), pkg.name]);
 		}
 	});
-	await exec('shockpkg', [
-		'remove',
-		...remove
-	]);
+	chains.sort((a, b) => {
+		if (a[0] < b[0]) {
+			return -1;
+		}
+		if (a[0] > b[0]) {
+			return 1;
+		}
+		return 0;
+	});
+	for (let i = 0; i < chains.length; i++) {
+		const chain = chains[i];
+		const chainB = chains[i + 1] || [];
+		const pkg = chain.pop();
+		if (!chain.length) {
+			continue;
+		}
+		await exec('shockpkg', [
+			'install-full',
+			pkg
+		]);
+
+		const head = chain.shift();
+		const remove = [...chain, ...(head === chainB[0] ? [] : [head])]
+			.filter(s => !keep.has(s));
+		if (!remove.length) {
+			continue;
+		}
+
+		await exec('shockpkg', [
+			'remove',
+			...remove
+		]);
+	}
 }
 
 gulp.task('shockpkg-install-full', async () => {
