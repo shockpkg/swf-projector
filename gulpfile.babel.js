@@ -411,14 +411,15 @@ async function installFull(list) {
 		const chain = chains[i];
 		const chainB = chains[i + 1] || [];
 		const pkg = chain.pop();
-		if (!chain.length) {
-			continue;
-		}
 		// eslint-disable-next-line no-await-in-loop
 		await exec('shockpkg', [
 			'install-full',
 			pkg
 		]);
+
+		if (!chain.length) {
+			continue;
+		}
 
 		const head = chain.shift();
 		const remove = [...chain, ...(head === chainB[0] ? [] : [head])]
