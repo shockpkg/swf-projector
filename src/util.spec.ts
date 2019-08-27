@@ -1,7 +1,3 @@
-/* eslint-env jasmine */
-/* eslint import/no-extraneous-dependencies: ["error", {devDependencies: true}] */
-/* eslint-disable jsdoc/require-jsdoc */
-
 import {
 	join as pathJoin
 } from 'path';

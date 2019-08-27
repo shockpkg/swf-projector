@@ -1,6 +1,3 @@
-/* eslint import/no-extraneous-dependencies: ["error", {devDependencies: true}] */
-/* eslint-disable jsdoc/require-jsdoc */
-
 import fs from 'fs';
 import path from 'path';
 import stream from 'stream';

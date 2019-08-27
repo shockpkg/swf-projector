@@ -1,5 +1,3 @@
-/* eslint-env jasmine */
-
 import {
 	NAME,
 	VERSION
