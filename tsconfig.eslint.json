@@ -2,8 +2,8 @@
 	"extends": "./tsconfig.json",
 	"include": [
 		"**/*.js",
-		"**/*.mjs",
 		"**/*.jsx",
+		"**/*.mjs",
 		"**/*.mjsx",
 		"**/*.ts",
 		"**/*.tsx"

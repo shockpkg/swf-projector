@@ -566,3 +566,32 @@ rules:
   # '@typescript-eslint/require-await': error
   '@typescript-eslint/restrict-plus-operands': error
   '@typescript-eslint/unbound-method': error
+
+overrides:
+- files:
+  - 'gulpfile.babel.js'
+  rules:
+    import/no-extraneous-dependencies:
+    - error
+    - devDependencies: true
+      optionalDependencies: false
+      peerDependencies: false
+    jsdoc/require-jsdoc: off
+- files:
+  - '*.spec.js'
+  - '*.spec.jsx'
+  - '*.spec.mjs'
+  - '*.spec.mjsx'
+  - '*.spec.ts'
+  - '*.spec.tsx'
+  rules:
+    max-classes-per-file: off
+    max-nested-callbacks: off
+    import/no-extraneous-dependencies:
+    - error
+    - devDependencies: true
+      optionalDependencies: false
+      peerDependencies: false
+    jsdoc/require-jsdoc: off
+  env:
+    jasmine: true
