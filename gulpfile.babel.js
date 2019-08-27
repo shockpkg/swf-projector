@@ -1,6 +1,5 @@
 /* eslint import/no-extraneous-dependencies: ["error", {devDependencies: true}] */
 /* eslint-disable jsdoc/require-jsdoc */
-/* eslint-disable @typescript-eslint/promise-function-async */
 
 import fs from 'fs';
 import path from 'path';

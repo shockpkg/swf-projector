@@ -1,14 +1,14 @@
 parser: '@typescript-eslint/parser'
 
 plugins:
-- import
+- eslint-plugin-import
 - eslint-plugin-jsdoc
 - '@typescript-eslint'
 
 parserOptions:
   ecmaVersion: 9
   sourceType: module
-  project: ./tsconfig.json
+  project: ./tsconfig.eslint.json
 
 env:
   es6: true
@@ -487,10 +487,9 @@ rules:
   '@typescript-eslint/adjacent-overload-signatures': error
   '@typescript-eslint/array-type':
   - error
-  - array
   '@typescript-eslint/camelcase': error
   '@typescript-eslint/class-name-casing': error
-  # '@typescript-eslint/consistent-type-assertions': error
+  '@typescript-eslint/consistent-type-assertions': error
   '@typescript-eslint/consistent-type-definitions': error
   '@typescript-eslint/explicit-member-accessibility':
   - error
@@ -531,9 +530,7 @@ rules:
   '@typescript-eslint/no-namespace': error
   '@typescript-eslint/no-parameter-properties': error
   '@typescript-eslint/no-require-imports': error
-  '@typescript-eslint/no-this-alias':
-  - error
-  - allowDestructuring: true
+  '@typescript-eslint/no-this-alias': error
   '@typescript-eslint/no-unused-vars':
   - error
   - vars: all

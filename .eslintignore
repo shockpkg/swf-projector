@@ -1,3 +1,2 @@
 /lib
-/shockpkg
-/spec/projectors
+/module.mjs
