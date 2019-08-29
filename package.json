@@ -43,8 +43,8 @@
 		"@babel/preset-env": "^7.5.5",
 		"@babel/preset-typescript": "^7.3.3",
 		"@babel/register": "^7.5.5",
-		"@shockpkg/cli": "^1.2.1",
-		"@shockpkg/core": "^1.9.1",
+		"@shockpkg/cli": "^1.2.2",
+		"@shockpkg/core": "^1.9.2",
 		"@types/entities": "^1.1.0",
 		"@types/fs-extra": "^8.0.0",
 		"@types/jasmine": "^3.4.0",
@@ -70,11 +70,11 @@
 		"jasmine-spec-reporter": "^4.2.1",
 		"nodemon": "^1.19.1",
 		"source-map-support": "^0.5.13",
-		"typescript": "^3.5.3"
+		"typescript": "^3.6.2"
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.5.5",
-		"@shockpkg/archive-files": "^1.6.0",
+		"@shockpkg/archive-files": "^1.6.1",
 		"entities": "^2.0.0",
 		"fs-extra": "^8.1.0",
 		"node-require-function": "^1.2.0",
