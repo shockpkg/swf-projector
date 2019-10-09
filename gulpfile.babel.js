@@ -37,8 +37,8 @@ const shockpkgWin = [
 	'flash-player-10.0.45.2-windows-sa',
 	'flash-player-10.3.183.90-windows-sa',
 	'flash-player-11.1.102.55-windows-32bit-sa',
-	'flash-player-32.0.0.238-windows-sa',
-	'flash-player-32.0.0.238-windows-sa-debug'
+	'flash-player-32.0.0.270-windows-sa',
+	'flash-player-32.0.0.270-windows-sa-debug'
 ];
 const shockpkgMac = [
 	'flash-player-9.0.28.0-mac-sa-debug',
@@ -60,8 +60,8 @@ const shockpkgMac = [
 	'flash-player-11.1.102.55-mac-sa',
 	'flash-player-15.0.0.152-mac-sa-debug',
 	'flash-player-15.0.0.189-mac-sa-debug',
-	'flash-player-32.0.0.238-mac-sa',
-	'flash-player-32.0.0.238-mac-sa-debug'
+	'flash-player-32.0.0.270-mac-sa',
+	'flash-player-32.0.0.270-mac-sa-debug'
 ];
 const shockpkgLin = [
 	'flash-player-6.0.79.0-linux-sa',
@@ -149,7 +149,11 @@ const shockpkgLin = [
 	'flash-player-32.0.0.223-linux-x86_64-sa',
 	'flash-player-32.0.0.223-linux-x86_64-sa-debug',
 	'flash-player-32.0.0.238-linux-x86_64-sa',
-	'flash-player-32.0.0.238-linux-x86_64-sa-debug'
+	'flash-player-32.0.0.238-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.255-linux-x86_64-sa',
+	'flash-player-32.0.0.255-linux-x86_64-sa-debug',
+	'flash-player-32.0.0.270-linux-x86_64-sa',
+	'flash-player-32.0.0.270-linux-x86_64-sa-debug'
 ];
 
 async function exec(cmd, args = []) {
