@@ -86,12 +86,12 @@ const samples: {[index: string]: ISample} = doTest ? {
 	},
 
 	// Latest release:
-	'flash-player-32.0.0.270-mac-sa': {
+	'flash-player-32.0.0.293-mac-sa': {
 		lzma: true
 	},
 
 	// Latest debug:
-	'flash-player-32.0.0.270-mac-sa-debug': {
+	'flash-player-32.0.0.293-mac-sa-debug': {
 		lzma: true
 	}
 } : {};
