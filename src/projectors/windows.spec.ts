@@ -3,114 +3,53 @@ import {
 	fixtureFile,
 	getPackageFile,
 	platformIsWindows,
-	shouldTest
+	shouldTest,
+	getInstalledPackagesSync
 } from '../util.spec';
 
 import {
 	ProjectorWindows
 } from './windows';
 
-interface ISample {
-	zlib?: boolean;
-	lzma?: boolean;
-}
-
-const samples: {[index: string]: ISample} = shouldTest('windows') ? {
-	// Only 3.0 32-bit:
-	'flash-player-3.0.8.0-windows-32bit-sa': {},
-
-	// Only 4.0:
-	'flash-player-4.0.7.0-windows-sa': {},
-
-	// Only 5.0, release:
-	'flash-player-5.0.30.0-windows-sa': {},
-
-	// First debug:
-	'flash-player-5.0.30.0-windows-sa-debug': {},
-
-	// First 6.0:
-	'flash-player-6.0.21.0-windows-sa': {
-		zlib: true
-	},
-
-	// Last 6.0:
-	'flash-player-6.0.79.0-windows-sa': {
-		zlib: true
-	},
-
-	// First 7.0:
-	'flash-player-7.0.14.0-windows-sa': {
-		zlib: true
-	},
-
-	// Last 7.0:
-	'flash-player-7.0.19.0-windows-sa': {
-		zlib: true
-	},
-
-	// First 8.0:
-	'flash-player-8.0.22.0-windows-sa': {
-		zlib: true
-	},
-
-	// Last 8.0:
-	'flash-player-8.0.42.0-windows-sa': {
-		zlib: true
-	},
-
-	// First 9.0, first code-signed:
-	'flash-player-9.0.15.0-windows-sa-debug': {
-		zlib: true
-	},
-
-	// First 9.0 release:
-	'flash-player-9.0.115.0-windows-sa': {
-		zlib: true
-	},
-
-	// Last 9.0 before 10.0:
-	'flash-player-9.0.280.0-windows-sa': {
-		zlib: true
-	},
-
-	// Last 9.0:
-	'flash-player-9.0.289.0-windows-sa': {
-		zlib: true
-	},
-
-	// First 10.0:
-	'flash-player-10.0.12.36-windows-sa': {
-		zlib: true
-	},
-
-	// Last 10.0:
-	'flash-player-10.0.45.2-windows-sa': {
-		zlib: true
-	},
-
-	// Last 10.3, not code-signed:
-	'flash-player-10.3.183.90-windows-sa': {
-		zlib: true
-	},
-
-	// First 11.1:
-	'flash-player-11.1.102.55-windows-32bit-sa': {
-		zlib: true,
-		lzma: true
-	},
-
-	// Latest release:
-	'flash-player-32.0.0.293-windows-sa': {
-		zlib: true,
-		lzma: true
-	},
-
-	// Latest debug:
-	'flash-player-32.0.0.293-windows-sa-debug': {
-		zlib: true,
-		lzma: true
+function listSamples() {
+	const r: {
+		name: string;
+		version: number[];
+		debug: boolean;
+		zlib: boolean;
+		lzma: boolean;
+	}[] = [];
+	if (!shouldTest('windows')) {
+		return r;
 	}
-} : {};
+
+	for (const name of getInstalledPackagesSync()) {
+		const m = name.match(
+			/^flash-player-([\d.]+)-windows(-32bit)?-sa(-debug)?$/
+		);
+		if (!m) {
+			continue;
+		}
+
+		const version = m[1].split('.').map(Number);
+		const debug = !!m[3];
+		const zlib = version[0] >= 6;
+		const lzma = version[0] > 11 || (version[0] === 11 && version[1] >= 1);
+		r.push({
+			name,
+			version,
+			debug,
+			zlib,
+			lzma
+		});
+	}
+
+	r.sort((a, b) => (+a.debug) - (+b.debug));
+	for (let i = 4; i--;) {
+		r.sort((a, b) => (a.version[i] || 0) - (b.version[i] || 0));
+	}
+	return r;
+}
 
 const fileVersion = '3.14.15.92';
 const productVersion = '3.1.4.1';
@@ -152,13 +91,12 @@ describe('projectors/windows', () => {
 			});
 		});
 
-		for (const pkg of Object.keys(samples)) {
-			const o = samples[pkg];
+		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('projectors', 'windows', pkg, d);
-			const getPlayer = async () => getPackageFile(pkg);
+				cleanProjectorDir('projectors', 'windows', pkg.name, d);
+			const getPlayer = async () => getPackageFile(pkg.name);
 
-			describe(pkg, () => {
+			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
 					await (new ProjectorWindows({
@@ -168,7 +106,7 @@ describe('projectors/windows', () => {
 					})).write(dir, 'application.exe');
 				});
 
-				if (o.zlib) {
+				if (pkg.zlib) {
 					it('zlib', async () => {
 						const dir = await getDir('zlib');
 						await (new ProjectorWindows({
@@ -179,7 +117,7 @@ describe('projectors/windows', () => {
 					});
 				}
 
-				if (o.lzma) {
+				if (pkg.lzma) {
 					it('lzma', async () => {
 						const dir = await getDir('lzma');
 						await (new ProjectorWindows({

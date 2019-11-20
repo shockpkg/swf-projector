@@ -2,60 +2,50 @@ import {
 	cleanProjectorDir,
 	fixtureFile,
 	getPackageFile,
-	shouldTest
+	shouldTest,
+	getInstalledPackagesSync
 } from '../util.spec';
 
 import {
 	ProjectorLinux
 } from './linux';
 
-interface ISample {
-	lzma?: boolean;
-}
-
-const samples: {[index: string]: ISample} = shouldTest('linux') ? {
-	// Only 6.0, first version:
-	'flash-player-6.0.79.0-linux-sa': {},
-
-	// First 9.0
-	'flash-player-9.0.115.0-linux-sa': {},
-
-	// First debug:
-	'flash-player-9.0.115.0-linux-sa-debug': {},
-
-	// Last 9.0 before 10.0:
-	'flash-player-9.0.280.0-linux-sa': {},
-
-	// Last 9.0:
-	'flash-player-9.0.289.0-linux-sa': {},
-
-	// First 10.0:
-	'flash-player-10.0.12.36-linux-sa': {},
-
-	// Last 10.3:
-	'flash-player-10.3.183.90-linux-sa': {},
-
-	// First 11.0 release:
-	'flash-player-11.0.1.152-linux-i386-sa': {},
-
-	// First 11.0 debug:
-	'flash-player-11.0.1.152-linux-i386-sa-debug': {},
-
-	// First 11.1:
-	'flash-player-11.1.102.55-linux-i386-sa': {
-		lzma: true
-	},
-
-	// Last 11.2 release, last i386, before long release break:
-	'flash-player-11.2.202.644-linux-i386-sa': {
-		lzma: true
-	},
-
-	// Last 11.2 debug, last i386, before long release break:
-	'flash-player-11.2.202.644-linux-i386-sa-debug': {
-		lzma: true
+function listSamples() {
+	const r: {
+		name: string;
+		version: number[];
+		debug: boolean;
+		lzma: boolean;
+	}[] = [];
+	if (!shouldTest('linux')) {
+		return r;
 	}
-} : {};
+
+	for (const name of getInstalledPackagesSync()) {
+		const m = name.match(
+			/^flash-player-([\d.]+)-linux(-i386)?-sa(-debug)?$/
+		);
+		if (!m) {
+			continue;
+		}
+
+		const version = m[1].split('.').map(Number);
+		const debug = !!m[3];
+		const lzma = version[0] > 11 || (version[0] === 11 && version[1] >= 1);
+		r.push({
+			name,
+			version,
+			debug,
+			lzma
+		});
+	}
+
+	r.sort((a, b) => (+a.debug) - (+b.debug));
+	for (let i = 4; i--;) {
+		r.sort((a, b) => (a.version[i] || 0) - (b.version[i] || 0));
+	}
+	return r;
+}
 
 describe('projectors/linux', () => {
 	describe('ProjectorLinux', () => {
@@ -72,13 +62,12 @@ describe('projectors/linux', () => {
 			});
 		});
 
-		for (const pkg of Object.keys(samples)) {
-			const o = samples[pkg];
+		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('projectors', 'linux', pkg, d);
-			const getPlayer = async () => getPackageFile(pkg);
+				cleanProjectorDir('projectors', 'linux', pkg.name, d);
+			const getPlayer = async () => getPackageFile(pkg.name);
 
-			describe(pkg, () => {
+			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
 					await (new ProjectorLinux({
@@ -95,7 +84,7 @@ describe('projectors/linux', () => {
 					})).write(dir, 'application');
 				});
 
-				if (o.lzma) {
+				if (pkg.lzma) {
 					it('lzma', async () => {
 						const dir = await getDir('lzma');
 						await (new ProjectorLinux({
