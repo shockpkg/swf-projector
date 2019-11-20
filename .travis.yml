@@ -6,8 +6,7 @@ matrix:
   - os: linux
     node_js: v10.0.0
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.293-linux-x86_64-sa
         flash-player-32.0.0.293-windows-sa"
@@ -15,8 +14,7 @@ matrix:
   - os: osx
     node_js: v10.0.0
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.293-linux-x86_64-sa
         flash-player-32.0.0.293-windows-sa
@@ -25,8 +23,7 @@ matrix:
   - os: windows
     node_js: v10.0.0
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.293-linux-x86_64-sa
         flash-player-32.0.0.293-windows-sa"
@@ -34,8 +31,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.293-linux-x86_64-sa
         flash-player-32.0.0.293-windows-sa"
@@ -43,8 +39,7 @@ matrix:
   - os: osx
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.293-linux-x86_64-sa
         flash-player-32.0.0.293-windows-sa
@@ -53,8 +48,7 @@ matrix:
   - os: windows
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.293-linux-x86_64-sa
         flash-player-32.0.0.293-windows-sa"
@@ -100,8 +94,7 @@ matrix:
     # Latest:
     #   flash-player-32.0.0.293-windows-sa
     #   flash-player-32.0.0.293-windows-sa-debug
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-3.0.8.0-windows-32bit-sa
         flash-player-4.0.7.0-windows-sa
         flash-player-5.0.30.0-windows-sa
@@ -166,8 +159,7 @@ matrix:
     # Latest:
     #   flash-player-32.0.0.293-mac-sa
     #   flash-player-32.0.0.293-mac-sa-debug
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-9.0.28.0-mac-sa-debug
         flash-player-9.0.45.0-mac-sa-debug
         flash-player-9.0.115.0-mac-sa
@@ -215,8 +207,7 @@ matrix:
     # Last 11.2, last i386, before long release break:
     #   flash-player-11.2.202.644-linux-i386-sa
     #   flash-player-11.2.202.644-linux-i386-sa-debug
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-6.0.79.0-linux-sa
         flash-player-9.0.115.0-linux-sa
         flash-player-9.0.115.0-linux-sa-debug
@@ -234,8 +225,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-32.0.0.101-linux-x86_64-sa
         flash-player-32.0.0.101-linux-x86_64-sa-debug
         flash-player-32.0.0.114-linux-x86_64-sa
@@ -264,8 +254,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-31.0.0.108-linux-x86_64-sa
         flash-player-31.0.0.108-linux-x86_64-sa-debug
         flash-player-31.0.0.122-linux-x86_64-sa
@@ -278,8 +267,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-30.0.0.113-linux-x86_64-sa
         flash-player-30.0.0.113-linux-x86_64-sa-debug
         flash-player-30.0.0.134-linux-x86_64-sa
@@ -290,8 +278,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-29.0.0.113-linux-x86_64-sa
         flash-player-29.0.0.113-linux-x86_64-sa-debug
         flash-player-29.0.0.140-linux-x86_64-sa
@@ -302,8 +289,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-28.0.0.126-linux-x86_64-sa
         flash-player-28.0.0.126-linux-x86_64-sa-debug
         flash-player-28.0.0.137-linux-x86_64-sa
@@ -314,8 +300,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-27.0.0.130-linux-x86_64-sa
         flash-player-27.0.0.130-linux-x86_64-sa-debug
         flash-player-27.0.0.159-linux-x86_64-sa
@@ -330,8 +315,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-26.0.0.126-linux-x86_64-sa
         flash-player-26.0.0.126-linux-x86_64-sa-debug
         flash-player-26.0.0.131-linux-x86_64-sa
@@ -344,8 +328,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-25.0.0.127-linux-x86_64-sa
         flash-player-25.0.0.127-linux-x86_64-sa-debug
         flash-player-25.0.0.148-linux-x86_64-sa
@@ -356,8 +339,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     env:
-    - |
-      SHOCKPKG_PACKAGES="
+    - SHOCKPKG_PACKAGES="
         flash-player-24.0.0.186-linux-x86_64-sa
         flash-player-24.0.0.186-linux-x86_64-sa-debug
         flash-player-24.0.0.194-linux-x86_64-sa
