@@ -6,6 +6,7 @@ matrix:
   - os: linux
     node_js: v10.0.0
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-11.2.202.644-linux-i386-sa \
@@ -15,6 +16,7 @@ matrix:
   - os: osx
     node_js: v10.0.0
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-11.2.202.644-linux-i386-sa \
@@ -25,6 +27,7 @@ matrix:
   - os: windows
     node_js: v10.0.0
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-11.2.202.644-linux-i386-sa \
@@ -34,6 +37,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-11.2.202.644-linux-i386-sa \
@@ -43,6 +47,7 @@ matrix:
   - os: osx
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-11.2.202.644-linux-i386-sa \
@@ -53,6 +58,7 @@ matrix:
   - os: windows
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-11.2.202.644-linux-i386-sa \
@@ -63,6 +69,7 @@ matrix:
   - os: windows
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     # Only 3.0 32-bit:
     #   flash-player-3.0.8.0-windows-32bit-sa
     # Only 4.0:
@@ -128,6 +135,7 @@ matrix:
   - os: osx
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     # First Mac APP bundle, broken icon, DMG:
     #   flash-player-9.0.28.0-mac-sa-debug
     # Early Mac APP bundle, broken icon, ZIP:
@@ -196,6 +204,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     # Only 6.0, first version (ZLIB):
     #   flash-player-6.0.79.0-linux-sa
     # First 9.0:
@@ -237,6 +246,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-32.0.0.101-linux-x86_64-sa \
@@ -267,6 +277,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-31.0.0.108-linux-x86_64-sa \
@@ -281,6 +292,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-30.0.0.113-linux-x86_64-sa \
@@ -293,6 +305,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-29.0.0.113-linux-x86_64-sa \
@@ -305,6 +318,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-28.0.0.126-linux-x86_64-sa \
@@ -317,6 +331,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-27.0.0.130-linux-x86_64-sa \
@@ -333,6 +348,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-26.0.0.126-linux-x86_64-sa \
@@ -347,6 +363,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-25.0.0.127-linux-x86_64-sa \
@@ -359,6 +376,7 @@ matrix:
   - os: linux
     node_js: v12.9.1
     script:
+    - npm run shockpkg update
     - |
       npm run shockpkg install \
         flash-player-24.0.0.186-linux-x86_64-sa \
