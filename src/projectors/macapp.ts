@@ -77,7 +77,7 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	pkgInfoData?: Buffer | null;
+	pkgInfoData?: string | Buffer | null;
 
 	/**
 	 * Update the bundle name in Info.plist.
