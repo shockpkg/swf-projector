@@ -57,8 +57,8 @@ function listSamples() {
 	return r;
 }
 
-// Always remove signature if possible, avoid Gatekeeper issues.
-const removeCodeSignature = platformIsMac;
+// Always remove signature, avoid Gatekeeper issues.
+const removeCodeSignature = true;
 
 describe('projectors/macapp', () => {
 	describe('ProjectorMacApp', () => {
@@ -71,7 +71,7 @@ describe('projectors/macapp', () => {
 				await (new ProjectorMacApp({
 					player: fixtureFile('dummy.app'),
 					movieFile: fixtureFile('swf3.swf'),
-					removeCodeSignature
+					removeCodeSignature: false
 				})).write(dir, 'application.app');
 			});
 		});

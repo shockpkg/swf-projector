@@ -20,7 +20,7 @@ Takes a standalone Flash Player file, a directory containing a standalone Flash 
 
 Certain features may only work on certain platforms.
 
-Reading DMG projector packages and removing Mac APP code signatures is only supported on MacOS.
+Reading DMG projector packages is only supported on macOS.
 
 Features that modify Windows EXE resources requires either Windows or Wine in the path.
 

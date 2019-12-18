@@ -9,6 +9,9 @@ import {
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
+import {
+	unsign
+} from 'macho-unsign';
 import fse from 'fs-extra';
 
 import {
@@ -24,9 +27,6 @@ import {
 	plistStringTagDecode,
 	plistStringTagEncode
 } from '../util';
-import {
-	macCodesignRemove
-} from '../utils/mac';
 
 export interface IProjectorMacAppOptions extends IProjectorOptions {
 
@@ -106,6 +106,7 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	 * Path to codesign binary.
 	 *
 	 * @default null
+	 * @deprecated No longer used in this package.
 	 */
 	codesignPath?: string | null;
 
@@ -199,6 +200,7 @@ export class ProjectorMacApp extends Projector {
 	 * Path to codesign binary.
 	 *
 	 * @default null
+	 * @deprecated No longer used in this package.
 	 */
 	public codesignPath: string | null;
 
@@ -686,13 +688,16 @@ export class ProjectorMacApp extends Projector {
 			return;
 		}
 
-		// Remove the code signature.
-		await macCodesignRemove(
-			pathJoin(path, name),
-			this.codesignPath
-		);
+		// Locate the main binary.
+		const xml = await this._readInfoPlist(path, name);
+		const executableName = this._readInfoPlistExecutable(xml);
+		const executablePath = this.getBinaryPath(name, executableName);
 
-		// Cleanup signature directory that may be left behind.
+		// Unsign binary if signed.
+		await this._unsignMachO(pathJoin(path, executablePath));
+
+		// Cleanup signature file and directory that may exist.
+		await fse.remove(pathJoin(path, name, 'Contents', 'CodeResources'));
 		await fse.remove(pathJoin(path, name, 'Contents', '_CodeSignature'));
 	}
 
@@ -828,5 +833,25 @@ export class ProjectorMacApp extends Projector {
 			throw new Error('Failed to read Info.plist icon field');
 		}
 		return value;
+	}
+
+	/**
+	 * Unsign a Mach-O binary if signed.
+	 *
+	 * @param path Binary path.
+	 * @returns Returns true if signed, else false.
+	 */
+	protected async _unsignMachO(path: string) {
+		const data = await fse.readFile(path);
+
+		// Unsign data if signed.
+		const unsigned = unsign(data);
+		if (!unsigned) {
+			return false;
+		}
+
+		// Write out the change.
+		await fse.writeFile(path, Buffer.from(unsigned));
+		return true;
 	}
 }

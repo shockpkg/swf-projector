@@ -74,6 +74,7 @@
 		"@shockpkg/archive-files": "^1.7.0",
 		"entities": "^2.0.0",
 		"fs-extra": "^8.1.0",
+		"macho-unsign": "^1.0.1",
 		"node-require-function": "^1.2.0",
 		"rcedit": "^2.1.0",
 		"sax": "^1.2.4",

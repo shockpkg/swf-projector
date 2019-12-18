@@ -7,6 +7,7 @@ import {
  *
  * @param path Pathto files or bundle to remove code signture from.
  * @param codesignPath Optional path to the codesign binary.
+ * @deprecated No longer used in this package.
  */
 export async function macCodesignRemove(
 	path: string,
