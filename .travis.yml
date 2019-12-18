@@ -12,7 +12,6 @@ matrix:
         flash-player-32.0.0.303-windows-sa"
 
   - os: osx
-    osx_image: xcode10.2
     node_js: v10.0.0
     env:
     - SHOCKPKG_PACKAGES="
@@ -38,7 +37,6 @@ matrix:
         flash-player-32.0.0.303-windows-sa"
 
   - os: osx
-    osx_image: xcode10.2
     node_js: v13.2.0
     env:
     - SHOCKPKG_PACKAGES="
@@ -120,7 +118,6 @@ matrix:
 
   # Test other Mac versions (including OS specific features):
   - os: osx
-    osx_image: xcode10.2
     node_js: v13.2.0
     env:    # First Mac APP bundle, broken icon, DMG:
     #   flash-player-9.0.28.0-mac-sa-debug
