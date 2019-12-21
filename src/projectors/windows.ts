@@ -382,7 +382,7 @@ export class ProjectorWindows extends Projector {
 			}
 		}
 
-		// Update resouses.
+		// Update resources.
 		res.outputResource(exe);
 		exeData = exe.generate();
 
