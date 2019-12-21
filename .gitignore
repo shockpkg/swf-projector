@@ -22,3 +22,4 @@ yarn.lock
 
 # Test files
 /shockpkg
+/spec/projectors
