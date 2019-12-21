@@ -2,7 +2,6 @@ import {
 	cleanProjectorDir,
 	fixtureFile,
 	getPackageFile,
-	platformIsWindows,
 	shouldTest,
 	getInstalledPackagesSync
 } from '../util.spec';
