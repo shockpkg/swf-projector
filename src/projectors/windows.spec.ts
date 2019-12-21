@@ -64,7 +64,7 @@ const versionStrings = {
 	Comments: 'Custom Comments'
 };
 
-const removeCodeSignature = platformIsWindows;
+const removeCodeSignature = true;
 
 describe('projectors/windows', () => {
 	describe('ProjectorWindows', () => {
@@ -77,7 +77,7 @@ describe('projectors/windows', () => {
 				await (new ProjectorWindows({
 					player: fixtureFile('dummy.exe'),
 					movieFile: fixtureFile('swf3.swf'),
-					removeCodeSignature
+					removeCodeSignature: false
 				})).write(dir, 'application.exe');
 			});
 
@@ -86,7 +86,7 @@ describe('projectors/windows', () => {
 				await (new ProjectorWindows({
 					player: fixtureFile('dummy.exe.zip'),
 					movieFile: fixtureFile('swf3.swf'),
-					removeCodeSignature
+					removeCodeSignature: false
 				})).write(dir, 'application.exe');
 			});
 		});
@@ -128,20 +128,18 @@ describe('projectors/windows', () => {
 					});
 				}
 
-				if (platformIsWindows) {
-					it('rcedit', async () => {
-						const dir = await getDir('rcedit');
-						await (new ProjectorWindows({
-							player: await getPlayer(),
-							movieFile: fixtureFile('swf3.swf'),
-							iconFile: fixtureFile('icon.ico'),
-							fileVersion,
-							productVersion,
-							versionStrings,
-							removeCodeSignature
-						})).write(dir, 'application.exe');
-					});
-				}
+				it('resedit', async () => {
+					const dir = await getDir('resedit');
+					await (new ProjectorWindows({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf3.swf'),
+						iconFile: fixtureFile('icon.ico'),
+						fileVersion,
+						productVersion,
+						versionStrings,
+						removeCodeSignature
+					})).write(dir, 'application.exe');
+				});
 			});
 		}
 	});

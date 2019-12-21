@@ -22,6 +22,7 @@ const isWindows =
  * Get signtool binary location.
  *
  * @returns Path to signtool binary.
+ * @deprecated No longer used in this package.
  */
 function locateSigntool() {
 	if (locateSigntoolCache) {
@@ -51,10 +52,20 @@ function locateSigntool() {
 	);
 }
 
+/**
+ * Versions strings passed to rcedit.
+ *
+ * @deprecated No longer used in this package.
+ */
 export interface IRceditOptionsVersionStrings {
 	[key: string]: string;
 }
 
+/**
+ * Options for rcedit.
+ *
+ * @deprecated No longer used in this package.
+ */
 export interface IRceditOptions {
 
 	/**
@@ -92,6 +103,7 @@ export interface IRceditOptions {
  *
  * @param path File path.
  * @param options Options object.
+ * @deprecated No longer used in this package.
  */
 export async function windowsRcedit(
 	path: string,

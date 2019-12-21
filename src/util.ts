@@ -317,6 +317,17 @@ export function infoPlistRead(
 }
 
 /**
+ * Get ArrayBuffer from Buffer.
+ *
+ * @param buffer Buffer instance.
+ * @returns ArrayBuffer copy.
+ */
+export function bufferToArrayBuffer(buffer: Buffer) {
+	const {byteOffset, byteLength} = buffer;
+	return buffer.buffer.slice(byteOffset, byteOffset + byteLength);
+}
+
+/**
  * Spawn a subprocess with a promise for completion.
  *
  * @param command Command path.
