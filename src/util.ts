@@ -334,6 +334,7 @@ export function bufferToArrayBuffer(buffer: Buffer) {
  * @param args Argument list.
  * @param options Options object.
  * @returns Info object.
+ * @deprecated No longer used in this package.
  */
 export function spawn(
 	command: string,
