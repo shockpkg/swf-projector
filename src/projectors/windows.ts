@@ -375,7 +375,15 @@ export class ProjectorWindows extends Projector {
 			for (const versionInfo of ResEditResource.VersionInfo.fromEntries(
 				res.entries
 			)) {
-				for (const language of versionInfo.getAvailableLanguages()) {
+				// Unfortunately versionInfo.getAvailableLanguages() skips some.
+				// Get the full list from the internal data.
+				const languages = (versionInfo as any).data.strings
+					.map((o: any) => ({
+						lang: o.lang as (number | string),
+						codepage: o.codepage as (number | string)
+					}));
+
+				for (const language of languages) {
 					versionInfo.setStringValues(language, versionStrings);
 				}
 				versionInfo.outputToResourceEntries(res.entries);
