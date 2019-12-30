@@ -25,7 +25,7 @@ export interface IProjectorLinuxOptions extends IProjectorOptions {
  * @param options Options object.
  */
 export class ProjectorLinux extends Projector {
-	constructor(options: IProjectorLinuxOptions = {}) {
+	constructor(options: Readonly<IProjectorLinuxOptions> = {}) {
 		super(options);
 	}
 

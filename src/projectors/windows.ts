@@ -55,7 +55,7 @@ export interface IProjectorWindowsOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	iconData?: Buffer | null;
+	iconData?: Readonly<Buffer> | null;
 
 	/**
 	 * Version strings.
@@ -76,7 +76,7 @@ export interface IProjectorWindowsOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	versionStrings?: {[key: string]: string} | null;
+	versionStrings?: Readonly<{[key: string]: string}> | null;
 
 	/**
 	 * Remove the code signature.
@@ -104,7 +104,7 @@ export class ProjectorWindows extends Projector {
 	 *
 	 * @default null
 	 */
-	public iconData: Buffer | null;
+	public iconData: Readonly<Buffer> | null;
 
 	/**
 	 * Version strings, requires Windows or Wine.
@@ -125,7 +125,7 @@ export class ProjectorWindows extends Projector {
 	 *
 	 * @default null
 	 */
-	public versionStrings: {[key: string]: string} | null;
+	public versionStrings: Readonly<{[key: string]: string}> | null;
 
 	/**
 	 * Remove the code signature.
@@ -134,7 +134,7 @@ export class ProjectorWindows extends Projector {
 	 */
 	public removeCodeSignature: boolean;
 
-	constructor(options: IProjectorWindowsOptions) {
+	constructor(options: Readonly<IProjectorWindowsOptions>) {
 		super(options);
 
 		this.iconFile = defaultNull(options.iconFile);

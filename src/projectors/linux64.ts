@@ -41,7 +41,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 */
 	public patchProjectorOffset: boolean;
 
-	constructor(options: IProjectorLinux64Options = {}) {
+	constructor(options: Readonly<IProjectorLinux64Options> = {}) {
 		super(options);
 
 		this.patchProjectorOffset = defaultFalse(options.patchProjectorOffset);

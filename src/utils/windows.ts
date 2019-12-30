@@ -107,7 +107,7 @@ export interface IRceditOptions {
  */
 export async function windowsRcedit(
 	path: string,
-	options: IRceditOptions
+	options: Readonly<IRceditOptions>
 ) {
 	const opts: {[key: string]: any} = {};
 	if (options.iconPath) {

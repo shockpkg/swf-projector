@@ -76,7 +76,7 @@ export abstract class Projector extends Object {
 	 */
 	public pathToHdiutil: string | null;
 
-	constructor(options: IProjectorOptions = {}) {
+	constructor(options: Readonly<IProjectorOptions> = {}) {
 		super();
 
 		this.player = defaultNull(options.player);
@@ -187,10 +187,10 @@ export abstract class Projector extends Object {
 	 */
 	protected async _appendMovieData(
 		file: string,
-		data: Buffer,
+		data: Readonly<Buffer>,
 		format: string
 	) {
-		const buffers: Buffer[] = [];
+		const buffers: Readonly<Buffer>[] = [];
 		for (const c of format) {
 			switch (c) {
 				case 'd': {
@@ -258,7 +258,7 @@ export abstract class Projector extends Object {
 	 * @returns Data buffer.
 	 */
 	protected async _dataFromBufferOrFile(
-		data: Buffer | null,
+		data: Readonly<Buffer> | null,
 		file: string | null
 	) {
 		if (data) {
@@ -280,7 +280,7 @@ export abstract class Projector extends Object {
 	 * @returns Data buffer.
 	 */
 	protected async _dataFromValueOrFile(
-		data: string[] | string | Buffer | null,
+		data: Readonly<string[]> | string | Readonly<Buffer> | null,
 		file: string | null,
 		newline: string | null,
 		encoding: BufferEncoding | null
@@ -296,7 +296,7 @@ export abstract class Projector extends Object {
 			str = data.join(newline);
 		}
 		else {
-			return this._dataFromBufferOrFile(data, file);
+			return this._dataFromBufferOrFile(data as any, file);
 		}
 		if (!encoding) {
 			throw new Error('String data encoding required');
@@ -312,7 +312,7 @@ export abstract class Projector extends Object {
 	 * @param remove Optionally remove path first.
 	 */
 	protected async _maybeWriteFile(
-		data: Buffer | null,
+		data: Readonly<Buffer> | null,
 		path: string,
 		remove = false
 	) {

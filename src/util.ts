@@ -322,7 +322,7 @@ export function infoPlistRead(
  * @param buffer Buffer instance.
  * @returns ArrayBuffer copy.
  */
-export function bufferToArrayBuffer(buffer: Buffer) {
+export function bufferToArrayBuffer(buffer: Readonly<Buffer>) {
 	const {byteOffset, byteLength} = buffer;
 	return buffer.buffer.slice(byteOffset, byteOffset + byteLength);
 }
@@ -339,7 +339,7 @@ export function bufferToArrayBuffer(buffer: Buffer) {
 export function spawn(
 	command: string,
 	args: string[] | null = null,
-	options: SpawnOptions | SpawnOptionsWithoutStdio | null = null
+	options: Readonly<SpawnOptions | SpawnOptionsWithoutStdio | null> = null
 ) {
 	const proc = childProcessSpawn(command, args || [], options || {});
 	const done = new Promise<number | null>((resolve, reject) => {

@@ -49,7 +49,7 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	iconData?: Buffer | null;
+	iconData?: Readonly<Buffer> | null;
 
 	/**
 	 * Info.plist file.
@@ -63,7 +63,7 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	infoPlistData?: Buffer | null;
+	infoPlistData?: Readonly<Buffer> | null;
 
 	/**
 	 * PkgInfo file.
@@ -77,7 +77,7 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	pkgInfoData?: string | Buffer | null;
+	pkgInfoData?: string | Readonly<Buffer> | null;
 
 	/**
 	 * Update the bundle name in Info.plist.
@@ -143,7 +143,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @default null
 	 */
-	public iconData: Buffer | null;
+	public iconData: Readonly<Buffer> | null;
 
 	/**
 	 * Info.plist file.
@@ -157,7 +157,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @default null
 	 */
-	public infoPlistData: string | string[] | Buffer | null;
+	public infoPlistData: string | Readonly<string[]> | Readonly<Buffer> | null;
 
 	/**
 	 * PkgInfo file.
@@ -171,7 +171,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @default null
 	 */
-	public pkgInfoData: string | Buffer | null;
+	public pkgInfoData: string | Readonly<Buffer> | null;
 
 	/**
 	 * Update the bundle name in Info.plist.
