@@ -55,7 +55,7 @@ export interface IProjectorWindowsOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	iconData?: Readonly<Buffer> | null;
+	iconData?: Buffer | null;
 
 	/**
 	 * Version strings.
@@ -76,7 +76,7 @@ export interface IProjectorWindowsOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	versionStrings?: Readonly<{[key: string]: string}> | null;
+	versionStrings?: {[key: string]: string} | null;
 
 	/**
 	 * Remove the code signature.
