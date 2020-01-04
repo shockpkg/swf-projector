@@ -353,8 +353,8 @@ matrix:
         flash-player-24.0.0.221-linux-x86_64-sa-debug"
 
 script:
-- npm run shockpkg update
-- npm run shockpkg install $SHOCKPKG_PACKAGES
+- npm run shockpkg -- update
+- npm run shockpkg -- install $SHOCKPKG_PACKAGES
 - npm run clean
 - npm run lint
 - npm run build
