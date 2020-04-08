@@ -1,5 +1,35 @@
 import fse from 'fs-extra';
 
+import {once} from '../util';
+
+/**
+ * Find similar matches in data.
+ *
+ * @param data Data to search.
+ * @param find Search for.
+ * @param from Search from.
+ */
+function * findFuzzy(
+	data: Buffer,
+	find: (number | null)[],
+	from = 0
+) {
+	const end = data.length - find.length;
+	for (let i = from; i < end; i++) {
+		let found = true;
+		for (let j = 0; j < find.length; j++) {
+			const b = find[j];
+			if (b !== null && data[i + j] !== b) {
+				found = false;
+				break;
+			}
+		}
+		if (found) {
+			yield i;
+		}
+	}
+}
+
 /**
  * Converts a hex string into a series of byte values, with unknowns being null.
  *
@@ -18,11 +48,12 @@ function patchHexToBytes(str: string) {
 /* eslint-disable no-multi-spaces */
 /* eslint-disable line-comment-position */
 /* eslint-disable no-inline-comments */
+
 // A list of patch candidates, made to be partially position independant.
 // So long as the ASM does not change, these can be applited to future versions.
 // Essentially these replace the bad ELF header reading logic with new logic.
 // The code was never updated from the old 32-bit code and is not accurate.
-const linux64PatchProjectorOffsetPatches = [
+const linux64PatchProjectorOffsetPatches = once(() => [
 	// 24.0.0.186 - 24.0.0.221:
 	{
 		find: patchHexToBytes([
@@ -305,42 +336,31 @@ const linux64PatchProjectorOffsetPatches = [
 			'90 90 90 90'                 // nop     x4
 		].join(' '))
 	}
-];
+]);
+
 /* eslint-enable no-multi-spaces */
 /* eslint-enable line-comment-position */
 /* eslint-enable no-inline-comments */
 
 /**
  * Attempt to patch Linux 64-bit projector offset code.
+ * Replaces old 32-bit ELF header reading logic with 64-bit logic.
  *
- * @param file Projector file.
+ * @param data Projector data, maybe modified.
+ * @returns Patched data, can be same buffer, but modified.
  */
-export async function linux64PatchProjectorOffset(file: string) {
-	// Read projector into buffer.
-	const data = await fse.readFile(file);
-
+export function linux64PatchProjectorOffsetData(data: Buffer) {
 	// Search the buffer for patch candidates.
 	let foundOffset = -1;
 	let foundPatch: (number | null)[] = [];
-	for (const patch of linux64PatchProjectorOffsetPatches) {
+	for (const patch of linux64PatchProjectorOffsetPatches()) {
 		const {find, replace} = patch;
 		if (replace.length !== find.length) {
 			throw new Error('Internal error');
 		}
 
-		const end = data.length - find.length;
-		for (let i = 0; i < end; i++) {
-			let found = true;
-			for (let j = 0; j < find.length; j++) {
-				const b = find[j];
-				if (b !== null && data[i + j] !== b) {
-					found = false;
-					break;
-				}
-			}
-			if (!found) {
-				continue;
-			}
+		// findFuzzy(data, find);
+		for (const i of findFuzzy(data, find)) {
 			if (foundOffset !== -1) {
 				throw new Error(
 					'Multiple projector offset patch candidates found'
@@ -363,5 +383,17 @@ export async function linux64PatchProjectorOffset(file: string) {
 			data[foundOffset + i] = b;
 		}
 	}
-	await fse.writeFile(file, data);
+	return data;
+}
+
+/**
+ * Attempt to patch Linux 64-bit projector offset code.
+ *
+ * @param file Projector file.
+ * @deprecated No longer used in this package.
+ */
+export async function linux64PatchProjectorOffset(file: string) {
+	// Read projector into buffer.
+	const data = await fse.readFile(file);
+	await fse.writeFile(file, linux64PatchProjectorOffsetData(data));
 }

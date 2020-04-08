@@ -2,11 +2,13 @@ import {
 	join as pathJoin
 } from 'path';
 
+import fse from 'fs-extra';
+
 import {
 	defaultFalse
 } from '../util';
 import {
-	linux64PatchProjectorOffset
+	linux64PatchProjectorOffsetData
 } from '../utils/linux';
 
 import {
@@ -70,9 +72,15 @@ export class ProjectorLinux64 extends ProjectorLinux {
 			return;
 		}
 
-		// Attempt to patch the projector offset.
+		// Read the projector file.
 		const projectorPath = pathJoin(path, name);
-		await linux64PatchProjectorOffset(projectorPath);
+		let data = await fse.readFile(projectorPath);
+
+		// Attempt to patch the projector data.
+		data = linux64PatchProjectorOffsetData(data);
+
+		// Write out patched data.
+		await fse.writeFile(projectorPath, data);
 	}
 
 	/**

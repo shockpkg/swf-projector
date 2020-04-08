@@ -61,6 +61,24 @@ export function defaultTrue<T>(value: T) {
 }
 
 /**
+ * Create return value once.
+ *
+ * @param create Create function.
+ * @returns Returned value.
+ */
+export function once<T>(create: () => T): () => T {
+	let called = false;
+	let value: T;
+	return () => {
+		if (!called) {
+			value = create();
+			called = true;
+		}
+		return value;
+	};
+}
+
+/**
  * Check if Archive Entry is empty resource fork.
  *
  * @param entry Archive Entry.

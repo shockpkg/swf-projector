@@ -11,7 +11,8 @@ import execa from 'execa';
 import {
 	infoPlistReplace,
 	pathRelativeBase,
-	trimExtension
+	trimExtension,
+	once
 } from './util';
 
 export const platformIsMac = process.platform === 'darwin';
@@ -142,6 +143,14 @@ describe('util', () => {
 				'</dict>',
 				'</plist>'
 			].join('\n')));
+		});
+	});
+
+	describe('once', () => {
+		it('called once', () => {
+			const obj = {};
+			const onced = once(() => obj);
+			expect(onced()).toBe(onced());
 		});
 	});
 });
