@@ -1,3 +1,5 @@
+import fse from 'fs-extra';
+
 import {
 	cleanProjectorDir,
 	fixtureFile,
@@ -138,6 +140,18 @@ describe('projectors/windows', () => {
 						versionStrings,
 						removeCodeSignature
 					})).write(dir, 'application.exe');
+				});
+
+				it('loadmovie', async () => {
+					const dir = await getDir('loadmovie');
+					await (new ProjectorWindows({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-loadmovie.swf')
+					})).write(dir, 'application');
+					await fse.copy(
+						fixtureFile('image.jpg'),
+						`${dir}/image.jpg`
+					);
 				});
 			});
 		}

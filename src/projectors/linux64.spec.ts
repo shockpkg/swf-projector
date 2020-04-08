@@ -1,3 +1,5 @@
+import fse from 'fs-extra';
+
 import {
 	cleanProjectorDir,
 	fixtureFile,
@@ -72,6 +74,37 @@ describe('projectors/linux64', () => {
 						movieFile: fixtureFile('swf3.swf'),
 						patchProjectorOffset: true
 					})).write(dir, 'application');
+				});
+
+				it('zlib', async () => {
+					const dir = await getDir('zlib');
+					await (new ProjectorLinux64({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-zlib.swf'),
+						patchProjectorOffset: true
+					})).write(dir, 'application');
+				});
+
+				it('lzma', async () => {
+					const dir = await getDir('lzma');
+					await (new ProjectorLinux64({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf14-lzma.swf'),
+						patchProjectorOffset: true
+					})).write(dir, 'application');
+				});
+
+				it('loadmovie', async () => {
+					const dir = await getDir('loadmovie');
+					await (new ProjectorLinux64({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-loadmovie.swf'),
+						patchProjectorOffset: true
+					})).write(dir, 'application');
+					await fse.copy(
+						fixtureFile('image.jpg'),
+						`${dir}/image.jpg`
+					);
 				});
 			});
 		}

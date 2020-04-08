@@ -1,3 +1,5 @@
+import fse from 'fs-extra';
+
 import {
 	cleanProjectorDir,
 	fixtureFile,
@@ -144,6 +146,18 @@ describe('projectors/macapp', () => {
 						binaryName: 'application',
 						removeCodeSignature
 					})).write(dir, 'application.app');
+				});
+
+				it('loadmovie', async () => {
+					const dir = await getDir('loadmovie');
+					await (new ProjectorMacApp({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-loadmovie.swf')
+					})).write(dir, 'application');
+					await fse.copy(
+						fixtureFile('image.jpg'),
+						`${dir}/image.jpg`
+					);
 				});
 			});
 		}
