@@ -148,9 +148,15 @@ describe('util', () => {
 
 	describe('once', () => {
 		it('called once', () => {
+			let count = 0;
 			const obj = {};
-			const onced = once(() => obj);
+			const onced = once(() => {
+				count++;
+				return obj;
+			});
+			expect(count).toBe(0);
 			expect(onced()).toBe(onced());
+			expect(count).toBe(1);
 		});
 	});
 });
