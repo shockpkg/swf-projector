@@ -54,7 +54,7 @@ function patchHexToBytes(str: string) {
 // Essentially these replace the bad ELF header reading logic with new logic.
 // The code was never updated from the old 32-bit code and is not accurate.
 const linux64PatchProjectorOffsetPatches = once(() => [
-	// 24.0.0.186 - 24.0.0.221:
+	// 24.0.0.186
 	{
 		find: patchHexToBytes([
 			'48 8D B4 24 80 00 00 00',    // lea     rsi, [rsp+0x80]
@@ -142,7 +142,7 @@ const linux64PatchProjectorOffsetPatches = once(() => [
 			'EB --'                       // jmp     --
 		].join(' '))
 	},
-	// 25.0.0.127 - 32.0.0.270:
+	// 25.0.0.127
 	{
 		find: patchHexToBytes([
 			'48 8D 74 24 70',             // lea     rsi, [rsp+0x70]
@@ -230,7 +230,7 @@ const linux64PatchProjectorOffsetPatches = once(() => [
 			'EB --'                       // jmp     --
 		].join(' '))
 	},
-	// 32.0.0.293 - lastest:
+	// 32.0.0.293
 	{
 		find: patchHexToBytes([
 			'48 8D 74 24 70',             // lea     rsi, [rsp+0x70]
