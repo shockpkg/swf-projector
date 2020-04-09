@@ -18,6 +18,7 @@ function listSamples() {
 		version: number[];
 		debug: boolean;
 		lzma: boolean;
+		patchProjectorPath: boolean;
 	}[] = [];
 	if (!shouldTest('linux')) {
 		return r;
@@ -34,11 +35,15 @@ function listSamples() {
 		const version = m[1].split('.').map(Number);
 		const debug = !!m[3];
 		const lzma = version[0] > 11 || (version[0] === 11 && version[1] >= 1);
+
+		// Surprisingly it appears that version 6 resolved the path correctly.
+		const patchProjectorPath = version[0] > 6;
 		r.push({
 			name,
 			version,
 			debug,
-			lzma
+			lzma,
+			patchProjectorPath
 		});
 	}
 
@@ -100,7 +105,8 @@ describe('projectors/linux', () => {
 					const dir = await getDir('loadmovie');
 					await (new ProjectorLinux({
 						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-loadmovie.swf')
+						movieFile: fixtureFile('swf6-loadmovie.swf'),
+						patchProjectorPath: pkg.patchProjectorPath
 					})).write(dir, 'application');
 					await fse.copy(
 						fixtureFile('image.jpg'),

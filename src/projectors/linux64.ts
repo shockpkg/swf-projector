@@ -8,7 +8,8 @@ import {
 	defaultFalse
 } from '../util';
 import {
-	linux64PatchProjectorOffsetData
+	linux64PatchProjectorOffsetData,
+	linux64PatchProjectorPathData
 } from '../utils/linux';
 
 import {
@@ -65,10 +66,13 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 * @param name Save name.
 	 */
 	protected async _modifyPlayer(path: string, name: string) {
-		const {patchProjectorOffset} = this;
+		const {
+			patchProjectorOffset,
+			patchProjectorPath
+		} = this;
 
 		// Skip if no patching was requested.
-		if (!patchProjectorOffset) {
+		if (!(patchProjectorOffset || patchProjectorPath)) {
 			return;
 		}
 
@@ -77,7 +81,12 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		let data = await fse.readFile(projectorPath);
 
 		// Attempt to patch the projector data.
-		data = linux64PatchProjectorOffsetData(data);
+		if (patchProjectorOffset) {
+			data = linux64PatchProjectorOffsetData(data);
+		}
+		if (patchProjectorPath) {
+			data = linux64PatchProjectorPathData(data);
+		}
 
 		// Write out patched data.
 		await fse.writeFile(projectorPath, data);

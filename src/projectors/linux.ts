@@ -11,12 +11,27 @@ import {
 import fse from 'fs-extra';
 
 import {
+	defaultFalse
+} from '../util';
+import {
+	linuxPatchProjectorPathData
+} from '../utils/linux';
+import {
 	IProjectorOptions,
 	Projector
 } from '../projector';
 
-// eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface IProjectorLinuxOptions extends IProjectorOptions {
+
+	/**
+	 * Attempt to patch the projector path reading code.
+	 * Necessary to work around broken projector path resolving code.
+	 * Set to true to automaticly patch the code if possible.
+	 * Supports projector versions 9+ (unnecessary for version 6).
+	 *
+	 * @default false
+	 */
+	patchProjectorPath?: boolean;
 }
 
 /**
@@ -25,8 +40,20 @@ export interface IProjectorLinuxOptions extends IProjectorOptions {
  * @param options Options object.
  */
 export class ProjectorLinux extends Projector {
+	/**
+	 * Attempt to patch the projector path reading code.
+	 * Necessary to work around broken projector path resolving code.
+	 * Set to true to automaticly patch the code if possible.
+	 * Supports projector versions 9+ (unnecessary for version 6).
+	 *
+	 * @default false
+	 */
+	public patchProjectorPath: boolean;
+
 	constructor(options: Readonly<IProjectorLinuxOptions> = {}) {
 		super(options);
+
+		this.patchProjectorPath = defaultFalse(options.patchProjectorPath);
 	}
 
 	/**
@@ -160,7 +187,26 @@ export class ProjectorLinux extends Projector {
 	 * @param name Save name.
 	 */
 	protected async _modifyPlayer(path: string, name: string) {
-		// Nothing to do here.
+		const {
+			patchProjectorPath
+		} = this;
+
+		// Skip if no patching was requested.
+		if (!patchProjectorPath) {
+			return;
+		}
+
+		// Read the projector file.
+		const projectorPath = pathJoin(path, name);
+		let data = await fse.readFile(projectorPath);
+
+		// Attempt to patch the projector data.
+		if (patchProjectorPath) {
+			data = linuxPatchProjectorPathData(data);
+		}
+
+		// Write out patched data.
+		await fse.writeFile(projectorPath, data);
 	}
 
 	/**

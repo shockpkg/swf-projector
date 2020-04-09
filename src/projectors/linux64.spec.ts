@@ -99,6 +99,7 @@ describe('projectors/linux64', () => {
 					await (new ProjectorLinux64({
 						player: await getPlayer(),
 						movieFile: fixtureFile('swf6-loadmovie.swf'),
+						patchProjectorPath: true,
 						patchProjectorOffset: true
 					})).write(dir, 'application');
 					await fse.copy(
