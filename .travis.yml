@@ -224,7 +224,7 @@ matrix:
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-11.2.202.644-linux-i386-sa-debug"
 
-  # Test every Linux x86_64 version (ensures ASM patch works on all versions):
+  # Test every Linux x86_64 version (ensures ASM patchs works on all versions):
   - os: linux
     node_js: v13.12.0
     env:
@@ -359,6 +359,288 @@ matrix:
         flash-player-24.0.0.194-linux-x86_64-sa-debug
         flash-player-24.0.0.221-linux-x86_64-sa
         flash-player-24.0.0.221-linux-x86_64-sa-debug"
+
+  # Test every Linux i386 version (ensures ASM patchs works on all versions):
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-11.2.202.616-linux-i386-sa
+        flash-player-11.2.202.616-linux-i386-sa-debug
+        flash-player-11.2.202.621-linux-i386-sa
+        flash-player-11.2.202.621-linux-i386-sa-debug
+        flash-player-11.2.202.626-linux-i386-sa
+        flash-player-11.2.202.626-linux-i386-sa-debug
+        flash-player-11.2.202.632-linux-i386-sa
+        flash-player-11.2.202.632-linux-i386-sa-debug
+        flash-player-11.2.202.635-linux-i386-sa
+        flash-player-11.2.202.635-linux-i386-sa-debug
+        flash-player-11.2.202.637-linux-i386-sa
+        flash-player-11.2.202.637-linux-i386-sa-debug
+        flash-player-11.2.202.643-linux-i386-sa
+        flash-player-11.2.202.643-linux-i386-sa-debug
+        flash-player-11.2.202.644-linux-i386-sa
+        flash-player-11.2.202.644-linux-i386-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-11.2.202.508-linux-i386-sa
+        flash-player-11.2.202.508-linux-i386-sa-debug
+        flash-player-11.2.202.521-linux-i386-sa
+        flash-player-11.2.202.521-linux-i386-sa-debug
+        flash-player-11.2.202.535-linux-i386-sa
+        flash-player-11.2.202.535-linux-i386-sa-debug
+        flash-player-11.2.202.540-linux-i386-sa
+        flash-player-11.2.202.540-linux-i386-sa-debug
+        flash-player-11.2.202.548-linux-i386-sa
+        flash-player-11.2.202.548-linux-i386-sa-debug
+        flash-player-11.2.202.554-linux-i386-sa
+        flash-player-11.2.202.554-linux-i386-sa-debug
+        flash-player-11.2.202.559-linux-i386-sa
+        flash-player-11.2.202.559-linux-i386-sa-debug
+        flash-player-11.2.202.569-linux-i386-sa
+        flash-player-11.2.202.569-linux-i386-sa-debug
+        flash-player-11.2.202.577-linux-i386-sa
+        flash-player-11.2.202.577-linux-i386-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-11.2.202.400-linux-i386-sa
+        flash-player-11.2.202.400-linux-i386-sa-debug
+        flash-player-11.2.202.406-linux-i386-sa
+        flash-player-11.2.202.406-linux-i386-sa-debug
+        flash-player-11.2.202.411-linux-i386-sa
+        flash-player-11.2.202.411-linux-i386-sa-debug
+        flash-player-11.2.202.418-linux-i386-sa
+        flash-player-11.2.202.418-linux-i386-sa-debug
+        flash-player-11.2.202.424-linux-i386-sa
+        flash-player-11.2.202.424-linux-i386-sa-debug
+        flash-player-11.2.202.425-linux-i386-sa
+        flash-player-11.2.202.425-linux-i386-sa-debug
+        flash-player-11.2.202.429-linux-i386-sa
+        flash-player-11.2.202.429-linux-i386-sa-debug
+        flash-player-11.2.202.438-linux-i386-sa
+        flash-player-11.2.202.438-linux-i386-sa-debug
+        flash-player-11.2.202.440-linux-i386-sa
+        flash-player-11.2.202.440-linux-i386-sa-debug
+        flash-player-11.2.202.442-linux-i386-sa
+        flash-player-11.2.202.442-linux-i386-sa-debug
+        flash-player-11.2.202.451-linux-i386-sa
+        flash-player-11.2.202.451-linux-i386-sa-debug
+        flash-player-11.2.202.457-linux-i386-sa
+        flash-player-11.2.202.457-linux-i386-sa-debug
+        flash-player-11.2.202.460-linux-i386-sa
+        flash-player-11.2.202.460-linux-i386-sa-debug
+        flash-player-11.2.202.466-linux-i386-sa
+        flash-player-11.2.202.466-linux-i386-sa-debug
+        flash-player-11.2.202.468-linux-i386-sa
+        flash-player-11.2.202.468-linux-i386-sa-debug
+        flash-player-11.2.202.481-linux-i386-sa
+        flash-player-11.2.202.481-linux-i386-sa-debug
+        flash-player-11.2.202.491-linux-i386-sa
+        flash-player-11.2.202.491-linux-i386-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-11.2.202.310-linux-i386-sa
+        flash-player-11.2.202.310-linux-i386-sa-debug
+        flash-player-11.2.202.327-linux-i386-sa
+        flash-player-11.2.202.327-linux-i386-sa-debug
+        flash-player-11.2.202.332-linux-i386-sa
+        flash-player-11.2.202.332-linux-i386-sa-debug
+        flash-player-11.2.202.335-linux-i386-sa
+        flash-player-11.2.202.335-linux-i386-sa-debug
+        flash-player-11.2.202.336-linux-i386-sa
+        flash-player-11.2.202.341-linux-i386-sa
+        flash-player-11.2.202.341-linux-i386-sa-debug
+        flash-player-11.2.202.346-linux-i386-sa
+        flash-player-11.2.202.346-linux-i386-sa-debug
+        flash-player-11.2.202.350-linux-i386-sa
+        flash-player-11.2.202.350-linux-i386-sa-debug
+        flash-player-11.2.202.356-linux-i386-sa
+        flash-player-11.2.202.356-linux-i386-sa-debug
+        flash-player-11.2.202.359-linux-i386-sa
+        flash-player-11.2.202.359-linux-i386-sa-debug
+        flash-player-11.2.202.378-linux-i386-sa
+        flash-player-11.2.202.378-linux-i386-sa-debug
+        flash-player-11.2.202.394-linux-i386-sa
+        flash-player-11.2.202.394-linux-i386-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-11.2.202.228-linux-i386-sa
+        flash-player-11.2.202.228-linux-i386-sa-debug
+        flash-player-11.2.202.233-linux-i386-sa
+        flash-player-11.2.202.233-linux-i386-sa-debug
+        flash-player-11.2.202.235-linux-i386-sa
+        flash-player-11.2.202.235-linux-i386-sa-debug
+        flash-player-11.2.202.238-linux-i386-sa
+        flash-player-11.2.202.238-linux-i386-sa-debug
+        flash-player-11.2.202.243-linux-i386-sa
+        flash-player-11.2.202.243-linux-i386-sa-debug
+        flash-player-11.2.202.251-linux-i386-sa
+        flash-player-11.2.202.251-linux-i386-sa-debug
+        flash-player-11.2.202.258-linux-i386-sa
+        flash-player-11.2.202.258-linux-i386-sa-debug
+        flash-player-11.2.202.261-linux-i386-sa
+        flash-player-11.2.202.261-linux-i386-sa-debug
+        flash-player-11.2.202.262-linux-i386-sa
+        flash-player-11.2.202.262-linux-i386-sa-debug
+        flash-player-11.2.202.270-linux-i386-sa
+        flash-player-11.2.202.270-linux-i386-sa-debug
+        flash-player-11.2.202.273-linux-i386-sa
+        flash-player-11.2.202.273-linux-i386-sa-debug
+        flash-player-11.2.202.275-linux-i386-sa
+        flash-player-11.2.202.275-linux-i386-sa-debug
+        flash-player-11.2.202.280-linux-i386-sa
+        flash-player-11.2.202.280-linux-i386-sa-debug
+        flash-player-11.2.202.285-linux-i386-sa
+        flash-player-11.2.202.285-linux-i386-sa-debug
+        flash-player-11.2.202.291-linux-i386-sa
+        flash-player-11.2.202.291-linux-i386-sa-debug
+        flash-player-11.2.202.297-linux-i386-sa
+        flash-player-11.2.202.297-linux-i386-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-11.0.1.152-linux-i386-sa
+        flash-player-11.0.1.152-linux-i386-sa-debug
+        flash-player-11.1.102.55-linux-i386-sa
+        flash-player-11.1.102.55-linux-i386-sa-debug
+        flash-player-11.1.102.62-linux-i386-sa
+        flash-player-11.1.102.62-linux-i386-sa-debug
+        flash-player-11.1.102.63-linux-i386-sa
+        flash-player-11.1.102.63-linux-i386-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-10.3.181.14-linux-sa
+        flash-player-10.3.181.14-linux-sa-debug
+        flash-player-10.3.181.22-linux-sa
+        flash-player-10.3.181.22-linux-sa-debug
+        flash-player-10.3.181.26-linux-sa
+        flash-player-10.3.181.26-linux-sa-debug
+        flash-player-10.3.181.34-linux-sa
+        flash-player-10.3.181.34-linux-sa-debug
+        flash-player-10.3.183.5-linux-sa
+        flash-player-10.3.183.5-linux-sa-debug
+        flash-player-10.3.183.7-linux-sa
+        flash-player-10.3.183.7-linux-sa-debug
+        flash-player-10.3.183.10-linux-sa
+        flash-player-10.3.183.10-linux-sa-debug
+        flash-player-10.3.183.11-linux-sa
+        flash-player-10.3.183.11-linux-sa-debug
+        flash-player-10.3.183.15-linux-sa
+        flash-player-10.3.183.15-linux-sa-debug
+        flash-player-10.3.183.16-linux-sa
+        flash-player-10.3.183.16-linux-sa-debug
+        flash-player-10.3.183.18-linux-sa
+        flash-player-10.3.183.18-linux-sa-debug
+        flash-player-10.3.183.20-linux-sa
+        flash-player-10.3.183.20-linux-sa-debug
+        flash-player-10.3.183.23-linux-sa
+        flash-player-10.3.183.23-linux-sa-debug
+        flash-player-10.3.183.29-linux-sa
+        flash-player-10.3.183.29-linux-sa-debug
+        flash-player-10.3.183.43-linux-sa
+        flash-player-10.3.183.43-linux-sa-debug
+        flash-player-10.3.183.48-linux-sa-debug
+        flash-player-10.3.183.50-linux-sa
+        flash-player-10.3.183.50-linux-sa-debug
+        flash-player-10.3.183.51-linux-sa
+        flash-player-10.3.183.51-linux-sa-debug
+        flash-player-10.3.183.61-linux-sa
+        flash-player-10.3.183.61-linux-sa-debug
+        flash-player-10.3.183.67-linux-sa
+        flash-player-10.3.183.67-linux-sa-debug
+        flash-player-10.3.183.68-linux-sa
+        flash-player-10.3.183.68-linux-sa-debug
+        flash-player-10.3.183.75-linux-sa
+        flash-player-10.3.183.75-linux-sa-debug
+        flash-player-10.3.183.86-linux-sa
+        flash-player-10.3.183.86-linux-sa-debug
+        flash-player-10.3.183.90-linux-sa
+        flash-player-10.3.183.90-linux-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-10.2.152.26-linux-sa
+        flash-player-10.2.152.26-linux-sa-debug
+        flash-player-10.2.153.1-linux-sa
+        flash-player-10.2.153.1-linux-sa-debug
+        flash-player-10.2.159.1-linux-sa
+        flash-player-10.2.159.1-linux-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-10.1.53.64-linux-sa
+        flash-player-10.1.53.64-linux-sa-debug
+        flash-player-10.1.82.76-linux-sa
+        flash-player-10.1.82.76-linux-sa-debug
+        flash-player-10.1.85.3-linux-sa
+        flash-player-10.1.102.64-linux-sa
+        flash-player-10.1.102.64-linux-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-10.0.12.36-linux-sa
+        flash-player-10.0.12.36-linux-sa-debug
+        flash-player-10.0.15.3-linux-sa
+        flash-player-10.0.15.3-linux-sa-debug
+        flash-player-10.0.22.87-linux-sa
+        flash-player-10.0.22.87-linux-sa-debug
+        flash-player-10.0.32.18-linux-sa
+        flash-player-10.0.32.18-linux-sa-debug
+        flash-player-10.0.42.34-linux-sa
+        flash-player-10.0.42.34-linux-sa-debug
+        flash-player-10.0.45.2-linux-sa-debug"
+
+  - os: linux
+    node_js: v13.12.0
+    env:
+    - SHOCKPKG_PACKAGES="
+        flash-player-6.0.79.0-linux-sa
+        flash-player-9.0.115.0-linux-sa
+        flash-player-9.0.115.0-linux-sa-debug
+        flash-player-9.0.124.0-linux-sa
+        flash-player-9.0.124.0-linux-sa-debug
+        flash-player-9.0.151.0-linux-sa
+        flash-player-9.0.151.0-linux-sa-debug
+        flash-player-9.0.152.0-linux-sa
+        flash-player-9.0.152.0-linux-sa-debug
+        flash-player-9.0.159.0-linux-sa
+        flash-player-9.0.159.0-linux-sa-debug
+        flash-player-9.0.246.0-linux-sa
+        flash-player-9.0.246.0-linux-sa-debug
+        flash-player-9.0.260.0-linux-sa
+        flash-player-9.0.260.0-linux-sa-debug
+        flash-player-9.0.262.0-linux-sa
+        flash-player-9.0.262.0-linux-sa-debug
+        flash-player-9.0.277.0-linux-sa
+        flash-player-9.0.277.0-linux-sa-debug
+        flash-player-9.0.280.0-linux-sa
+        flash-player-9.0.283.0-linux-sa
+        flash-player-9.0.283.0-linux-sa-debug
+        flash-player-9.0.289.0-linux-sa
+        flash-player-9.0.289.0-linux-sa-debug"
 
 script:
 - npm run shockpkg -- update --summary
