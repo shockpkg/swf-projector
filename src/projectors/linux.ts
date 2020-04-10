@@ -14,6 +14,7 @@ import {
 	defaultFalse
 } from '../util';
 import {
+	linuxPatchMenuRemoveData,
 	linuxPatchProjectorPathData
 } from '../utils/linux';
 import {
@@ -22,6 +23,14 @@ import {
 } from '../projector';
 
 export interface IProjectorLinuxOptions extends IProjectorOptions {
+
+	/**
+	 * Attempt to patch out application menu.
+	 * Set to true to automaticly patch the code if possible.
+	 *
+	 * @default false
+	 */
+	patchMenuRemove?: boolean;
 
 	/**
 	 * Attempt to patch the projector path reading code.
@@ -41,6 +50,14 @@ export interface IProjectorLinuxOptions extends IProjectorOptions {
  */
 export class ProjectorLinux extends Projector {
 	/**
+	 * Attempt to patch out application menu.
+	 * Set to true to automaticly patch the code if possible.
+	 *
+	 * @default false
+	 */
+	public patchMenuRemove: boolean;
+
+	/**
 	 * Attempt to patch the projector path reading code.
 	 * Necessary to work around broken projector path resolving code.
 	 * Set to true to automaticly patch the code if possible.
@@ -53,6 +70,7 @@ export class ProjectorLinux extends Projector {
 	constructor(options: Readonly<IProjectorLinuxOptions> = {}) {
 		super(options);
 
+		this.patchMenuRemove = defaultFalse(options.patchMenuRemove);
 		this.patchProjectorPath = defaultFalse(options.patchProjectorPath);
 	}
 
@@ -188,11 +206,15 @@ export class ProjectorLinux extends Projector {
 	 */
 	protected async _modifyPlayer(path: string, name: string) {
 		const {
+			patchMenuRemove,
 			patchProjectorPath
 		} = this;
 
 		// Skip if no patching was requested.
-		if (!patchProjectorPath) {
+		if (!(
+			patchMenuRemove ||
+			patchProjectorPath
+		)) {
 			return;
 		}
 
@@ -201,6 +223,9 @@ export class ProjectorLinux extends Projector {
 		let data = await fse.readFile(projectorPath);
 
 		// Attempt to patch the projector data.
+		if (patchMenuRemove) {
+			data = linuxPatchMenuRemoveData(data);
+		}
 		if (patchProjectorPath) {
 			data = linuxPatchProjectorPathData(data);
 		}

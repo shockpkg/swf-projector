@@ -113,6 +113,28 @@ describe('projectors/linux', () => {
 						`${dir}/image.jpg`
 					);
 				});
+
+				it('showmenu-false', async () => {
+					const dir = await getDir('showmenu-false');
+					await (new ProjectorLinux({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-showmenu-false.swf')
+					})).write(dir, 'application');
+				});
+
+				it('nomenu', async () => {
+					const dir = await getDir('nomenu');
+					await (new ProjectorLinux({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-loadmovie.swf'),
+						patchProjectorPath: pkg.patchProjectorPath,
+						patchMenuRemove: true
+					})).write(dir, 'application');
+					await fse.copy(
+						fixtureFile('image.jpg'),
+						`${dir}/image.jpg`
+					);
+				});
 			});
 		}
 	});

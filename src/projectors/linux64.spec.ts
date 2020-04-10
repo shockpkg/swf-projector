@@ -107,6 +107,30 @@ describe('projectors/linux64', () => {
 						`${dir}/image.jpg`
 					);
 				});
+
+				it('showmenu-false', async () => {
+					const dir = await getDir('showmenu-false');
+					await (new ProjectorLinux64({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-showmenu-false.swf'),
+						patchProjectorOffset: true
+					})).write(dir, 'application');
+				});
+
+				it('nomenu', async () => {
+					const dir = await getDir('nomenu');
+					await (new ProjectorLinux64({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-loadmovie.swf'),
+						patchProjectorPath: true,
+						patchProjectorOffset: true,
+						patchMenuRemove: true
+					})).write(dir, 'application');
+					await fse.copy(
+						fixtureFile('image.jpg'),
+						`${dir}/image.jpg`
+					);
+				});
 			});
 		}
 	});

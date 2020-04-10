@@ -153,6 +153,14 @@ describe('projectors/windows', () => {
 						`${dir}/image.jpg`
 					);
 				});
+
+				it('showmenu-false', async () => {
+					const dir = await getDir('showmenu-false');
+					await (new ProjectorWindows({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-showmenu-false.swf')
+					})).write(dir, 'application');
+				});
 			});
 		}
 	});

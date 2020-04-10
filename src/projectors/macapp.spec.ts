@@ -159,6 +159,14 @@ describe('projectors/macapp', () => {
 						`${dir}/image.jpg`
 					);
 				});
+
+				it('showmenu-false', async () => {
+					const dir = await getDir('showmenu-false');
+					await (new ProjectorMacApp({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf6-showmenu-false.swf')
+					})).write(dir, 'application');
+				});
 			});
 		}
 	});
