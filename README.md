@@ -69,7 +69,10 @@ import {ProjectorLinux} from '@shockpkg/swf-projector';
 async function main() {
 	const projector = new ProjectorLinux({
 		player: 'player.tar.gz',
-		movieFile: 'movie.swf'
+		movieFile: 'movie.swf',
+		patchWindowTitle: 'Custom Title',
+		// patchMenuRemove: true, // Optionally disable menu entirely.
+		patchProjectorPath: true // Necessary to load from relative paths.
 	});
 	await projector.write('out-dir-linux', 'application');
 }
@@ -88,6 +91,9 @@ async function main() {
 	const projector = new ProjectorLinux64({
 		player: 'player.tar.gz',
 		movieFile: 'movie.swf',
+		patchWindowTitle: 'Custom Title',
+		// patchMenuRemove: true, // Optionally disable menu entirely.
+		patchProjectorPath: true, // Necessary to load from relative paths.
 		patchProjectorOffset: true // Necessary unless the binaries get fixed.
 	});
 	await projector.write('out-dir-linux64', 'application');
@@ -96,6 +102,67 @@ main().catch(err => {
 	process.exitCode = 1;
 	console.error(err);
 });
+```
+
+# Notes
+
+## Linux
+
+### Option: `patchWindowTitle`
+
+An option to replace the window title stored in the binary. Size cannot be larger than the title being replaced in the binary.
+
+### Option: `patchMenuRemove`
+
+An option to completely disable the menu for the projector. Avoids layout calculation issues when the menu is in the window.
+
+### Option: `patchProjectorPath`
+
+Compatible with Flash Player 9+ (version 6 was correct).
+
+Required since Flash Player 10.1+ to load relative paths (earlier versions would try the relative path first, before trying resolved path).
+
+Projectors create the main URL with: `"file:" + argv[0]` resolving to a bad URL like `file://file|%2Fpath%2Fto%2Fapplication` causing relative paths to load from the root of the drive.
+
+This patch replaces the string reference to use `"file://" + argv[0]` instead, which resolves to `file:///path/to/application` when run by an absolute path.
+
+Not a perfect patch because it does not resolve the full path first, if run from relative path would get path like `file://./application`, but an improvement. Recommended to use a shell script that resolves itself and runs projector from an absolute path (see example script below).
+
+### Option: `patchProjectorOffset`
+
+The Linux projector reading code was never updated for 64-bit ELF compatibility. This patch fixes reading projector data in 64-bit Linux projectors.
+
+### Example Self-Resolving Shell Script:
+
+```sh
+#!/bin/sh
+
+# Self path.
+__self="$0"
+if [ ! -f "$__self" ]; then
+	__self="`which "$__self"`"
+fi
+
+# Resolve symlinks.
+while [ -h "$__self" ]; do
+	__file="`readlink "$__self"`"
+	case "$__file" in
+	/*)
+		__self="$__file"
+		;;
+	*)
+		__self="`dirname "$__self"`/$__file"
+		;;
+	esac
+done
+
+# Assemble paths.
+__dir="`dirname "$__self"`"
+__dir="`cd "$__dir" > /dev/null && pwd`"
+__file="$__dir/`basename "$__self"`"
+
+# Run projector.
+"$__dir/projector"
 ```
 
 
