@@ -33,7 +33,21 @@ import {ProjectorWindows} from '@shockpkg/swf-projector';
 async function main() {
 	const projector = new ProjectorWindows({
 		player: 'player.zip',
-		movieFile: 'movie.swf'
+		movieFile: 'movie.swf',
+		iconFile: 'icon.ico', // Optional custom icon.
+		fileVersion: '3.1.4', // Optional custom PE resource data.
+		productVersion: '3.1.4', // Optional custom PE resource data.
+		versionStrings: { // Optional custom PE resource data.
+			CompanyName: 'Custom Company Name',
+			FileDescription: 'Custom File Description',
+			LegalCopyright: 'Custom Legal Copyright',
+			ProductName: 'Custom Pruduct Name',
+			LegalTrademarks: 'Custom Legal Trademarks',
+			OriginalFilename: 'CustomOriginalFilename.exe',
+			InternalName: 'CustomInternalName',
+			Comments: 'Custom Comments'
+		},
+		removeCodeSignature: true // Optionally remove now-broken signature.
 	});
 	await projector.write('out-dir-windows', 'application.exe');
 }
@@ -51,7 +65,14 @@ import {ProjectorMacApp} from '@shockpkg/swf-projector';
 async function main() {
 	const projector = new ProjectorMacApp({
 		player: 'player.dmg',
-		movieFile: 'movie.swf'
+		movieFile: 'movie.swf',
+		iconFile: 'icon.icns', // Optional custom icon.
+		binaryName: 'application', // Optionally change main binary name.
+		infoPlistFile: 'Info.plist', // Optionally base Info.plist file.
+		pkgInfoFile: 'PkgInfo', // Optionally custom PkgInfo file.
+		updateBundleName: true, // Optionally update bundle name.
+		removeFileAssociations: true, // Optionally remove file associations.
+		removeCodeSignature: true // Optionally remove now-broken signature.
 	});
 	await projector.write('out-dir-macapp', 'application.app');
 }
