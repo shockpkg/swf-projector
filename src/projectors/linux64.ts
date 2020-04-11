@@ -8,6 +8,7 @@ import {
 	defaultFalse
 } from '../util';
 import {
+	linux64PatchWindowTitle,
 	linux64PatchMenuRemoveData,
 	linux64PatchProjectorOffsetData,
 	linux64PatchProjectorPathData
@@ -68,6 +69,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 */
 	protected async _modifyPlayer(path: string, name: string) {
 		const {
+			patchWindowTitle,
 			patchMenuRemove,
 			patchProjectorPath,
 			patchProjectorOffset
@@ -75,6 +77,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 
 		// Skip if no patching was requested.
 		if (!(
+			patchWindowTitle ||
 			patchMenuRemove ||
 			patchProjectorPath ||
 			patchProjectorOffset
@@ -87,6 +90,9 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		let data = await fse.readFile(projectorPath);
 
 		// Attempt to patch the projector data.
+		if (patchWindowTitle) {
+			data = linux64PatchWindowTitle(data, patchWindowTitle);
+		}
 		if (patchMenuRemove) {
 			data = linux64PatchMenuRemoveData(data);
 		}

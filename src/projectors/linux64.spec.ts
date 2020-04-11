@@ -94,6 +94,16 @@ describe('projectors/linux64', () => {
 					})).write(dir, 'application');
 				});
 
+				it('title', async () => {
+					const dir = await getDir('title');
+					await (new ProjectorLinux64({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf3.swf'),
+						patchProjectorOffset: true,
+						patchWindowTitle: 'Custom Title'
+					})).write(dir, 'application');
+				});
+
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
 					await (new ProjectorLinux64({

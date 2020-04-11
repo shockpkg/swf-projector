@@ -11,9 +11,11 @@ import {
 import fse from 'fs-extra';
 
 import {
+	defaultNull,
 	defaultFalse
 } from '../util';
 import {
+	linuxPatchWindowTitle,
 	linuxPatchMenuRemoveData,
 	linuxPatchProjectorPathData
 } from '../utils/linux';
@@ -23,6 +25,15 @@ import {
 } from '../projector';
 
 export interface IProjectorLinuxOptions extends IProjectorOptions {
+
+	/**
+	 * Attempt to patch the window title with a custom title.
+	 * Set to a non-empty string to automaticly patch the binary if possible.
+	 * Size limit depends on the size of the string being replaced.
+	 *
+	 * @default null
+	 */
+	patchWindowTitle?: string | null;
 
 	/**
 	 * Attempt to patch out application menu.
@@ -50,6 +61,15 @@ export interface IProjectorLinuxOptions extends IProjectorOptions {
  */
 export class ProjectorLinux extends Projector {
 	/**
+	 * Attempt to patch the window title with a custom title.
+	 * Set to a non-empty string to automaticly patch the binary if possible.
+	 * Size limit depends on the size of the string being replaced.
+	 *
+	 * @default null
+	 */
+	public patchWindowTitle: string | null;
+
+	/**
 	 * Attempt to patch out application menu.
 	 * Set to true to automaticly patch the code if possible.
 	 *
@@ -70,6 +90,7 @@ export class ProjectorLinux extends Projector {
 	constructor(options: Readonly<IProjectorLinuxOptions> = {}) {
 		super(options);
 
+		this.patchWindowTitle = defaultNull(options.patchWindowTitle);
 		this.patchMenuRemove = defaultFalse(options.patchMenuRemove);
 		this.patchProjectorPath = defaultFalse(options.patchProjectorPath);
 	}
@@ -206,12 +227,14 @@ export class ProjectorLinux extends Projector {
 	 */
 	protected async _modifyPlayer(path: string, name: string) {
 		const {
+			patchWindowTitle,
 			patchMenuRemove,
 			patchProjectorPath
 		} = this;
 
 		// Skip if no patching was requested.
 		if (!(
+			patchWindowTitle ||
 			patchMenuRemove ||
 			patchProjectorPath
 		)) {
@@ -223,6 +246,9 @@ export class ProjectorLinux extends Projector {
 		let data = await fse.readFile(projectorPath);
 
 		// Attempt to patch the projector data.
+		if (patchWindowTitle) {
+			data = linuxPatchWindowTitle(data, patchWindowTitle);
+		}
 		if (patchMenuRemove) {
 			data = linuxPatchMenuRemoveData(data);
 		}

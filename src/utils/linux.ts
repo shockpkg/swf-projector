@@ -69,6 +69,37 @@ function writeFuzzy(data: Buffer, offset: number, fuzzy: (number | null)[]) {
 }
 
 /**
+ * Read a C string from buffer at offset.
+ * Returns slice of the buffer.
+ *
+ * @param data The buffer.
+ * @param offset OFfset of the string.
+ * @param includeNull Optionally include null byte.
+ * @param includeAlign Optionally include allignment bytes.
+ * @returns Buffer slice.
+ */
+function readCstr(
+	data: Buffer,
+	offset: number,
+	includeNull = false,
+	includeAlign = false
+) {
+	let end = offset;
+	while (data.readUInt8(end)) {
+		end++;
+	}
+	if (includeNull) {
+		end++;
+		if (includeAlign) {
+			while (!data.readUInt8(end)) {
+				end++;
+			}
+		}
+	}
+	return data.slice(offset, end);
+}
+
+/**
  * Converts a hex string into a series of byte values, with unknowns being null.
  *
  * @param str Hex string.
@@ -147,6 +178,81 @@ function patchOnce(data: Buffer, patches: ({
 			writeFuzzy(data, offset, foundGroup[i].replace);
 		}
 	}
+}
+
+/**
+ * Attempt to replace Linux 32-bit menu title.
+ *
+ * @param data Projector data, maybe modified.
+ * @param title Replacement title.
+ * @returns Patched data, can be same buffer, but modified.
+ */
+export function linuxPatchWindowTitle(data: Buffer, title: string) {
+	// Encode the replacement string.
+	const titleData = Buffer.from(title, 'utf8');
+
+	// Titles should match one of these.
+	const regAFP = /^Adobe Flash Player \d+(,\d+,\d+,\d+)?$/;
+	const regMFP = /^Macromedia Flash Player \d+(,\d+,\d+,\d+)?$/;
+
+	const targets: Buffer[] = [];
+	const matched = (cstr: Buffer) => {
+		if (!(titleData.length < cstr.length)) {
+			throw new Error(
+				`Replacement window title larger that ${cstr.length - 1}`
+			);
+		}
+		targets.push(cstr);
+	};
+
+	for (const offset of findExact(data, '\0Adobe Flash Player ')) {
+		const cstr = readCstr(data, offset + 1, true, false);
+		const [str] = cstr.toString('ascii').split('\0', 1);
+		if (regAFP.test(str)) {
+			matched(cstr);
+		}
+	}
+
+	if (!targets.length) {
+		// Not sure why Flash Player 9 is like this, but this does find it.
+		for (const offset of findExact(data, '\x08Adobe Flash Player ')) {
+			const cstr = readCstr(data, offset + 1, true, false);
+			const [str] = cstr.toString('ascii').split('\0', 1);
+			if (regAFP.test(str)) {
+				matched(cstr);
+			}
+		}
+	}
+
+	if (!targets.length) {
+		for (const offset of findExact(data, '\0Macromedia Flash Player ')) {
+			const cstr = readCstr(data, offset + 1, true, false);
+			const [str] = cstr.toString('ascii').split('\0', 1);
+			if (regMFP.test(str)) {
+				matched(cstr);
+			}
+		}
+	}
+
+	// Write replacement strings into found slices.
+	for (const target of targets) {
+		target.fill(0);
+		titleData.copy(target);
+	}
+
+	return data;
+}
+
+/**
+ * Attempt to replace Linux 64-bit menu title.
+ *
+ * @param data Projector data, maybe modified.
+ * @param title Replacement title.
+ * @returns Patched data, can be same buffer, but modified.
+ */
+export function linux64PatchWindowTitle(data: Buffer, title: string) {
+	// Can just use the 32-bit patcher.
+	return linuxPatchWindowTitle(data, title);
 }
 
 // A list of patch candidates, made to be partially position independant.

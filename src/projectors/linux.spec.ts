@@ -101,6 +101,15 @@ describe('projectors/linux', () => {
 					});
 				}
 
+				it('title', async () => {
+					const dir = await getDir('title');
+					await (new ProjectorLinux({
+						player: await getPlayer(),
+						movieFile: fixtureFile('swf3.swf'),
+						patchWindowTitle: 'Custom Title'
+					})).write(dir, 'application');
+				});
+
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
 					await (new ProjectorLinux({
