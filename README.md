@@ -41,7 +41,7 @@ async function main() {
 			CompanyName: 'Custom Company Name',
 			FileDescription: 'Custom File Description',
 			LegalCopyright: 'Custom Legal Copyright',
-			ProductName: 'Custom Pruduct Name',
+			ProductName: 'Custom Product Name',
 			LegalTrademarks: 'Custom Legal Trademarks',
 			OriginalFilename: 'CustomOriginalFilename.exe',
 			InternalName: 'CustomInternalName',
