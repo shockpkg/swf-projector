@@ -147,7 +147,7 @@ describe('projectors/windows', () => {
 					await (new ProjectorWindows({
 						player: await getPlayer(),
 						movieFile: fixtureFile('swf6-loadmovie.swf')
-					})).write(dir, 'application');
+					})).write(dir, 'application.exe');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`
@@ -159,7 +159,7 @@ describe('projectors/windows', () => {
 					await (new ProjectorWindows({
 						player: await getPlayer(),
 						movieFile: fixtureFile('swf6-showmenu-false.swf')
-					})).write(dir, 'application');
+					})).write(dir, 'application.exe');
 				});
 			});
 		}

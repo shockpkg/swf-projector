@@ -153,7 +153,7 @@ describe('projectors/macapp', () => {
 					await (new ProjectorMacApp({
 						player: await getPlayer(),
 						movieFile: fixtureFile('swf6-loadmovie.swf')
-					})).write(dir, 'application');
+					})).write(dir, 'application.app');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`
@@ -165,7 +165,7 @@ describe('projectors/macapp', () => {
 					await (new ProjectorMacApp({
 						player: await getPlayer(),
 						movieFile: fixtureFile('swf6-showmenu-false.swf')
-					})).write(dir, 'application');
+					})).write(dir, 'application.app');
 				});
 			});
 		}
