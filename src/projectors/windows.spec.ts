@@ -2,10 +2,13 @@ import fse from 'fs-extra';
 
 import {
 	cleanProjectorDir,
-	fixtureFile,
-	getPackageFile,
 	shouldTest,
-	getInstalledPackagesSync
+	getInstalledPackagesInfoSync,
+	simpleSwf
+} from '../projector.spec';
+import {
+	fixtureFile,
+	getPackageFile
 } from '../util.spec';
 
 import {
@@ -13,43 +16,11 @@ import {
 } from './windows';
 
 function listSamples() {
-	const r: {
-		name: string;
-		version: number[];
-		debug: boolean;
-		zlib: boolean;
-		lzma: boolean;
-	}[] = [];
 	if (!shouldTest('windows')) {
-		return r;
+		return [];
 	}
-
-	for (const name of getInstalledPackagesSync()) {
-		const m = name.match(
-			/^flash-player-([\d.]+)-windows(-32bit)?-sa(-debug)?$/
-		);
-		if (!m) {
-			continue;
-		}
-
-		const version = m[1].split('.').map(Number);
-		const debug = !!m[3];
-		const zlib = version[0] >= 6;
-		const lzma = version[0] > 11 || (version[0] === 11 && version[1] >= 1);
-		r.push({
-			name,
-			version,
-			debug,
-			zlib,
-			lzma
-		});
-	}
-
-	r.sort((a, b) => (+a.debug) - (+b.debug));
-	for (let i = 4; i--;) {
-		r.sort((a, b) => (a.version[i] || 0) - (b.version[i] || 0));
-	}
-	return r;
+	return getInstalledPackagesInfoSync()
+		.filter(o => o.platform.startsWith('windows'));
 }
 
 const versionStrings = {
@@ -64,8 +35,6 @@ const versionStrings = {
 	InternalName: 'CustomInternalName',
 	Comments: 'Custom Comments'
 };
-
-const removeCodeSignature = true;
 
 describe('projectors/windows', () => {
 	describe('ProjectorWindows', () => {
@@ -94,40 +63,19 @@ describe('projectors/windows', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('projectors', 'windows', pkg.name, d);
+				cleanProjectorDir('windows', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
+			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
 					await (new ProjectorWindows({
 						player: await getPlayer(),
-						movieFile: fixtureFile('swf3.swf'),
-						removeCodeSignature
+						movieFile: simple,
+						removeCodeSignature: true
 					})).write(dir, 'application.exe');
 				});
-
-				if (pkg.zlib) {
-					it('zlib', async () => {
-						const dir = await getDir('zlib');
-						await (new ProjectorWindows({
-							player: await getPlayer(),
-							movieFile: fixtureFile('swf6-zlib.swf'),
-							removeCodeSignature
-						})).write(dir, 'application.exe');
-					});
-				}
-
-				if (pkg.lzma) {
-					it('lzma', async () => {
-						const dir = await getDir('lzma');
-						await (new ProjectorWindows({
-							player: await getPlayer(),
-							movieFile: fixtureFile('swf14-lzma.swf'),
-							removeCodeSignature
-						})).write(dir, 'application.exe');
-					});
-				}
 
 				it('resedit', async () => {
 					const dir = await getDir('resedit');
@@ -136,9 +84,13 @@ describe('projectors/windows', () => {
 						movieFile: fixtureFile('swf3.swf'),
 						iconFile: fixtureFile('icon.ico'),
 						versionStrings,
-						removeCodeSignature
+						removeCodeSignature: true
 					})).write(dir, 'application.exe');
 				});
+
+				if (pkg.version[0] < 6) {
+					return;
+				}
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
