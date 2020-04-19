@@ -40,7 +40,7 @@ describe('projectors/windows', () => {
 	describe('ProjectorWindows', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('projectors', 'windows', 'dummy', d);
+				cleanProjectorDir('windows', 'dummy', d);
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
