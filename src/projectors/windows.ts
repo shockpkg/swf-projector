@@ -45,7 +45,7 @@ const ResEditData =
  */
 export class ProjectorWindows extends Projector {
 	/**
-	 * Icon file, requires Windows or Wine.
+	 * Icon file.
 	 */
 	public iconFile: string | null = null;
 
