@@ -15,100 +15,15 @@ import {
 import fse from 'fs-extra';
 
 import {
-	IProjectorOptions,
 	Projector
 } from '../projector';
 import {
-	defaultFalse,
-	defaultNull,
 	infoPlistRead,
 	infoPlistReplace,
 	pathRelativeBase,
 	plistStringTagDecode,
 	plistStringTagEncode
 } from '../util';
-
-export interface IProjectorMacAppOptions extends IProjectorOptions {
-
-	/**
-	 * Binary name, also renames rsrc and icns.
-	 *
-	 * @default null
-	 */
-	binaryName?: string | null;
-
-	/**
-	 * Icon file.
-	 *
-	 * @default null
-	 */
-	iconFile?: string | null;
-
-	/**
-	 * Icon data.
-	 *
-	 * @default null
-	 */
-	iconData?: Buffer | null;
-
-	/**
-	 * Info.plist file.
-	 *
-	 * @default null
-	 */
-	infoPlistFile?: string | null;
-
-	/**
-	 * Info.plist data.
-	 *
-	 * @default null
-	 */
-	infoPlistData?: Buffer | null;
-
-	/**
-	 * PkgInfo file.
-	 *
-	 * @default null
-	 */
-	pkgInfoFile?: string | null;
-
-	/**
-	 * PkgInfo data.
-	 *
-	 * @default null
-	 */
-	pkgInfoData?: string | Buffer | null;
-
-	/**
-	 * Update the bundle name in Info.plist.
-	 *
-	 * @default false
-	 */
-	updateBundleName?: boolean;
-
-	/**
-	 * Remove the file associations in Info.plist.
-	 *
-	 * @default false
-	 */
-	removeFileAssociations?: boolean;
-
-	/**
-	 * Remove the code signature.
-	 * Modern projectors are codesigned so that any changes breaks it.
-	 * No signature is better than a broken one.
-	 *
-	 * @default false
-	 */
-	removeCodeSignature?: boolean;
-
-	/**
-	 * Fix broken icon paths in Info.plist (old projectors).
-	 *
-	 * @default false
-	 */
-	fixBrokenIconPaths?: boolean;
-}
 
 /**
  * ProjectorMacApp constructor.
@@ -118,98 +33,65 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 export class ProjectorMacApp extends Projector {
 	/**
 	 * Binary name, also renames rsrc and icns.
-	 *
-	 * @default null
 	 */
-	public binaryName: string | null;
+	public binaryName: string | null = null;
 
 	/**
 	 * Icon file.
-	 *
-	 * @default null
 	 */
-	public iconFile: string | null;
+	public iconFile: string | null = null;
 
 	/**
 	 * Icon data.
-	 *
-	 * @default null
 	 */
-	public iconData: Readonly<Buffer> | null;
+	public iconData: Readonly<Buffer> | null = null;
 
 	/**
 	 * Info.plist file.
-	 *
-	 * @default null
 	 */
-	public infoPlistFile: string | null;
+	public infoPlistFile: string | null = null;
 
 	/**
 	 * Info.plist data.
-	 *
-	 * @default null
 	 */
-	public infoPlistData: string | Readonly<string[]> | Readonly<Buffer> | null;
+	public infoPlistData: (
+		string | Readonly<string[]> | Readonly<Buffer> | null
+	) = null;
 
 	/**
 	 * PkgInfo file.
-	 *
-	 * @default null
 	 */
-	public pkgInfoFile: string | null;
+	public pkgInfoFile: string | null = null;
 
 	/**
 	 * PkgInfo data.
-	 *
-	 * @default null
 	 */
-	public pkgInfoData: string | Readonly<Buffer> | null;
+	public pkgInfoData: string | Readonly<Buffer> | null = null;
 
 	/**
 	 * Update the bundle name in Info.plist.
-	 *
-	 * @default false
 	 */
-	public updateBundleName: boolean;
+	public updateBundleName = false;
 
 	/**
 	 * Remove the file associations in Info.plist.
-	 *
-	 * @default false
 	 */
-	public removeFileAssociations: boolean;
+	public removeFileAssociations = false;
 
 	/**
 	 * Remove the code signature.
 	 * Modern projectors are codesigned so that any changes breaks it.
 	 * No signature is better than a broken one.
-	 *
-	 * @default false
 	 */
-	public removeCodeSignature: boolean;
+	public removeCodeSignature = false;
 
 	/**
 	 * Fix broken icon paths in Info.plist (old projectors).
-	 *
-	 * @default false
 	 */
-	public fixBrokenIconPaths: boolean;
+	public fixBrokenIconPaths = false;
 
-	constructor(options: IProjectorMacAppOptions = {}) {
-		super(options);
-
-		this.binaryName = defaultNull(options.binaryName);
-		this.iconFile = defaultNull(options.iconFile);
-		this.iconData = defaultNull(options.iconData);
-		this.infoPlistFile = defaultNull(options.infoPlistFile);
-		this.infoPlistData = defaultNull(options.infoPlistData);
-		this.pkgInfoFile = defaultNull(options.pkgInfoFile);
-		this.pkgInfoData = defaultNull(options.pkgInfoData);
-		this.updateBundleName = defaultFalse(options.updateBundleName);
-		this.removeFileAssociations =
-			defaultFalse(options.removeFileAssociations);
-		this.removeCodeSignature = defaultFalse(options.removeCodeSignature);
-		this.fixBrokenIconPaths = defaultFalse(options.fixBrokenIconPaths);
+	constructor() {
+		super();
 	}
 
 	/**

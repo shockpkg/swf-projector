@@ -11,48 +11,13 @@ import {
 import fse from 'fs-extra';
 
 import {
-	defaultNull,
-	defaultFalse
-} from '../util';
-import {
 	linuxPatchWindowTitle,
 	linuxPatchMenuRemoveData,
 	linuxPatchProjectorPathData
 } from '../utils/linux';
 import {
-	IProjectorOptions,
 	Projector
 } from '../projector';
-
-export interface IProjectorLinuxOptions extends IProjectorOptions {
-
-	/**
-	 * Attempt to patch the window title with a custom title.
-	 * Set to a non-empty string to automaticly patch the binary if possible.
-	 * Size limit depends on the size of the string being replaced.
-	 *
-	 * @default null
-	 */
-	patchWindowTitle?: string | null;
-
-	/**
-	 * Attempt to patch out application menu.
-	 * Set to true to automaticly patch the code if possible.
-	 *
-	 * @default false
-	 */
-	patchMenuRemove?: boolean;
-
-	/**
-	 * Attempt to patch the projector path reading code.
-	 * Necessary to work around broken projector path resolving code.
-	 * Set to true to automaticly patch the code if possible.
-	 * Supports projector versions 9+ (unnecessary for version 6).
-	 *
-	 * @default false
-	 */
-	patchProjectorPath?: boolean;
-}
 
 /**
  * ProjectorLinux constructor.
@@ -64,10 +29,8 @@ export class ProjectorLinux extends Projector {
 	 * Attempt to patch the window title with a custom title.
 	 * Set to a non-empty string to automaticly patch the binary if possible.
 	 * Size limit depends on the size of the string being replaced.
-	 *
-	 * @default null
 	 */
-	public patchWindowTitle: string | null;
+	public patchWindowTitle: string | null = null;
 
 	/**
 	 * Attempt to patch out application menu.
@@ -75,7 +38,7 @@ export class ProjectorLinux extends Projector {
 	 *
 	 * @default false
 	 */
-	public patchMenuRemove: boolean;
+	public patchMenuRemove = false;
 
 	/**
 	 * Attempt to patch the projector path reading code.
@@ -85,14 +48,10 @@ export class ProjectorLinux extends Projector {
 	 *
 	 * @default false
 	 */
-	public patchProjectorPath: boolean;
+	public patchProjectorPath = false;
 
-	constructor(options: Readonly<IProjectorLinuxOptions> = {}) {
-		super(options);
-
-		this.patchWindowTitle = defaultNull(options.patchWindowTitle);
-		this.patchMenuRemove = defaultFalse(options.patchMenuRemove);
-		this.patchProjectorPath = defaultFalse(options.patchProjectorPath);
+	constructor() {
+		super();
 	}
 
 	/**

@@ -16,12 +16,9 @@ import * as resedit from 'resedit';
 import fse from 'fs-extra';
 
 import {
-	IProjectorOptions,
 	Projector
 } from '../projector';
 import {
-	defaultFalse,
-	defaultNull,
 	bufferToArrayBuffer
 } from '../util';
 
@@ -41,37 +38,6 @@ const ResEditData =
 	resedit.Data ||
 	(resedit as any).default.Data;
 
-export interface IProjectorWindowsOptions extends IProjectorOptions {
-
-	/**
-	 * Icon file.
-	 *
-	 * @default null
-	 */
-	iconFile?: string | null;
-
-	/**
-	 * Icon data.
-	 *
-	 * @default null
-	 */
-	iconData?: Buffer | null;
-
-	/**
-	 * Version strings.
-	 *
-	 * @default null
-	 */
-	versionStrings?: {[key: string]: string} | null;
-
-	/**
-	 * Remove the code signature.
-	 *
-	 * @default false
-	 */
-	removeCodeSignature?: boolean;
-}
-
 /**
  * ProjectorWindows constructor.
  *
@@ -80,39 +46,26 @@ export interface IProjectorWindowsOptions extends IProjectorOptions {
 export class ProjectorWindows extends Projector {
 	/**
 	 * Icon file, requires Windows or Wine.
-	 *
-	 * @default null
 	 */
-	public iconFile: string | null;
+	public iconFile: string | null = null;
 
 	/**
 	 * Icon data.
-	 *
-	 * @default null
 	 */
-	public iconData: Readonly<Buffer> | null;
+	public iconData: Readonly<Buffer> | null = null;
 
 	/**
-	 * Version strings, requires Windows or Wine.
-	 *
-	 * @default null
+	 * Version strings.
 	 */
-	public versionStrings: Readonly<{[key: string]: string}> | null;
+	public versionStrings: Readonly<{[key: string]: string}> | null = null;
 
 	/**
 	 * Remove the code signature.
-	 *
-	 * @default false
 	 */
-	public removeCodeSignature: boolean;
+	public removeCodeSignature = false;
 
-	constructor(options: Readonly<IProjectorWindowsOptions> = {}) {
-		super(options);
-
-		this.iconFile = defaultNull(options.iconFile);
-		this.iconData = defaultNull(options.iconData);
-		this.versionStrings = defaultNull(options.versionStrings);
-		this.removeCodeSignature = defaultFalse(options.removeCodeSignature);
+	constructor() {
+		super();
 	}
 
 	/**

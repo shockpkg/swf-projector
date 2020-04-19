@@ -5,9 +5,6 @@ import {
 import fse from 'fs-extra';
 
 import {
-	defaultFalse
-} from '../util';
-import {
 	linux64PatchWindowTitle,
 	linux64PatchMenuRemoveData,
 	linux64PatchProjectorOffsetData,
@@ -15,21 +12,8 @@ import {
 } from '../utils/linux';
 
 import {
-	IProjectorLinuxOptions,
 	ProjectorLinux
 } from './linux';
-
-export interface IProjectorLinux64Options extends IProjectorLinuxOptions {
-
-	/**
-	 * Attempt to patch the projector offset reading code.
-	 * Necessary to work around broken projector logic in standalone players.
-	 * Set to true to automaticly patch the code if possible.
-	 *
-	 * @default false
-	 */
-	patchProjectorOffset?: boolean;
-}
 
 /**
  * ProjectorLinux64 constructor.
@@ -41,15 +25,11 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 * Attempt to patch the projector offset reading code.
 	 * Necessary to work around broken projector logic in standalone players.
 	 * Set to true to automaticly patch the code if possible.
-	 *
-	 * @default false
 	 */
-	public patchProjectorOffset: boolean;
+	public patchProjectorOffset = false;
 
-	constructor(options: Readonly<IProjectorLinux64Options> = {}) {
-		super(options);
-
-		this.patchProjectorOffset = defaultFalse(options.patchProjectorOffset);
+	constructor() {
+		super();
 	}
 
 	/**

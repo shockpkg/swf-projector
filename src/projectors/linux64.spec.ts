@@ -31,10 +31,10 @@ describe('projectors/linux64', () => {
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
-				await (new ProjectorLinux64({
-					player: fixtureFile('dummy'),
-					movieFile: fixtureFile('swf3.swf')
-				})).write(dir, 'application');
+				const p = new ProjectorLinux64();
+				p.player = fixtureFile('dummy');
+				p.movieFile = fixtureFile('swf3.swf');
+				await p.write(dir, 'application');
 			});
 		});
 
@@ -47,21 +47,21 @@ describe('projectors/linux64', () => {
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
-					await (new ProjectorLinux64({
-						player: await getPlayer(),
-						movieFile: simple,
-						patchProjectorOffset: true
-					})).write(dir, 'application');
+					const p = new ProjectorLinux64();
+					p.player = await getPlayer();
+					p.movieFile = simple;
+					p.patchProjectorOffset = true;
+					await p.write(dir, 'application');
 				});
 
 				it('title', async () => {
 					const dir = await getDir('title');
-					await (new ProjectorLinux64({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf3.swf'),
-						patchProjectorOffset: true,
-						patchWindowTitle: 'Custom Title'
-					})).write(dir, 'application');
+					const p = new ProjectorLinux64();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf3.swf');
+					p.patchProjectorOffset = true;
+					p.patchWindowTitle = 'Custom Title';
+					await p.write(dir, 'application');
 				});
 
 				if (pkg.version[0] < 6) {
@@ -70,12 +70,12 @@ describe('projectors/linux64', () => {
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
-					await (new ProjectorLinux64({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-loadmovie.swf'),
-						patchProjectorPath: true,
-						patchProjectorOffset: true
-					})).write(dir, 'application');
+					const p = new ProjectorLinux64();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-loadmovie.swf');
+					p.patchProjectorPath = true;
+					p.patchProjectorOffset = true;
+					await p.write(dir, 'application');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`
@@ -84,22 +84,22 @@ describe('projectors/linux64', () => {
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
-					await (new ProjectorLinux64({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-showmenu-false.swf'),
-						patchProjectorOffset: true
-					})).write(dir, 'application');
+					const p = new ProjectorLinux64();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
+					p.patchProjectorOffset = true;
+					await p.write(dir, 'application');
 				});
 
 				it('nomenu', async () => {
 					const dir = await getDir('nomenu');
-					await (new ProjectorLinux64({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-loadmovie.swf'),
-						patchProjectorPath: true,
-						patchProjectorOffset: true,
-						patchMenuRemove: true
-					})).write(dir, 'application');
+					const p = new ProjectorLinux64();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-loadmovie.swf');
+					p.patchProjectorPath = true;
+					p.patchProjectorOffset = true;
+					p.patchMenuRemove = true;
+					await p.write(dir, 'application');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`

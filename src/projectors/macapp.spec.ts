@@ -40,11 +40,11 @@ describe('projectors/macapp', () => {
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
-				await (new ProjectorMacApp({
-					player: fixtureFile('dummy.app'),
-					movieFile: fixtureFile('swf3.swf'),
-					removeCodeSignature: false
-				})).write(dir, 'application.app');
+				const p = new ProjectorMacApp();
+				p.player = fixtureFile('dummy.app');
+				p.movieFile = fixtureFile('swf3.swf');
+				p.removeCodeSignature = false;
+				await p.write(dir, 'application.app');
 			});
 		});
 
@@ -57,46 +57,46 @@ describe('projectors/macapp', () => {
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
-					await (new ProjectorMacApp({
-						player: await getPlayer(),
-						movieFile: simple,
-						removeCodeSignature: true
-					})).write(dir, 'application.app');
+					const p = new ProjectorMacApp();
+					p.player = await getPlayer();
+					p.movieFile = simple;
+					p.removeCodeSignature = true;
+					await p.write(dir, 'application.app');
 				});
 
 				if (pkg.fixBrokenIconPaths) {
 					it('fixBrokenIconPaths', async () => {
 						const dir = await getDir('fixBrokenIconPaths');
-						await (new ProjectorMacApp({
-							player: await getPlayer(),
-							movieFile: fixtureFile('swf3.swf'),
-							fixBrokenIconPaths: true,
-							removeCodeSignature: true
-						})).write(dir, 'application.app');
+						const p = new ProjectorMacApp();
+						p.player = await getPlayer();
+						p.movieFile = fixtureFile('swf3.swf');
+						p.fixBrokenIconPaths = true;
+						p.removeCodeSignature = true;
+						await p.write(dir, 'application.app');
 					});
 				}
 
 				it('removeFileAssociations', async () => {
 					const dir = await getDir('removeFileAssociations');
-					await (new ProjectorMacApp({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf3.swf'),
-						removeFileAssociations: true,
-						removeCodeSignature: true
-					})).write(dir, 'application.app');
+					const p = new ProjectorMacApp();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf3.swf');
+					p.removeFileAssociations = true;
+					p.removeCodeSignature = true;
+					await p.write(dir, 'application.app');
 				});
 
 				it('complex', async () => {
 					const dir = await getDir('complex');
-					await (new ProjectorMacApp({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf3.swf'),
-						iconFile: fixtureFile('icon.icns'),
-						infoPlistFile: fixtureFile('Info.plist'),
-						pkgInfoFile: fixtureFile('PkgInfo'),
-						binaryName: 'application',
-						removeCodeSignature: true
-					})).write(dir, 'application.app');
+					const p = new ProjectorMacApp();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf3.swf');
+					p.iconFile = fixtureFile('icon.icns');
+					p.infoPlistFile = fixtureFile('Info.plist');
+					p.pkgInfoFile = fixtureFile('PkgInfo');
+					p.binaryName = 'application';
+					p.removeCodeSignature = true;
+					await p.write(dir, 'application.app');
 				});
 
 				if (pkg.version[0] < 6) {
@@ -105,10 +105,10 @@ describe('projectors/macapp', () => {
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
-					await (new ProjectorMacApp({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-loadmovie.swf')
-					})).write(dir, 'application.app');
+					const p = new ProjectorMacApp();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-loadmovie.swf');
+					await p.write(dir, 'application.app');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`
@@ -117,10 +117,10 @@ describe('projectors/macapp', () => {
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
-					await (new ProjectorMacApp({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-showmenu-false.swf')
-					})).write(dir, 'application.app');
+					const p = new ProjectorMacApp();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
+					await p.write(dir, 'application.app');
 				});
 			});
 		}

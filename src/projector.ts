@@ -7,40 +7,8 @@ import {
 import fse from 'fs-extra';
 
 import {
-	defaultNull,
 	trimExtension
 } from './util';
-
-export interface IProjectorOptions {
-
-	/**
-	 * Player file or directory.
-	 *
-	 * @default null
-	 */
-	player?: string | null;
-
-	/**
-	 * Movie file.
-	 *
-	 * @default null
-	 */
-	movieFile?: string | null;
-
-	/**
-	 * Movie data.
-	 *
-	 * @default null
-	 */
-	movieData?: Buffer | null;
-
-	/**
-	 * Path to hdiutil binary.
-	 *
-	 * @default null
-	 */
-	pathToHdiutil?: string | null;
-}
 
 /**
  * Projector constructor.
@@ -50,39 +18,26 @@ export interface IProjectorOptions {
 export abstract class Projector extends Object {
 	/**
 	 * Player file or directory.
-	 *
-	 * @default null
 	 */
-	public player: string | null;
+	public player: string | null = null;
 
 	/**
 	 * Movie file.
-	 *
-	 * @default null
 	 */
-	public movieFile: string | null;
+	public movieFile: string | null = null;
 
 	/**
 	 * Movie data.
-	 *
-	 * @default null
 	 */
-	public movieData: Buffer | null;
+	public movieData: Buffer | null = null;
 
 	/**
 	 * Path to hdiutil binary.
-	 *
-	 * @default null
 	 */
-	public pathToHdiutil: string | null;
+	public pathToHdiutil: string | null = null;
 
-	constructor(options: Readonly<IProjectorOptions> = {}) {
+	constructor() {
 		super();
-
-		this.player = defaultNull(options.player);
-		this.movieFile = defaultNull(options.movieFile);
-		this.movieData = defaultNull(options.movieData);
-		this.pathToHdiutil = defaultNull(options.pathToHdiutil);
 	}
 
 	/**

@@ -37,10 +37,10 @@ describe('projectors/linux', () => {
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
-				await (new ProjectorLinux({
-					player: fixtureFile('dummy'),
-					movieFile: fixtureFile('swf3.swf')
-				})).write(dir, 'application');
+				const p = new ProjectorLinux();
+				p.player = fixtureFile('dummy');
+				p.movieFile = fixtureFile('swf3.swf');
+				await p.write(dir, 'application');
 			});
 		});
 
@@ -53,19 +53,19 @@ describe('projectors/linux', () => {
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
-					await (new ProjectorLinux({
-						player: await getPlayer(),
-						movieFile: simple
-					})).write(dir, 'application');
+					const p = new ProjectorLinux();
+					p.player = await getPlayer();
+					p.movieFile = simple;
+					await p.write(dir, 'application');
 				});
 
 				it('title', async () => {
 					const dir = await getDir('title');
-					await (new ProjectorLinux({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf3.swf'),
-						patchWindowTitle: 'Custom Title'
-					})).write(dir, 'application');
+					const p = new ProjectorLinux();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf3.swf');
+					p.patchWindowTitle = 'Custom Title';
+					await p.write(dir, 'application');
 				});
 
 				if (pkg.version[0] < 6) {
@@ -74,11 +74,11 @@ describe('projectors/linux', () => {
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
-					await (new ProjectorLinux({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-loadmovie.swf'),
-						patchProjectorPath: pkg.patchProjectorPath
-					})).write(dir, 'application');
+					const p = new ProjectorLinux();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-loadmovie.swf');
+					p.patchProjectorPath = pkg.patchProjectorPath;
+					await p.write(dir, 'application');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`
@@ -87,20 +87,20 @@ describe('projectors/linux', () => {
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
-					await (new ProjectorLinux({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-showmenu-false.swf')
-					})).write(dir, 'application');
+					const p = new ProjectorLinux();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
+					await p.write(dir, 'application');
 				});
 
 				it('nomenu', async () => {
 					const dir = await getDir('nomenu');
-					await (new ProjectorLinux({
-						player: await getPlayer(),
-						movieFile: fixtureFile('swf6-loadmovie.swf'),
-						patchProjectorPath: pkg.patchProjectorPath,
-						patchMenuRemove: true
-					})).write(dir, 'application');
+					const p = new ProjectorLinux();
+					p.player = await getPlayer();
+					p.movieFile = fixtureFile('swf6-loadmovie.swf');
+					p.patchProjectorPath = pkg.patchProjectorPath;
+					p.patchMenuRemove = true;
+					await p.write(dir, 'application');
 					await fse.copy(
 						fixtureFile('image.jpg'),
 						`${dir}/image.jpg`
