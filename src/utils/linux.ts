@@ -1,5 +1,3 @@
-import fse from 'fs-extra';
-
 import {once} from '../util';
 
 /**
@@ -1128,16 +1126,4 @@ export function linux64PatchProjectorPathData(data: Buffer) {
 	const relative = fileSlashes - offsetAfter;
 	data.writeInt32LE(relative, offsetRel);
 	return data;
-}
-
-/**
- * Attempt to patch Linux 64-bit projector offset code.
- *
- * @param file Projector file.
- * @deprecated No longer used in this package.
- */
-export async function linux64PatchProjectorOffset(file: string) {
-	// Read projector into buffer.
-	const data = await fse.readFile(file);
-	await fse.writeFile(file, linux64PatchProjectorOffsetData(data));
 }

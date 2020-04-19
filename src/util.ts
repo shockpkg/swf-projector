@@ -1,10 +1,4 @@
 import {
-	spawn as childProcessSpawn,
-	SpawnOptions,
-	SpawnOptionsWithoutStdio
-} from 'child_process';
-
-import {
 	Entry,
 	PathType
 } from '@shockpkg/archive-files';
@@ -345,33 +339,4 @@ export function infoPlistRead(
 export function bufferToArrayBuffer(buffer: Readonly<Buffer>) {
 	const {byteOffset, byteLength} = buffer;
 	return buffer.buffer.slice(byteOffset, byteOffset + byteLength);
-}
-
-/**
- * Spawn a subprocess with a promise for completion.
- *
- * @param command Command path.
- * @param args Argument list.
- * @param options Options object.
- * @returns Info object.
- * @deprecated No longer used in this package.
- */
-export function spawn(
-	command: string,
-	args: string[] | null = null,
-	options: Readonly<SpawnOptions | SpawnOptionsWithoutStdio | null> = null
-) {
-	const proc = childProcessSpawn(command, args || [], options || {});
-	const done = new Promise<number | null>((resolve, reject) => {
-		proc.on('exit', code => {
-			resolve(code);
-		});
-		proc.on('error', err => {
-			reject(err);
-		});
-	});
-	return {
-		proc,
-		done
-	};
 }

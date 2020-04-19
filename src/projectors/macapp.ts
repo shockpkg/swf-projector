@@ -103,14 +103,6 @@ export interface IProjectorMacAppOptions extends IProjectorOptions {
 	removeCodeSignature?: boolean;
 
 	/**
-	 * Path to codesign binary.
-	 *
-	 * @default null
-	 * @deprecated No longer used in this package.
-	 */
-	codesignPath?: string | null;
-
-	/**
 	 * Fix broken icon paths in Info.plist (old projectors).
 	 *
 	 * @default false
@@ -197,14 +189,6 @@ export class ProjectorMacApp extends Projector {
 	public removeCodeSignature: boolean;
 
 	/**
-	 * Path to codesign binary.
-	 *
-	 * @default null
-	 * @deprecated No longer used in this package.
-	 */
-	public codesignPath: string | null;
-
-	/**
 	 * Fix broken icon paths in Info.plist (old projectors).
 	 *
 	 * @default false
@@ -225,7 +209,6 @@ export class ProjectorMacApp extends Projector {
 		this.removeFileAssociations =
 			defaultFalse(options.removeFileAssociations);
 		this.removeCodeSignature = defaultFalse(options.removeCodeSignature);
-		this.codesignPath = defaultNull(options.codesignPath);
 		this.fixBrokenIconPaths = defaultFalse(options.fixBrokenIconPaths);
 	}
 
