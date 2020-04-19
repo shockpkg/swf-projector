@@ -52,9 +52,9 @@ function listSamples() {
 	return r;
 }
 
-const fileVersion = '3.14.15.92';
-const productVersion = '3.1.4.1';
 const versionStrings = {
+	FileVersion: '3.14.15.92',
+	ProductVersion: '3.1.4.1',
 	CompanyName: 'Custom Company Name',
 	FileDescription: 'Custom File Description',
 	LegalCopyright: 'Custom Legal Copyright',
@@ -135,8 +135,6 @@ describe('projectors/windows', () => {
 						player: await getPlayer(),
 						movieFile: fixtureFile('swf3.swf'),
 						iconFile: fixtureFile('icon.ico'),
-						fileVersion,
-						productVersion,
 						versionStrings,
 						removeCodeSignature
 					})).write(dir, 'application.exe');

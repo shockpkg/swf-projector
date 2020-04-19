@@ -62,20 +62,6 @@ export interface IProjectorWindowsOptions extends IProjectorOptions {
 	 *
 	 * @default null
 	 */
-	fileVersion?: string | null;
-
-	/**
-	 * Product version.
-	 *
-	 * @default null
-	 */
-	productVersion?: string | null;
-
-	/**
-	 * Version strings.
-	 *
-	 * @default null
-	 */
 	versionStrings?: {[key: string]: string} | null;
 
 	/**
@@ -111,20 +97,6 @@ export class ProjectorWindows extends Projector {
 	 *
 	 * @default null
 	 */
-	public fileVersion: string | null;
-
-	/**
-	 * Product version, requires Windows or Wine.
-	 *
-	 * @default null
-	 */
-	public productVersion: string | null;
-
-	/**
-	 * Version strings, requires Windows or Wine.
-	 *
-	 * @default null
-	 */
 	public versionStrings: Readonly<{[key: string]: string}> | null;
 
 	/**
@@ -139,8 +111,6 @@ export class ProjectorWindows extends Projector {
 
 		this.iconFile = defaultNull(options.iconFile);
 		this.iconData = defaultNull(options.iconData);
-		this.fileVersion = defaultNull(options.fileVersion);
-		this.productVersion = defaultNull(options.productVersion);
 		this.versionStrings = defaultNull(options.versionStrings);
 		this.removeCodeSignature = defaultFalse(options.removeCodeSignature);
 	}
@@ -173,30 +143,6 @@ export class ProjectorWindows extends Projector {
 			this.iconData,
 			this.iconFile
 		);
-	}
-
-	/**
-	 * Get all version strings.
-	 *
-	 * @returns Verion strings.
-	 */
-	public getVersionStrings() {
-		const {fileVersion, productVersion, versionStrings} = this;
-		if (
-			fileVersion === null &&
-			productVersion === null &&
-			versionStrings === null
-		) {
-			return null;
-		}
-		const values = {...(versionStrings || {})};
-		if (fileVersion !== null) {
-			values.FileVersion = fileVersion;
-		}
-		if (productVersion !== null) {
-			values.ProductVersion = productVersion;
-		}
-		return values;
 	}
 
 	/**
@@ -335,7 +281,7 @@ export class ProjectorWindows extends Projector {
 	 * @param name Save name.
 	 */
 	protected async _updateResources(path: string, name: string) {
-		const versionStrings = this.getVersionStrings();
+		const {versionStrings} = this;
 		const iconData = await this.getIconData();
 
 		// Skip if nothing to be changed.
