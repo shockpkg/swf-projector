@@ -1,8 +1,4 @@
 import {
-	join as pathJoin
-} from 'path';
-
-import {
 	fsChmod,
 	fsUtimes,
 	modePermissionBits,
@@ -41,7 +37,7 @@ const ResEditData =
 /**
  * ProjectorWindows constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export class ProjectorWindows extends Projector {
 	/**
@@ -64,8 +60,8 @@ export class ProjectorWindows extends Projector {
 	 */
 	public removeCodeSignature = false;
 
-	constructor() {
-		super();
+	constructor(path: string) {
+		super(path);
 	}
 
 	/**
@@ -100,11 +96,8 @@ export class ProjectorWindows extends Projector {
 
 	/**
 	 * Write the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayer(path: string, name: string) {
+	protected async _writePlayer() {
 		const player = this.getPlayerPath();
 		const stat = await fse.stat(player);
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
@@ -113,44 +106,38 @@ export class ProjectorWindows extends Projector {
 			stat.isFile() &&
 			player.toLowerCase().endsWith(projectorExtensionLower)
 		) {
-			await this._writePlayerFile(path, name);
+			await this._writePlayerFile();
 		}
 		else {
-			await this._writePlayerArchive(path, name);
+			await this._writePlayerArchive();
 		}
 	}
 
 	/**
 	 * Write the projector player, from file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayerFile(path: string, name: string) {
+	protected async _writePlayerFile() {
 		const player = this.getPlayerPath();
 		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
 			throw new Error(`Path is not file: ${player}`);
 		}
 
-		const playerOut = pathJoin(path, name);
-		await fse.copyFile(player, playerOut);
-		await fsChmod(playerOut, modePermissionBits(stat.mode));
-		await fsUtimes(playerOut, stat.atime, stat.mtime);
+		const {path} = this;
+		await fse.copyFile(player, path);
+		await fsChmod(path, modePermissionBits(stat.mode));
+		await fsUtimes(path, stat.atime, stat.mtime);
 	}
 
 	/**
 	 * Write the projector player, from archive.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayerArchive(path: string, name: string) {
+	protected async _writePlayerArchive() {
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
 		let playerPath = '';
 
 		const player = this.getPlayerPath();
-		const playerOut = pathJoin(path, name);
+		const playerOut = this.path;
 
 		const archive = await this.openAsArchive(player);
 		await archive.read(async entry => {
@@ -179,61 +166,49 @@ export class ProjectorWindows extends Projector {
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _modifyPlayer(path: string, name: string) {
-		await this._removeCodeSignature(path, name);
-		await this._updateResources(path, name);
+	protected async _modifyPlayer() {
+		await this._removeCodeSignature();
+		await this._updateResources();
 	}
 
 	/**
 	 * Write out the projector movie file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writeMovie(path: string, name: string) {
+	protected async _writeMovie() {
 		const data = await this.getMovieData();
 		if (!data) {
 			return;
 		}
 
-		await this._appendMovieData(pathJoin(path, name), data, 'dms');
+		await this._appendMovieData(this.path, data, 'dms');
 	}
 
 	/**
 	 * Remove projector code signature if enabled.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _removeCodeSignature(path: string, name: string) {
+	protected async _removeCodeSignature() {
 		if (!this.removeCodeSignature) {
 			return;
 		}
 
 		// Read file and check for signature.
-		const file = pathJoin(path, name);
-		const exeOriginal = await fse.readFile(file);
+		const {path} = this;
+		const exeOriginal = await fse.readFile(path);
 		if (!signatureGet(exeOriginal)) {
 			return;
 		}
 
 		// If signed, remove signature and write.
-		await fse.writeFile(file, Buffer.from(
+		await fse.writeFile(path, Buffer.from(
 			signatureSet(exeOriginal, null, true, true))
 		);
 	}
 
 	/**
 	 * Update projector Windows resources.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _updateResources(path: string, name: string) {
+	protected async _updateResources() {
 		const {versionStrings} = this;
 		const iconData = await this.getIconData();
 
@@ -243,8 +218,8 @@ export class ProjectorWindows extends Projector {
 		}
 
 		// Read EXE file and remove signature if present.
-		const file = pathJoin(path, name);
-		const exeOriginal = await fse.readFile(file);
+		const {path} = this;
+		const exeOriginal = await fse.readFile(path);
 		const signature = signatureGet(exeOriginal);
 		let exeData = signatureSet(exeOriginal, null, true, true);
 
@@ -299,6 +274,6 @@ export class ProjectorWindows extends Projector {
 		}
 
 		// Write updated EXE file.
-		await fse.writeFile(file, Buffer.from(exeData));
+		await fse.writeFile(path, Buffer.from(exeData));
 	}
 }

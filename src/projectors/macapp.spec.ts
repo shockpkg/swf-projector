@@ -1,3 +1,7 @@
+import {
+	join as pathJoin
+} from 'path';
+
 import fse from 'fs-extra';
 
 import {
@@ -40,11 +44,13 @@ describe('projectors/macapp', () => {
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
-				const p = new ProjectorMacApp();
+				const dest = pathJoin(dir, 'application.app');
+
+				const p = new ProjectorMacApp(dest);
 				p.player = fixtureFile('dummy.app');
 				p.movieFile = fixtureFile('swf3.swf');
 				p.removeCodeSignature = false;
-				await p.write(dir, 'application.app');
+				await p.write();
 			});
 		});
 
@@ -57,38 +63,46 @@ describe('projectors/macapp', () => {
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
-					const p = new ProjectorMacApp();
+					const dest = pathJoin(dir, 'application.app');
+
+					const p = new ProjectorMacApp(dest);
 					p.player = await getPlayer();
 					p.movieFile = simple;
 					p.removeCodeSignature = true;
-					await p.write(dir, 'application.app');
+					await p.write();
 				});
 
 				if (pkg.fixBrokenIconPaths) {
 					it('fixBrokenIconPaths', async () => {
 						const dir = await getDir('fixBrokenIconPaths');
-						const p = new ProjectorMacApp();
+						const dest = pathJoin(dir, 'application.app');
+
+						const p = new ProjectorMacApp(dest);
 						p.player = await getPlayer();
 						p.movieFile = fixtureFile('swf3.swf');
 						p.fixBrokenIconPaths = true;
 						p.removeCodeSignature = true;
-						await p.write(dir, 'application.app');
+						await p.write();
 					});
 				}
 
 				it('removeFileAssociations', async () => {
 					const dir = await getDir('removeFileAssociations');
-					const p = new ProjectorMacApp();
+					const dest = pathJoin(dir, 'application.app');
+
+					const p = new ProjectorMacApp(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf3.swf');
 					p.removeFileAssociations = true;
 					p.removeCodeSignature = true;
-					await p.write(dir, 'application.app');
+					await p.write();
 				});
 
 				it('complex', async () => {
 					const dir = await getDir('complex');
-					const p = new ProjectorMacApp();
+					const dest = pathJoin(dir, 'application.app');
+
+					const p = new ProjectorMacApp(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf3.swf');
 					p.iconFile = fixtureFile('icon.icns');
@@ -96,7 +110,7 @@ describe('projectors/macapp', () => {
 					p.pkgInfoFile = fixtureFile('PkgInfo');
 					p.binaryName = 'application';
 					p.removeCodeSignature = true;
-					await p.write(dir, 'application.app');
+					await p.write();
 				});
 
 				if (pkg.version[0] < 6) {
@@ -105,22 +119,27 @@ describe('projectors/macapp', () => {
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
-					const p = new ProjectorMacApp();
+					const dest = pathJoin(dir, 'application.app');
+
+					const p = new ProjectorMacApp(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf6-loadmovie.swf');
-					await p.write(dir, 'application.app');
+					await p.write();
+
 					await fse.copy(
 						fixtureFile('image.jpg'),
-						`${dir}/image.jpg`
+						pathJoin(dir, 'image.jpg')
 					);
 				});
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
-					const p = new ProjectorMacApp();
+					const dest = pathJoin(dir, 'application.app');
+
+					const p = new ProjectorMacApp(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
-					await p.write(dir, 'application.app');
+					await p.write();
 				});
 			});
 		}

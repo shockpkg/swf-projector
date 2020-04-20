@@ -28,7 +28,7 @@ import {
 /**
  * ProjectorMacApp constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export class ProjectorMacApp extends Projector {
 	/**
@@ -90,8 +90,8 @@ export class ProjectorMacApp extends Projector {
 	 */
 	public fixBrokenIconPaths = false;
 
-	constructor() {
-		super();
+	constructor(path: string) {
+		super(path);
 	}
 
 	/**
@@ -180,36 +180,33 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Get the binary path.
 	 *
-	 * @param name Save name.
 	 * @param binaryName Binary name.
 	 * @returns Binary path.
 	 */
-	public getBinaryPath(name: string, binaryName: string) {
-		return `${name}/Contents/MacOS/${binaryName}`;
+	public getBinaryPath(binaryName: string) {
+		return pathJoin(this.path, 'Contents/MacOS', binaryName);
 	}
 
 	/**
 	 * Get the rsrc path.
 	 *
-	 * @param name Save name.
 	 * @param binaryName Binary name.
 	 * @param addExt Add extension.
 	 * @returns Rsrc path.
 	 */
-	public getRsrcPath(name: string, binaryName: string, addExt = false) {
-		const ext = addExt ? '.rsrc' : '';
-		return `${name}/Contents/Resources/${binaryName}${ext}`;
+	public getRsrcPath(binaryName: string, addExt = false) {
+		const name = addExt ? `${binaryName}.rsrc` : binaryName;
+		return pathJoin(this.path, 'Contents/Resources', name);
 	}
 
 	/**
 	 * Get the icon path.
 	 *
-	 * @param name Save name.
 	 * @param iconName Icon name.
 	 * @returns Icon path.
 	 */
-	public getIconPath(name: string, iconName: string) {
-		return `${name}/Contents/Resources/${iconName}`;
+	public getIconPath(iconName: string) {
+		return pathJoin(this.path, 'Contents/Resources', iconName);
 	}
 
 	/**
@@ -255,41 +252,37 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Get the movie path.
 	 *
-	 * @param name Save name.
 	 * @returns Icon path.
 	 */
-	public getMoviePath(name: string) {
-		return `${name}/${this.appPathMovie}`;
+	public getMoviePath() {
+		return pathJoin(this.path, this.appPathMovie);
 	}
 
 	/**
 	 * Get the Info.plist path.
 	 *
-	 * @param name Save name.
 	 * @returns Icon path.
 	 */
-	public getInfoPlistPath(name: string) {
-		return `${name}/${this.appPathInfoPlist}`;
+	public getInfoPlistPath() {
+		return pathJoin(this.path, this.appPathInfoPlist);
 	}
 
 	/**
 	 * Get the PkgInfo path.
 	 *
-	 * @param name Save name.
 	 * @returns Icon path.
 	 */
-	public getPkgInfoPath(name: string) {
-		return `${name}/${this.appPathPkgInfo}`;
+	public getPkgInfoPath() {
+		return pathJoin(this.path, this.appPathPkgInfo);
 	}
 
 	/**
 	 * Update XML code with customized variables.
 	 *
 	 * @param xml Plist code.
-	 * @param name Application name.
 	 * @returns Updated XML.
 	 */
-	public updateInfoPlistCode(xml: string, name: string) {
+	public updateInfoPlistCode(xml: string) {
 		const {
 			binaryName,
 			appIconNameCustom,
@@ -315,7 +308,7 @@ export class ProjectorMacApp extends Projector {
 			xml = infoPlistReplace(
 				xml,
 				'CFBundleName',
-				plistStringTagEncode(this.getProjectorNameNoExtension(name))
+				plistStringTagEncode(this.getProjectorNameNoExtension())
 			);
 		}
 		if (removeFileAssociations) {
@@ -331,11 +324,8 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Write the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayer(path: string, name: string) {
+	protected async _writePlayer() {
 		const player = this.getPlayerPath();
 		const stat = await fse.stat(player);
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
@@ -344,27 +334,24 @@ export class ProjectorMacApp extends Projector {
 			stat.isDirectory() &&
 			player.toLowerCase().endsWith(projectorExtensionLower)
 		) {
-			await this._writePlayerFile(path, name);
+			await this._writePlayerFile();
 		}
 		else {
-			await this._writePlayerArchive(path, name);
+			await this._writePlayerArchive();
 		}
 	}
 
 	/**
 	 * Write the projector player, from file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayerFile(path: string, name: string) {
+	protected async _writePlayerFile() {
 		const player = this.getPlayerPath();
 		const stat = await fse.stat(player);
 		if (!stat.isDirectory()) {
 			throw new Error(`Path is not directory: ${player}`);
 		}
 
-		const playerOut = pathJoin(path, name);
+		const playerOut = this.path;
 		await fse.ensureDir(playerOut);
 
 		// Open directory as archive, for copying.
@@ -384,13 +371,11 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Write the projector player, from archive.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayerArchive(path: string, name: string) {
+	protected async _writePlayerArchive() {
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
 		let playerName = '';
+		const {path} = this;
 
 		const player = this.getPlayerPath();
 		const archive = await this.openAsArchive(player);
@@ -425,7 +410,7 @@ export class ProjectorMacApp extends Projector {
 				throw new Error('Internal error');
 			}
 
-			const extractPath = pathJoin(path, name, rel);
+			const extractPath = pathJoin(path, rel);
 			await entry.extract(extractPath);
 		});
 
@@ -436,53 +421,40 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _modifyPlayer(path: string, name: string) {
-		await this._removeCodeSignature(path, name);
-		await this._fixPlayer(path, name);
-		await this._writeIcon(path, name);
-		await this._writePkgInfo(path, name);
-		await this._updateBinaryName(path, name);
-		await this._writeInfoPlist(path, name);
-		await this._updateInfoPlist(path, name);
+	protected async _modifyPlayer() {
+		await this._removeCodeSignature();
+		await this._fixPlayer();
+		await this._writeIcon();
+		await this._writePkgInfo();
+		await this._updateBinaryName();
+		await this._writeInfoPlist();
+		await this._updateInfoPlist();
 	}
 
 	/**
 	 * Write out the projector movie file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writeMovie(path: string, name: string) {
+	protected async _writeMovie() {
 		const data = await this.getMovieData();
 		if (!data) {
 			return;
 		}
-		const moviePath = this.getMoviePath(name);
-		await this._maybeWriteFile(
-			data,
-			pathJoin(path, moviePath),
-			true
-		);
+
+		await this._maybeWriteFile(data, this.getMoviePath(), true);
 	}
 
 	/**
 	 * A method to fix some partially broken players.
 	 * Currently fixes the icon in some old projectors.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _fixPlayer(path: string, name: string) {
+	protected async _fixPlayer() {
 		const {fixBrokenIconPaths} = this;
 		if (!fixBrokenIconPaths) {
 			return;
 		}
 
-		const xmlOriginal = await this._readInfoPlist(path, name);
+		const xmlOriginal = await this._readInfoPlist();
 		let xml = xmlOriginal;
 
 		// Add the icon extension.
@@ -501,78 +473,59 @@ export class ProjectorMacApp extends Projector {
 		}
 		await this._maybeWriteFile(
 			Buffer.from(xml, 'utf8'),
-			pathJoin(path, this.getInfoPlistPath(name)),
+			this.getInfoPlistPath(),
 			true
 		);
 	}
 
 	/**
 	 * Write out the projector icon file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writeIcon(path: string, name: string) {
+	protected async _writeIcon() {
 		const data = await this.getIconData();
 		if (!data) {
 			return;
 		}
 
-		const xml = await this._readInfoPlist(path, name);
+		const xml = await this._readInfoPlist();
 		const iconName = this._readInfoPlistIcon(xml);
 
-		await this._maybeWriteFile(
-			data,
-			pathJoin(path, this.getIconPath(name, iconName)),
-			true
-		);
+		await this._maybeWriteFile(data, this.getIconPath(iconName), true);
 	}
 
 	/**
 	 * Write out the projector PkgInfo file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePkgInfo(path: string, name: string) {
-		await this._maybeWriteFile(
-			await this.getPkgInfoData(),
-			pathJoin(path, this.getPkgInfoPath(name)),
-			true
-		);
+	protected async _writePkgInfo() {
+		const data = await this.getPkgInfoData();
+		await this._maybeWriteFile(data, this.getPkgInfoPath(), true);
 	}
 
 	/**
 	 * Remove projector code signature if enabled.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _removeCodeSignature(path: string, name: string) {
+	protected async _removeCodeSignature() {
 		if (!this.removeCodeSignature) {
 			return;
 		}
 
 		// Locate the main binary.
-		const xml = await this._readInfoPlist(path, name);
+		const xml = await this._readInfoPlist();
 		const executableName = this._readInfoPlistExecutable(xml);
-		const executablePath = this.getBinaryPath(name, executableName);
+		const executablePath = this.getBinaryPath(executableName);
 
 		// Unsign binary if signed.
-		await this._unsignMachO(pathJoin(path, executablePath));
+		await this._unsignMachO(executablePath);
 
 		// Cleanup signature file and directory that may exist.
-		await fse.remove(pathJoin(path, name, 'Contents', 'CodeResources'));
-		await fse.remove(pathJoin(path, name, 'Contents', '_CodeSignature'));
+		await fse.remove(pathJoin(this.path, 'Contents/CodeResources'));
+		await fse.remove(pathJoin(this.path, 'Contents/_CodeSignature'));
 	}
 
 	/**
 	 * Update projector binary name.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _updateBinaryName(path: string, name: string) {
+	protected async _updateBinaryName() {
 		const {
 			binaryName,
 			appIconNameCustom,
@@ -583,65 +536,47 @@ export class ProjectorMacApp extends Projector {
 			return;
 		}
 
-		const xml = await this._readInfoPlist(path, name);
+		const xml = await this._readInfoPlist();
 
 		if (binaryName) {
 			const executableName = this._readInfoPlistExecutable(xml);
 
-			const rsrcPathOld = this.getRsrcPath(name, executableName, true);
+			const rsrcPathOld = this.getRsrcPath(executableName, true);
 			if (!appRsrcNameCustom) {
 				throw new Error('Internal error');
 			}
-			const rsrcPathNew = this.getRsrcPath(name, appRsrcNameCustom);
+			const rsrcPathNew = this.getRsrcPath(appRsrcNameCustom);
 
-			const binaryPathOld = this.getBinaryPath(name, executableName);
-			const binaryPathNew = this.getBinaryPath(name, binaryName);
+			const binaryPathOld = this.getBinaryPath(executableName);
+			const binaryPathNew = this.getBinaryPath(binaryName);
 
-			await fse.move(
-				pathJoin(path, binaryPathOld),
-				pathJoin(path, binaryPathNew)
-			);
-			await fse.move(
-				pathJoin(path, rsrcPathOld),
-				pathJoin(path, rsrcPathNew)
-			);
+			await fse.move(binaryPathOld, binaryPathNew);
+			await fse.move(rsrcPathOld, rsrcPathNew);
 		}
 
 		if (appIconNameCustom) {
 			const iconName = this._readInfoPlistIcon(xml);
-			const iconPathOld = this.getIconPath(name, iconName);
-			const iconPathNew = this.getIconPath(name, appIconNameCustom);
+			const iconPathOld = this.getIconPath(iconName);
+			const iconPathNew = this.getIconPath(appIconNameCustom);
 
-			await fse.move(
-				pathJoin(path, iconPathOld),
-				pathJoin(path, iconPathNew)
-			);
+			await fse.move(iconPathOld, iconPathNew);
 		}
 	}
 
 	/**
 	 * Write out the projector Info.plist file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writeInfoPlist(path: string, name: string) {
-		await this._maybeWriteFile(
-			await this.getInfoPlistData(),
-			pathJoin(path, this.getInfoPlistPath(name)),
-			true
-		);
+	protected async _writeInfoPlist() {
+		const data = await this.getInfoPlistData();
+		await this._maybeWriteFile(data, this.getInfoPlistPath(), true);
 	}
 
 	/**
 	 * Update the projector Info.plist file fields.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _updateInfoPlist(path: string, name: string) {
-		const xmlOriginal = await this._readInfoPlist(path, name);
-		const xml = this.updateInfoPlistCode(xmlOriginal, name);
+	protected async _updateInfoPlist() {
+		const xmlOriginal = await this._readInfoPlist();
+		const xml = this.updateInfoPlistCode(xmlOriginal);
 
 		// Write file if changed.
 		if (xml === xmlOriginal) {
@@ -649,7 +584,7 @@ export class ProjectorMacApp extends Projector {
 		}
 		await this._maybeWriteFile(
 			Buffer.from(xml, 'utf8'),
-			pathJoin(path, this.getInfoPlistPath(name)),
+			this.getInfoPlistPath(),
 			true
 		);
 	}
@@ -657,12 +592,10 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Read the projector Info.plist file.
 	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 * @returns File data.
 	 */
-	protected async _readInfoPlist(path: string, name: string) {
-		const file = pathJoin(path, this.getInfoPlistPath(name));
+	protected async _readInfoPlist() {
+		const file = this.getInfoPlistPath();
 		const data = await this._dataFromBufferOrFile(null, file);
 		if (!data) {
 			throw new Error('Failed to read Info.plist');

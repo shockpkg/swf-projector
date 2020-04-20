@@ -1,4 +1,8 @@
 import {
+	basename
+} from 'path';
+
+import {
 	Archive,
 	ArchiveDir,
 	ArchiveHdi,
@@ -13,7 +17,7 @@ import {
 /**
  * Projector constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export abstract class Projector extends Object {
 	/**
@@ -36,8 +40,15 @@ export abstract class Projector extends Object {
 	 */
 	public pathToHdiutil: string | null = null;
 
-	constructor() {
+	/**
+	 * Output path.
+	 */
+	public readonly path: string;
+
+	constructor(path: string) {
 		super();
+
+		this.path = path;
 	}
 
 	/**
@@ -64,10 +75,10 @@ export abstract class Projector extends Object {
 	/**
 	 * Get the name of a projector trimming the extension, case insensitive.
 	 *
-	 * @param name Projector name.
 	 * @returns Projector name without extension.
 	 */
-	public getProjectorNameNoExtension(name: string) {
+	public getProjectorNameNoExtension() {
+		const name = basename(this.path);
 		return trimExtension(name, this.projectorExtension, true);
 	}
 
@@ -116,14 +127,11 @@ export abstract class Projector extends Object {
 
 	/**
 	 * Write out the projector.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	public async write(path: string, name: string) {
-		await this._writePlayer(path, name);
-		await this._modifyPlayer(path, name);
-		await this._writeMovie(path, name);
+	public async write() {
+		await this._writePlayer();
+		await this._modifyPlayer();
+		await this._writeMovie();
 	}
 
 	/**
@@ -289,34 +297,16 @@ export abstract class Projector extends Object {
 
 	/**
 	 * Write the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected abstract async _writePlayer(
-		path: string,
-		name: string
-	): Promise<void>;
+	protected abstract async _writePlayer(): Promise<void>;
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected abstract async _modifyPlayer(
-		path: string,
-		name: string
-	): Promise<void>;
+	protected abstract async _modifyPlayer(): Promise<void>;
 
 	/**
 	 * Write out the projector movie file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected abstract async _writeMovie(
-		path: string,
-		name: string
-	): Promise<void>;
+	protected abstract async _writeMovie(): Promise<void>;
 }

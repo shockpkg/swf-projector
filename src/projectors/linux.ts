@@ -1,8 +1,4 @@
 import {
-	join as pathJoin
-} from 'path';
-
-import {
 	fsChmod,
 	fsUtimes,
 	modePermissionBits,
@@ -22,7 +18,7 @@ import {
 /**
  * ProjectorLinux constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export class ProjectorLinux extends Projector {
 	/**
@@ -50,8 +46,8 @@ export class ProjectorLinux extends Projector {
 	 */
 	public patchProjectorPath = false;
 
-	constructor() {
-		super();
+	constructor(path: string) {
+		super(path);
 	}
 
 	/**
@@ -78,18 +74,15 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Write the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayer(path: string, name: string) {
+	protected async _writePlayer() {
 		const player = this.getPlayerPath();
 		const stat = await fse.stat(player);
 		const isDirectory = stat.isDirectory();
 
 		// Try reading as archive, fall back on assuming Linux binary.
 		try {
-			await this._writePlayerArchive(path, name);
+			await this._writePlayerArchive();
 		}
 		catch (err) {
 			if (
@@ -97,7 +90,7 @@ export class ProjectorLinux extends Projector {
 				err &&
 				`${err.message}`.startsWith('Archive file type unknown: ')
 			) {
-				await this._writePlayerFile(path, name);
+				await this._writePlayerFile();
 			}
 			else {
 				throw err;
@@ -107,30 +100,24 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Write the projector player, from file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayerFile(path: string, name: string) {
+	protected async _writePlayerFile() {
 		const player = this.getPlayerPath();
 		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
 			throw new Error(`Path is not file: ${player}`);
 		}
 
-		const playerOut = pathJoin(path, name);
-		await fse.copyFile(player, playerOut);
-		await fsChmod(playerOut, modePermissionBits(stat.mode));
-		await fsUtimes(playerOut, stat.atime, stat.mtime);
+		const {path} = this;
+		await fse.copyFile(player, path);
+		await fsChmod(path, modePermissionBits(stat.mode));
+		await fsUtimes(path, stat.atime, stat.mtime);
 	}
 
 	/**
 	 * Write the projector player, from archive.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writePlayerArchive(path: string, name: string) {
+	protected async _writePlayerArchive() {
 		let playerPath = '';
 
 		const projectorArchiveNames = new Set();
@@ -139,7 +126,7 @@ export class ProjectorLinux extends Projector {
 		}
 
 		const player = this.getPlayerPath();
-		const playerOut = pathJoin(path, name);
+		const playerOut = this.path;
 
 		const archive = await this.openAsArchive(player);
 		await archive.read(async entry => {
@@ -180,11 +167,8 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _modifyPlayer(path: string, name: string) {
+	protected async _modifyPlayer() {
 		const {
 			patchWindowTitle,
 			patchMenuRemove,
@@ -201,8 +185,8 @@ export class ProjectorLinux extends Projector {
 		}
 
 		// Read the projector file.
-		const projectorPath = pathJoin(path, name);
-		let data = await fse.readFile(projectorPath);
+		const {path} = this;
+		let data = await fse.readFile(path);
 
 		// Attempt to patch the projector data.
 		if (patchWindowTitle) {
@@ -216,21 +200,18 @@ export class ProjectorLinux extends Projector {
 		}
 
 		// Write out patched data.
-		await fse.writeFile(projectorPath, data);
+		await fse.writeFile(path, data);
 	}
 
 	/**
 	 * Write out the projector movie file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writeMovie(path: string, name: string) {
+	protected async _writeMovie() {
 		const data = await this.getMovieData();
 		if (!data) {
 			return;
 		}
 
-		await this._appendMovieData(pathJoin(path, name), data, 'smd');
+		await this._appendMovieData(this.path, data, 'smd');
 	}
 }

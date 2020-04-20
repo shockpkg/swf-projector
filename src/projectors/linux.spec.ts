@@ -1,3 +1,7 @@
+import {
+	join as pathJoin
+} from 'path';
+
 import fse from 'fs-extra';
 
 import {
@@ -37,10 +41,12 @@ describe('projectors/linux', () => {
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
-				const p = new ProjectorLinux();
+				const dest = pathJoin(dir, 'application');
+
+				const p = new ProjectorLinux(dest);
 				p.player = fixtureFile('dummy');
 				p.movieFile = fixtureFile('swf3.swf');
-				await p.write(dir, 'application');
+				await p.write();
 			});
 		});
 
@@ -53,19 +59,23 @@ describe('projectors/linux', () => {
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
-					const p = new ProjectorLinux();
+					const dest = pathJoin(dir, 'application');
+
+					const p = new ProjectorLinux(dest);
 					p.player = await getPlayer();
 					p.movieFile = simple;
-					await p.write(dir, 'application');
+					await p.write();
 				});
 
 				it('title', async () => {
 					const dir = await getDir('title');
-					const p = new ProjectorLinux();
+					const dest = pathJoin(dir, 'application');
+
+					const p = new ProjectorLinux(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf3.swf');
 					p.patchWindowTitle = 'Custom Title';
-					await p.write(dir, 'application');
+					await p.write();
 				});
 
 				if (pkg.version[0] < 6) {
@@ -74,36 +84,44 @@ describe('projectors/linux', () => {
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
-					const p = new ProjectorLinux();
+					const dest = pathJoin(dir, 'application');
+
+					const p = new ProjectorLinux(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf6-loadmovie.swf');
 					p.patchProjectorPath = pkg.patchProjectorPath;
-					await p.write(dir, 'application');
+					await p.write();
+
 					await fse.copy(
 						fixtureFile('image.jpg'),
-						`${dir}/image.jpg`
+						pathJoin(dir, 'image.jpg')
 					);
 				});
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
-					const p = new ProjectorLinux();
+					const dest = pathJoin(dir, 'application');
+
+					const p = new ProjectorLinux(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
-					await p.write(dir, 'application');
+					await p.write();
 				});
 
 				it('nomenu', async () => {
 					const dir = await getDir('nomenu');
-					const p = new ProjectorLinux();
+					const dest = pathJoin(dir, 'application');
+
+					const p = new ProjectorLinux(dest);
 					p.player = await getPlayer();
 					p.movieFile = fixtureFile('swf6-loadmovie.swf');
 					p.patchProjectorPath = pkg.patchProjectorPath;
 					p.patchMenuRemove = true;
-					await p.write(dir, 'application');
+					await p.write();
+
 					await fse.copy(
 						fixtureFile('image.jpg'),
-						`${dir}/image.jpg`
+						pathJoin(dir, 'image.jpg')
 					);
 				});
 			});

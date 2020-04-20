@@ -1,7 +1,3 @@
-import {
-	join as pathJoin
-} from 'path';
-
 import fse from 'fs-extra';
 
 import {
@@ -18,7 +14,7 @@ import {
 /**
  * ProjectorLinux64 constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export class ProjectorLinux64 extends ProjectorLinux {
 	/**
@@ -28,8 +24,8 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 */
 	public patchProjectorOffset = false;
 
-	constructor() {
-		super();
+	constructor(path: string) {
+		super(path);
 	}
 
 	/**
@@ -43,11 +39,8 @@ export class ProjectorLinux64 extends ProjectorLinux {
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _modifyPlayer(path: string, name: string) {
+	protected async _modifyPlayer() {
 		const {
 			patchWindowTitle,
 			patchMenuRemove,
@@ -66,8 +59,8 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		}
 
 		// Read the projector file.
-		const projectorPath = pathJoin(path, name);
-		let data = await fse.readFile(projectorPath);
+		const {path} = this;
+		let data = await fse.readFile(path);
 
 		// Attempt to patch the projector data.
 		if (patchWindowTitle) {
@@ -84,21 +77,18 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		}
 
 		// Write out patched data.
-		await fse.writeFile(projectorPath, data);
+		await fse.writeFile(path, data);
 	}
 
 	/**
 	 * Write out the projector movie file.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _writeMovie(path: string, name: string) {
+	protected async _writeMovie() {
 		const data = await this.getMovieData();
 		if (!data) {
 			return;
 		}
 
-		await this._appendMovieData(pathJoin(path, name), data, 'lmd');
+		await this._appendMovieData(this.path, data, 'lmd');
 	}
 }
