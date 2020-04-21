@@ -103,9 +103,19 @@ export abstract class Projector extends Object {
 	 * @param movieData Movie data.
 	 */
 	public async withData(player: string, movieData: Readonly<Buffer> | null) {
+		await this._checkOutput();
 		await this._writePlayer(player);
 		await this._modifyPlayer();
 		await this._writeMovie(movieData);
+	}
+
+	/**
+	 * Check that output path is valid, else throws.
+	 */
+	protected async _checkOutput() {
+		if (await fse.pathExists(this.path)) {
+			throw new Error(`Output path already exists: ${this.path}`);
+		}
 	}
 
 	/**
