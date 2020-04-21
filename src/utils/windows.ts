@@ -96,14 +96,8 @@ export async function peResourceReplace(
 		for (const versionInfo of ResEditResource.VersionInfo.fromEntries(
 			res.entries
 		)) {
-			// Unfortunately versionInfo.getAvailableLanguages() skips some.
-			// Get the full list from the internal data.
-			const languages = ((versionInfo as any).data.strings as any[])
-				.map((o: any) => ({
-					lang: o.lang as number,
-					codepage: o.codepage as number
-				}));
-
+			// Get all the languages, not just available languages.
+			const languages = versionInfo.getAllLanguagesForStringValues();
 			for (const language of languages) {
 				versionInfo.setStringValues(language, versionStrings);
 			}
