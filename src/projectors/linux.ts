@@ -51,7 +51,7 @@ export class ProjectorLinux extends Projector {
 	 *
 	 * @returns File extension.
 	 */
-	public get projectorExtension() {
+	public get extension() {
 		return '';
 	}
 

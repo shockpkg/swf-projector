@@ -48,7 +48,7 @@ export class ProjectorWindows extends Projector {
 	 *
 	 * @returns File extension.
 	 */
-	public get projectorExtension() {
+	public get extension() {
 		return '.exe';
 	}
 
@@ -70,7 +70,7 @@ export class ProjectorWindows extends Projector {
 	protected async _writePlayer(player: string) {
 		if (
 			player.toLowerCase().endsWith(
-				this.projectorExtension.toLowerCase()
+				this.extension.toLowerCase()
 			) &&
 			(await fse.stat(player)).isFile()
 		) {
@@ -104,7 +104,7 @@ export class ProjectorWindows extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayerArchive(player: string) {
-		const projectorExtensionLower = this.projectorExtension.toLowerCase();
+		const extensionLower = this.extension.toLowerCase();
 		let playerPath = '';
 		const playerOut = this.path;
 
@@ -116,7 +116,7 @@ export class ProjectorWindows extends Projector {
 			}
 			const {path} = entry;
 
-			if (!path.toLowerCase().endsWith(projectorExtensionLower)) {
+			if (!path.toLowerCase().endsWith(extensionLower)) {
 				return;
 			}
 

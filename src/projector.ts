@@ -52,7 +52,7 @@ export abstract class Projector extends Object {
 	 */
 	public getProjectorName() {
 		const name = basename(this.path);
-		return trimExtension(name, this.projectorExtension, true);
+		return trimExtension(name, this.extension, true);
 	}
 
 	/**
@@ -202,7 +202,7 @@ export abstract class Projector extends Object {
 	 *
 	 * @returns File extension.
 	 */
-	public abstract get projectorExtension(): string;
+	public abstract get extension(): string;
 
 	/**
 	 * Write the projector player.

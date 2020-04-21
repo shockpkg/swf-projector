@@ -118,7 +118,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @returns File extension.
 	 */
-	public get projectorExtension() {
+	public get extension() {
 		return '.app';
 	}
 
@@ -302,7 +302,7 @@ export class ProjectorMacApp extends Projector {
 	protected async _writePlayer(player: string) {
 		if (
 			player.toLowerCase().endsWith(
-				this.projectorExtension.toLowerCase()
+				this.extension.toLowerCase()
 			) &&
 			(await fse.stat(player)).isDirectory()
 		) {
@@ -348,7 +348,7 @@ export class ProjectorMacApp extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayerArchive(player: string) {
-		const projectorExtensionLower = this.projectorExtension.toLowerCase();
+		const extensionLower = this.extension.toLowerCase();
 		let playerName = '';
 		const {path} = this;
 
@@ -370,7 +370,7 @@ export class ProjectorMacApp extends Projector {
 			if (baseLower.startsWith('.')) {
 				return;
 			}
-			if (!baseLower.endsWith(projectorExtensionLower)) {
+			if (!baseLower.endsWith(extensionLower)) {
 				return;
 			}
 
