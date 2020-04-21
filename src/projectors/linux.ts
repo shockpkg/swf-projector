@@ -100,7 +100,7 @@ export class ProjectorLinux extends Projector {
 	protected async _writePlayerFile(player: string) {
 		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
-			throw new Error(`Path is not file: ${player}`);
+			throw new Error(`Path not a file: ${player}`);
 		}
 
 		const {path} = this;
