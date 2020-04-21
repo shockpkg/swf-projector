@@ -98,10 +98,10 @@ export async function peResourceReplace(
 		)) {
 			// Unfortunately versionInfo.getAvailableLanguages() skips some.
 			// Get the full list from the internal data.
-			const languages = (versionInfo as any).data.strings
+			const languages = ((versionInfo as any).data.strings as any[])
 				.map((o: any) => ({
-					lang: o.lang as (number | string),
-					codepage: o.codepage as (number | string)
+					lang: o.lang as number,
+					codepage: o.codepage as number
 				}));
 
 			for (const language of languages) {
