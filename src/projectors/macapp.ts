@@ -394,8 +394,8 @@ export class ProjectorMacApp extends Projector {
 	protected async _modifyPlayer() {
 		await this._removeCodeSignature();
 		await this._fixPlayer();
-		await this._writeIcon();
-		await this._writePkgInfo();
+		await this._replaceIcon();
+		await this._replacePkgInfo();
 		await this._updateContentPaths();
 		await this._updateInfoPlist();
 	}
@@ -413,7 +413,7 @@ export class ProjectorMacApp extends Projector {
 	}
 
 	/**
-	 * A method to fix some partially broken players.
+	 * Fix partially broken players.
 	 */
 	protected async _fixPlayer() {
 		await this._fixPlayerIconPath();
@@ -441,9 +441,9 @@ export class ProjectorMacApp extends Projector {
 	}
 
 	/**
-	 * Write out the projector icon file.
+	 * Replace projector icon file.
 	 */
-	protected async _writeIcon() {
+	protected async _replaceIcon() {
 		const data = await this.getIconData();
 		if (!data) {
 			return;
@@ -458,9 +458,9 @@ export class ProjectorMacApp extends Projector {
 	}
 
 	/**
-	 * Write out the projector PkgInfo file.
+	 * Replace projector PkgInfo file.
 	 */
-	protected async _writePkgInfo() {
+	protected async _replacePkgInfo() {
 		const data = await this.getPkgInfoData();
 		if (!data) {
 			return;
@@ -472,7 +472,7 @@ export class ProjectorMacApp extends Projector {
 	}
 
 	/**
-	 * Remove projector code signature if enabled.
+	 * Remove projector code signature.
 	 */
 	protected async _removeCodeSignature() {
 		if (!this.removeCodeSignature) {
