@@ -23,7 +23,7 @@ export abstract class Projector extends Object {
 	/**
 	 * Path to hdiutil binary.
 	 */
-	public pathToHdiutil: string | null = null;
+	public hdiutil: string | null = null;
 
 	/**
 	 * Output path.
@@ -76,9 +76,9 @@ export abstract class Projector extends Object {
 		}
 
 		if (r instanceof ArchiveHdi) {
-			const {pathToHdiutil} = this;
-			if (pathToHdiutil) {
-				r.mounterMac.hdiutil = pathToHdiutil;
+			const {hdiutil} = this;
+			if (hdiutil) {
+				r.mounterMac.hdiutil = hdiutil;
 			}
 			r.nobrowse = true;
 		}
