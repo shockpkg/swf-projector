@@ -100,11 +100,8 @@ export function infoPlistBundleExecutableSet(
 	plist: Plist,
 	value: string | null
 ) {
-	infoPlistDictSet(
-		plist,
-		'CFBundleExecutable',
-		value === null ? null : new ValueString(value)
-	);
+	const v = value === null ? null : new ValueString(value);
+	infoPlistDictSet(plist, 'CFBundleExecutable', v);
 }
 
 /**
@@ -125,11 +122,8 @@ export function infoPlistBundleIconFileGet(plist: Plist) {
  * @param value Icon name.
  */
 export function infoPlistBundleIconFileSet(plist: Plist, value: string | null) {
-	infoPlistDictSet(
-		plist,
-		'CFBundleIconFile',
-		value === null ? null : new ValueString(value)
-	);
+	const v = value === null ? null : new ValueString(value);
+	infoPlistDictSet(plist, 'CFBundleIconFile', v);
 }
 
 /**
@@ -139,11 +133,8 @@ export function infoPlistBundleIconFileSet(plist: Plist, value: string | null) {
  * @param value Icon name.
  */
 export function infoPlistBundleNameSet(plist: Plist, value: string | null) {
-	infoPlistDictSet(
-		plist,
-		'CFBundleName',
-		value === null ? null : new ValueString(value)
-	);
+	const v = value === null ? null : new ValueString(value);
+	infoPlistDictSet(plist, 'CFBundleName', v);
 }
 
 /**
