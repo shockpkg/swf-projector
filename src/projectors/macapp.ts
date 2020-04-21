@@ -224,7 +224,7 @@ export class ProjectorMacApp extends Projector {
 		if (infoPlistDocument) {
 			xml = infoPlistDocument.toXml();
 		}
-		if (typeof infoPlistData === 'string') {
+		else if (typeof infoPlistData === 'string') {
 			xml = infoPlistData;
 		}
 		else if (Array.isArray(infoPlistData)) {
