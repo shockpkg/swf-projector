@@ -10,20 +10,27 @@ import {
 	PathType
 } from '@shockpkg/archive-files';
 import {
-	unsign
-} from 'macho-unsign';
+	Plist
+} from '@shockpkg/plist-dom';
 import fse from 'fs-extra';
 
 import {
 	Projector
 } from '../projector';
 import {
-	infoPlistRead,
-	infoPlistReplace,
-	pathRelativeBase,
-	plistStringTagDecode,
-	plistStringTagEncode
+	pathRelativeBase
 } from '../util';
+import {
+	appUnsign,
+	plistRead,
+	plistParse,
+	infoPlistBundleExecutableGet,
+	infoPlistBundleExecutableSet,
+	infoPlistBundleIconFileGet,
+	infoPlistBundleIconFileSet,
+	infoPlistBundleNameSet,
+	infoPlistBundleDocumentTypesDelete
+} from '../utils/mac';
 
 /**
  * ProjectorMacApp constructor.
@@ -59,6 +66,11 @@ export class ProjectorMacApp extends Projector {
 	) = null;
 
 	/**
+	 * Info.plist document.
+	 */
+	public infoPlistDocument: Plist | null = null;
+
+	/**
 	 * PkgInfo file.
 	 */
 	public pkgInfoFile: string | null = null;
@@ -70,8 +82,13 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Update the bundle name in Info.plist.
+	 *
+	 * - false: Leave untouched.
+	 * - true: Output name.
+	 * - null: Remove value.
+	 * - string: Custom value.
 	 */
-	public updateBundleName = false;
+	public bundleName: boolean | string | null = false;
 
 	/**
 	 * Remove the file associations in Info.plist.
@@ -104,38 +121,11 @@ export class ProjectorMacApp extends Projector {
 	}
 
 	/**
-	 * If icon is specified.
-	 *
-	 * @returns Is specified.
-	 */
-	public get hasIcon() {
-		return !!(this.iconData || this.iconFile);
-	}
-
-	/**
-	 * If Info.plist is specified.
-	 *
-	 * @returns Is specified.
-	 */
-	public get hasInfoPlist() {
-		return !!(this.infoPlistData || this.infoPlistFile);
-	}
-
-	/**
-	 * If PkgInfo is specified.
-	 *
-	 * @returns Is specified.
-	 */
-	public get hasPkgInfo() {
-		return !!(this.pkgInfoData || this.pkgInfoFile);
-	}
-
-	/**
 	 * Get app icon name, custom.
 	 *
 	 * @returns File name.
 	 */
-	public get appIconNameCustom() {
+	public get appIconName() {
 		const n = this.binaryName;
 		return n ? `${n}.icns` : null;
 	}
@@ -145,7 +135,7 @@ export class ProjectorMacApp extends Projector {
 	 *
 	 * @returns File name.
 	 */
-	public get appRsrcNameCustom() {
+	public get appRsrcName() {
 		const n = this.binaryName;
 		return n ? `${n}.rsrc` : null;
 	}
@@ -190,12 +180,12 @@ export class ProjectorMacApp extends Projector {
 	/**
 	 * Get the rsrc path.
 	 *
-	 * @param binaryName Binary name.
+	 * @param name The name.
 	 * @param addExt Add extension.
 	 * @returns Rsrc path.
 	 */
-	public getRsrcPath(binaryName: string, addExt = false) {
-		const name = addExt ? `${binaryName}.rsrc` : binaryName;
+	public getRsrcPath(name: string, addExt = false) {
+		name += addExt ? '.rsrc' : '';
 		return pathJoin(this.path, 'Contents/Resources', name);
 	}
 
@@ -215,24 +205,41 @@ export class ProjectorMacApp extends Projector {
 	 * @returns Icon data or null.
 	 */
 	public async getIconData() {
-		return this._dataFromBufferOrFile(
-			this.iconData,
-			this.iconFile
-		);
+		const {iconData, iconFile} = this;
+		return iconData || (iconFile ? fse.readFile(iconFile) : null);
 	}
 
 	/**
-	 * Get Info.plist data if any specified, from data or file.
+	 * Get Info.plist data if any specified, document, data, or file.
 	 *
 	 * @returns Info.plist data or null.
 	 */
-	public async getInfoPlistData() {
-		return this._dataFromValueOrFile(
-			this.infoPlistData,
-			this.infoPlistFile,
-			'\n',
-			'utf8'
-		);
+	public async getInfoPlistDocument() {
+		const {
+			infoPlistDocument,
+			infoPlistData,
+			infoPlistFile
+		} = this;
+		let xml;
+		if (infoPlistDocument) {
+			xml = infoPlistDocument.toXml();
+		}
+		if (typeof infoPlistData === 'string') {
+			xml = infoPlistData;
+		}
+		else if (Array.isArray(infoPlistData)) {
+			xml = infoPlistData.join('\n');
+		}
+		else if (infoPlistData) {
+			xml = (infoPlistData as Readonly<Buffer>).toString('utf8');
+		}
+		else if (infoPlistFile) {
+			xml = await fse.readFile(infoPlistFile, 'utf8');
+		}
+		else {
+			return null;
+		}
+		return plistParse(xml);
 	}
 
 	/**
@@ -241,12 +248,11 @@ export class ProjectorMacApp extends Projector {
 	 * @returns PkgInfo data or null.
 	 */
 	public async getPkgInfoData() {
-		return this._dataFromValueOrFile(
-			this.pkgInfoData,
-			this.pkgInfoFile,
-			null,
-			'ascii'
-		);
+		const {pkgInfoData, pkgInfoFile} = this;
+		if (typeof pkgInfoData === 'string') {
+			return Buffer.from(pkgInfoData, 'ascii');
+		}
+		return pkgInfoData || (pkgInfoFile ? fse.readFile(pkgInfoFile) : null);
 	}
 
 	/**
@@ -277,49 +283,13 @@ export class ProjectorMacApp extends Projector {
 	}
 
 	/**
-	 * Update XML code with customized variables.
+	 * Get configured bundle name, or null to remove.
 	 *
-	 * @param xml Plist code.
-	 * @returns Updated XML.
+	 * @returns New name or null.
 	 */
-	public updateInfoPlistCode(xml: string) {
-		const {
-			binaryName,
-			appIconNameCustom,
-			updateBundleName,
-			removeFileAssociations
-		} = this;
-
-		if (appIconNameCustom) {
-			xml = infoPlistReplace(
-				xml,
-				'CFBundleIconFile',
-				plistStringTagEncode(appIconNameCustom)
-			);
-		}
-		if (binaryName) {
-			xml = infoPlistReplace(
-				xml,
-				'CFBundleExecutable',
-				plistStringTagEncode(binaryName)
-			);
-		}
-		if (updateBundleName) {
-			xml = infoPlistReplace(
-				xml,
-				'CFBundleName',
-				plistStringTagEncode(this.getProjectorNameNoExtension())
-			);
-		}
-		if (removeFileAssociations) {
-			xml = infoPlistReplace(
-				xml,
-				'CFBundleDocumentTypes',
-				'<array></array>'
-			);
-		}
-
-		return xml;
+	public getBundleName() {
+		const {bundleName} = this;
+		return bundleName === true ? this.getProjectorName() : bundleName;
 	}
 
 	/**
@@ -327,12 +297,11 @@ export class ProjectorMacApp extends Projector {
 	 */
 	protected async _writePlayer() {
 		const player = this.getPlayerPath();
-		const stat = await fse.stat(player);
-		const projectorExtensionLower = this.projectorExtension.toLowerCase();
-
 		if (
-			stat.isDirectory() &&
-			player.toLowerCase().endsWith(projectorExtensionLower)
+			player.toLowerCase().endsWith(
+				this.projectorExtension.toLowerCase()
+			) &&
+			(await fse.stat(player)).isDirectory()
 		) {
 			await this._writePlayerFile();
 		}
@@ -389,11 +358,11 @@ export class ProjectorMacApp extends Projector {
 
 			const slashIndex = volumePath.indexOf('/');
 			const base = slashIndex > -1 ?
-				volumePath.substr(0, slashIndex) : volumePath;
+				volumePath.substr(0, slashIndex) :
+				volumePath;
 			const baseLower = base.toLowerCase();
 
-			// eslint-disable-next-line @typescript-eslint/prefer-string-starts-ends-with
-			if (baseLower.charAt(0) === '.') {
+			if (baseLower.startsWith('.')) {
 				return;
 			}
 			if (!baseLower.endsWith(projectorExtensionLower)) {
@@ -427,8 +396,7 @@ export class ProjectorMacApp extends Projector {
 		await this._fixPlayer();
 		await this._writeIcon();
 		await this._writePkgInfo();
-		await this._updateBinaryName();
-		await this._writeInfoPlist();
+		await this._updateContentPaths();
 		await this._updateInfoPlist();
 	}
 
@@ -441,41 +409,35 @@ export class ProjectorMacApp extends Projector {
 			return;
 		}
 
-		await this._maybeWriteFile(data, this.getMoviePath(), true);
+		await fse.writeFile(this.getMoviePath(), data);
 	}
 
 	/**
 	 * A method to fix some partially broken players.
-	 * Currently fixes the icon in some old projectors.
 	 */
 	protected async _fixPlayer() {
+		await this._fixPlayerIconPath();
+	}
+
+	/**
+	 * Fix the icon path in some old projectors.
+	 */
+	protected async _fixPlayerIconPath() {
 		const {fixBrokenIconPaths} = this;
 		if (!fixBrokenIconPaths) {
 			return;
 		}
 
-		const xmlOriginal = await this._readInfoPlist();
-		let xml = xmlOriginal;
+		const plist = await this._readInfoPlist();
 
-		// Add the icon extension.
-		const iconName = this._readInfoPlistIcon(xml);
-		if (!iconName.includes('.')) {
-			xml = infoPlistReplace(
-				xml,
-				'CFBundleIconFile',
-				plistStringTagEncode(`${iconName}.icns`)
-			);
-		}
-
-		// Write file if changed.
-		if (xml === xmlOriginal) {
+		// Add the icon extension or skip if present.
+		const iconFile = infoPlistBundleIconFileGet(plist);
+		if (iconFile.includes('.')) {
 			return;
 		}
-		await this._maybeWriteFile(
-			Buffer.from(xml, 'utf8'),
-			this.getInfoPlistPath(),
-			true
-		);
+		infoPlistBundleIconFileSet(plist, `${iconFile}.icns`);
+
+		await this._writeInfoPlist(plist);
 	}
 
 	/**
@@ -487,10 +449,12 @@ export class ProjectorMacApp extends Projector {
 			return;
 		}
 
-		const xml = await this._readInfoPlist();
-		const iconName = this._readInfoPlistIcon(xml);
+		const plist = await this._readInfoPlist();
+		const iconName = infoPlistBundleIconFileGet(plist);
 
-		await this._maybeWriteFile(data, this.getIconPath(iconName), true);
+		const path = this.getIconPath(iconName);
+		await fse.remove(path);
+		await fse.outputFile(path, data);
 	}
 
 	/**
@@ -498,7 +462,13 @@ export class ProjectorMacApp extends Projector {
 	 */
 	protected async _writePkgInfo() {
 		const data = await this.getPkgInfoData();
-		await this._maybeWriteFile(data, this.getPkgInfoPath(), true);
+		if (!data) {
+			return;
+		}
+
+		const path = this.getPkgInfoPath();
+		await fse.remove(path);
+		await fse.outputFile(path, data);
 	}
 
 	/**
@@ -509,43 +479,34 @@ export class ProjectorMacApp extends Projector {
 			return;
 		}
 
-		// Locate the main binary.
-		const xml = await this._readInfoPlist();
-		const executableName = this._readInfoPlistExecutable(xml);
-		const executablePath = this.getBinaryPath(executableName);
-
-		// Unsign binary if signed.
-		await this._unsignMachO(executablePath);
-
-		// Cleanup signature file and directory that may exist.
-		await fse.remove(pathJoin(this.path, 'Contents/CodeResources'));
-		await fse.remove(pathJoin(this.path, 'Contents/_CodeSignature'));
+		await appUnsign(this.path);
 	}
 
 	/**
-	 * Update projector binary name.
+	 * Update paths in the projector bundle.
 	 */
-	protected async _updateBinaryName() {
+	protected async _updateContentPaths() {
 		const {
 			binaryName,
-			appIconNameCustom,
-			appRsrcNameCustom
+			appIconName,
+			appRsrcName
 		} = this;
-
-		if (!binaryName && !appIconNameCustom) {
+		if (!(
+			binaryName ||
+			appIconName
+		)) {
 			return;
 		}
 
-		const xml = await this._readInfoPlist();
+		const plist = await this._readInfoPlist();
 
 		if (binaryName) {
-			const executableName = this._readInfoPlistExecutable(xml);
-
+			const executableName = infoPlistBundleExecutableGet(plist);
 			const rsrcPathOld = this.getRsrcPath(executableName, true);
-			if (!appRsrcNameCustom) {
+			if (!appRsrcName) {
 				throw new Error('Internal error');
 			}
-			const rsrcPathNew = this.getRsrcPath(appRsrcNameCustom);
+			const rsrcPathNew = this.getRsrcPath(appRsrcName);
 
 			const binaryPathOld = this.getBinaryPath(executableName);
 			const binaryPathNew = this.getBinaryPath(binaryName);
@@ -554,102 +515,75 @@ export class ProjectorMacApp extends Projector {
 			await fse.move(rsrcPathOld, rsrcPathNew);
 		}
 
-		if (appIconNameCustom) {
-			const iconName = this._readInfoPlistIcon(xml);
+		if (appIconName) {
+			const iconName = infoPlistBundleIconFileGet(plist);
+
 			const iconPathOld = this.getIconPath(iconName);
-			const iconPathNew = this.getIconPath(appIconNameCustom);
+			const iconPathNew = this.getIconPath(appIconName);
 
 			await fse.move(iconPathOld, iconPathNew);
 		}
 	}
 
 	/**
-	 * Write out the projector Info.plist file.
-	 */
-	protected async _writeInfoPlist() {
-		const data = await this.getInfoPlistData();
-		await this._maybeWriteFile(data, this.getInfoPlistPath(), true);
-	}
-
-	/**
-	 * Update the projector Info.plist file fields.
+	 * Update the projector Info.plist if needed.
 	 */
 	protected async _updateInfoPlist() {
-		const xmlOriginal = await this._readInfoPlist();
-		const xml = this.updateInfoPlistCode(xmlOriginal);
-
-		// Write file if changed.
-		if (xml === xmlOriginal) {
+		const customPlist = await this.getInfoPlistDocument();
+		const bundleName = this.getBundleName();
+		const {
+			binaryName,
+			appIconName,
+			removeFileAssociations
+		} = this;
+		if (!(
+			customPlist ||
+			appIconName ||
+			binaryName ||
+			bundleName !== false ||
+			removeFileAssociations
+		)) {
 			return;
 		}
-		await this._maybeWriteFile(
-			Buffer.from(xml, 'utf8'),
-			this.getInfoPlistPath(),
-			true
-		);
+
+		// Use a custom plist or the existing one.
+		const plist = customPlist || (await this._readInfoPlist());
+
+		// Update values.
+		if (appIconName) {
+			infoPlistBundleIconFileSet(plist, appIconName);
+		}
+		if (binaryName) {
+			infoPlistBundleExecutableSet(plist, binaryName);
+		}
+		if (bundleName !== false) {
+			infoPlistBundleNameSet(plist, bundleName);
+		}
+		if (removeFileAssociations) {
+			infoPlistBundleDocumentTypesDelete(plist);
+		}
+
+		// Write out the plist.
+		await this._writeInfoPlist(plist);
 	}
 
 	/**
 	 * Read the projector Info.plist file.
 	 *
-	 * @returns File data.
+	 * @returns Plist document.
 	 */
 	protected async _readInfoPlist() {
-		const file = this.getInfoPlistPath();
-		const data = await this._dataFromBufferOrFile(null, file);
-		if (!data) {
-			throw new Error('Failed to read Info.plist');
-		}
-		return data.toString('utf8');
+		return plistRead(this.getInfoPlistPath());
 	}
 
 	/**
-	 * Read executable name from Info.plist XML.
+	 * Write the projector Info.plist file.
 	 *
-	 * @param xml XML string.
-	 * @returns Field value.
+	 * @param plist Plist document.
 	 */
-	protected _readInfoPlistExecutable(xml: string) {
-		const tag = infoPlistRead(xml, 'CFBundleExecutable');
-		const value = tag ? plistStringTagDecode(tag) : null;
-		if (!value) {
-			throw new Error('Failed to read Info.plist executable field');
-		}
-		return value;
-	}
-
-	/**
-	 * Read icon name from Info.plist XML.
-	 *
-	 * @param xml XML string.
-	 * @returns Field value.
-	 */
-	protected _readInfoPlistIcon(xml: string) {
-		const tag = infoPlistRead(xml, 'CFBundleIconFile');
-		const value = tag ? plistStringTagDecode(tag) : null;
-		if (!value) {
-			throw new Error('Failed to read Info.plist icon field');
-		}
-		return value;
-	}
-
-	/**
-	 * Unsign a Mach-O binary if signed.
-	 *
-	 * @param path Binary path.
-	 * @returns Returns true if signed, else false.
-	 */
-	protected async _unsignMachO(path: string) {
-		const data = await fse.readFile(path);
-
-		// Unsign data if signed.
-		const unsigned = unsign(data);
-		if (!unsigned) {
-			return false;
-		}
-
-		// Write out the change.
-		await fse.writeFile(path, Buffer.from(unsigned));
-		return true;
+	protected async _writeInfoPlist(plist: Plist) {
+		const path = this.getInfoPlistPath();
+		await fse.remove(path);
+		await fse.outputFile(path, plist.toXml(), 'utf8');
 	}
 }

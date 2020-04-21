@@ -74,24 +74,13 @@ export class ProjectorWindows extends Projector {
 	}
 
 	/**
-	 * If icon is specified.
-	 *
-	 * @returns Is specified.
-	 */
-	public get hasIcon() {
-		return !!(this.iconData || this.iconFile);
-	}
-
-	/**
 	 * Get icon data if any specified, from data or file.
 	 *
 	 * @returns Icon data or null.
 	 */
 	public async getIconData() {
-		return this._dataFromBufferOrFile(
-			this.iconData,
-			this.iconFile
-		);
+		const {iconData, iconFile} = this;
+		return iconData || (iconFile ? fse.readFile(iconFile) : null);
 	}
 
 	/**
@@ -99,12 +88,11 @@ export class ProjectorWindows extends Projector {
 	 */
 	protected async _writePlayer() {
 		const player = this.getPlayerPath();
-		const stat = await fse.stat(player);
-		const projectorExtensionLower = this.projectorExtension.toLowerCase();
-
 		if (
-			stat.isFile() &&
-			player.toLowerCase().endsWith(projectorExtensionLower)
+			player.toLowerCase().endsWith(
+				this.projectorExtension.toLowerCase()
+			) &&
+			(await fse.stat(player)).isFile()
 		) {
 			await this._writePlayerFile();
 		}

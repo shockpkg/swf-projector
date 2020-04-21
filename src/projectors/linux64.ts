@@ -20,7 +20,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	/**
 	 * Attempt to patch the projector offset reading code.
 	 * Necessary to work around broken projector logic in standalone players.
-	 * Set to true to automaticly patch the code if possible.
+	 * Set to true to automatically patch the code if possible.
 	 */
 	public patchProjectorOffset = false;
 
@@ -34,7 +34,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 * @returns Hex string.
 	 */
 	public get movieAppendMarker() {
-		return '563412FAFFFFFFFF';
+		return `${super.movieAppendMarker}FFFFFFFF`;
 	}
 
 	/**

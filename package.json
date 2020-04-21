@@ -72,11 +72,10 @@
 	"dependencies": {
 		"@babel/runtime": "^7.8.7",
 		"@shockpkg/archive-files": "^1.9.0",
-		"entities": "^2.0.0",
+		"@shockpkg/plist-dom": "^1.6.0",
 		"fs-extra": "^8.1.0",
 		"macho-unsign": "^1.0.1",
 		"portable-executable-signature": "^1.0.1",
-		"resedit": "^0.5.2",
-		"sax": "^1.2.4"
+		"resedit": "^0.5.2"
 	}
 }

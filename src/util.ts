@@ -1,14 +1,3 @@
-import {
-	Entry,
-	PathType
-} from '@shockpkg/archive-files';
-import * as entities from 'entities';
-import sax from 'sax';
-
-// Handle module loader differences between CJS and ESM.
-const decodeXML = entities.decodeXML || (entities as any).default.decodeXML;
-const encodeXML = entities.encodeXML || (entities as any).default.encodeXML;
-
 /**
  * Default value if value is undefined.
  *
@@ -19,9 +8,10 @@ const encodeXML = entities.encodeXML || (entities as any).default.encodeXML;
 export function defaultValue<T, U>(
 	value: T,
 	defaultValue: U
-): Exclude<T | U, undefined> {
-	// eslint-disable-next-line no-undefined
-	return value === undefined ? defaultValue : (value as any);
+): Exclude<T, undefined> | U {
+	return (typeof value === 'undefined') ?
+		defaultValue :
+		(value as Exclude<T, undefined>);
 }
 
 /**
@@ -73,17 +63,7 @@ export function once<T>(create: () => T): () => T {
 }
 
 /**
- * Check if Archive Entry is empty resource fork.
- *
- * @param entry Archive Entry.
- * @returns Is empty resource fork.
- */
-export function entryIsEmptyResourceFork(entry: Entry) {
-	return entry.type === PathType.RESOURCE_FORK && !entry.size;
-}
-
-/**
- * Trim dot flash from head of path.
+ * Trim dot slash from head of path.
  *
  * @param path Path string.
  * @returns Trimmed path.
@@ -148,186 +128,6 @@ export function trimExtension(
 	const p = nocase ? path.toLowerCase() : path;
 	const e = nocase ? ext.toLowerCase() : ext;
 	return p.endsWith(e) ? path.substr(0, p.length - e.length) : path;
-}
-
-/**
- * Encode string for XML.
- *
- * @param value String value.
- * @returns Escaped string.
- */
-export function xmlEntitiesEncode(value: string) {
-	return encodeXML(value);
-}
-
-/**
- * Decode string for XML.
- *
- * @param value Encoded value.
- * @returns Decoded string.
- */
-export function xmlEntitiesDecode(value: string) {
-	return decodeXML(value);
-}
-
-/**
- * Encode string into plist string tag.
- *
- * @param value String value.
- * @returns Plist string.
- */
-export function plistStringTagEncode(value: string) {
-	return `<string>${xmlEntitiesEncode(value)}</string>`;
-}
-
-/**
- * Decode string from plist string tag.
- *
- * @param xml XML tag.
- * @returns Plain string, or null.
- */
-export function plistStringTagDecode(xml: string) {
-	const start = '<string>';
-	const end = '</string>';
-	if (!xml.startsWith(start) || !xml.endsWith(end)) {
-		return null;
-	}
-	const contents = xml.substring(start.length, xml.length - end.length);
-	return xmlEntitiesDecode(contents);
-}
-
-/**
- * A small helper function for finding Info.plist values.
- *
- * @param xml XML string.
- * @param key Plist dict key.
- * @returns Found indexes or null.
- */
-function infoPlistFind(
-	xml: string,
-	key: string
-) {
-	let replaceTagStart = -1;
-	let replaceTagEnd = -1;
-
-	const parser = sax.parser(true, {});
-
-	// Get the tag path in a consistent way.
-	const tagPath = () => {
-		const tags = [...(parser as any).tags];
-		const {tag} = (parser as any);
-		if (tag && tags[tags.length - 1] !== tag) {
-			tags.push(tag);
-		}
-		return tags.map(o => o.name as string);
-	};
-
-	const dictTag = () => {
-		const path = tagPath();
-		if (
-			path.length !== 3 ||
-			path[0] !== 'plist' ||
-			path[1] !== 'dict'
-		) {
-			return null;
-		}
-		return path[2];
-	};
-
-	let keyTag = false;
-	let nextTag = false;
-
-	// eslint-disable-next-line @typescript-eslint/unbound-method
-	parser.onerror = err => {
-		throw err;
-	};
-	// eslint-disable-next-line @typescript-eslint/unbound-method
-	parser.ontext = text => {
-		if (keyTag && text === key) {
-			nextTag = true;
-		}
-	};
-	// eslint-disable-next-line @typescript-eslint/unbound-method
-	parser.onopentag = node => {
-		const tag = dictTag();
-		if (!tag) {
-			return;
-		}
-		if (tag === 'key') {
-			keyTag = true;
-			return;
-		}
-		if (!nextTag) {
-			return;
-		}
-
-		if (replaceTagStart < 0) {
-			replaceTagStart = parser.startTagPosition - 1;
-		}
-	};
-	// eslint-disable-next-line @typescript-eslint/unbound-method
-	parser.onclosetag = node => {
-		const tag = dictTag();
-		if (!tag) {
-			return;
-		}
-		if (tag === 'key') {
-			keyTag = false;
-			return;
-		}
-		if (!nextTag) {
-			return;
-		}
-		nextTag = false;
-
-		if (replaceTagEnd < 0) {
-			replaceTagEnd = parser.position;
-		}
-	};
-
-	parser.write(xml).close();
-
-	return (replaceTagStart < 0 || replaceTagEnd < 0) ?
-		null :
-		[replaceTagStart, replaceTagEnd];
-}
-
-/**
- * A small utility function for replacing Info.plist values.
- *
- * @param xml XML string.
- * @param key Plist dict key.
- * @param value Plist dict value, XML tag.
- * @returns Updated document.
- */
-export function infoPlistReplace(
-	xml: string,
-	key: string,
-	value: string
-) {
-	const found = infoPlistFind(xml, key);
-	if (!found) {
-		return xml;
-	}
-	// Splice in new value.
-	const before = xml.substr(0, found[0]);
-	const after = xml.substr(found[1]);
-	return `${before}${value}${after}`;
-}
-
-/**
- * A small utility function for reading Info.plist values.
- *
- * @param xml XML string.
- * @param key Plist dict key.
- * @returns XML tag.
- */
-export function infoPlistRead(
-	xml: string,
-	key: string
-) {
-	const found = infoPlistFind(xml, key);
-	return found ? xml.substring(found[0], found[1]) : null;
 }
 
 /**

@@ -8,7 +8,6 @@ import {
 import execa from 'execa';
 
 import {
-	infoPlistReplace,
 	pathRelativeBase,
 	trimExtension,
 	once
@@ -38,11 +37,6 @@ export function getInstalledPackagesSync() {
 	}
 	return getInstalledPackagesCache;
 }
-
-const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>';
-const xmlDoctype = '<!DOCTYPE plist PUBLIC "" "">';
-
-const createPlist = (xml: string) => `${xmlHeader}\n${xmlDoctype}\n${xml}`;
 
 describe('util', () => {
 	describe('pathRelativeBase', () => {
@@ -77,52 +71,6 @@ describe('util', () => {
 		it('nocase', () => {
 			expect(trimExtension('test.txt', '.TXT', true)).toBe('test');
 			expect(trimExtension('test.TXT', '.txt', true)).toBe('test');
-		});
-	});
-
-	describe('infoPlistReplace', () => {
-		it('value', () => {
-			expect(infoPlistReplace(
-				createPlist([
-					'<plist version="1.0">',
-					'<dict>',
-					'<key>foo</key>',
-					'<string>bar</string>',
-					'</dict>',
-					'</plist>'
-				].join('\n')),
-				'foo',
-				'<string>baz</string>'
-			)).toBe(createPlist([
-				'<plist version="1.0">',
-				'<dict>',
-				'<key>foo</key>',
-				'<string>baz</string>',
-				'</dict>',
-				'</plist>'
-			].join('\n')));
-		});
-
-		it('type', () => {
-			expect(infoPlistReplace(
-				createPlist([
-					'<plist version="1.0">',
-					'<dict>',
-					'<key>foo</key>',
-					'<string>bar</string>',
-					'</dict>',
-					'</plist>'
-				].join('\n')),
-				'foo',
-				'<true/>'
-			)).toBe(createPlist([
-				'<plist version="1.0">',
-				'<dict>',
-				'<key>foo</key>',
-				'<true/>',
-				'</dict>',
-				'</plist>'
-			].join('\n')));
 		});
 	});
 

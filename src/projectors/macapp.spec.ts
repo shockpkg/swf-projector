@@ -109,6 +109,7 @@ describe('projectors/macapp', () => {
 					p.infoPlistFile = fixtureFile('Info.plist');
 					p.pkgInfoFile = fixtureFile('PkgInfo');
 					p.binaryName = 'application';
+					p.bundleName = 'App Bundle Name';
 					p.removeCodeSignature = true;
 					await p.write();
 				});

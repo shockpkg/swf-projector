@@ -23,26 +23,22 @@ import {
 export class ProjectorLinux extends Projector {
 	/**
 	 * Attempt to patch the window title with a custom title.
-	 * Set to a non-empty string to automaticly patch the binary if possible.
+	 * Set to a non-empty string to automatically patch the binary if possible.
 	 * Size limit depends on the size of the string being replaced.
 	 */
 	public patchWindowTitle: string | null = null;
 
 	/**
 	 * Attempt to patch out application menu.
-	 * Set to true to automaticly patch the code if possible.
-	 *
-	 * @default false
+	 * Set to true to automatically patch the code if possible.
 	 */
 	public patchMenuRemove = false;
 
 	/**
 	 * Attempt to patch the projector path reading code.
 	 * Necessary to work around broken projector path resolving code.
-	 * Set to true to automaticly patch the code if possible.
+	 * Set to true to automatically patch the code if possible.
 	 * Supports projector versions 9+ (unnecessary for version 6).
-	 *
-	 * @default false
 	 */
 	public patchProjectorPath = false;
 
@@ -76,17 +72,13 @@ export class ProjectorLinux extends Projector {
 	 * Write the projector player.
 	 */
 	protected async _writePlayer() {
-		const player = this.getPlayerPath();
-		const stat = await fse.stat(player);
-		const isDirectory = stat.isDirectory();
-
-		// Try reading as archive, fall back on assuming Linux binary.
+		// Try reading as archive, else assume Linux binary if not a directory.
 		try {
 			await this._writePlayerArchive();
 		}
 		catch (err) {
 			if (
-				!isDirectory &&
+				!(await fse.stat(this.getPlayerPath())).isDirectory() &&
 				err &&
 				`${err.message}`.startsWith('Archive file type unknown: ')
 			) {
@@ -120,9 +112,9 @@ export class ProjectorLinux extends Projector {
 	protected async _writePlayerArchive() {
 		let playerPath = '';
 
-		const projectorArchiveNames = new Set();
+		const projectorArchiveNames = new Set<string>();
 		for (const n of this.getProjectorArchiveNames()) {
-			projectorArchiveNames.add(n);
+			projectorArchiveNames.add(n.toLowerCase());
 		}
 
 		const player = this.getPlayerPath();
