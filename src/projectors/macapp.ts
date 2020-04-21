@@ -55,11 +55,13 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Info.plist file.
+	 * Currently only supports XML plist.
 	 */
 	public infoPlistFile: string | null = null;
 
 	/**
 	 * Info.plist data.
+	 * Currently only supports XML plist.
 	 */
 	public infoPlistData: (
 		string | Readonly<string[]> | Readonly<Buffer> | null
