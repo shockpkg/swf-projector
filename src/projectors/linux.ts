@@ -70,19 +70,21 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Write the projector player.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayer() {
+	protected async _writePlayer(player: string) {
 		// Try reading as archive, else assume Linux binary if not a directory.
 		try {
-			await this._writePlayerArchive();
+			await this._writePlayerArchive(player);
 		}
 		catch (err) {
 			if (
-				!(await fse.stat(this.getPlayerPath())).isDirectory() &&
+				!(await fse.stat(player)).isDirectory() &&
 				err &&
 				`${err.message}`.startsWith('Archive file type unknown: ')
 			) {
-				await this._writePlayerFile();
+				await this._writePlayerFile(player);
 			}
 			else {
 				throw err;
@@ -92,9 +94,10 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Write the projector player, from file.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayerFile() {
-		const player = this.getPlayerPath();
+	protected async _writePlayerFile(player: string) {
 		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
 			throw new Error(`Path is not file: ${player}`);
@@ -108,17 +111,17 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Write the projector player, from archive.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayerArchive() {
+	protected async _writePlayerArchive(player: string) {
 		let playerPath = '';
+		const playerOut = this.path;
 
 		const projectorArchiveNames = new Set<string>();
 		for (const n of this.getProjectorArchiveNames()) {
 			projectorArchiveNames.add(n.toLowerCase());
 		}
-
-		const player = this.getPlayerPath();
-		const playerOut = this.path;
 
 		const archive = await this.openAsArchive(player);
 		await archive.read(async entry => {
@@ -197,13 +200,14 @@ export class ProjectorLinux extends Projector {
 
 	/**
 	 * Write out the projector movie file.
+	 *
+	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie() {
-		const data = await this.getMovieData();
-		if (!data) {
+	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+		if (!movieData) {
 			return;
 		}
 
-		await this._appendMovieData(this.path, data, 'smd');
+		await this._appendMovieData(this.path, movieData, 'smd');
 	}
 }

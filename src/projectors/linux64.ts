@@ -82,13 +82,14 @@ export class ProjectorLinux64 extends ProjectorLinux {
 
 	/**
 	 * Write out the projector movie file.
+	 *
+	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie() {
-		const data = await this.getMovieData();
-		if (!data) {
+	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+		if (!movieData) {
 			return;
 		}
 
-		await this._appendMovieData(this.path, data, 'lmd');
+		await this._appendMovieData(this.path, movieData, 'lmd');
 	}
 }

@@ -64,27 +64,29 @@ export class ProjectorWindows extends Projector {
 
 	/**
 	 * Write the projector player.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayer() {
-		const player = this.getPlayerPath();
+	protected async _writePlayer(player: string) {
 		if (
 			player.toLowerCase().endsWith(
 				this.projectorExtension.toLowerCase()
 			) &&
 			(await fse.stat(player)).isFile()
 		) {
-			await this._writePlayerFile();
+			await this._writePlayerFile(player);
 		}
 		else {
-			await this._writePlayerArchive();
+			await this._writePlayerArchive(player);
 		}
 	}
 
 	/**
 	 * Write the projector player, from file.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayerFile() {
-		const player = this.getPlayerPath();
+	protected async _writePlayerFile(player: string) {
 		const stat = await fse.stat(player);
 		if (!stat.isFile()) {
 			throw new Error(`Path is not file: ${player}`);
@@ -98,12 +100,12 @@ export class ProjectorWindows extends Projector {
 
 	/**
 	 * Write the projector player, from archive.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayerArchive() {
+	protected async _writePlayerArchive(player: string) {
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
 		let playerPath = '';
-
-		const player = this.getPlayerPath();
 		const playerOut = this.path;
 
 		const archive = await this.openAsArchive(player);
@@ -157,13 +159,14 @@ export class ProjectorWindows extends Projector {
 
 	/**
 	 * Write out the projector movie file.
+	 *
+	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie() {
-		const data = await this.getMovieData();
-		if (!data) {
+	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+		if (!movieData) {
 			return;
 		}
 
-		await this._appendMovieData(this.path, data, 'dms');
+		await this._appendMovieData(this.path, movieData, 'dms');
 	}
 }

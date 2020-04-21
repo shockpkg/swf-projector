@@ -44,9 +44,10 @@ describe('projectors/linux', () => {
 				const dest = pathJoin(dir, 'application');
 
 				const p = new ProjectorLinux(dest);
-				p.player = fixtureFile('dummy');
-				p.movieFile = fixtureFile('swf3.swf');
-				await p.write();
+				await p.with(
+					fixtureFile('dummy'),
+					fixtureFile('swf3.swf')
+				);
 			});
 		});
 
@@ -62,9 +63,10 @@ describe('projectors/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.player = await getPlayer();
-					p.movieFile = simple;
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						simple
+					);
 				});
 
 				it('title', async () => {
@@ -72,10 +74,11 @@ describe('projectors/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf3.swf');
 					p.patchWindowTitle = 'Custom Title';
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf3.swf')
+					);
 				});
 
 				if (pkg.version[0] < 6) {
@@ -87,10 +90,11 @@ describe('projectors/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf6-loadmovie.swf');
 					p.patchProjectorPath = pkg.patchProjectorPath;
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf6-loadmovie.swf')
+					);
 
 					await fse.copy(
 						fixtureFile('image.jpg'),
@@ -103,9 +107,10 @@ describe('projectors/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf6-showmenu-false.swf')
+					);
 				});
 
 				it('nomenu', async () => {
@@ -113,11 +118,12 @@ describe('projectors/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf6-loadmovie.swf');
 					p.patchProjectorPath = pkg.patchProjectorPath;
 					p.patchMenuRemove = true;
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf6-loadmovie.swf')
+					);
 
 					await fse.copy(
 						fixtureFile('image.jpg'),

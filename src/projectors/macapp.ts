@@ -84,7 +84,7 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Update the bundle name in Info.plist.
-	 *
+	 * Possible values:
 	 * - false: Leave untouched.
 	 * - true: Output name.
 	 * - null: Remove value.
@@ -296,27 +296,29 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Write the projector player.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayer() {
-		const player = this.getPlayerPath();
+	protected async _writePlayer(player: string) {
 		if (
 			player.toLowerCase().endsWith(
 				this.projectorExtension.toLowerCase()
 			) &&
 			(await fse.stat(player)).isDirectory()
 		) {
-			await this._writePlayerFile();
+			await this._writePlayerFile(player);
 		}
 		else {
-			await this._writePlayerArchive();
+			await this._writePlayerArchive(player);
 		}
 	}
 
 	/**
 	 * Write the projector player, from file.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayerFile() {
-		const player = this.getPlayerPath();
+	protected async _writePlayerFile(player: string) {
 		const stat = await fse.stat(player);
 		if (!stat.isDirectory()) {
 			throw new Error(`Path is not directory: ${player}`);
@@ -342,13 +344,14 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Write the projector player, from archive.
+	 *
+	 * @param player Player path.
 	 */
-	protected async _writePlayerArchive() {
+	protected async _writePlayerArchive(player: string) {
 		const projectorExtensionLower = this.projectorExtension.toLowerCase();
 		let playerName = '';
 		const {path} = this;
 
-		const player = this.getPlayerPath();
 		const archive = await this.openAsArchive(player);
 		await archive.read(async entry => {
 			// No resource forks expected.
@@ -404,14 +407,15 @@ export class ProjectorMacApp extends Projector {
 
 	/**
 	 * Write out the projector movie file.
+	 *
+	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie() {
-		const data = await this.getMovieData();
-		if (!data) {
+	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+		if (!movieData) {
 			return;
 		}
 
-		await fse.writeFile(this.getMoviePath(), data);
+		await fse.writeFile(this.getMoviePath(), movieData);
 	}
 
 	/**

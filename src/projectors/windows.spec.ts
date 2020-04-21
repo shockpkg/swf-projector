@@ -48,24 +48,26 @@ describe('projectors/windows', () => {
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
-				const dest = pathJoin(dir, 'application.app');
+				const dest = pathJoin(dir, 'application.exe');
 
 				const p = new ProjectorWindows(dest);
-				p.player = fixtureFile('dummy.exe');
-				p.movieFile = fixtureFile('swf3.swf');
 				p.removeCodeSignature = false;
-				await p.write();
+				await p.with(
+					fixtureFile('dummy.exe'),
+					fixtureFile('swf3.swf')
+				);
 			});
 
 			it('archived', async () => {
 				const dir = await getDir('archived');
-				const dest = pathJoin(dir, 'application.app');
+				const dest = pathJoin(dir, 'application.exe');
 
 				const p = new ProjectorWindows(dest);
-				p.player = fixtureFile('dummy.exe.zip');
-				p.movieFile = fixtureFile('swf3.swf');
 				p.removeCodeSignature = false;
-				await p.write();
+				await p.with(
+					fixtureFile('dummy.exe.zip'),
+					fixtureFile('swf3.swf')
+				);
 			});
 		});
 
@@ -78,26 +80,28 @@ describe('projectors/windows', () => {
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
-					const dest = pathJoin(dir, 'application.app');
+					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows(dest);
-					p.player = await getPlayer();
-					p.movieFile = simple;
 					p.removeCodeSignature = true;
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						simple
+					);
 				});
 
 				it('resedit', async () => {
 					const dir = await getDir('resedit');
-					const dest = pathJoin(dir, 'application.app');
+					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf3.swf');
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf3.swf')
+					);
 				});
 
 				if (pkg.version[0] < 6) {
@@ -106,12 +110,13 @@ describe('projectors/windows', () => {
 
 				it('loadmovie', async () => {
 					const dir = await getDir('loadmovie');
-					const dest = pathJoin(dir, 'application.app');
+					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf6-loadmovie.swf');
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf6-loadmovie.swf')
+					);
 
 					await fse.copy(
 						fixtureFile('image.jpg'),
@@ -121,12 +126,13 @@ describe('projectors/windows', () => {
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
-					const dest = pathJoin(dir, 'application.app');
+					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows(dest);
-					p.player = await getPlayer();
-					p.movieFile = fixtureFile('swf6-showmenu-false.swf');
-					await p.write();
+					await p.with(
+						await getPlayer(),
+						fixtureFile('swf6-showmenu-false.swf')
+					);
 				});
 			});
 		}

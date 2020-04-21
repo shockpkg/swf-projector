@@ -21,21 +21,6 @@ import {
  */
 export abstract class Projector extends Object {
 	/**
-	 * Player file or directory.
-	 */
-	public player: string | null = null;
-
-	/**
-	 * Movie file.
-	 */
-	public movieFile: string | null = null;
-
-	/**
-	 * Movie data.
-	 */
-	public movieData: Buffer | null = null;
-
-	/**
 	 * Path to hdiutil binary.
 	 */
 	public pathToHdiutil: string | null = null;
@@ -61,16 +46,6 @@ export abstract class Projector extends Object {
 	}
 
 	/**
-	 * Get movie data if any specified, from data or file.
-	 *
-	 * @returns Movie data or null.
-	 */
-	public async getMovieData() {
-		const {movieData, movieFile} = this;
-		return movieData || (movieFile ? fse.readFile(movieFile) : null);
-	}
-
-	/**
 	 * Get the name of a projector trimming the extension.
 	 *
 	 * @returns Projector name without extension.
@@ -78,19 +53,6 @@ export abstract class Projector extends Object {
 	public getProjectorName() {
 		const name = basename(this.path);
 		return trimExtension(name, this.projectorExtension, true);
-	}
-
-	/**
-	 * Get the player path, or throw.
-	 *
-	 * @returns Player path.
-	 */
-	public getPlayerPath() {
-		const {player} = this;
-		if (!player) {
-			throw new Error('Player must be set');
-		}
-		return player;
 	}
 
 	/**
@@ -124,12 +86,26 @@ export abstract class Projector extends Object {
 	}
 
 	/**
-	 * Write out the projector.
+	 * Write out projector with player and file.
+	 *
+	 * @param player Player path.
+	 * @param movieFile Movie file.
 	 */
-	public async write() {
-		await this._writePlayer();
+	public async with(player: string, movieFile: string | null) {
+		const movieData = movieFile ? await fse.readFile(movieFile) : null;
+		await this.withData(player, movieData);
+	}
+
+	/**
+	 * Write out projector with player and data.
+	 *
+	 * @param player Player path.
+	 * @param movieData Movie data.
+	 */
+	public async withData(player: string, movieData: Readonly<Buffer> | null) {
+		await this._writePlayer(player);
 		await this._modifyPlayer();
-		await this._writeMovie();
+		await this._writeMovie(movieData);
 	}
 
 	/**
@@ -220,8 +196,10 @@ export abstract class Projector extends Object {
 
 	/**
 	 * Write the projector player.
+	 *
+	 * @param player Player path.
 	 */
-	protected abstract async _writePlayer(): Promise<void>;
+	protected abstract async _writePlayer(player: string): Promise<void>;
 
 	/**
 	 * Modify the projector player.
@@ -230,6 +208,10 @@ export abstract class Projector extends Object {
 
 	/**
 	 * Write out the projector movie file.
+	 *
+	 * @param movieData Movie data or null.
 	 */
-	protected abstract async _writeMovie(): Promise<void>;
+	protected abstract async _writeMovie(
+		movieData: Readonly<Buffer> | null
+	): Promise<void>;
 }

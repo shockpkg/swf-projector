@@ -153,10 +153,8 @@ export function infoPlistBundleDocumentTypesDelete(plist: Plist) {
  * @returns Returns true if signed, else false.
  */
 export async function machoUnsign(path: string) {
-	const data = await fse.readFile(path);
-
 	// Unsign data if signed.
-	const unsigned = unsign(data);
+	const unsigned = unsign(await fse.readFile(path));
 	if (!unsigned) {
 		return false;
 	}
@@ -176,10 +174,9 @@ export async function appUnsign(path: string) {
 	const executable = infoPlistBundleExecutableGet(
 		await plistRead(pathJoin(contents, 'Info.plist'))
 	);
-	const macho = pathJoin(contents, 'MacOS', executable);
 	await Promise.all([
-		machoUnsign(macho),
-		pathJoin(contents, 'CodeResources'),
-		pathJoin(contents, '_CodeSignature')
+		machoUnsign(pathJoin(contents, 'MacOS', executable)),
+		fse.remove(pathJoin(contents, 'CodeResources')),
+		fse.remove(pathJoin(contents, '_CodeSignature'))
 	]);
 }
