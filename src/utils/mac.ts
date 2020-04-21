@@ -86,7 +86,7 @@ export function infoPlistDictSet(
  * @returns Executable name.
  */
 export function infoPlistBundleExecutableGet(plist: Plist) {
-	return infoPlistDictGetValue(plist, 'BundleExecutable')
+	return infoPlistDictGetValue(plist, 'CFBundleExecutable')
 		.castAs(ValueString).value;
 }
 
@@ -102,7 +102,7 @@ export function infoPlistBundleExecutableSet(
 ) {
 	infoPlistDictSet(
 		plist,
-		'BundleExecutable',
+		'CFBundleExecutable',
 		value === null ? null : new ValueString(value)
 	);
 }
