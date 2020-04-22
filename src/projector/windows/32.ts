@@ -7,18 +7,18 @@ import {
 import fse from 'fs-extra';
 
 import {
-	Projector
-} from '../projector';
+	ProjectorWindows
+} from '../windows';
 import {
 	peResourceReplace
-} from '../utils/windows';
+} from '../../util/windows';
 
 /**
- * ProjectorWindows constructor.
+ * ProjectorWindows32 constructor.
  *
  * @param path Output path.
  */
-export class ProjectorWindows extends Projector {
+export class ProjectorWindows32 extends ProjectorWindows {
 	/**
 	 * Icon file.
 	 */

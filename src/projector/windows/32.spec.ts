@@ -9,15 +9,15 @@ import {
 	shouldTest,
 	getInstalledPackagesInfoSync,
 	simpleSwf
-} from '../projector.spec';
+} from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile
-} from '../util.spec';
+} from '../../util.spec';
 
 import {
-	ProjectorWindows
-} from './windows';
+	ProjectorWindows32
+} from './32';
 
 function listSamples() {
 	if (!shouldTest('windows')) {
@@ -40,8 +40,8 @@ const versionStrings = {
 	Comments: 'Custom Comments'
 };
 
-describe('projectors/windows', () => {
-	describe('ProjectorWindows', () => {
+describe('projectors/windows/32', () => {
+	describe('ProjectorWindows32', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
 				cleanProjectorDir('windows', 'dummy', d);
@@ -50,7 +50,7 @@ describe('projectors/windows', () => {
 				const dir = await getDir('simple');
 				const dest = pathJoin(dir, 'application.exe');
 
-				const p = new ProjectorWindows(dest);
+				const p = new ProjectorWindows32(dest);
 				p.removeCodeSignature = false;
 				await p.with(
 					fixtureFile('dummy.exe'),
@@ -62,7 +62,7 @@ describe('projectors/windows', () => {
 				const dir = await getDir('archived');
 				const dest = pathJoin(dir, 'application.exe');
 
-				const p = new ProjectorWindows(dest);
+				const p = new ProjectorWindows32(dest);
 				p.removeCodeSignature = false;
 				await p.with(
 					fixtureFile('dummy.exe.zip'),
@@ -82,7 +82,7 @@ describe('projectors/windows', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows(dest);
+					const p = new ProjectorWindows32(dest);
 					p.removeCodeSignature = true;
 					await p.with(
 						await getPlayer(),
@@ -94,7 +94,7 @@ describe('projectors/windows', () => {
 					const dir = await getDir('resedit');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows(dest);
+					const p = new ProjectorWindows32(dest);
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
@@ -112,7 +112,7 @@ describe('projectors/windows', () => {
 					const dir = await getDir('loadmovie');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows(dest);
+					const p = new ProjectorWindows32(dest);
 					await p.with(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
@@ -128,7 +128,7 @@ describe('projectors/windows', () => {
 					const dir = await getDir('showmenu-false');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows(dest);
+					const p = new ProjectorWindows32(dest);
 					await p.with(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')

@@ -15,11 +15,8 @@ import {
 import fse from 'fs-extra';
 
 import {
-	Projector
-} from '../projector';
-import {
 	pathRelativeBase
-} from '../util';
+} from '../../util';
 import {
 	appUnsign,
 	plistRead,
@@ -30,14 +27,17 @@ import {
 	infoPlistBundleIconFileSet,
 	infoPlistBundleNameSet,
 	infoPlistBundleDocumentTypesDelete
-} from '../utils/mac';
+} from '../../util/mac';
+import {
+	ProjectorMac
+} from '../mac';
 
 /**
  * ProjectorMacApp constructor.
  *
  * @param path Output path.
  */
-export class ProjectorMacApp extends Projector {
+export class ProjectorMacApp extends ProjectorMac {
 	/**
 	 * Binary name, also renames rsrc and icns.
 	 */

@@ -9,16 +9,16 @@ import {
 	shouldTest,
 	getInstalledPackagesInfoSync,
 	simpleSwf
-} from '../projector.spec';
+} from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile,
 	platformIsMac
-} from '../util.spec';
+} from '../../util.spec';
 
 import {
 	ProjectorMacApp
-} from './macapp';
+} from './app';
 
 function listSamples() {
 	if (!(platformIsMac && shouldTest('macapp'))) {
@@ -36,7 +36,7 @@ function listSamples() {
 		}));
 }
 
-describe('projectors/macapp', () => {
+describe('projectors/mac/app', () => {
 	describe('ProjectorMacApp', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>

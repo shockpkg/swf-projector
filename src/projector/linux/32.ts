@@ -10,17 +10,17 @@ import {
 	linuxPatchWindowTitle,
 	linuxPatchMenuRemoveData,
 	linuxPatchProjectorPathData
-} from '../utils/linux';
+} from '../../util/linux';
 import {
-	Projector
-} from '../projector';
+	ProjectorLinux
+} from '../linux';
 
 /**
- * ProjectorLinux constructor.
+ * ProjectorLinux32 constructor.
  *
  * @param path Output path.
  */
-export class ProjectorLinux extends Projector {
+export class ProjectorLinux32 extends ProjectorLinux {
 	/**
 	 * Attempt to patch the window title with a custom title.
 	 * Set to a non-empty string to automatically patch the binary if possible.

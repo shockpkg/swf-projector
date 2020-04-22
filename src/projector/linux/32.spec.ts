@@ -9,35 +9,41 @@ import {
 	shouldTest,
 	getInstalledPackagesInfoSync,
 	simpleSwf
-} from '../projector.spec';
+} from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile
-} from '../util.spec';
+} from '../../util.spec';
 
 import {
-	ProjectorLinux64
-} from './linux64';
+	ProjectorLinux32
+} from './32';
 
 function listSamples() {
-	if (!shouldTest('linux64')) {
+	if (!shouldTest('linux')) {
 		return [];
 	}
 	return getInstalledPackagesInfoSync()
-		.filter(o => o.platform === 'linux-x86_64');
+		.filter(o => o.platform === 'linux' || o.platform === 'linux-i386')
+		.map(o => ({
+			...o,
+
+			// Surprisingly it appears version 6 resolved path correctly.
+			patchProjectorPath: o.version[0] > 6
+		}));
 }
 
-describe('projectors/linux64', () => {
-	describe('ProjectorLinux64', () => {
+describe('projectors/linux/32', () => {
+	describe('ProjectorLinux32', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('linux64', 'dummy', d);
+				cleanProjectorDir('linux32', 'dummy', d);
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
 				const dest = pathJoin(dir, 'application');
 
-				const p = new ProjectorLinux64(dest);
+				const p = new ProjectorLinux32(dest);
 				await p.with(
 					fixtureFile('dummy'),
 					fixtureFile('swf3.swf')
@@ -47,7 +53,7 @@ describe('projectors/linux64', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('linux64', pkg.name, d);
+				cleanProjectorDir('linux32', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -56,8 +62,7 @@ describe('projectors/linux64', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application');
 
-					const p = new ProjectorLinux64(dest);
-					p.patchProjectorOffset = true;
+					const p = new ProjectorLinux32(dest);
 					await p.with(
 						await getPlayer(),
 						simple
@@ -68,8 +73,7 @@ describe('projectors/linux64', () => {
 					const dir = await getDir('title');
 					const dest = pathJoin(dir, 'application');
 
-					const p = new ProjectorLinux64(dest);
-					p.patchProjectorOffset = true;
+					const p = new ProjectorLinux32(dest);
 					p.patchWindowTitle = 'Custom Title';
 					await p.with(
 						await getPlayer(),
@@ -85,9 +89,8 @@ describe('projectors/linux64', () => {
 					const dir = await getDir('loadmovie');
 					const dest = pathJoin(dir, 'application');
 
-					const p = new ProjectorLinux64(dest);
-					p.patchProjectorPath = true;
-					p.patchProjectorOffset = true;
+					const p = new ProjectorLinux32(dest);
+					p.patchProjectorPath = pkg.patchProjectorPath;
 					await p.with(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
@@ -102,8 +105,8 @@ describe('projectors/linux64', () => {
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
 					const dest = pathJoin(dir, 'application');
-					const p = new ProjectorLinux64(dest);
-					p.patchProjectorOffset = true;
+
+					const p = new ProjectorLinux32(dest);
 					await p.with(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
@@ -114,9 +117,8 @@ describe('projectors/linux64', () => {
 					const dir = await getDir('nomenu');
 					const dest = pathJoin(dir, 'application');
 
-					const p = new ProjectorLinux64(dest);
-					p.patchProjectorPath = true;
-					p.patchProjectorOffset = true;
+					const p = new ProjectorLinux32(dest);
+					p.patchProjectorPath = pkg.patchProjectorPath;
 					p.patchMenuRemove = true;
 					await p.with(
 						await getPlayer(),
