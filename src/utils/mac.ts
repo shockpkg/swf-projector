@@ -143,7 +143,7 @@ export function infoPlistBundleNameSet(plist: Plist, value: string | null) {
  * @param plist Plist document.
  */
 export function infoPlistBundleDocumentTypesDelete(plist: Plist) {
-	infoPlistDictSet(plist, 'CFBundleName', null);
+	infoPlistDictSet(plist, 'CFBundleDocumentTypes', null);
 }
 
 /**
