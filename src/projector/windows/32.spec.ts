@@ -44,7 +44,7 @@ describe('projectors/windows/32', () => {
 	describe('ProjectorWindows32', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('windows', 'dummy', d);
+				cleanProjectorDir('windows32', 'dummy', d);
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
@@ -73,7 +73,7 @@ describe('projectors/windows/32', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('windows', pkg.name, d);
+				cleanProjectorDir('windows32', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
