@@ -17,6 +17,9 @@ report.*.json
 *.tgz
 yarn.lock
 
+# Launcher binaries
+/launchers
+
 # Build files
 /lib
 

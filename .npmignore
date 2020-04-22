@@ -33,6 +33,8 @@ yarn.lock
 /spec
 /src
 
+/launchers
+
 /lib/**/*.spec.d.ts
 /lib/**/*.spec.js
 /lib/**/*.spec.js.map
