@@ -1,6 +1,7 @@
 import path from 'path';
 import stream from 'stream';
 import util from 'util';
+import zlib from 'zlib';
 import crypto from 'crypto';
 
 import gulp from 'gulp';
@@ -17,6 +18,7 @@ import onetime from 'onetime';
 import download from 'download';
 
 const pipeline = util.promisify(stream.pipeline);
+const deflateRaw = util.promisify(zlib.deflateRaw);
 
 // The launchers and where to download them from.
 const launchers = [
@@ -63,9 +65,9 @@ const launchers = [
 		hash: 'f5b7625da819324f442cea1f3af83ea4b2bf0af1d185a7747d81b698a6168562'
 	},
 	{
-		name: 'linux',
+		name: 'linux-script',
 		url: 'https://github.com/shockpkg/projector-launcher-linux/releases/download/1.0.0/main',
-		path: 'launchers/linux',
+		path: 'launchers/linux-script',
 		hash: '77c185db228b0120cb9b1e7780110c4947e4f588c414193648a5bbf0513ee0f4'
 	}
 ];
@@ -150,11 +152,22 @@ async function babelTarget(src, srcOpts, dest, modules) {
 	// Read the package JSON.
 	const pkg = JSON.parse(await packageJson());
 
+	const launchersData = {};
+	for (const {name, path} of launchers) {
+		// eslint-disable-next-line no-await-in-loop
+		launchersData[name] = (await deflateRaw(await fse.readFile(path)))
+			.toString('base64');
+	}
+
 	// Filter meta data file and create replace transform.
-	const filterMeta = gulpFilter(['*/meta.ts'], {restore: true});
+	const filterMeta = gulpFilter([
+		'*/meta.ts',
+		'*/launchers.ts'
+	], {restore: true});
 	const filterMetaReplaces = [
 		["'@VERSION@'", JSON.stringify(pkg.version)],
-		["'@NAME@'", JSON.stringify(pkg.name)]
+		["'@NAME@'", JSON.stringify(pkg.name)],
+		["'@LAUNCHERS@'", JSON.stringify(launchersData)]
 	].map(v => gulpReplace(...v));
 
 	await pipeline(...[
