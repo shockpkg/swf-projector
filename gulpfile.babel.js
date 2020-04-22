@@ -106,20 +106,15 @@ async function exec(cmd, args = []) {
 	});
 }
 
-const packageJSON = onetime(async () => JSON.parse(
-	await fse.readFile('package.json', 'utf8')
-));
+const packageJson = onetime(async () => fse.readFile('package.json', 'utf8'));
 
-const babelrc = onetime(async () => ({
-	...JSON.parse(await fse.readFile('.babelrc', 'utf8')),
-	babelrc: false
-}));
+const babelrc = onetime(async () => fse.readFile('.babelrc', 'utf8'));
 
 async function babelTarget(src, srcOpts, dest, modules) {
 	await ensureLaunchers();
 
 	// Change module.
-	const babelOptions = await babelrc();
+	const babelOptions = {...JSON.parse(await babelrc()), babelrc: false};
 	for (const preset of babelOptions.presets) {
 		if (preset[0] === '@babel/preset-env') {
 			preset[1].modules = modules;
@@ -153,7 +148,7 @@ async function babelTarget(src, srcOpts, dest, modules) {
 	}
 
 	// Read the package JSON.
-	const pkg = await packageJSON();
+	const pkg = JSON.parse(await packageJson());
 
 	// Filter meta data file and create replace transform.
 	const filterMeta = gulpFilter(['*/meta.ts'], {restore: true});
