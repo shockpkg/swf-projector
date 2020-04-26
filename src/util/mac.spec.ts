@@ -46,7 +46,7 @@ const machoTypes = [
 		}
 	},
 	{
-		name: 'fat',
+		name: 'fat: ppc, ppc970, ppc64, i386, x86_64',
 		data: unhex([
 			'CA FE BA BE 00 00 00 05',
 			'00 00 00 12 00 00 00 0A 00 00 00 00 00 00 00 00 00 00 00 00',
