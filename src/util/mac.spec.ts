@@ -14,19 +14,19 @@ const machoTypes = [
 		}
 	},
 	{
-		name: 'slim: ppc64',
-		data: unhex('FE ED FA CF 01 00 00 12 00 00 00 00'),
-		format: {
-			cpuType: 0x01000012,
-			cpuSubtype: 0
-		}
-	},
-	{
 		name: 'slim: ppc970',
 		data: unhex('FE ED FA CE 00 00 00 12 00 00 00 64'),
 		format: {
 			cpuType: 0x00000012,
 			cpuSubtype: 100
+		}
+	},
+	{
+		name: 'slim: ppc64',
+		data: unhex('FE ED FA CF 01 00 00 12 00 00 00 00'),
+		format: {
+			cpuType: 0x01000012,
+			cpuSubtype: 0
 		}
 	},
 	{
@@ -50,8 +50,8 @@ const machoTypes = [
 		data: unhex([
 			'CA FE BA BE 00 00 00 05',
 			'00 00 00 12 00 00 00 0A 00 00 00 00 00 00 00 00 00 00 00 0C',
-			'01 00 00 12 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C',
 			'00 00 00 12 00 00 00 64 00 00 00 00 00 00 00 00 00 00 00 0C',
+			'01 00 00 12 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00 0C',
 			'00 00 00 07 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 0C',
 			'01 00 00 07 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 0C'
 		].join('')),
@@ -61,12 +61,12 @@ const machoTypes = [
 				cpuSubtype: 10
 			},
 			{
-				cpuType: 0x01000012,
-				cpuSubtype: 0
-			},
-			{
 				cpuType: 0x00000012,
 				cpuSubtype: 100
+			},
+			{
+				cpuType: 0x01000012,
+				cpuSubtype: 0
 			},
 			{
 				cpuType: 0x00000007,
