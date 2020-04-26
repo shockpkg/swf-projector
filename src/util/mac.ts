@@ -13,6 +13,25 @@ import {
 } from 'macho-unsign';
 import fse from 'fs-extra';
 
+const FAT_MAGIC = 0xCAFEBABE;
+const MH_MAGIC = 0xFEEDFACE;
+const MH_CIGAM = 0xCEFAEDFE;
+const MH_MAGIC_64 = 0xFEEDFACF;
+const MH_CIGAM_64 = 0xCFFAEDFE;
+
+export interface IMachoType {
+
+	/**
+	 * CPU type.
+	 */
+	cpuType: number;
+
+	/**
+	 * CPU subtype.
+	 */
+	cpuSubtype: number;
+}
+
 /**
  * Parse plist data.
  * Currently only supports XML plist.
@@ -147,12 +166,64 @@ export function infoPlistBundleDocumentTypesDelete(plist: Plist) {
 }
 
 /**
+ * Get types of Mach-O data, array if FAT binary, else a single object.
+ *
+ * @param data Mach-O data.
+ * @returns Mach-O types.
+ */
+export function machoTypesData(data: Readonly<Buffer>) {
+	let le = false;
+	const uint32 = (offset: number) => (
+		le ? data.readUInt32LE(offset) : data.readUInt32BE(offset)
+	);
+	const type = (offset: number): IMachoType => ({
+		cpuType: uint32(offset),
+		cpuSubtype: uint32(offset + 4)
+	});
+	const magic = uint32(0);
+	switch (magic) {
+		case FAT_MAGIC: {
+			const r = [];
+			const count = uint32(4);
+			let offset = 8;
+			for (let i = 0; i < count; i++) {
+				r.push(type(offset));
+				offset += 20;
+			}
+			return r;
+		}
+		case MH_MAGIC:
+		case MH_MAGIC_64: {
+			return type(4);
+		}
+		case MH_CIGAM:
+		case MH_CIGAM_64: {
+			le = true;
+			return type(4);
+		}
+		default: {
+			throw new Error(`Unknown header magic: 0x${magic.toString(16)}`);
+		}
+	}
+}
+
+/**
+ * Get types of Mach-O file, array if FAT binary, else a single object.
+ *
+ * @param path Mach-O file.
+ * @returns Mach-O types.
+ */
+export async function machoTypesFile(path: string) {
+	return machoTypesData(await fse.readFile(path));
+}
+
+/**
  * Unsign a Mach-O binary if signed.
  *
  * @param path Binary path.
  * @returns Returns true if signed, else false.
  */
-export async function machoUnsign(path: string) {
+export async function machoUnsignFile(path: string) {
 	// Unsign data if signed.
 	const unsigned = unsign(await fse.readFile(path));
 	if (!unsigned) {
@@ -175,7 +246,7 @@ export async function appUnsign(path: string) {
 		await plistRead(pathJoin(contents, 'Info.plist'))
 	);
 	await Promise.all([
-		machoUnsign(pathJoin(contents, 'MacOS', executable)),
+		machoUnsignFile(pathJoin(contents, 'MacOS', executable)),
 		fse.remove(pathJoin(contents, 'CodeResources')),
 		fse.remove(pathJoin(contents, '_CodeSignature'))
 	]);
