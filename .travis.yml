@@ -29,7 +29,7 @@ matrix:
         flash-player-32.0.0.363-windows-sa"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
@@ -37,7 +37,7 @@ matrix:
         flash-player-32.0.0.363-windows-sa"
 
   - os: osx
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
@@ -46,7 +46,7 @@ matrix:
         flash-player-32.0.0.363-mac-sa"
 
   - os: windows
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
@@ -55,7 +55,7 @@ matrix:
 
   # Test other Windows versions (including OS specific features):
   - os: windows
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     # Only 3.0 32-bit:
     #   flash-player-3.0.8.0-windows-32bit-sa
@@ -119,7 +119,7 @@ matrix:
 
   # Test other Mac versions (including OS specific features):
   - os: osx
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     # First Mac APP bundle, broken icon, DMG:
     #   flash-player-9.0.28.0-mac-sa-debug
@@ -186,7 +186,7 @@ matrix:
 
   # Test other Linux i386 versions:
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     # Only 6.0, first version (ZLIB):
     #   flash-player-6.0.79.0-linux-sa
@@ -226,7 +226,7 @@ matrix:
 
   # Test every Linux x86_64 version (ensures ASM patchs works on all versions):
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-32.0.0.101-linux-x86_64-sa
@@ -267,7 +267,7 @@ matrix:
         flash-player-32.0.0.363-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-31.0.0.108-linux-x86_64-sa
@@ -280,7 +280,7 @@ matrix:
         flash-player-31.0.0.153-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-30.0.0.113-linux-x86_64-sa
@@ -291,7 +291,7 @@ matrix:
         flash-player-30.0.0.154-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-29.0.0.113-linux-x86_64-sa
@@ -302,7 +302,7 @@ matrix:
         flash-player-29.0.0.171-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-28.0.0.126-linux-x86_64-sa
@@ -313,7 +313,7 @@ matrix:
         flash-player-28.0.0.161-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-27.0.0.130-linux-x86_64-sa
@@ -328,7 +328,7 @@ matrix:
         flash-player-27.0.0.187-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-26.0.0.126-linux-x86_64-sa
@@ -341,7 +341,7 @@ matrix:
         flash-player-26.0.0.151-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-25.0.0.127-linux-x86_64-sa
@@ -352,7 +352,7 @@ matrix:
         flash-player-25.0.0.171-linux-x86_64-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-24.0.0.186-linux-x86_64-sa
@@ -364,7 +364,7 @@ matrix:
 
   # Test every Linux i386 version (ensures ASM patchs works on all versions):
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.616-linux-i386-sa
@@ -385,7 +385,7 @@ matrix:
         flash-player-11.2.202.644-linux-i386-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.508-linux-i386-sa
@@ -408,7 +408,7 @@ matrix:
         flash-player-11.2.202.577-linux-i386-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.400-linux-i386-sa
@@ -447,7 +447,7 @@ matrix:
         flash-player-11.2.202.491-linux-i386-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.310-linux-i386-sa
@@ -475,7 +475,7 @@ matrix:
         flash-player-11.2.202.394-linux-i386-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.228-linux-i386-sa
@@ -512,7 +512,7 @@ matrix:
         flash-player-11.2.202.297-linux-i386-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.0.1.152-linux-i386-sa
@@ -525,7 +525,7 @@ matrix:
         flash-player-11.1.102.63-linux-i386-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-10.3.181.14-linux-sa
@@ -577,7 +577,7 @@ matrix:
         flash-player-10.3.183.90-linux-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-10.2.152.26-linux-sa
@@ -588,7 +588,7 @@ matrix:
         flash-player-10.2.159.1-linux-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-10.1.53.64-linux-sa
@@ -600,7 +600,7 @@ matrix:
         flash-player-10.1.102.64-linux-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-10.0.12.36-linux-sa
@@ -616,7 +616,7 @@ matrix:
         flash-player-10.0.45.2-linux-sa-debug"
 
   - os: linux
-    node_js: v13.12.0
+    node_js: v14.0.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-6.0.79.0-linux-sa
