@@ -8,6 +8,6 @@ jasmine.getEnv().clearReporters();
 jasmine.getEnv().addReporter(new SpecReporter({
 	spec: {
 		displayPending: true,
-		displayStacktrace: true
+		displayStacktrace: 'pretty'
 	}
 }));
