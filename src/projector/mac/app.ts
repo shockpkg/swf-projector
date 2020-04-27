@@ -18,7 +18,7 @@ import {
 	pathRelativeBase
 } from '../../util';
 import {
-	appUnsign,
+	machoAppUnsign,
 	plistRead,
 	plistParse,
 	infoPlistBundleExecutableGet,
@@ -485,7 +485,7 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		await appUnsign(this.path);
+		await machoAppUnsign(this.path);
 	}
 
 	/**

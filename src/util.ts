@@ -1,3 +1,7 @@
+import zlib from 'zlib';
+
+import {LAUNCHERS} from './launchers';
+
 /**
  * Default value if value is undefined.
  *
@@ -139,4 +143,27 @@ export function trimExtension(
 export function bufferToArrayBuffer(buffer: Readonly<Buffer>) {
 	const {byteOffset, byteLength} = buffer;
 	return buffer.buffer.slice(byteOffset, byteOffset + byteLength);
+}
+
+/**
+ * Get launcher data for an ID.
+ *
+ * @param id Laucher ID.
+ * @returns Launcher data.
+ */
+export async function launcher(id: string) {
+	const b64 = LAUNCHERS[id];
+	if (typeof b64 !== 'string') {
+		throw new Error(`Invalid launcher id: ${id}`);
+	}
+
+	return new Promise<Buffer>((resolve, reject) => {
+		zlib.inflateRaw(Buffer.from(b64, 'base64'), (err, data) => {
+			if (err) {
+				reject(err);
+				return;
+			}
+			resolve(data);
+		});
+	});
 }
