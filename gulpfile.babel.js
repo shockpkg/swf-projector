@@ -47,12 +47,6 @@ const launchers = [
 		hash: '9e159161fc21b72de6fddb5fb9c60c0e34e649e4660248778219e58198adfb3d'
 	},
 	{
-		name: 'mac-app-ppc970',
-		url: 'https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.0.0/main.ppc970',
-		path: 'launchers/mac-app-ppc970',
-		hash: 'fbfeb7e2c557e434771268a8a260852cd0b80c74e39a7054e867cac24ff2257a'
-	},
-	{
 		name: 'mac-app-i386',
 		url: 'https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.0.0/main.i386',
 		path: 'launchers/mac-app-i386',
