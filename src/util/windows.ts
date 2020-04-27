@@ -6,7 +6,8 @@ import * as resedit from 'resedit';
 import fse from 'fs-extra';
 
 import {
-	bufferToArrayBuffer
+	bufferToArrayBuffer,
+	launcher
 } from '../util';
 
 const ResEditNtExecutable =
@@ -116,4 +117,24 @@ export async function peResourceReplace(
 
 	// Write updated EXE file.
 	await fse.writeFile(path, Buffer.from(exeData));
+}
+
+/**
+ * Get Windows launcher for the specified type.
+ *
+ * @param type Executable type.
+ * @returns Launcher data.
+ */
+export async function windowsLauncher(type: 'i686' | 'x86_64') {
+	switch (type) {
+		case 'i686': {
+			return launcher('windows-i686');
+		}
+		case 'x86_64': {
+			return launcher('windows-x86_64');
+		}
+		default: {
+			throw new Error(`Invalid type: ${type}`);
+		}
+	}
 }
