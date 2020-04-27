@@ -78,6 +78,7 @@
 		"fs-extra": "^9.0.0",
 		"macho-unsign": "^1.0.1",
 		"portable-executable-signature": "^1.0.1",
+		"puka": "^1.0.0",
 		"resedit": "^0.5.2"
 	}
 }

@@ -1,4 +1,12 @@
-import {once} from '../util';
+// @ts-ignore-file
+import * as puka from 'puka';
+
+import {
+	once,
+	launcher
+} from '../util';
+
+const quoteForSh = puka.quoteForSh || puka.default.quoteForSh;
 
 /**
  * Find exact matches in data.
@@ -1126,4 +1134,26 @@ export function linux64PatchProjectorPathData(data: Buffer) {
 	const relative = fileSlashes - offsetAfter;
 	data.writeInt32LE(relative, offsetRel);
 	return data;
+}
+
+/**
+ * Generate Linux launcher script using specified directory suffix.
+ *
+ * @param suffix Directory suffix.
+ * @returns Launcher data.
+ */
+export async function linuxScriptLauncher(suffix: string) {
+	const data = await launcher('linux-script');
+	const defaultSuffix = '.data';
+	if (suffix === defaultSuffix) {
+		return data;
+	}
+
+	const source = data.toString('utf8');
+	const find = `'${defaultSuffix}'`;
+	const repl = quoteForSh(suffix, true);
+	if (!source.includes(find)) {
+		throw new Error('Internal error');
+	}
+	return Buffer.from(source.replace(find, repl), 'utf8');
 }
