@@ -123,18 +123,87 @@ export async function peResourceReplace(
  * Get Windows launcher for the specified type.
  *
  * @param type Executable type.
+ * @param resources File to optionally copy resources from.
  * @returns Launcher data.
  */
-export async function windowsLauncher(type: 'i686' | 'x86_64') {
+export async function windowsLauncher(
+	type: 'i686' | 'x86_64',
+	resources: string | null = null
+) {
+	let data;
 	switch (type) {
 		case 'i686': {
-			return launcher('windows-i686');
+			data = await launcher('windows-i686');
+			break;
 		}
 		case 'x86_64': {
-			return launcher('windows-x86_64');
+			data = await launcher('windows-x86_64');
+			break;
 		}
 		default: {
 			throw new Error(`Invalid type: ${type}`);
 		}
 	}
+
+	// Check if copying resources.
+	if (!resources) {
+		return data;
+	}
+
+	// Remove signature if present.
+	const signedData = signatureGet(data);
+	let exeData = signatureSet(data, null, true, true);
+
+	// Read resources from file.
+	const res = ResEditNtExecutableResource.from(
+		ResEditNtExecutable.from(
+			await fse.readFile(resources),
+			{
+				ignoreCert: true
+			}
+		)
+	);
+
+	// Find the first icon group for each language.
+	const resIconGroups = new Map();
+	for (const iconGroup of ResEditResource.IconGroupEntry.fromEntries(
+		res.entries
+	)) {
+		const known = resIconGroups.get(iconGroup.lang) || null;
+		if (!known || iconGroup.id < known.id) {
+			resIconGroups.set(iconGroup.lang, iconGroup);
+		}
+	}
+
+	// List the groups and icons to be kept.
+	const iconGroups = new Set();
+	const iconDatas = new Set();
+	for (const [, group] of resIconGroups) {
+		iconGroups.add(group.id);
+		for (const icon of group.icons) {
+			iconDatas.add(icon.iconID);
+		}
+	}
+
+	// Filter out the resources to keep.
+	const typeVersionInfo = 16;
+	const typeIcon = 3;
+	const typeIconGroup = 14;
+	res.entries = res.entries.filter(entry => (
+		entry.type === typeVersionInfo ||
+		(entry.type === typeIcon && iconDatas.has(entry.id)) ||
+		(entry.type === typeIconGroup && iconGroups.has(entry.id))
+	));
+
+	// Apply resources to launcher.
+	const exe = ResEditNtExecutable.from(exeData);
+	res.outputResource(exe);
+	exeData = exe.generate();
+
+	// Add back signature if one present.
+	if (signedData) {
+		exeData = signatureSet(exeData, signedData, true, true);
+	}
+
+	return Buffer.from(exeData);
 }
