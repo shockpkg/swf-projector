@@ -275,7 +275,7 @@ export async function machoAppUnsign(path: string) {
  * @param type Mach-O type.
  * @returns Launcher data.
  */
-export async function machoAppLauncherSlim(type: Readonly<IMachoType>) {
+export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
 	const {cpuType} = type;
 	const id = launcherMappings().get(cpuType);
 	if (!id) {
@@ -329,7 +329,7 @@ export async function machoAppLauncherFat(
 		parts.push({
 			head,
 			// eslint-disable-next-line no-await-in-loop
-			body: await machoAppLauncherSlim(type)
+			body: await machoAppLauncherThin(type)
 		});
 		add(head);
 	}
@@ -357,5 +357,5 @@ export async function machoAppLauncher(
 ) {
 	return Array.isArray(types) ?
 		machoAppLauncherFat(types) :
-		machoAppLauncherSlim(types as IMachoType);
+		machoAppLauncherThin(types as IMachoType);
 }
