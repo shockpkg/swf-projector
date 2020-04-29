@@ -44,7 +44,7 @@ describe('projectors/linux/32', () => {
 				const dest = pathJoin(dir, 'application');
 
 				const p = new ProjectorLinux32(dest);
-				await p.with(
+				await p.withFile(
 					fixtureFile('dummy'),
 					fixtureFile('swf3.swf')
 				);
@@ -63,7 +63,7 @@ describe('projectors/linux/32', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux32(dest);
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						simple
 					);
@@ -75,7 +75,7 @@ describe('projectors/linux/32', () => {
 
 					const p = new ProjectorLinux32(dest);
 					p.patchWindowTitle = 'Custom Title';
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
 					);
@@ -91,7 +91,7 @@ describe('projectors/linux/32', () => {
 
 					const p = new ProjectorLinux32(dest);
 					p.patchProjectorPath = pkg.patchProjectorPath;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
 					);
@@ -107,7 +107,7 @@ describe('projectors/linux/32', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux32(dest);
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
 					);
@@ -120,7 +120,7 @@ describe('projectors/linux/32', () => {
 					const p = new ProjectorLinux32(dest);
 					p.patchProjectorPath = pkg.patchProjectorPath;
 					p.patchMenuRemove = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
 					);

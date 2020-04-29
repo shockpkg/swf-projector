@@ -52,7 +52,7 @@ describe('projectors/windows/32', () => {
 
 				const p = new ProjectorWindows32(dest);
 				p.removeCodeSignature = false;
-				await p.with(
+				await p.withFile(
 					fixtureFile('dummy.exe'),
 					fixtureFile('swf3.swf')
 				);
@@ -64,7 +64,7 @@ describe('projectors/windows/32', () => {
 
 				const p = new ProjectorWindows32(dest);
 				p.removeCodeSignature = false;
-				await p.with(
+				await p.withFile(
 					fixtureFile('dummy.exe.zip'),
 					fixtureFile('swf3.swf')
 				);
@@ -84,7 +84,7 @@ describe('projectors/windows/32', () => {
 
 					const p = new ProjectorWindows32(dest);
 					p.removeCodeSignature = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						simple
 					);
@@ -98,7 +98,7 @@ describe('projectors/windows/32', () => {
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
 					);
@@ -113,7 +113,7 @@ describe('projectors/windows/32', () => {
 					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows32(dest);
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
 					);
@@ -129,7 +129,7 @@ describe('projectors/windows/32', () => {
 					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows32(dest);
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
 					);

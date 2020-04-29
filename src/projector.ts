@@ -91,7 +91,7 @@ export abstract class Projector extends Object {
 	 * @param player Player path.
 	 * @param movieFile Movie file.
 	 */
-	public async with(player: string, movieFile: string | null) {
+	public async withFile(player: string, movieFile: string | null) {
 		const movieData = movieFile ? await fse.readFile(movieFile) : null;
 		await this.withData(player, movieData);
 	}

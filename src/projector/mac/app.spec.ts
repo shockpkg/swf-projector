@@ -48,7 +48,7 @@ describe('projectors/mac/app', () => {
 
 				const p = new ProjectorMacApp(dest);
 				p.removeCodeSignature = false;
-				await p.with(
+				await p.withFile(
 					fixtureFile('dummy.app'),
 					fixtureFile('swf3.swf')
 				);
@@ -68,7 +68,7 @@ describe('projectors/mac/app', () => {
 
 					const p = new ProjectorMacApp(dest);
 					p.removeCodeSignature = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						simple
 					);
@@ -82,7 +82,7 @@ describe('projectors/mac/app', () => {
 						const p = new ProjectorMacApp(dest);
 						p.fixBrokenIconPaths = true;
 						p.removeCodeSignature = true;
-						await p.with(
+						await p.withFile(
 							await getPlayer(),
 							fixtureFile('swf3.swf')
 						);
@@ -96,7 +96,7 @@ describe('projectors/mac/app', () => {
 					const p = new ProjectorMacApp(dest);
 					p.removeFileAssociations = true;
 					p.removeCodeSignature = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
 					);
@@ -113,7 +113,7 @@ describe('projectors/mac/app', () => {
 					p.binaryName = 'application';
 					p.bundleName = 'App Bundle Name';
 					p.removeCodeSignature = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
 					);
@@ -128,7 +128,7 @@ describe('projectors/mac/app', () => {
 					const dest = pathJoin(dir, 'application.app');
 
 					const p = new ProjectorMacApp(dest);
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
 					);
@@ -144,7 +144,7 @@ describe('projectors/mac/app', () => {
 					const dest = pathJoin(dir, 'application.app');
 
 					const p = new ProjectorMacApp(dest);
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
 					);

@@ -38,7 +38,7 @@ describe('projectors/linux/64', () => {
 				const dest = pathJoin(dir, 'application');
 
 				const p = new ProjectorLinux64(dest);
-				await p.with(
+				await p.withFile(
 					fixtureFile('dummy'),
 					fixtureFile('swf3.swf')
 				);
@@ -58,7 +58,7 @@ describe('projectors/linux/64', () => {
 
 					const p = new ProjectorLinux64(dest);
 					p.patchProjectorOffset = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						simple
 					);
@@ -71,7 +71,7 @@ describe('projectors/linux/64', () => {
 					const p = new ProjectorLinux64(dest);
 					p.patchProjectorOffset = true;
 					p.patchWindowTitle = 'Custom Title';
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
 					);
@@ -88,7 +88,7 @@ describe('projectors/linux/64', () => {
 					const p = new ProjectorLinux64(dest);
 					p.patchProjectorPath = true;
 					p.patchProjectorOffset = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
 					);
@@ -104,7 +104,7 @@ describe('projectors/linux/64', () => {
 					const dest = pathJoin(dir, 'application');
 					const p = new ProjectorLinux64(dest);
 					p.patchProjectorOffset = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
 					);
@@ -118,7 +118,7 @@ describe('projectors/linux/64', () => {
 					p.patchProjectorPath = true;
 					p.patchProjectorOffset = true;
 					p.patchMenuRemove = true;
-					await p.with(
+					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
 					);
