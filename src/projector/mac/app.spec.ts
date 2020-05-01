@@ -5,15 +5,15 @@ import {
 import fse from 'fs-extra';
 
 import {
-	cleanProjectorDir,
-	shouldTest,
-	getInstalledPackagesInfoSync,
-	simpleSwf
+	cleanProjectorDir
 } from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile,
-	platformIsMac
+	platformIsMac,
+	shouldTest,
+	getInstalledPackagesInfoSync,
+	simpleSwf
 } from '../../util.spec';
 
 import {
@@ -36,7 +36,7 @@ function listSamples() {
 		}));
 }
 
-describe('projectors/mac/app', () => {
+describe('projector/mac/app', () => {
 	describe('ProjectorMacApp', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>

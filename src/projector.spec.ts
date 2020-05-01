@@ -1,24 +1,14 @@
 import {
-	join as pathJoin
+	join as pathJoin,
+	dirname
 } from 'path';
 
 import fse from 'fs-extra';
 
-import {
-	getInstalledPackagesSync
-} from './util.spec';
-
-// eslint-disable-next-line no-process-env
-export const envTest = process.env.SWF_PROJECTOR_TEST || null;
+import {fixtureFile} from './util.spec';
+import {Projector} from './projector';
 
 export const specProjectorsPath = pathJoin('spec', 'projectors');
-
-export function shouldTest(name: string) {
-	return !envTest || (
-		envTest.toLowerCase().split(',')
-			.includes(name.toLowerCase())
-	);
-}
 
 export async function cleanProjectorDir(...path: string[]) {
 	const dir = pathJoin(specProjectorsPath, ...path);
@@ -27,56 +17,47 @@ export async function cleanProjectorDir(...path: string[]) {
 	return dir;
 }
 
-export function versionZlib(version: number[]) {
-	return version[0] >= 6;
-}
+const getDir = async (d: string) =>
+	cleanProjectorDir('dummy', d);
 
-export function versionLzma(version: number[]) {
-	return version[0] > 11 || (version[0] === 11 && version[1] >= 1);
-}
-
-export function simpleSwf(zlib: boolean, lzma: boolean) {
-	if (lzma) {
-		return 'swf14-lzma.swf';
-	}
-	if (zlib) {
-		return 'swf6-zlib.swf';
-	}
-	return 'swf3.swf';
-}
-
-export function packageInfo(name: string) {
-	const m = name.match(/^flash-player-([\d.]+)-(.*)-sa(-debug)?$/);
-	if (!m) {
-		return null;
+export class ProjectorDummy extends Projector {
+	constructor(path: string) {
+		super(path);
 	}
 
-	const version = m[1].split('.').map(Number);
-	const zlib = versionZlib(version);
-	const lzma = versionLzma(version);
-	return {
-		name,
-		version,
-		platform: m[2],
-		debug: !!m[3],
-		zlib,
-		lzma
-	};
-}
+	public get extension(): string {
+		return '.exe';
+	}
 
-export function getInstalledPackagesInfoSync() {
-	const r = [];
-	for (const name of getInstalledPackagesSync()) {
-		const info = packageInfo(name);
-		if (info) {
-			r.push(info);
+	protected async _writePlayer(player: string) {
+		await fse.ensureDir(dirname(this.path));
+		await fse.copyFile(player, this.path);
+	}
+
+	protected async _modifyPlayer() {
+		// Do nothing.
+	}
+
+	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+		if (!movieData) {
+			return;
 		}
-	}
 
-	r.sort((a, b) => (+a.debug) - (+b.debug));
-	for (let i = 4; i--;) {
-		r.sort((a, b) => (a.version[i] || 0) - (b.version[i] || 0));
+		await this._appendMovieData(this.path, movieData, 'dms');
 	}
-
-	return r;
 }
+
+describe('projector', () => {
+	describe('ProjectorDummy', () => {
+		it('simple', async () => {
+			const dir = await getDir('simple');
+			const dest = pathJoin(dir, 'application.exe');
+
+			const p = new ProjectorDummy(dest);
+			await p.withFile(
+				fixtureFile('dummy.exe'),
+				fixtureFile('swf3.swf')
+			);
+		});
+	});
+});

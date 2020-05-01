@@ -5,14 +5,14 @@ import {
 import fse from 'fs-extra';
 
 import {
-	cleanProjectorDir,
-	shouldTest,
-	getInstalledPackagesInfoSync,
-	simpleSwf
+	cleanProjectorDir
 } from '../../projector.spec';
 import {
 	fixtureFile,
-	getPackageFile
+	getPackageFile,
+	shouldTest,
+	getInstalledPackagesInfoSync,
+	simpleSwf
 } from '../../util.spec';
 
 import {
@@ -40,7 +40,7 @@ const versionStrings = {
 	Comments: 'Custom Comments'
 };
 
-describe('projectors/windows/32', () => {
+describe('projector/windows/32', () => {
 	describe('ProjectorWindows32', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>

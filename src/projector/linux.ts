@@ -1,3 +1,5 @@
+import {dirname} from 'path';
+
 import {
 	fsChmod,
 	fsUtimes,
@@ -78,6 +80,7 @@ export abstract class ProjectorLinux extends Projector {
 		}
 
 		const {path} = this;
+		await fse.ensureDir(dirname(path));
 		await fse.copyFile(player, path);
 		await fsChmod(path, modePermissionBits(stat.mode));
 		await fsUtimes(path, stat.atime, stat.mtime);

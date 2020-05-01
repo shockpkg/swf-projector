@@ -226,10 +226,17 @@ gulp.task('clean:projectors', async () => {
 	]);
 });
 
+gulp.task('clean:bundles', async () => {
+	await del([
+		'spec/bundles'
+	]);
+});
+
 gulp.task('clean', gulp.parallel([
 	'clean:logs',
 	'clean:lib',
-	'clean:projectors'
+	'clean:projectors',
+	'clean:bundles'
 ]));
 
 // lint (watch)

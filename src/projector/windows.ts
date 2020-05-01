@@ -1,3 +1,5 @@
+import {dirname} from 'path';
+
 import fse from 'fs-extra';
 import {
 	fsChmod,
@@ -93,6 +95,7 @@ export abstract class ProjectorWindows extends Projector {
 		}
 
 		const {path} = this;
+		await fse.ensureDir(dirname(path));
 		await fse.copyFile(player, path);
 		await fsChmod(path, modePermissionBits(stat.mode));
 		await fsUtimes(path, stat.atime, stat.mtime);

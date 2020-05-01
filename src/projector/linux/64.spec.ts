@@ -5,14 +5,14 @@ import {
 import fse from 'fs-extra';
 
 import {
-	cleanProjectorDir,
-	shouldTest,
-	getInstalledPackagesInfoSync,
-	simpleSwf
+	cleanProjectorDir
 } from '../../projector.spec';
 import {
 	fixtureFile,
-	getPackageFile
+	getPackageFile,
+	shouldTest,
+	getInstalledPackagesInfoSync,
+	simpleSwf
 } from '../../util.spec';
 
 import {
@@ -27,7 +27,7 @@ function listSamples() {
 		.filter(o => o.platform === 'linux-x86_64');
 }
 
-describe('projectors/linux/64', () => {
+describe('projector/linux/64', () => {
 	describe('ProjectorLinux64', () => {
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
