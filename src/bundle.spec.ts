@@ -24,8 +24,14 @@ export async function cleanBundlesDir(...path: string[]) {
 	return dir;
 }
 
-const getDir = async (d: string) =>
-	cleanBundlesDir('dummy', d);
+const getDir = async (d: string) => cleanBundlesDir('dummy', d);
+
+// Test atime can be tricky because it can change easily.
+// Make testing it optional.
+const testAtime = /(1|true|yes)/i.test(
+	// eslint-disable-next-line no-process-env
+	process.env.SWF_PROJECTOR_TEST_ATIME || ''
+);
 
 const supportsExecutable = !process.platform.startsWith('win');
 const supportsSymlinks = !process.platform.startsWith('win');
@@ -185,18 +191,22 @@ describe('bundle', () => {
 			const st = async (path: string) => fse.lstat(p.resourcePath(path));
 
 			const res0 = await st('resources0');
-			// expect(res0.atime.getFullYear()).not.toBe(2001);
+			expect(res0.atime.getFullYear()).not.toBe(2001);
 			expect(res0.mtime.getFullYear()).not.toBe(2001);
 
 			const res0A = await st('resources0/a.txt');
-			// expect(res0A.atime.getFullYear()).not.toBe(2001);
+			if (testAtime) {
+				expect(res0A.atime.getFullYear()).not.toBe(2001);
+			}
 			expect(res0A.mtime.getFullYear()).not.toBe(2001);
 			if (supportsExecutable) {
 				expect(isUserExec(res0A.mode)).toBeFalse();
 			}
 
 			const res0B = await st('resources0/d/b.txt');
-			// expect(res0B.atime.getFullYear()).not.toBe(2001);
+			if (testAtime) {
+				expect(res0B.atime.getFullYear()).not.toBe(2001);
+			}
 			expect(res0B.mtime.getFullYear()).not.toBe(2001);
 			if (supportsExecutable) {
 				expect(isUserExec(res0B.mode)).toBeFalse();
@@ -207,27 +217,37 @@ describe('bundle', () => {
 				const res0L2 = await st('resources0/l2.txt');
 
 				if (supportsSymlinkAttrs) {
-					// expect(res0L1.atime.getFullYear()).not.toBe(2001);
+					if (testAtime) {
+						expect(res0L1.atime.getFullYear()).not.toBe(2001);
+					}
 					expect(res0L1.mtime.getFullYear()).not.toBe(2001);
 
-					// expect(res0L2.atime.getFullYear()).not.toBe(2001);
+					if (testAtime) {
+						expect(res0L2.atime.getFullYear()).not.toBe(2001);
+					}
 					expect(res0L2.mtime.getFullYear()).not.toBe(2001);
 				}
 			}
 
 			const res1 = await st('resources1');
-			// expect(res1.atime.getFullYear()).toBe(2001);
+			if (testAtime) {
+				expect(res1.atime.getFullYear()).toBe(2001);
+			}
 			expect(res1.mtime.getFullYear()).toBe(2001);
 
 			const res1A = await st('resources1/a.txt');
-			// expect(res1A.atime.getFullYear()).toBe(2001);
+			if (testAtime) {
+				expect(res1A.atime.getFullYear()).toBe(2001);
+			}
 			expect(res1A.mtime.getFullYear()).toBe(2001);
 			if (supportsExecutable) {
 				expect(isUserExec(res1A.mode)).toBeFalse();
 			}
 
 			const res1B = await st('resources1/d/b.txt');
-			// expect(res1B.atime.getFullYear()).toBe(2001);
+			if (testAtime) {
+				expect(res1B.atime.getFullYear()).toBe(2001);
+			}
 			expect(res1B.mtime.getFullYear()).toBe(2001);
 			if (supportsExecutable) {
 				expect(isUserExec(res1B.mode)).toBeTrue();
@@ -238,13 +258,17 @@ describe('bundle', () => {
 				const res1L2 = await st('resources1/l2.txt');
 
 				if (supportsSymlinkAttrs) {
-					// expect(res1L1.atime.getFullYear()).toBe(2001);
+					if (testAtime) {
+						expect(res1L1.atime.getFullYear()).toBe(2001);
+					}
 					expect(res1L1.mtime.getFullYear()).toBe(2001);
 					if (supportsExecutable) {
 						expect(isUserExec(res1L1.mode)).toBeTrue();
 					}
 
-					// expect(res1L2.atime.getFullYear()).toBe(2001);
+					if (testAtime) {
+						expect(res1L2.atime.getFullYear()).toBe(2001);
+					}
 					expect(res1L2.mtime.getFullYear()).toBe(2001);
 					if (supportsExecutable) {
 						expect(isUserExec(res1L2.mode)).toBeFalse();
@@ -253,18 +277,24 @@ describe('bundle', () => {
 			}
 
 			const res2 = await st('resources2');
-			// expect(res2.atime.getFullYear()).not.toBe(2002);
+			if (testAtime) {
+				expect(res2.atime.getFullYear()).not.toBe(2002);
+			}
 			expect(res2.mtime.getFullYear()).not.toBe(2002);
 
 			const res2A = await st('resources2/a.txt');
-			// expect(res2A.atime.getFullYear()).toBe(2002);
+			if (testAtime) {
+				expect(res2A.atime.getFullYear()).toBe(2002);
+			}
 			expect(res2A.mtime.getFullYear()).toBe(2002);
 			if (supportsExecutable) {
 				expect(isUserExec(res2A.mode)).toBeTrue();
 			}
 
 			const res2B = await st('resources2/d/b.txt');
-			// expect(res2B.atime.getFullYear()).toBe(2002);
+			if (testAtime) {
+				expect(res2B.atime.getFullYear()).toBe(2002);
+			}
 			expect(res2B.mtime.getFullYear()).toBe(2002);
 			if (supportsExecutable) {
 				expect(isUserExec(res2B.mode)).toBeFalse();
@@ -275,13 +305,17 @@ describe('bundle', () => {
 				const res1L2 = await st('resources2/l2.txt');
 
 				if (supportsSymlinkAttrs) {
-					// expect(res1L1.atime.getFullYear()).toBe(2002);
+					if (testAtime) {
+						expect(res1L1.atime.getFullYear()).toBe(2002);
+					}
 					expect(res1L1.mtime.getFullYear()).toBe(2002);
 					if (supportsExecutable) {
 						expect(isUserExec(res1L1.mode)).toBeTrue();
 					}
 
-					// expect(res1L2.atime.getFullYear()).toBe(2002);
+					if (testAtime) {
+						expect(res1L2.atime.getFullYear()).toBe(2002);
+					}
 					expect(res1L2.mtime.getFullYear()).toBe(2002);
 					if (supportsExecutable) {
 						expect(isUserExec(res1L2.mode)).toBeFalse();
