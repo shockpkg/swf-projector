@@ -505,7 +505,9 @@ export abstract class Bundle extends Object {
 			}
 			else if (fsLchmodSupported) {
 				await fsLchmod(path, this._setResourceModeExecutable(
-					st.mode,
+					// Workaround for a legacy Node issue.
+					// eslint-disable-next-line no-bitwise
+					st.mode & 0b111111111,
 					executable
 				));
 			}
