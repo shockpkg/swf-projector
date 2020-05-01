@@ -628,4 +628,9 @@ export abstract class Bundle extends Object {
 	 * @returns Projector instance.
 	 */
 	protected abstract _createProjector(): Projector;
+
+	/**
+	 * Write the launcher file.
+	 */
+	protected abstract async _writeLauncher(): Promise<void>;
 }

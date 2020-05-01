@@ -66,9 +66,7 @@ class BundleDummy extends Bundle {
 		return new ProjectorDummy(pathJoin(directory, basename(path)));
 	}
 
-	protected async _close() {
-		await super._close();
-
+	protected async _writeLauncher() {
 		await fse.outputFile(this.path, 'DUMMY_PE_LAUNCHER_EXE\n', 'utf8');
 	}
 }
