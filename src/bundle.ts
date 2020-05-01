@@ -539,7 +539,7 @@ export abstract class Bundle extends Object {
 	 * Set file mode executable.
 	 *
 	 * @param mode Current mode.
-	 * @param executable Set executable to on or off.
+	 * @param executable Is executable.
 	 * @returns File mode.
 	 */
 	protected _setResourceModeExecutable(mode: number, executable: boolean) {
