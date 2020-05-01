@@ -564,6 +564,8 @@ export abstract class Bundle extends Object {
 	 * Close output.
 	 */
 	protected async _close() {
+		await this._writeLauncher();
+
 		const closeCallbacks = this._closeCallbacks;
 		for (let i = closeCallbacks.length; i--;) {
 			for (const func of (closeCallbacks[i] || [])) {
