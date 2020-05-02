@@ -321,5 +321,45 @@ describe('bundle', () => {
 				}
 			}
 		});
+
+		it('merge', async () => {
+			const dir = await getDir('merge');
+			const dest = pathJoin(dir, 'application.exe');
+
+			const resources = pathJoin(dir, 'resources');
+			const resourcesA = pathJoin(resources, 'd/a.txt');
+
+			await fse.ensureDir(resources);
+
+			await fse.outputFile(resourcesA, 'alpha');
+
+			const p = new BundleDummy(dest);
+			await p.withFile(
+				fixtureFile('dummy.exe'),
+				fixtureFile('swf3.swf'),
+				async p => {
+					await p.createResourceFile(
+						'd/b.txt',
+						'beta'
+					);
+
+					// Merge contents at root of resources.
+					await p.copyResource(
+						'.',
+						resources,
+						{
+							merge: true
+						}
+					);
+				}
+			);
+
+			await fse.remove(resources);
+
+			const st = async (path: string) => fse.lstat(p.resourcePath(path));
+
+			expect((await st('d/a.txt')).isFile()).toBeTrue();
+			expect((await st('d/b.txt')).isFile()).toBeTrue();
+		});
 	});
 });

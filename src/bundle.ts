@@ -18,7 +18,8 @@ import {
 	fsLchmod,
 	fsLutimesSupported,
 	fsLutimes,
-	fsWalk
+	fsWalk,
+	fsLstatExists
 } from '@shockpkg/archive-files';
 
 import {once} from './util';
@@ -62,6 +63,11 @@ export interface IBundleResourceOptions {
 	 * Copy source executable if not set.
 	 */
 	executableCopy?: null | boolean;
+
+	/**
+	 * Optionally merge directory contents.
+	 */
+	merge?: null | boolean;
 
 	/**
 	 * Skip recursive directory copy.
@@ -226,7 +232,7 @@ export abstract class Bundle extends Object {
 	 * @returns True if destination exists, else false.
 	 */
 	public async resourceExists(destination: string) {
-		return fse.pathExists(this.resourcePath(destination));
+		return !!fsLstatExists(this.resourcePath(destination));
 	}
 
 	/**
@@ -371,12 +377,16 @@ export abstract class Bundle extends Object {
 	) {
 		this._assertIsOpen();
 
-		const dest = await this._assertNotResourceExists(destination);
+		const dest = await this._assertNotResourceExists(
+			destination,
+			!!(options && options.merge)
+		);
 		await fse.ensureDir(dest);
 
 		// If either is set, queue up change times when closing.
 		if (options && (options.atime || options.mtime)) {
-			// Get absolute path, use length for the priority, copy options.
+			// Get absolute path, use length for the priority.
+			// Also copy the options object which the owner could change.
 			const abs = resolve(dest);
 			this._queueCloseCallback(
 				abs.length,
@@ -588,11 +598,16 @@ export abstract class Bundle extends Object {
 	 * Assert resource does not exist, returning destination path.
 	 *
 	 * @param destination Resource destination.
+	 * @param ignoreDirectory Ignore directories.
 	 * @returns Destination path.
 	 */
-	protected async _assertNotResourceExists(destination: string) {
+	protected async _assertNotResourceExists(
+		destination: string,
+		ignoreDirectory = false
+	) {
 		const dest = this.resourcePath(destination);
-		if (await fse.pathExists(dest)) {
+		const st = await fsLstatExists(dest);
+		if (st && (!ignoreDirectory || !st.isDirectory())) {
 			throw new Error(`Resource path exists: ${dest}`);
 		}
 		return dest;
