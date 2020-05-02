@@ -23,6 +23,7 @@ import {
 } from '@shockpkg/archive-files';
 
 import {once} from './util';
+import {Queue} from './queue';
 import {Projector} from './projector';
 
 const pipelineP = promisify(pipeline);
@@ -108,7 +109,7 @@ export abstract class Bundle extends Object {
 	/**
 	 * Close callbacks priority queue.
 	 */
-	protected _closeCallbacks: (() => Promise<any>)[][] = [];
+	protected _closeQueue = new Queue();
 
 	constructor(path: string) {
 		super();
@@ -162,7 +163,7 @@ export abstract class Bundle extends Object {
 			throw new Error('Already open');
 		}
 
-		this._closeCallbacks = [];
+		this._closeQueue.clear();
 		await this._openData(player, movieData);
 
 		this._isOpen = true;
@@ -178,7 +179,7 @@ export abstract class Bundle extends Object {
 			await this._close();
 		}
 		finally {
-			this._closeCallbacks = [];
+			this._closeQueue.clear();
 		}
 
 		this._isOpen = false;
@@ -388,9 +389,9 @@ export abstract class Bundle extends Object {
 			// Get absolute path, use length for the priority.
 			// Also copy the options object which the owner could change.
 			const abs = resolve(dest);
-			this._queueCloseCallback(
-				abs.length,
-				this._setResourceAttributes.bind(this, abs, {...options})
+			this._closeQueue.push(
+				this._setResourceAttributes.bind(this, abs, {...options}),
+				abs.length
 			);
 		}
 	}
@@ -575,14 +576,7 @@ export abstract class Bundle extends Object {
 	 */
 	protected async _close() {
 		await this._writeLauncher();
-
-		const closeCallbacks = this._closeCallbacks;
-		for (let i = closeCallbacks.length; i--;) {
-			for (const func of (closeCallbacks[i] || [])) {
-				// eslint-disable-next-line no-await-in-loop
-				await func();
-			}
-		}
+		await this._closeQueue.run();
 	}
 
 	/**
@@ -611,17 +605,6 @@ export abstract class Bundle extends Object {
 			throw new Error(`Resource path exists: ${dest}`);
 		}
 		return dest;
-	}
-
-	/**
-	 * Queue close callback function in a priority queue.
-	 *
-	 * @param priority Priority, a positive integer, higher to run sooner.
-	 * @param func Callback function.
-	 */
-	protected _queueCloseCallback(priority: number, func: () => Promise<any>) {
-		const queue = this._closeCallbacks;
-		(queue[priority] || (queue[priority] = [])).push(func);
 	}
 
 	/**

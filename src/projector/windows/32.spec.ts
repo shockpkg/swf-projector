@@ -19,8 +19,8 @@ import {
 	ProjectorWindows32
 } from './32';
 
-function listSamples() {
-	if (!shouldTest('windows')) {
+export function listSamples() {
+	if (!shouldTest('windows32')) {
 		return [];
 	}
 	return getInstalledPackagesInfoSync()

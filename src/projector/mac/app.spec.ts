@@ -20,7 +20,7 @@ import {
 	ProjectorMacApp
 } from './app';
 
-function listSamples() {
+export function listSamples() {
 	if (!(platformIsMac && shouldTest('macapp'))) {
 		return [];
 	}

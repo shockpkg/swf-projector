@@ -19,7 +19,7 @@ import {
 	ProjectorLinux64
 } from './64';
 
-function listSamples() {
+export function listSamples() {
 	if (!shouldTest('linux64')) {
 		return [];
 	}

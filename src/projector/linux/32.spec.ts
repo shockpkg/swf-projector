@@ -19,8 +19,8 @@ import {
 	ProjectorLinux32
 } from './32';
 
-function listSamples() {
-	if (!shouldTest('linux')) {
+export function listSamples() {
+	if (!shouldTest('linux32')) {
 		return [];
 	}
 	return getInstalledPackagesInfoSync()
