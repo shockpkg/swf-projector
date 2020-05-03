@@ -1,6 +1,5 @@
 import {
 	join as pathJoin,
-	dirname,
 	basename
 } from 'path';
 
@@ -51,10 +50,6 @@ class BundleDummy extends Bundle {
 
 	public get extension() {
 		return '.exe';
-	}
-
-	public resourcePath(destination: string) {
-		return pathJoin(dirname(this.projector.path), destination);
 	}
 
 	protected _createProjector() {

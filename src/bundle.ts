@@ -227,6 +227,16 @@ export abstract class Bundle extends Object {
 	}
 
 	/**
+	 * Get path for resource.
+	 *
+	 * @param destination Resource destination.
+	 * @returns Destination path.
+	 */
+	public resourcePath(destination: string) {
+		return pathJoin(dirname(this.projector.path), destination);
+	}
+
+	/**
 	 * Check if path for resource exists.
 	 *
 	 * @param destination Resource destination.
@@ -613,14 +623,6 @@ export abstract class Bundle extends Object {
 	 * @returns File extension.
 	 */
 	public abstract get extension(): string;
-
-	/**
-	 * Get path for resource.
-	 *
-	 * @param destination Resource destination.
-	 * @returns Destination path.
-	 */
-	public abstract resourcePath(destination: string): string;
 
 	/**
 	 * Create projector instance for the bundle.
