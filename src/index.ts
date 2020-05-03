@@ -7,3 +7,4 @@ export * from './queue';
 export * from './projector';
 export * from './projector/';
 export * from './bundle';
+export * from './bundle/';
