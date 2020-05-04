@@ -162,6 +162,7 @@ export abstract class Bundle extends Object {
 		if (this._isOpen) {
 			throw new Error('Already open');
 		}
+		await this._checkOutput();
 
 		this._closeQueue.clear();
 		await this._openData(player, movieData);
@@ -471,6 +472,18 @@ export abstract class Bundle extends Object {
 
 		if (options) {
 			await this._setResourceAttributes(dest, options);
+		}
+	}
+
+	/**
+	 * Check that output path is valid, else throws.
+	 */
+	protected async _checkOutput() {
+		for (const p of [this.path, this.resourcePath('')]) {
+			// eslint-disable-next-line no-await-in-loop
+			if (await fse.pathExists(p)) {
+				throw new Error(`Output path already exists: ${p}`);
+			}
 		}
 	}
 
