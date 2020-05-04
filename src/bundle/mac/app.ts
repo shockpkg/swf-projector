@@ -93,9 +93,11 @@ export class BundleMacApp extends BundleMac {
 			}
 		);
 
-		// Copy the projector icon.
+		// Copy the projector icon if present.
 		const pathIcon = pathJoin(appResources, projIconName);
-		await fse.copyFile(projIconPath, pathIcon);
+		if (await fse.pathExists(projIconPath)) {
+			await fse.copyFile(projIconPath, pathIcon);
+		}
 
 		// Copy PkgInfo if present.
 		if (await fse.pathExists(projPkgInfoPath)) {
