@@ -1,12 +1,7 @@
-// @ts-ignore-file
-import * as puka from 'puka';
-
 import {
 	once,
 	launcher
 } from '../util';
-
-const quoteForSh = puka.quoteForSh || puka.default.quoteForSh;
 
 /**
  * Find exact matches in data.
@@ -1137,23 +1132,25 @@ export function linux64PatchProjectorPathData(data: Buffer) {
 }
 
 /**
- * Generate Linux launcher script using specified directory suffix.
+ * Get Linux launcher for the specified type.
  *
- * @param suffix Directory suffix.
+ * @param type Executable type.
+ * @param resources File to optionally copy resources from.
  * @returns Launcher data.
  */
-export async function linuxScriptLauncher(suffix: string) {
-	const data = await launcher('linux-script');
-	const defaultSuffix = '.data';
-	if (suffix === defaultSuffix) {
-		return data;
+export async function linuxLauncher(
+	type: 'i386' | 'x86_64',
+	resources: string | null = null
+) {
+	switch (type) {
+		case 'i386': {
+			return launcher('linux-i386');
+		}
+		case 'x86_64': {
+			return launcher('linux-x86_64');
+		}
+		default: {
+			throw new Error(`Invalid type: ${type}`);
+		}
 	}
-
-	const source = data.toString('utf8');
-	const find = `'${defaultSuffix}'`;
-	const repl = quoteForSh(suffix, true);
-	if (!source.includes(find)) {
-		throw new Error('Internal error');
-	}
-	return Buffer.from(source.replace(find, repl), 'utf8');
 }

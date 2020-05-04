@@ -3,6 +3,9 @@ import {
 	basename
 } from 'path';
 
+import fse from 'fs-extra';
+
+import {linuxLauncher} from '../../util/linux';
 import {ProjectorLinux32} from '../../projector/linux/32';
 import {BundleLinux} from '../linux';
 
@@ -29,11 +32,21 @@ export class BundleLinux32 extends BundleLinux {
 	 * @returns Projector instance.
 	 */
 	protected _createProjector() {
-		const {path, resourceSuffix} = this;
-		if (!resourceSuffix) {
-			throw new Error('Resource directory suffix cannot be empty');
-		}
-		const directory = `${path}${resourceSuffix}`;
-		return new ProjectorLinux32(pathJoin(directory, basename(path)));
+		const {path} = this;
+		return new ProjectorLinux32(pathJoin(`${path}.data`, basename(path)));
+	}
+
+	/**
+	 * Write the launcher file.
+	 */
+	protected async _writeLauncher() {
+		// Create launcher script with same mode.
+		await fse.outputFile(
+			this.path,
+			await linuxLauncher('i386'),
+			{
+				mode: (await fse.stat(this.projector.path)).mode
+			}
+		);
 	}
 }

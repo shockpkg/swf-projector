@@ -59,10 +59,16 @@ const launchers = [
 		hash: 'f5b7625da819324f442cea1f3af83ea4b2bf0af1d185a7747d81b698a6168562'
 	},
 	{
-		name: 'linux-script',
-		url: 'https://github.com/shockpkg/projector-launcher-linux/releases/download/1.0.0/main',
-		path: 'launchers/linux-script',
-		hash: '77c185db228b0120cb9b1e7780110c4947e4f588c414193648a5bbf0513ee0f4'
+		name: 'linux-i386',
+		url: 'https://github.com/shockpkg/projector-launcher-linux/releases/download/2.0.0/main.i386',
+		path: 'launchers/linux-i386',
+		hash: '5bc49257a1bbe5f86a0068de0a783c669f10f88d44650e9451d3a1926277ab4c'
+	},
+	{
+		name: 'linux-x86_64',
+		url: 'https://github.com/shockpkg/projector-launcher-linux/releases/download/2.0.0/main.x86_64',
+		path: 'launchers/linux-x86_64',
+		hash: '4d5ae1aca3cee75732be68eec6136d5fe64c4648973123c98bb0f65492825199'
 	}
 ];
 
