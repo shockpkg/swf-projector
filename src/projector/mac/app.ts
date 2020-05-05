@@ -1,5 +1,6 @@
 import {
-	join as pathJoin
+	join as pathJoin,
+	basename
 } from 'path';
 
 import {
@@ -15,7 +16,8 @@ import {
 import fse from 'fs-extra';
 
 import {
-	pathRelativeBase
+	pathRelativeBase,
+	trimExtension
 } from '../../util';
 import {
 	machoAppUnsign,
@@ -170,6 +172,33 @@ export class ProjectorMacApp extends ProjectorMac {
 	}
 
 	/**
+	 * Get the movie path.
+	 *
+	 * @returns Icon path.
+	 */
+	public get moviePath() {
+		return pathJoin(this.path, this.appPathMovie);
+	}
+
+	/**
+	 * Get the Info.plist path.
+	 *
+	 * @returns Icon path.
+	 */
+	public get infoPlistPath() {
+		return pathJoin(this.path, this.appPathInfoPlist);
+	}
+
+	/**
+	 * Get the PkgInfo path.
+	 *
+	 * @returns Icon path.
+	 */
+	public get pkgInfoPath() {
+		return pathJoin(this.path, this.appPathPkgInfo);
+	}
+
+	/**
 	 * Get the binary path.
 	 *
 	 * @param binaryName Binary name.
@@ -258,40 +287,15 @@ export class ProjectorMacApp extends ProjectorMac {
 	}
 
 	/**
-	 * Get the movie path.
-	 *
-	 * @returns Icon path.
-	 */
-	public getMoviePath() {
-		return pathJoin(this.path, this.appPathMovie);
-	}
-
-	/**
-	 * Get the Info.plist path.
-	 *
-	 * @returns Icon path.
-	 */
-	public getInfoPlistPath() {
-		return pathJoin(this.path, this.appPathInfoPlist);
-	}
-
-	/**
-	 * Get the PkgInfo path.
-	 *
-	 * @returns Icon path.
-	 */
-	public getPkgInfoPath() {
-		return pathJoin(this.path, this.appPathPkgInfo);
-	}
-
-	/**
 	 * Get configured bundle name, or null to remove.
 	 *
 	 * @returns New name or null.
 	 */
 	public getBundleName() {
 		const {bundleName} = this;
-		return bundleName === true ? this.getProjectorName() : bundleName;
+		return bundleName === true ?
+			trimExtension(basename(this.path), this.extension, true) :
+			bundleName;
 	}
 
 	/**
@@ -415,7 +419,7 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		await fse.writeFile(this.getMoviePath(), movieData);
+		await fse.writeFile(this.moviePath, movieData);
 	}
 
 	/**
@@ -472,7 +476,7 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		const path = this.getPkgInfoPath();
+		const path = this.pkgInfoPath;
 		await fse.remove(path);
 		await fse.outputFile(path, data);
 	}
@@ -579,7 +583,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @returns Plist document.
 	 */
 	protected async _readInfoPlist() {
-		return plistRead(this.getInfoPlistPath());
+		return plistRead(this.infoPlistPath);
 	}
 
 	/**
@@ -588,7 +592,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @param plist Plist document.
 	 */
 	protected async _writeInfoPlist(plist: Plist) {
-		const path = this.getInfoPlistPath();
+		const path = this.infoPlistPath;
 		await fse.remove(path);
 		await fse.outputFile(path, plist.toXml(), 'utf8');
 	}

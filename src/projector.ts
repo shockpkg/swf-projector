@@ -1,18 +1,10 @@
 import {
-	basename
-} from 'path';
-
-import {
 	Archive,
 	ArchiveDir,
 	ArchiveHdi,
 	createArchiveByFileExtension
 } from '@shockpkg/archive-files';
 import fse from 'fs-extra';
-
-import {
-	trimExtension
-} from './util';
 
 /**
  * Projector constructor.
@@ -43,16 +35,6 @@ export abstract class Projector extends Object {
 	 */
 	public get movieAppendMarker() {
 		return '563412FA';
-	}
-
-	/**
-	 * Get the name of a projector trimming the extension.
-	 *
-	 * @returns Projector name without extension.
-	 */
-	public getProjectorName() {
-		const name = basename(this.path);
-		return trimExtension(name, this.extension, true);
 	}
 
 	/**

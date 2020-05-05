@@ -68,7 +68,7 @@ export class BundleMacApp extends BundleMac {
 		const appPkgInfo = pathJoin(appContents, 'PkgInfo');
 
 		// Read the projector Info.plist.
-		const plist = await plistRead(projector.getInfoPlistPath());
+		const plist = await plistRead(projector.infoPlistPath);
 
 		// Get the binary path and read the types.
 		const projBinaryName = infoPlistBundleExecutableGet(plist);
@@ -80,7 +80,7 @@ export class BundleMacApp extends BundleMac {
 		const projIconPath = projector.getIconPath(projIconName);
 
 		// Get the PkgInfo path.
-		const projPkgInfoPath = projector.getPkgInfoPath();
+		const projPkgInfoPath = projector.pkgInfoPath;
 
 		// Create the launcher binary with the same types and mode.
 		const launcherName = this._getLauncherName();
