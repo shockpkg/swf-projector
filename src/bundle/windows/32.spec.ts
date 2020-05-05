@@ -3,7 +3,8 @@ import {
 } from 'path';
 
 import {
-	listSamples
+	listSamples,
+	versionStrings
 } from '../../projector/windows/32.spec';
 import {
 	cleanBundlesDir
@@ -17,19 +18,6 @@ import {
 import {
 	BundleWindows32
 } from './32';
-
-const versionStrings = {
-	FileVersion: '3.14.15.92',
-	ProductVersion: '3.1.4.1',
-	CompanyName: 'Custom Company Name',
-	FileDescription: 'Custom File Description',
-	LegalCopyright: 'Custom Legal Copyright',
-	ProductName: 'Custom Product Name',
-	LegalTrademarks: 'Custom Legal Trademarks',
-	OriginalFilename: 'CustomOriginalFilename.exe',
-	InternalName: 'CustomInternalName',
-	Comments: 'Custom Comments'
-};
 
 describe('bundle/windows/32', () => {
 	describe('ProjectorWindows32', () => {

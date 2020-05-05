@@ -27,7 +27,7 @@ export function listSamples() {
 		.filter(o => o.platform.startsWith('windows'));
 }
 
-const versionStrings = {
+export const versionStrings = {
 	FileVersion: '3.14.15.92',
 	ProductVersion: '3.1.4.1',
 	CompanyName: 'Custom Company Name',
