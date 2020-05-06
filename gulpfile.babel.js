@@ -1,7 +1,8 @@
-import fs from 'fs';
 import path from 'path';
 import stream from 'stream';
 import util from 'util';
+import zlib from 'zlib';
+import crypto from 'crypto';
 
 import gulp from 'gulp';
 import gulpRename from 'gulp-rename';
@@ -12,9 +13,93 @@ import gulpSourcemaps from 'gulp-sourcemaps';
 import gulpBabel from 'gulp-babel';
 import execa from 'execa';
 import del from 'del';
+import fse from 'fs-extra';
+import onetime from 'onetime';
+import download from 'download';
 
-const readFile = util.promisify(fs.readFile);
 const pipeline = util.promisify(stream.pipeline);
+const deflateRaw = util.promisify(zlib.deflateRaw);
+
+// The launchers and where to download them from.
+const launchers = [
+	{
+		name: 'windows-i686',
+		url: 'https://github.com/shockpkg/projector-launcher-windows/releases/download/1.0.0/main.i686.exe',
+		path: 'launchers/windows-i686.exe',
+		hash: '166e5cb9228842e98e59d0cae1578fd0d97c9754944dae6533678716f7fd1c1c'
+	},
+	{
+		name: 'windows-x86_64',
+		url: 'https://github.com/shockpkg/projector-launcher-windows/releases/download/1.0.0/main.x86_64.exe',
+		path: 'launchers/windows-x86_64.exe',
+		hash: '6a8e15452b1049ed9727eee65e1f8c81a6ff496f7e452c75268e2c3193dd61b1'
+	},
+	{
+		name: 'mac-app-ppc',
+		url: 'https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.0.0/main.ppc',
+		path: 'launchers/mac-app-ppc',
+		hash: '17414c123fe82ac74a89fad9c80e36d8b612ded5a520e35f3c33eabe75a023a7'
+	},
+	{
+		name: 'mac-app-ppc64',
+		url: 'https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.0.0/main.ppc64',
+		path: 'launchers/mac-app-ppc64',
+		hash: '9e159161fc21b72de6fddb5fb9c60c0e34e649e4660248778219e58198adfb3d'
+	},
+	{
+		name: 'mac-app-i386',
+		url: 'https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.0.0/main.i386',
+		path: 'launchers/mac-app-i386',
+		hash: 'e52e19fce336130824dcfd4731bf85db7e8e96628ef8c6a49769dc5247ef6ed0'
+	},
+	{
+		name: 'mac-app-x86_64',
+		url: 'https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.0.0/main.x86_64',
+		path: 'launchers/mac-app-x86_64',
+		hash: 'f5b7625da819324f442cea1f3af83ea4b2bf0af1d185a7747d81b698a6168562'
+	},
+	{
+		name: 'linux-i386',
+		url: 'https://github.com/shockpkg/projector-launcher-linux/releases/download/2.0.0/main.i386',
+		path: 'launchers/linux-i386',
+		hash: '5bc49257a1bbe5f86a0068de0a783c669f10f88d44650e9451d3a1926277ab4c'
+	},
+	{
+		name: 'linux-x86_64',
+		url: 'https://github.com/shockpkg/projector-launcher-linux/releases/download/2.0.0/main.x86_64',
+		path: 'launchers/linux-x86_64',
+		hash: '4d5ae1aca3cee75732be68eec6136d5fe64c4648973123c98bb0f65492825199'
+	}
+];
+
+async function hashFile(file, algo) {
+	const hash = crypto.createHash(algo).setEncoding('hex');
+	await pipeline(fse.createReadStream(file), hash);
+	return hash.read().toLowerCase();
+}
+
+async function downloaded(source, dest, hash) {
+	const exists = await fse.pathExists(dest);
+	if (exists && await hashFile(dest, 'sha256') === hash) {
+		return dest;
+	}
+	await fse.remove(dest);
+	const part = `${dest}.part`;
+	await fse.remove(part);
+	await download(source, path.dirname(part), {
+		filename: path.basename(part)
+	});
+	if (await hashFile(part, 'sha256') !== hash) {
+		await fse.remove(path);
+		throw new Error('Downloaded file has an unexpected hash');
+	}
+	await fse.rename(part, dest);
+	return dest;
+}
+
+const ensureLaunchers = onetime(async () => Promise.all(
+	launchers.map(async o => downloaded(o.url, o.path, o.hash))
+));
 
 async function exec(cmd, args = []) {
 	await execa(cmd, args, {
@@ -23,21 +108,15 @@ async function exec(cmd, args = []) {
 	});
 }
 
-async function packageJSON() {
-	packageJSON.json = packageJSON.json || readFile('package.json', 'utf8');
-	return JSON.parse(await packageJSON.json);
-}
+const packageJson = onetime(async () => fse.readFile('package.json', 'utf8'));
 
-async function babelrc() {
-	babelrc.json = babelrc.json || readFile('.babelrc', 'utf8');
-	return Object.assign(JSON.parse(await babelrc.json), {
-		babelrc: false
-	});
-}
+const babelrc = onetime(async () => fse.readFile('.babelrc', 'utf8'));
 
 async function babelTarget(src, srcOpts, dest, modules) {
+	await ensureLaunchers();
+
 	// Change module.
-	const babelOptions = await babelrc();
+	const babelOptions = {...JSON.parse(await babelrc()), babelrc: false};
 	for (const preset of babelOptions.presets) {
 		if (preset[0] === '@babel/preset-env') {
 			preset[1].modules = modules;
@@ -71,13 +150,24 @@ async function babelTarget(src, srcOpts, dest, modules) {
 	}
 
 	// Read the package JSON.
-	const pkg = await packageJSON();
+	const pkg = JSON.parse(await packageJson());
+
+	const launchersData = {};
+	for (const {name, path} of launchers) {
+		// eslint-disable-next-line no-await-in-loop
+		launchersData[name] = (await deflateRaw(await fse.readFile(path)))
+			.toString('base64');
+	}
 
 	// Filter meta data file and create replace transform.
-	const filterMeta = gulpFilter(['*/meta.ts'], {restore: true});
+	const filterMeta = gulpFilter([
+		'*/meta.ts',
+		'*/launchers.ts'
+	], {restore: true});
 	const filterMetaReplaces = [
 		["'@VERSION@'", JSON.stringify(pkg.version)],
-		["'@NAME@'", JSON.stringify(pkg.name)]
+		["'@NAME@'", JSON.stringify(pkg.name)],
+		["'@LAUNCHERS@'", JSON.stringify(launchersData)]
 	].map(v => gulpReplace(...v));
 
 	await pipeline(...[
@@ -142,10 +232,17 @@ gulp.task('clean:projectors', async () => {
 	]);
 });
 
+gulp.task('clean:bundles', async () => {
+	await del([
+		'spec/bundles'
+	]);
+});
+
 gulp.task('clean', gulp.parallel([
 	'clean:logs',
 	'clean:lib',
-	'clean:projectors'
+	'clean:projectors',
+	'clean:bundles'
 ]));
 
 // lint (watch)

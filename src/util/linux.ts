@@ -1,6 +1,7 @@
-import fse from 'fs-extra';
-
-import {once} from '../util';
+import {
+	once,
+	launcher
+} from '../util';
 
 /**
  * Find exact matches in data.
@@ -1131,13 +1132,25 @@ export function linux64PatchProjectorPathData(data: Buffer) {
 }
 
 /**
- * Attempt to patch Linux 64-bit projector offset code.
+ * Get Linux launcher for the specified type.
  *
- * @param file Projector file.
- * @deprecated No longer used in this package.
+ * @param type Executable type.
+ * @param resources File to optionally copy resources from.
+ * @returns Launcher data.
  */
-export async function linux64PatchProjectorOffset(file: string) {
-	// Read projector into buffer.
-	const data = await fse.readFile(file);
-	await fse.writeFile(file, linux64PatchProjectorOffsetData(data));
+export async function linuxLauncher(
+	type: 'i386' | 'x86_64',
+	resources: string | null = null
+) {
+	switch (type) {
+		case 'i386': {
+			return launcher('linux-i386');
+		}
+		case 'x86_64': {
+			return launcher('linux-x86_64');
+		}
+		default: {
+			throw new Error(`Invalid type: ${type}`);
+		}
+	}
 }

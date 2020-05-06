@@ -1,55 +1,51 @@
-import {
-	join as pathJoin
-} from 'path';
-
 import fse from 'fs-extra';
 
-import {
-	defaultFalse
-} from '../util';
 import {
 	linux64PatchWindowTitle,
 	linux64PatchMenuRemoveData,
 	linux64PatchProjectorOffsetData,
 	linux64PatchProjectorPathData
-} from '../utils/linux';
-
+} from '../../util/linux';
 import {
-	IProjectorLinuxOptions,
 	ProjectorLinux
-} from './linux';
-
-export interface IProjectorLinux64Options extends IProjectorLinuxOptions {
-
-	/**
-	 * Attempt to patch the projector offset reading code.
-	 * Necessary to work around broken projector logic in standalone players.
-	 * Set to true to automaticly patch the code if possible.
-	 *
-	 * @default false
-	 */
-	patchProjectorOffset?: boolean;
-}
+} from '../linux';
 
 /**
  * ProjectorLinux64 constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export class ProjectorLinux64 extends ProjectorLinux {
 	/**
+	 * Attempt to patch the window title with a custom title.
+	 * Set to a non-empty string to automatically patch the binary if possible.
+	 * Size limit depends on the size of the string being replaced.
+	 */
+	public patchWindowTitle: string | null = null;
+
+	/**
+	 * Attempt to patch out application menu.
+	 * Set to true to automatically patch the code if possible.
+	 */
+	public patchMenuRemove = false;
+
+	/**
+	 * Attempt to patch the projector path reading code.
+	 * Necessary to work around broken projector path resolving code.
+	 * Set to true to automatically patch the code if possible.
+	 * Supports projector versions 9+ (unnecessary for version 6).
+	 */
+	public patchProjectorPath = false;
+
+	/**
 	 * Attempt to patch the projector offset reading code.
 	 * Necessary to work around broken projector logic in standalone players.
-	 * Set to true to automaticly patch the code if possible.
-	 *
-	 * @default false
+	 * Set to true to automatically patch the code if possible.
 	 */
-	public patchProjectorOffset: boolean;
+	public patchProjectorOffset = false;
 
-	constructor(options: Readonly<IProjectorLinux64Options> = {}) {
-		super(options);
-
-		this.patchProjectorOffset = defaultFalse(options.patchProjectorOffset);
+	constructor(path: string) {
+		super(path);
 	}
 
 	/**
@@ -58,16 +54,13 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 * @returns Hex string.
 	 */
 	public get movieAppendMarker() {
-		return '563412FAFFFFFFFF';
+		return `${super.movieAppendMarker}FFFFFFFF`;
 	}
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected async _modifyPlayer(path: string, name: string) {
+	protected async _modifyPlayer() {
 		const {
 			patchWindowTitle,
 			patchMenuRemove,
@@ -86,8 +79,8 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		}
 
 		// Read the projector file.
-		const projectorPath = pathJoin(path, name);
-		let data = await fse.readFile(projectorPath);
+		const {path} = this;
+		let data = await fse.readFile(path);
 
 		// Attempt to patch the projector data.
 		if (patchWindowTitle) {
@@ -104,21 +97,19 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		}
 
 		// Write out patched data.
-		await fse.writeFile(projectorPath, data);
+		await fse.writeFile(path, data);
 	}
 
 	/**
 	 * Write out the projector movie file.
 	 *
-	 * @param path Save path.
-	 * @param name Save name.
+	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie(path: string, name: string) {
-		const data = await this.getMovieData();
-		if (!data) {
+	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+		if (!movieData) {
 			return;
 		}
 
-		await this._appendMovieData(pathJoin(path, name), data, 'lmd');
+		await this._appendMovieData(this.path, movieData, 'lmd');
 	}
 }

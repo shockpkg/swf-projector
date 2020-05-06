@@ -6,83 +6,26 @@ import {
 } from '@shockpkg/archive-files';
 import fse from 'fs-extra';
 
-import {
-	defaultNull,
-	trimExtension
-} from './util';
-
-export interface IProjectorOptions {
-
-	/**
-	 * Player file or directory.
-	 *
-	 * @default null
-	 */
-	player?: string | null;
-
-	/**
-	 * Movie file.
-	 *
-	 * @default null
-	 */
-	movieFile?: string | null;
-
-	/**
-	 * Movie data.
-	 *
-	 * @default null
-	 */
-	movieData?: Buffer | null;
-
-	/**
-	 * Path to hdiutil binary.
-	 *
-	 * @default null
-	 */
-	pathToHdiutil?: string | null;
-}
-
 /**
  * Projector constructor.
  *
- * @param options Options object.
+ * @param path Output path.
  */
 export abstract class Projector extends Object {
 	/**
-	 * Player file or directory.
-	 *
-	 * @default null
-	 */
-	public player: string | null;
-
-	/**
-	 * Movie file.
-	 *
-	 * @default null
-	 */
-	public movieFile: string | null;
-
-	/**
-	 * Movie data.
-	 *
-	 * @default null
-	 */
-	public movieData: Buffer | null;
-
-	/**
 	 * Path to hdiutil binary.
-	 *
-	 * @default null
 	 */
-	public pathToHdiutil: string | null;
+	public hdiutil: string | null = null;
 
-	constructor(options: Readonly<IProjectorOptions> = {}) {
+	/**
+	 * Output path.
+	 */
+	public readonly path: string;
+
+	constructor(path: string) {
 		super();
 
-		this.player = defaultNull(options.player);
-		this.movieFile = defaultNull(options.movieFile);
-		this.movieData = defaultNull(options.movieData);
-		this.pathToHdiutil = defaultNull(options.pathToHdiutil);
+		this.path = path;
 	}
 
 	/**
@@ -92,41 +35,6 @@ export abstract class Projector extends Object {
 	 */
 	public get movieAppendMarker() {
 		return '563412FA';
-	}
-
-	/**
-	 * Get movie data if any specified, from data or file.
-	 *
-	 * @returns Movie data or null.
-	 */
-	public async getMovieData() {
-		return this._dataFromBufferOrFile(
-			this.movieData,
-			this.movieFile
-		);
-	}
-
-	/**
-	 * Get the name of a projector trimming the extension, case insensitive.
-	 *
-	 * @param name Projector name.
-	 * @returns Projector name without extension.
-	 */
-	public getProjectorNameNoExtension(name: string) {
-		return trimExtension(name, this.projectorExtension, true);
-	}
-
-	/**
-	 * Get the player path, or throw.
-	 *
-	 * @returns Player path.
-	 */
-	public getPlayerPath() {
-		const {player} = this;
-		if (!player) {
-			throw new Error('Player must be set');
-		}
-		return player;
 	}
 
 	/**
@@ -150,9 +58,9 @@ export abstract class Projector extends Object {
 		}
 
 		if (r instanceof ArchiveHdi) {
-			const {pathToHdiutil} = this;
-			if (pathToHdiutil) {
-				r.mounterMac.hdiutil = pathToHdiutil;
+			const {hdiutil} = this;
+			if (hdiutil) {
+				r.mounterMac.hdiutil = hdiutil;
 			}
 			r.nobrowse = true;
 		}
@@ -160,15 +68,36 @@ export abstract class Projector extends Object {
 	}
 
 	/**
-	 * Write out the projector.
+	 * Write out projector with player and file.
 	 *
-	 * @param path Save path.
-	 * @param name Save name.
+	 * @param player Player path.
+	 * @param movieFile Movie file.
 	 */
-	public async write(path: string, name: string) {
-		await this._writePlayer(path, name);
-		await this._modifyPlayer(path, name);
-		await this._writeMovie(path, name);
+	public async withFile(player: string, movieFile: string | null) {
+		const movieData = movieFile ? await fse.readFile(movieFile) : null;
+		await this.withData(player, movieData);
+	}
+
+	/**
+	 * Write out projector with player and data.
+	 *
+	 * @param player Player path.
+	 * @param movieData Movie data.
+	 */
+	public async withData(player: string, movieData: Readonly<Buffer> | null) {
+		await this._checkOutput();
+		await this._writePlayer(player);
+		await this._modifyPlayer();
+		await this._writeMovie(movieData);
+	}
+
+	/**
+	 * Check that output path is valid, else throws.
+	 */
+	protected async _checkOutput() {
+		if (await fse.pathExists(this.path)) {
+			throw new Error(`Output path already exists: ${this.path}`);
+		}
 	}
 
 	/**
@@ -176,10 +105,10 @@ export abstract class Projector extends Object {
 	 * Format string characters:
 	 * - d: Movie data.
 	 * - m: Marker bytes.
-	 * - s: Size, LE.
-	 * - S: Size, BE.
-	 * - l: Size, LE, 64-bit.
-	 * - L: Size, BE, 64-bit.
+	 * - s: Size, 32LE.
+	 * - S: Size, 32BE.
+	 * - l: Size, 64LE.
+	 * - L: Size, 64BE.
 	 *
 	 * @param file File to append to.
 	 * @param data Movie data.
@@ -251,117 +180,30 @@ export abstract class Projector extends Object {
 	}
 
 	/**
-	 * Get data from buffer or file.
-	 *
-	 * @param data Data buffer.
-	 * @param file File path.
-	 * @returns Data buffer.
-	 */
-	protected async _dataFromBufferOrFile(
-		data: Readonly<Buffer> | null,
-		file: string | null
-	) {
-		if (data) {
-			return data;
-		}
-		if (file) {
-			return fse.readFile(file);
-		}
-		return null;
-	}
-
-	/**
-	 * Get data from value or file.
-	 *
-	 * @param data Data value.
-	 * @param file File path.
-	 * @param newline Newline string.
-	 * @param encoding String encoding.
-	 * @returns Data buffer.
-	 */
-	protected async _dataFromValueOrFile(
-		data: Readonly<string[]> | string | Readonly<Buffer> | null,
-		file: string | null,
-		newline: string | null,
-		encoding: BufferEncoding | null
-	) {
-		let str: string | null = null;
-		if (typeof data === 'string') {
-			str = data;
-		}
-		else if (Array.isArray(data)) {
-			if (newline === null) {
-				throw new Error('New line delimiter required');
-			}
-			str = data.join(newline);
-		}
-		else {
-			return this._dataFromBufferOrFile(data as any, file);
-		}
-		if (!encoding) {
-			throw new Error('String data encoding required');
-		}
-		return Buffer.from(str, encoding);
-	}
-
-	/**
-	 * Maybe write file if data is not null.
-	 *
-	 * @param data Data to maybe write.
-	 * @param path Output path.
-	 * @param remove Optionally remove path first.
-	 */
-	protected async _maybeWriteFile(
-		data: Readonly<Buffer> | null,
-		path: string,
-		remove = false
-	) {
-		if (!data) {
-			return;
-		}
-		if (remove) {
-			await fse.remove(path);
-		}
-		await fse.writeFile(path, data);
-	}
-
-	/**
 	 * Projector file extension.
 	 *
 	 * @returns File extension.
 	 */
-	public abstract get projectorExtension(): string;
+	public abstract get extension(): string;
 
 	/**
 	 * Write the projector player.
 	 *
-	 * @param path Save path.
-	 * @param name Save name.
+	 * @param player Player path.
 	 */
-	protected abstract async _writePlayer(
-		path: string,
-		name: string
-	): Promise<void>;
+	protected abstract async _writePlayer(player: string): Promise<void>;
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param path Save path.
-	 * @param name Save name.
 	 */
-	protected abstract async _modifyPlayer(
-		path: string,
-		name: string
-	): Promise<void>;
+	protected abstract async _modifyPlayer(): Promise<void>;
 
 	/**
 	 * Write out the projector movie file.
 	 *
-	 * @param path Save path.
-	 * @param name Save name.
+	 * @param movieData Movie data or null.
 	 */
 	protected abstract async _writeMovie(
-		path: string,
-		name: string
+		movieData: Readonly<Buffer> | null
 	): Promise<void>;
 }

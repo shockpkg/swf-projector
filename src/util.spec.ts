@@ -5,31 +5,27 @@ import {
 import {
 	Manager
 } from '@shockpkg/core';
-import fse from 'fs-extra';
 import execa from 'execa';
 
 import {
-	infoPlistReplace,
 	pathRelativeBase,
 	trimExtension,
 	once
 } from './util';
 
 export const platformIsMac = process.platform === 'darwin';
-export const platformIsWindows = (
-	process.platform === 'win32' ||
-	(process.platform as string) === 'win64'
-);
 
 // eslint-disable-next-line no-process-env
-export const envFastTest = process.env.SWF_PROJECTOR_FAST_TEST || null;
+const envTest = process.env.SWF_PROJECTOR_TEST || null;
 
 export function shouldTest(name: string) {
-	return !envFastTest || envFastTest === name;
+	return !envTest || (
+		envTest.toLowerCase().split(',')
+			.includes(name.toLowerCase())
+	);
 }
 
 export const specFixturesPath = pathJoin('spec', 'fixtures');
-export const specProjectorsPath = pathJoin('spec', 'projectors');
 
 export function fixtureFile(name: string) {
 	return pathJoin(specFixturesPath, name);
@@ -39,13 +35,6 @@ export async function getPackageFile(pkg: string) {
 	return (new Manager()).with(
 		async manager => manager.packageInstallFile(pkg)
 	);
-}
-
-export async function cleanProjectorDir(...path: string[]) {
-	const dir = pathJoin(specProjectorsPath, ...path);
-	await fse.remove(dir);
-	await fse.ensureDir(dir);
-	return dir;
 }
 
 let getInstalledPackagesCache: string[] | null = null;
@@ -59,10 +48,59 @@ export function getInstalledPackagesSync() {
 	return getInstalledPackagesCache;
 }
 
-const xmlHeader = '<?xml version="1.0" encoding="UTF-8"?>';
-const xmlDoctype = '<!DOCTYPE plist PUBLIC "" "">';
+export function versionZlib(version: number[]) {
+	return version[0] >= 6;
+}
 
-const createPlist = (xml: string) => `${xmlHeader}\n${xmlDoctype}\n${xml}`;
+export function versionLzma(version: number[]) {
+	return version[0] > 11 || (version[0] === 11 && version[1] >= 1);
+}
+
+export function simpleSwf(zlib: boolean, lzma: boolean) {
+	if (lzma) {
+		return 'swf14-lzma.swf';
+	}
+	if (zlib) {
+		return 'swf6-zlib.swf';
+	}
+	return 'swf3.swf';
+}
+
+export function packageInfo(name: string) {
+	const m = name.match(/^flash-player-([\d.]+)-(.*)-sa(-debug)?$/);
+	if (!m) {
+		return null;
+	}
+
+	const version = m[1].split('.').map(Number);
+	const zlib = versionZlib(version);
+	const lzma = versionLzma(version);
+	return {
+		name,
+		version,
+		platform: m[2],
+		debug: !!m[3],
+		zlib,
+		lzma
+	};
+}
+
+export function getInstalledPackagesInfoSync() {
+	const r = [];
+	for (const name of getInstalledPackagesSync()) {
+		const info = packageInfo(name);
+		if (info) {
+			r.push(info);
+		}
+	}
+
+	r.sort((a, b) => (+a.debug) - (+b.debug));
+	for (let i = 4; i--;) {
+		r.sort((a, b) => (a.version[i] || 0) - (b.version[i] || 0));
+	}
+
+	return r;
+}
 
 describe('util', () => {
 	describe('pathRelativeBase', () => {
@@ -97,52 +135,6 @@ describe('util', () => {
 		it('nocase', () => {
 			expect(trimExtension('test.txt', '.TXT', true)).toBe('test');
 			expect(trimExtension('test.TXT', '.txt', true)).toBe('test');
-		});
-	});
-
-	describe('infoPlistReplace', () => {
-		it('value', () => {
-			expect(infoPlistReplace(
-				createPlist([
-					'<plist version="1.0">',
-					'<dict>',
-					'<key>foo</key>',
-					'<string>bar</string>',
-					'</dict>',
-					'</plist>'
-				].join('\n')),
-				'foo',
-				'<string>baz</string>'
-			)).toBe(createPlist([
-				'<plist version="1.0">',
-				'<dict>',
-				'<key>foo</key>',
-				'<string>baz</string>',
-				'</dict>',
-				'</plist>'
-			].join('\n')));
-		});
-
-		it('type', () => {
-			expect(infoPlistReplace(
-				createPlist([
-					'<plist version="1.0">',
-					'<dict>',
-					'<key>foo</key>',
-					'<string>bar</string>',
-					'</dict>',
-					'</plist>'
-				].join('\n')),
-				'foo',
-				'<true/>'
-			)).toBe(createPlist([
-				'<plist version="1.0">',
-				'<dict>',
-				'<key>foo</key>',
-				'<true/>',
-				'</dict>',
-				'</plist>'
-			].join('\n')));
 		});
 	});
 
