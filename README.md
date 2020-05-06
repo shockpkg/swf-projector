@@ -18,6 +18,8 @@ Creates Flash projectors from a standalone Flash Player.
 
 Takes a standalone Flash Player file, a directory containing a standalone Flash Player, or a shockpkg standalone Flash Player package file.
 
+Can also create bundles that group the projector and resources in a directory beside a single launcher for Windows and Linux or within an application bundle for macOS.
+
 Reading DMG projector packages is only supported on macOS.
 
 
