@@ -51,6 +51,7 @@ describe('bundle/mac/app', () => {
 					b.projector.pkgInfoFile = fixtureFile('PkgInfo');
 					b.projector.binaryName = 'application';
 					b.projector.bundleName = 'App Bundle Name';
+					b.projector.removeInfoPlistStrings = true;
 					await b.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf'),

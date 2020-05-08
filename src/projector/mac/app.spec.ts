@@ -112,6 +112,7 @@ describe('projector/mac/app', () => {
 					p.pkgInfoFile = fixtureFile('PkgInfo');
 					p.binaryName = 'application';
 					p.bundleName = 'App Bundle Name';
+					p.removeInfoPlistStrings = true;
 					p.removeCodeSignature = true;
 					await p.withFile(
 						await getPlayer(),

@@ -100,6 +100,11 @@ export class ProjectorMacApp extends ProjectorMac {
 	public removeFileAssociations = false;
 
 	/**
+	 * Remove InfoPlist.strings localization files if present.
+	 */
+	public removeInfoPlistStrings = false;
+
+	/**
 	 * Remove the code signature.
 	 * Modern projectors are codesigned so that any changes breaks it.
 	 * No signature is better than a broken one.
@@ -354,7 +359,12 @@ export class ProjectorMacApp extends ProjectorMac {
 	protected async _writePlayerArchive(player: string) {
 		const extensionLower = this.extension.toLowerCase();
 		let playerName = '';
-		const {path} = this;
+		const {
+			path,
+			removeInfoPlistStrings
+		} = this;
+		const infoPlistStrings =
+			/^Contents\/Resources\/[^/]+\.lproj\/InfoPlist\.strings$/i;
 
 		const archive = await this.openAsArchive(player);
 		await archive.read(async entry => {
@@ -386,6 +396,11 @@ export class ProjectorMacApp extends ProjectorMac {
 			const rel = pathRelativeBase(volumePath, base);
 			if (rel === null) {
 				throw new Error('Internal error');
+			}
+
+			// Skip if InfoPlist.strings and excluding those.
+			if (removeInfoPlistStrings && infoPlistStrings.test(rel)) {
+				return;
 			}
 
 			const extractPath = pathJoin(path, rel);
