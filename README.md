@@ -82,6 +82,9 @@ projector.bundleName = 'application';
 // Optionally remove file associations.
 projector.removeFileAssociations = true;
 
+// Optionally exclude InfoPlist.strings files.
+projector.removeInfoPlistStrings = true;
+
 // Optionally remove now-broken signature.
 projector.removeCodeSignature = true;
 
