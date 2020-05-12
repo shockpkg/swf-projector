@@ -201,7 +201,7 @@ async function babelTarget(src, srcOpts, dest, modules) {
 
 async function eslint(strict) {
 	try {
-		await exec('eslint', ['--ext', 'js,mjs,jsx,mjsx,ts,tsx', '.']);
+		await exec('eslint', ['.']);
 	}
 	catch (err) {
 		if (strict) {

@@ -569,6 +569,13 @@ rules:
 
 overrides:
 - files:
+  - '*.js'
+  - '*.jsx'
+  - '*.mjs'
+  - '*.mjsx'
+  - '*.ts'
+  - '*.tsx'
+- files:
   - 'gulpfile.babel.js'
   rules:
     import/no-extraneous-dependencies:
