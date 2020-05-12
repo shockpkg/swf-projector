@@ -19,7 +19,7 @@ import {
 } from './32';
 
 describe('bundle/linux/32', () => {
-	describe('ProjectorLinux32', () => {
+	describe('BundleLinux32', () => {
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
 				cleanBundlesDir('linux32', pkg.name, d);

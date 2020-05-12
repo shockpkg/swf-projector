@@ -19,7 +19,7 @@ import {
 } from './64';
 
 describe('bundle/linux/64', () => {
-	describe('ProjectorLinux64', () => {
+	describe('BundleLinux64', () => {
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
 				cleanBundlesDir('linux64', pkg.name, d);

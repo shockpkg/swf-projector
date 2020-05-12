@@ -20,7 +20,7 @@ import {
 } from './32';
 
 describe('bundle/windows/32', () => {
-	describe('ProjectorWindows32', () => {
+	describe('BundleWindows32', () => {
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
 				cleanBundlesDir('windows32', pkg.name, d);
