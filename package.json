@@ -52,7 +52,7 @@
 		"download": "^8.0.0",
 		"eslint": "^7.0.0",
 		"eslint-plugin-import": "^2.20.2",
-		"eslint-plugin-jsdoc": "^25.2.1",
+		"eslint-plugin-jsdoc": "^25.3.0",
 		"execa": "^4.0.1",
 		"gulp": "^4.0.2",
 		"gulp-babel": "^8.0.0",
@@ -67,7 +67,7 @@
 		"nodemon": "^2.0.3",
 		"onetime": "^5.1.0",
 		"source-map-support": "^0.5.19",
-		"typescript": "^3.8.3"
+		"typescript": "^3.9.2"
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.9.6",
