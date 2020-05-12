@@ -51,6 +51,30 @@ export interface IPeResourceReplace {
 }
 
 /**
+ * Parse PE version string to integers (MS then LS bits) or null.
+ *
+ * @param version Version string.
+ * @returns Version integers ([MS, LS]) or null.
+ */
+export function peVersionInts(version: string): [number, number] | null {
+	const parts = version.split(/[.,]/);
+	const numbers = [];
+	for (const part of parts) {
+		const n = /^\d+$/.test(part) ? +part : NaN;
+		if (!(n >= 0 && n <= 0xFFFF)) {
+			return null;
+		}
+		numbers.push(n);
+	}
+	return numbers.length ? [
+		// eslint-disable-next-line no-bitwise
+		(((numbers[0] || 0) << 16) | (numbers[1] || 0)) >>> 0,
+		// eslint-disable-next-line no-bitwise
+		(((numbers[2] || 0) << 16) | (numbers[3] || 0)) >>> 0
+	] : null;
+}
+
+/**
  * Replace resources in Windows PE file.
  *
  * @param path File path.
@@ -102,6 +126,26 @@ export async function peResourceReplace(
 			for (const language of languages) {
 				versionInfo.setStringValues(language, versionStrings);
 			}
+
+			// Update integer values from parsed strings if possible.
+			const {FileVersion, ProductVersion} = versionStrings;
+			if (FileVersion) {
+				const uints = peVersionInts(FileVersion);
+				if (uints) {
+					const [ms, ls] = uints;
+					versionInfo.fixedInfo.fileVersionMS = ms;
+					versionInfo.fixedInfo.fileVersionLS = ls;
+				}
+			}
+			if (ProductVersion) {
+				const uints = peVersionInts(ProductVersion);
+				if (uints) {
+					const [ms, ls] = uints;
+					versionInfo.fixedInfo.productVersionMS = ms;
+					versionInfo.fixedInfo.productVersionLS = ls;
+				}
+			}
+
 			versionInfo.outputToResourceEntries(res.entries);
 		}
 	}
