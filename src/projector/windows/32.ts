@@ -17,7 +17,7 @@ export class ProjectorWindows32 extends ProjectorWindows {
 	 * Attempt to patch the window title with a custom title.
 	 * Set to a non-empty string to automatically patch the binary if possible.
 	 * There is a size limit if the title is stored in the .rdata section.
-	 * Such a size limit depends on the size of the string being replaced.
+	 * That size limit depends on the size of the string being replaced.
 	 */
 	public patchWindowTitle: string | null = null;
 
