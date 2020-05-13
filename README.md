@@ -51,6 +51,9 @@ projector.versionStrings = {
 	Comments: 'Custom Comments'
 };
 
+// Optionally patch window title.
+projector.patchWindowTitle = 'Custom Title';
+
 // Optionally remove now-broken signature.
 projector.removeCodeSignature = true;
 
