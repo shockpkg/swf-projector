@@ -48,6 +48,7 @@ describe('bundle/windows/32', () => {
 					const b = new BundleWindows32(dest);
 					b.projector.iconFile = fixtureFile('icon.ico');
 					b.projector.versionStrings = versionStrings;
+					b.projector.patchWindowTitle = 'Custom Title';
 					b.projector.removeCodeSignature = true;
 					await b.withFile(
 						await getPlayer(),

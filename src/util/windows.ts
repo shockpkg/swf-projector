@@ -1,4 +1,5 @@
 import {
+	checksumUpdate,
 	signatureGet,
 	signatureSet
 } from 'portable-executable-signature';
@@ -161,6 +162,249 @@ export async function peResourceReplace(
 
 	// Write updated EXE file.
 	await fse.writeFile(path, Buffer.from(exeData));
+}
+
+/**
+ * Search data for data, yields indexes.
+ *
+ * @param data Data to search.
+ * @param find Data to find.
+ */
+function * dataIndexes(data: Readonly<Buffer>, find: Readonly<Buffer>) {
+	for (let index = -1; ;) {
+		index = data.indexOf(find as Buffer, index + 1);
+		if (index < 0) {
+			return;
+		}
+		yield index;
+	}
+}
+
+/**
+ * Search data for string, yields indexes and strings.
+ *
+ * @param data Data to search.
+ * @param pre String prefix to search for.
+ * @param enc String encoding.
+ * @param reg Regex strings must match.
+ */
+function * dataStrings(
+	data: Readonly<Buffer>,
+	pre: string,
+	enc: BufferEncoding,
+	reg: RegExp | null = null
+) {
+	const nulled = Buffer.from('\0', enc);
+	const bytes = nulled.length;
+	const preSize = pre.length * bytes;
+	for (const index of dataIndexes(data, Buffer.from(pre, enc))) {
+		let more = 0;
+		for (more of dataIndexes(data.slice(index + preSize), nulled)) {
+			if (!(more % bytes)) {
+				break;
+			}
+		}
+		const stringData = data.slice(index, index + preSize + more);
+		const string = stringData.toString(enc);
+		if (reg && !reg.test(string)) {
+			continue;
+		}
+		yield {
+			index,
+			data: stringData,
+			string
+		};
+	}
+}
+
+/**
+ * List PE file sections.
+ *
+ * @param data PE data.
+ * @returns PE sections.
+ */
+function windowsPeSections(data: Readonly<Buffer>) {
+	return ResEditNtExecutable.from(bufferToArrayBuffer(data), {
+		ignoreCert: true
+	})
+		.getAllSections()
+		.map(({info}) => ({
+			name: info.name,
+			offset: info.pointerToRawData,
+			size: info.sizeOfRawData
+		}));
+}
+
+/**
+ * Attempt to replace Windows window title by modifying the .rdata section.
+ * Throws an error if replacement title larger than current title.
+ *
+ * @param data Projector data.
+ * @param title Replacement title.
+ * @returns Patched data or null if no patch found.
+ */
+function windowsPatchWindowTitleRdata(data: Readonly<Buffer>, title: string) {
+	const enc = 'utf16le';
+
+	// Locate the rdata section in the buffer.
+	let rdataInfo = null;
+	for (const info of windowsPeSections(data)) {
+		if (info.name === '.rdata') {
+			rdataInfo = info;
+		}
+	}
+	if (!rdataInfo) {
+		return null;
+	}
+	const rdata = data.slice(
+		rdataInfo.offset,
+		rdataInfo.offset + rdataInfo.size
+	);
+
+	// Search for known titles (only one format known).
+	let found: [number, number] | null = null;
+	for (const [pre, reg] of [
+		['Adobe Flash Player ', /^Adobe Flash Player \d+([.,]\d+)*$/]
+	] as [string, RegExp][]) {
+		for (const {index, string, data} of dataStrings(rdata, pre, enc, reg)) {
+			// Only one match expected.
+			if (found) {
+				throw new Error(
+					`Multiple window titles found: ${JSON.stringify(string)}`
+				);
+			}
+
+			// Check if title can replace string.
+			if (title.length > string.length) {
+				throw new Error(
+					`Replacement window title longer that ${string.length}`
+				);
+			}
+
+			// Remember index for later.
+			found = [index, data.length];
+		}
+
+		// Stop searching once a known title is found.
+		if (found) {
+			break;
+		}
+	}
+
+	// If no match found, no title to replace.
+	if (!found) {
+		return null;
+	}
+
+	// Copy data and replace the title.
+	const r = Buffer.concat([data as Buffer]);
+	const replacing = r.slice(
+		rdataInfo.offset + found[0],
+		rdataInfo.offset + found[0] + found[1]
+	);
+	replacing.fill(0);
+	replacing.write(title, enc);
+
+	// Update checksum.
+	checksumUpdate(r, true);
+	return r;
+}
+
+/**
+ * Attempt to replace Windows window title by modifying the resources.
+ *
+ * @param data Projector data.
+ * @param title Replacement title.
+ * @returns Patched data or null if no patch found.
+ */
+function windowsPatchWindowTitleRsrc(data: Readonly<Buffer>, title: string) {
+	// Read EXE file and remove signature if present.
+	const signedData = signatureGet(data);
+	let exeData = signatureSet(data, null, true, true);
+
+	// Parse resources.
+	const exe = ResEditNtExecutable.from(exeData);
+	const res = ResEditNtExecutableResource.from(exe);
+
+	// Match all known titles.
+	const titleMatch =
+		/^((Shockwave )?Flash|(Adobe|Macromedia) Flash Player \d+([.,]\d+)*)$/;
+
+	// Find ID of string table with the title and ID of title if present.
+	const typeStringTable = 6;
+	let titleStringTableId = null;
+	let titleStringTableEntryId = null;
+	for (const entry of res.entries) {
+		if (entry.type !== typeStringTable) {
+			continue;
+		}
+		const table = ResEditResource.StringTable.fromEntries(entry.lang, [
+			entry
+		]);
+		for (const {text} of table.getAllStrings()) {
+			if (text.startsWith('Projector ')) {
+				titleStringTableId = entry.id;
+				break;
+			}
+		}
+		if (titleStringTableId === null) {
+			continue;
+		}
+		for (const {id, text} of table.getAllStrings()) {
+			if (titleMatch.test(text)) {
+				titleStringTableEntryId = id;
+				break;
+			}
+		}
+		break;
+	}
+	if (titleStringTableId === null || titleStringTableEntryId === null) {
+		return null;
+	}
+
+	// Replace all the entries.
+	for (const entry of res.entries) {
+		if (entry.type !== typeStringTable || entry.id !== titleStringTableId) {
+			continue;
+		}
+		const table = ResEditResource.StringTable.fromEntries(entry.lang, [
+			entry
+		]);
+		table.setById(titleStringTableEntryId, title);
+		table.replaceStringEntriesForExecutable(res);
+	}
+
+	// Update resources.
+	res.outputResource(exe);
+	exeData = exe.generate();
+
+	// Add back signature if not removing.
+	if (signedData) {
+		exeData = signatureSet(exeData, signedData, true, true);
+	}
+
+	return Buffer.from(exeData);
+}
+
+/**
+ * Attempt to replace Windows window title.
+ *
+ * @param data Projector data.
+ * @param title Replacement title.
+ * @returns Patched data.
+ */
+export function windowsPatchWindowTitle(data: Readonly<Buffer>, title: string) {
+	const patchRdata = windowsPatchWindowTitleRdata(data, title);
+	if (patchRdata) {
+		return patchRdata;
+	}
+
+	const patchResource = windowsPatchWindowTitleRsrc(data, title);
+	if (patchResource) {
+		return patchResource;
+	}
+
+	throw new Error('Failed to patch the window title');
 }
 
 /**

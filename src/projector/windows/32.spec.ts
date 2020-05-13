@@ -90,6 +90,19 @@ describe('projector/windows/32', () => {
 					);
 				});
 
+				it('title', async () => {
+					const dir = await getDir('title');
+					const dest = pathJoin(dir, 'application.exe');
+
+					const p = new ProjectorWindows32(dest);
+					p.patchWindowTitle = 'Custom Title';
+					p.removeCodeSignature = true;
+					await p.withFile(
+						await getPlayer(),
+						fixtureFile('swf3.swf')
+					);
+				});
+
 				it('resedit', async () => {
 					const dir = await getDir('resedit');
 					const dest = pathJoin(dir, 'application.exe');
@@ -113,6 +126,7 @@ describe('projector/windows/32', () => {
 					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows32(dest);
+					p.removeCodeSignature = true;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
@@ -129,6 +143,7 @@ describe('projector/windows/32', () => {
 					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows32(dest);
+					p.removeCodeSignature = true;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
