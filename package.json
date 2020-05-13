@@ -44,7 +44,7 @@
 		"@shockpkg/core": "^1.9.6",
 		"@types/fs-extra": "^8.1.0",
 		"@types/jasmine": "^3.5.10",
-		"@types/node": "^13.13.5",
+		"@types/node": "^14.0.1",
 		"@typescript-eslint/eslint-plugin": "^2.33.0",
 		"@typescript-eslint/parser": "^2.33.0",
 		"babel-plugin-esm-resolver": "^2.1.0",
