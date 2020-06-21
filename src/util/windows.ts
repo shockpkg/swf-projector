@@ -11,6 +11,10 @@ import {
 	launcher
 } from '../util';
 
+import {
+	findExact
+} from './internal/patch';
+
 const ResEditNtExecutable =
 	resedit.NtExecutable ||
 	(resedit as any).default.NtExecutable;
@@ -165,22 +169,6 @@ export async function peResourceReplace(
 }
 
 /**
- * Search data for data, yields indexes.
- *
- * @param data Data to search.
- * @param find Data to find.
- */
-function * dataIndexes(data: Readonly<Buffer>, find: Readonly<Buffer>) {
-	for (let index = -1; ;) {
-		index = data.indexOf(find as Buffer, index + 1);
-		if (index < 0) {
-			return;
-		}
-		yield index;
-	}
-}
-
-/**
  * Search data for string, yields indexes and strings.
  *
  * @param data Data to search.
@@ -197,9 +185,9 @@ function * dataStrings(
 	const nulled = Buffer.from('\0', enc);
 	const bytes = nulled.length;
 	const preSize = pre.length * bytes;
-	for (const index of dataIndexes(data, Buffer.from(pre, enc))) {
+	for (const index of findExact(data, Buffer.from(pre, enc))) {
 		let more = 0;
-		for (more of dataIndexes(data.slice(index + preSize), nulled)) {
+		for (more of findExact(data.slice(index + preSize), nulled)) {
 			if (!(more % bytes)) {
 				break;
 			}
