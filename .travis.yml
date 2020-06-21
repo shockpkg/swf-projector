@@ -141,19 +141,17 @@ matrix:
     #   flash-player-10.0.45.2-mac-sa-debug
     # First code-signed:
     #   flash-player-10.1.53.64-mac-sa
-    # Revoked cert:
+    # Last ppc+i386, revoked cert:
     #   flash-player-10.1.102.64-mac-sa
-    # First 10.2, revoked cert:
+    # First i386, first 10.2, revoked cert:
     #   flash-player-10.2.152.26-mac-sa
-    # Last PPC:
-    #   flash-player-10.2.153.1-mac-sa
     # Last 10.2, revoked cert, no PPC:
     #   flash-player-10.2.159.1-mac-sa
     # First 10.3, not code-signed:
     #   flash-player-10.3.181.14-mac-sa
-    # Last 10.3, code-signed:
+    # Last i386, last 10.3, code-signed:
     #   flash-player-10.3.183.90-mac-sa
-    # Only 11.0, first i386/x86_64, revoked cert:
+    # First i386+x86_64, only 11.0, revoked cert:
     #   flash-player-11.0.1.152-mac-sa
     # First 11.1:
     #   flash-player-11.1.102.55-mac-sa
@@ -161,6 +159,10 @@ matrix:
     #   flash-player-15.0.0.152-mac-sa-debug
     # First signature V2:
     #   flash-player-15.0.0.189-mac-sa-debug
+    # Last i386+x86_64:
+    #   flash-player-32.0.0.238-mac-sa
+    # First x86_64:
+    #   flash-player-32.0.0.255-mac-sa
     # Latest:
     #   flash-player-32.0.0.387-mac-sa
     #   flash-player-32.0.0.387-mac-sa-debug
@@ -176,7 +178,6 @@ matrix:
         flash-player-10.1.53.64-mac-sa
         flash-player-10.1.102.64-mac-sa
         flash-player-10.2.152.26-mac-sa
-        flash-player-10.2.153.1-mac-sa
         flash-player-10.2.159.1-mac-sa
         flash-player-10.3.181.14-mac-sa
         flash-player-10.3.183.90-mac-sa
@@ -184,6 +185,8 @@ matrix:
         flash-player-11.1.102.55-mac-sa
         flash-player-15.0.0.152-mac-sa-debug
         flash-player-15.0.0.189-mac-sa-debug
+        flash-player-32.0.0.238-mac-sa
+        flash-player-32.0.0.255-mac-sa
         flash-player-32.0.0.387-mac-sa
         flash-player-32.0.0.387-mac-sa-debug"
 
