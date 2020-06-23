@@ -82,7 +82,10 @@ projector.pkgInfoFile = 'PkgInfo';
 // Optionally update bundle name.
 projector.bundleName = 'application';
 
-// Optionally remove file associations.
+// Optionally patch window title (currently requires version 11+).
+projector.patchWindowTitle = 'Custom Title';
+
+// Optionally remove file associations from Info.plist.
 projector.removeFileAssociations = true;
 
 // Optionally exclude InfoPlist.strings files.

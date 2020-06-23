@@ -32,7 +32,7 @@ export function * findFuzzy(
 	from = 0
 ) {
 	const end = data.length - find.length;
-	for (let i = from; i < end; i++) {
+	for (let i = from; i <= end; i++) {
 		let found = true;
 		for (let j = 0; j < find.length; j++) {
 			const b = find[j];
@@ -72,7 +72,7 @@ export function writeFuzzy(
  * Returns slice of the buffer.
  *
  * @param data The buffer.
- * @param offset OFfset of the string.
+ * @param offset Offset of the string.
  * @param includeNull Optionally include null byte.
  * @param includeAlign Optionally include allignment bytes.
  * @returns Buffer slice.

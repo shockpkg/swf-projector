@@ -30,7 +30,7 @@ export function linuxPatchWindowTitle(data: Buffer, title: string) {
 	const matched = (cstr: Buffer) => {
 		if (!(titleData.length < cstr.length)) {
 			throw new Error(
-				`Replacement window title larger that ${cstr.length - 1}`
+				`Replacement window title larger than ${cstr.length - 1}`
 			);
 		}
 		targets.push(cstr);
@@ -309,6 +309,7 @@ const linuxPatchMenuRemovePatches = once(() => [
 		].join(' '))
 	}]
 ]);
+/* eslint-enable no-multi-spaces, line-comment-position, no-inline-comments */
 
 /**
  * Attempt to patch Linux 32-bit menu showing code.

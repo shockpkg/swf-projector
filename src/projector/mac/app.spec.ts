@@ -120,6 +120,21 @@ describe('projector/mac/app', () => {
 					);
 				});
 
+				if (pkg.version[0] >= 11) {
+					it('title', async () => {
+						const dir = await getDir('title');
+						const dest = pathJoin(dir, 'application.app');
+
+						const p = new ProjectorMacApp(dest);
+						p.patchWindowTitle = 'Custom Title';
+						p.removeCodeSignature = true;
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf3.swf')
+						);
+					});
+				}
+
 				if (pkg.version[0] < 6) {
 					return;
 				}

@@ -21,6 +21,7 @@ import {
 } from '../../util';
 import {
 	machoAppUnsign,
+	machoAppWindowTitle,
 	plistRead,
 	plistParse,
 	infoPlistBundleExecutableGet,
@@ -115,6 +116,14 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * Fix broken icon paths in Info.plist (old projectors).
 	 */
 	public fixBrokenIconPaths = false;
+
+	/**
+	 * Attempt to patch the window title with a custom title.
+	 * Set to a non-empty string to automatically patch the binary if possible.
+	 * Size limit depends on the size of the string being replaced.
+	 * Currently supports versions 11+.
+	 */
+	public patchWindowTitle: string | null = null;
 
 	constructor(path: string) {
 		super(path);
@@ -418,10 +427,35 @@ export class ProjectorMacApp extends ProjectorMac {
 	protected async _modifyPlayer() {
 		await this._removeCodeSignature();
 		await this._fixPlayer();
+		await this._patchBinary();
 		await this._replaceIcon();
 		await this._replacePkgInfo();
 		await this._updateContentPaths();
 		await this._updateInfoPlist();
+	}
+
+	/**
+	 * Patch the main binary.
+	 */
+	protected async _patchBinary() {
+		const {patchWindowTitle} = this;
+
+		// Skip if no patching was requested.
+		if (!patchWindowTitle) {
+			return;
+		}
+
+		// Read the projector binary.
+		const plist = await this._readInfoPlist();
+		const executableName = infoPlistBundleExecutableGet(plist);
+		const binaryPath = this.getBinaryPath(executableName);
+		let data = await fse.readFile(binaryPath);
+
+		// Patch the binary data.
+		data = machoAppWindowTitle(data, patchWindowTitle);
+
+		// Write the patched binary.
+		await fse.writeFile(binaryPath, data);
 	}
 
 	/**
