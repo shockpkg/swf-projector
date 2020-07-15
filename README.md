@@ -209,6 +209,18 @@ await bundle.withFile('player.tar.gz', 'movie.swf', async b => {
 
 # Notes
 
+## Windows
+
+### Option: `patchWindowTitle`
+
+An option to replace the window title stored in the binary. Size cannot be larger than the title being replaced in the binary.
+
+## Mac App
+
+### Option: `patchWindowTitle`
+
+An option to set a custom window title in the binary. Size cannot be larger than the string being replaced in the binary.
+
 ## Linux
 
 ### Option: `patchWindowTitle`
