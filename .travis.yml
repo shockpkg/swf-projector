@@ -9,8 +9,8 @@ matrix:
     - NO_LINT=1
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
-        flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-windows-sa"
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-windows-sa"
 
   - os: osx
     node_js: v10.0.0
@@ -18,9 +18,9 @@ matrix:
     - NO_LINT=1
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
-        flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-windows-sa
-        flash-player-32.0.0.387-mac-sa"
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-windows-sa
+        flash-player-32.0.0.403-mac-sa"
 
   - os: windows
     node_js: v10.0.0
@@ -28,33 +28,33 @@ matrix:
     - NO_LINT=1
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
-        flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-windows-sa"
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-windows-sa"
 
   - os: linux
     node_js: v14.2.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
-        flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-windows-sa"
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-windows-sa"
 
   - os: osx
     node_js: v14.2.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
-        flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-windows-sa
-        flash-player-32.0.0.387-mac-sa"
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-windows-sa
+        flash-player-32.0.0.403-mac-sa"
 
   - os: windows
     node_js: v14.2.0
     env:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
-        flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-windows-sa"
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-windows-sa"
 
   # Test other Windows versions:
   - os: windows
@@ -96,8 +96,8 @@ matrix:
     # First 11.1:
     #   flash-player-11.1.102.55-windows-32bit-sa
     # Latest:
-    #   flash-player-32.0.0.387-windows-sa
-    #   flash-player-32.0.0.387-windows-sa-debug
+    #   flash-player-32.0.0.403-windows-sa
+    #   flash-player-32.0.0.403-windows-sa-debug
     - SHOCKPKG_PACKAGES="
         flash-player-3.0.8.0-windows-32bit-sa
         flash-player-4.0.7.0-windows-sa
@@ -117,8 +117,8 @@ matrix:
         flash-player-10.0.45.2-windows-sa
         flash-player-10.3.183.90-windows-sa
         flash-player-11.1.102.55-windows-32bit-sa
-        flash-player-32.0.0.387-windows-sa
-        flash-player-32.0.0.387-windows-sa-debug"
+        flash-player-32.0.0.403-windows-sa
+        flash-player-32.0.0.403-windows-sa-debug"
 
   # Test other Mac versions:
   - os: osx
@@ -164,8 +164,8 @@ matrix:
     # First x86_64:
     #   flash-player-32.0.0.255-mac-sa
     # Latest:
-    #   flash-player-32.0.0.387-mac-sa
-    #   flash-player-32.0.0.387-mac-sa-debug
+    #   flash-player-32.0.0.403-mac-sa
+    #   flash-player-32.0.0.403-mac-sa-debug
     - SHOCKPKG_PACKAGES="
         flash-player-9.0.28.0-mac-sa-debug
         flash-player-9.0.45.0-mac-sa-debug
@@ -187,8 +187,8 @@ matrix:
         flash-player-15.0.0.189-mac-sa-debug
         flash-player-32.0.0.238-mac-sa
         flash-player-32.0.0.255-mac-sa
-        flash-player-32.0.0.387-mac-sa
-        flash-player-32.0.0.387-mac-sa-debug"
+        flash-player-32.0.0.403-mac-sa
+        flash-player-32.0.0.403-mac-sa-debug"
 
   # Test other Linux i386 versions:
   - os: linux
@@ -274,7 +274,9 @@ matrix:
         flash-player-32.0.0.371-linux-x86_64-sa
         flash-player-32.0.0.371-linux-x86_64-sa-debug
         flash-player-32.0.0.387-linux-x86_64-sa
-        flash-player-32.0.0.387-linux-x86_64-sa-debug"
+        flash-player-32.0.0.387-linux-x86_64-sa-debug
+        flash-player-32.0.0.403-linux-x86_64-sa
+        flash-player-32.0.0.403-linux-x86_64-sa-debug"
 
   - os: linux
     node_js: v14.2.0
