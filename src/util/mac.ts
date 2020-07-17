@@ -438,7 +438,7 @@ const machoAppUnusedStrings = [
 ];
 
 abstract class MachoAppWindowTitlePatch extends Object {
-	public static CPU_TYPE: number;
+	public static readonly CPU_TYPE: number;
 
 	protected _data: Buffer;
 
@@ -523,7 +523,7 @@ abstract class MachoAppWindowTitlePatch extends Object {
 }
 
 abstract class MachoAppWindowTitlePatchI386 extends MachoAppWindowTitlePatch {
-	public static CPU_TYPE = CPU_TYPE_I386;
+	public static readonly CPU_TYPE = CPU_TYPE_I386;
 
 	protected _titleEncoded() {
 		return Buffer.from(this._title, 'utf16le');
@@ -531,7 +531,7 @@ abstract class MachoAppWindowTitlePatchI386 extends MachoAppWindowTitlePatch {
 }
 
 abstract class MachoAppWindowTitlePatchX8664 extends MachoAppWindowTitlePatch {
-	public static CPU_TYPE = CPU_TYPE_X86_64;
+	public static readonly CPU_TYPE = CPU_TYPE_X86_64;
 
 	protected _titleEncoded() {
 		return Buffer.from(this._title, 'utf16le');
@@ -539,13 +539,14 @@ abstract class MachoAppWindowTitlePatchX8664 extends MachoAppWindowTitlePatch {
 }
 
 const machoAppWindowTitlePatches: ({
+	// eslint-disable-next-line @typescript-eslint/naming-convention
 	CPU_TYPE: number;
 	new(data: Buffer, title: string): MachoAppWindowTitlePatch;
 })[] = [
 /* eslint-disable no-multi-spaces, line-comment-position, no-inline-comments */
 	// 11.0.1.152+
 	class extends MachoAppWindowTitlePatchI386 {
-		private __offset = -1;
+		private _offset_ = -1;
 
 		public check() {
 			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
@@ -572,7 +573,7 @@ const machoAppWindowTitlePatches: ({
 			}
 
 			this._findTitleMemory();
-			this.__offset = found;
+			this._offset_ = found;
 			return true;
 		}
 
@@ -580,7 +581,7 @@ const machoAppWindowTitlePatches: ({
 			this._patchTitleMemory();
 
 			const d = this._data;
-			let i = this.__offset + 14;
+			let i = this._offset_ + 14;
 			const base = machoI386BaseAddress(d);
 
 			// mov ebx, numChars
@@ -601,9 +602,9 @@ const machoAppWindowTitlePatches: ({
 		}
 	},
 	class extends MachoAppWindowTitlePatchX8664 {
-		private __offset = -1;
+		private _offset_ = -1;
 
-		private __offsetJump = -1;
+		private _offsetJump_ = -1;
 
 		public check() {
 			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
@@ -636,8 +637,8 @@ const machoAppWindowTitlePatches: ({
 			}
 
 			this._findTitleMemory();
-			this.__offset = found;
-			this.__offsetJump = offsetJump;
+			this._offset_ = found;
+			this._offsetJump_ = offsetJump;
 			return true;
 		}
 
@@ -645,7 +646,7 @@ const machoAppWindowTitlePatches: ({
 			this._patchTitleMemory();
 
 			const d = this._data;
-			let i = this.__offset + 10;
+			let i = this._offset_ + 10;
 
 			// mov rdx, numChars
 			d.writeUInt8(0x48, i++);
@@ -658,7 +659,7 @@ const machoAppWindowTitlePatches: ({
 			// jmp --
 			d.writeUInt8(0xEB, i++);
 
-			i = this.__offsetJump;
+			i = this._offsetJump_;
 
 			// lea rsi, chars
 			d.writeUInt8(0x48, i++);
@@ -669,7 +670,7 @@ const machoAppWindowTitlePatches: ({
 	},
 	// 13.0.0.182+
 	class extends MachoAppWindowTitlePatchI386 {
-		private __offset = -1;
+		private _offset_ = -1;
 
 		public check() {
 			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
@@ -697,16 +698,16 @@ const machoAppWindowTitlePatches: ({
 			}
 
 			this._findTitleMemory();
-			this.__offset = found;
+			this._offset_ = found;
 			return true;
 		}
 
 		public patch() {
 			this._patchTitleMemory();
 
-			const edi = this.__offset + 13;
+			const edi = this._offset_ + 13;
 			const d = this._data;
-			let i = this.__offset + 17;
+			let i = this._offset_ + 17;
 
 			// mov ecx, numChars
 			d.writeUInt8(0xB9, i++);
@@ -729,7 +730,7 @@ const machoAppWindowTitlePatches: ({
 		}
 	},
 	class extends MachoAppWindowTitlePatchX8664 {
-		private __offset = -1;
+		private _offset_ = -1;
 
 		public check() {
 			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
@@ -751,7 +752,7 @@ const machoAppWindowTitlePatches: ({
 			}
 
 			this._findTitleMemory();
-			this.__offset = found;
+			this._offset_ = found;
 			return true;
 		}
 
@@ -759,7 +760,7 @@ const machoAppWindowTitlePatches: ({
 			this._patchTitleMemory();
 
 			const d = this._data;
-			let i = this.__offset + 10;
+			let i = this._offset_ + 10;
 
 			// lea rsi, chars
 			d.writeUInt8(0x48, i++);
@@ -782,7 +783,7 @@ const machoAppWindowTitlePatches: ({
 	},
 	// 23.0.0.162+
 	class extends MachoAppWindowTitlePatchI386 {
-		private __offset = -1;
+		private _offset_ = -1;
 
 		public check() {
 			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
@@ -810,16 +811,16 @@ const machoAppWindowTitlePatches: ({
 			}
 
 			this._findTitleMemory();
-			this.__offset = found;
+			this._offset_ = found;
 			return true;
 		}
 
 		public patch() {
 			this._patchTitleMemory();
 
-			const edi = this.__offset + 13;
+			const edi = this._offset_ + 13;
 			const d = this._data;
-			let i = this.__offset + 25;
+			let i = this._offset_ + 25;
 
 			// mov edx, numChars
 			d.writeUInt8(0xBA, i++);
@@ -839,7 +840,7 @@ const machoAppWindowTitlePatches: ({
 		}
 	},
 	class extends MachoAppWindowTitlePatchX8664 {
-		private __offset = -1;
+		private _offset_ = -1;
 
 		public check() {
 			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
@@ -861,7 +862,7 @@ const machoAppWindowTitlePatches: ({
 			}
 
 			this._findTitleMemory();
-			this.__offset = found;
+			this._offset_ = found;
 			return true;
 		}
 
@@ -869,7 +870,7 @@ const machoAppWindowTitlePatches: ({
 			this._patchTitleMemory();
 
 			const d = this._data;
-			let i = this.__offset + 20;
+			let i = this._offset_ + 20;
 
 			// lea rsi, chars
 			d.writeUInt8(0x48, i++);
@@ -896,6 +897,7 @@ const machoAppWindowTitlePatches: ({
 const machoAppWindowTitlePatchesByCpuType = once(() => {
 	const r = new Map<number, (typeof machoAppWindowTitlePatches[0])[]>();
 	for (const Patcher of machoAppWindowTitlePatches) {
+		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const {CPU_TYPE} = Patcher;
 		const list = r.get(CPU_TYPE) || [];
 		list.push(Patcher);

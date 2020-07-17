@@ -5,7 +5,7 @@ export class Queue extends Object {
 	/**
 	 * Queue data.
 	 */
-	private __queue: {
+	private _queue_: {
 		priority: number;
 		handler: () => Promise<any>;
 	}[] = [];
@@ -20,14 +20,14 @@ export class Queue extends Object {
 	 * @returns Total callbacks in queue.
 	 */
 	public get size() {
-		return this.__queue.length;
+		return this._queue_.length;
 	}
 
 	/**
 	 * Clear queue.
 	 */
 	public clear() {
-		this.__queue = [];
+		this._queue_ = [];
 	}
 
 	/**
@@ -37,7 +37,7 @@ export class Queue extends Object {
 	 * @param priority Callback priority.
 	 */
 	public push(handler: () => Promise<any>, priority = 0) {
-		const queue = this.__queue;
+		const queue = this._queue_;
 		let index = 0;
 		for (let i = queue.length; i--;) {
 			if (queue[i].priority < priority) {
@@ -57,7 +57,7 @@ export class Queue extends Object {
 	 * @returns Callback function or null if empty.
 	 */
 	public pop() {
-		const entry = this.__queue.pop();
+		const entry = this._queue_.pop();
 		return entry ? entry.handler : null;
 	}
 
@@ -67,7 +67,7 @@ export class Queue extends Object {
 	 * @returns Callback function or null if empty.
 	 */
 	public shift() {
-		const entry = this.__queue.shift();
+		const entry = this._queue_.shift();
 		return entry ? entry.handler : null;
 	}
 

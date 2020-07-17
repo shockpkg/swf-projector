@@ -39,6 +39,7 @@ rules:
 
   # TypeScript plugin:
   '@typescript-eslint/no-require-imports': off
+  '@typescript-eslint/no-var-requires': off
 
 parserOptions:
   ecmaVersion: 5

@@ -41,6 +41,7 @@ rules:
   no-inner-declarations: error
   no-invalid-regexp: error
   no-irregular-whitespace: error
+  no-loss-of-precision: error
   no-misleading-character-class: error
   no-obj-calls: error
   no-prototype-builtins: error
@@ -187,7 +188,7 @@ rules:
   - error
   - stroustrup
   - allowSingleLine: false
-  # Using @typescript-eslint/camelcase
+  # Using @typescript-eslint/naming-convention
   # camelcase:
   # - error
   comma-dangle:
@@ -487,8 +488,6 @@ rules:
   '@typescript-eslint/adjacent-overload-signatures': error
   '@typescript-eslint/array-type':
   - error
-  '@typescript-eslint/camelcase': error
-  '@typescript-eslint/class-name-casing': error
   '@typescript-eslint/consistent-type-assertions': error
   '@typescript-eslint/consistent-type-definitions': error
   '@typescript-eslint/explicit-member-accessibility':
@@ -501,15 +500,7 @@ rules:
   - tab
   - SwitchCase: 1
     VariableDeclarator: 1
-  '@typescript-eslint/interface-name-prefix':
-  - error
-  - always
   '@typescript-eslint/member-delimiter-style': error
-  '@typescript-eslint/member-naming':
-  - error
-  - public: '^[^_]'
-    protected: '^_[^_]'
-    private: '^__[^_]'
   '@typescript-eslint/member-ordering':
   - error
   - default:
@@ -553,6 +544,7 @@ rules:
       arrow:
         before: true
   '@typescript-eslint/unified-signatures': error
+  '@typescript-eslint/no-confusing-non-null-assertion': error
 
   # TypeScript Project:
   '@typescript-eslint/await-thenable': error
@@ -566,6 +558,88 @@ rules:
   # '@typescript-eslint/require-await': error
   '@typescript-eslint/restrict-plus-operands': error
   '@typescript-eslint/unbound-method': error
+  '@typescript-eslint/no-unnecessary-boolean-literal-compare':
+  - error
+  - allowComparingNullableBooleansToTrue: true
+    allowComparingNullableBooleansToFalse: true
+  '@typescript-eslint/naming-convention':
+  - error
+  - selector: default
+    format:
+    - camelCase
+  - selector: typeLike
+    format:
+    - PascalCase
+  - selector: interface
+    format:
+    - PascalCase
+    custom:
+      regex: '^I[A-Z]'
+      match: true
+  - selector: variable
+    format:
+    - camelCase
+    - PascalCase
+    - UPPER_CASE
+  - selector: parameter
+    format:
+    - camelCase
+    - PascalCase
+    leadingUnderscore: allow
+  - selector: class
+    format:
+    - PascalCase
+  - selector: memberLike
+    modifiers:
+    - public
+    format:
+    - camelCase
+    - PascalCase
+  - selector: memberLike
+    modifiers:
+    - protected
+    format:
+    - camelCase
+    - PascalCase
+    leadingUnderscore: require
+  - selector: memberLike
+    modifiers:
+    - private
+    format:
+    - camelCase
+    - PascalCase
+    leadingUnderscore: require
+    trailingUnderscore: require
+  - selector: memberLike
+    modifiers:
+    - public
+    - readonly
+    - static
+    format:
+    - UPPER_CASE
+  - selector: memberLike
+    modifiers:
+    - protected
+    - readonly
+    - static
+    format:
+    - UPPER_CASE
+    leadingUnderscore: require
+  - selector: memberLike
+    modifiers:
+    - private
+    - readonly
+    - static
+    format:
+    - UPPER_CASE
+    leadingUnderscore: require
+    trailingUnderscore: require
+  - selector: accessor
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
 
 overrides:
 - files:
