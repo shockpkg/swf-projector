@@ -29,8 +29,7 @@
 
 		"types": [
 			"node",
-			"jasmine",
-			"fs-extra"
+			"jasmine"
 		],
 		"outDir": "lib"
 	},
