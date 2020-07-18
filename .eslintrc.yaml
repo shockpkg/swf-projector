@@ -581,6 +581,8 @@ rules:
     - camelCase
     - PascalCase
     - UPPER_CASE
+    leadingUnderscore: allow
+    trailingUnderscore: allow
   - selector: parameter
     format:
     - camelCase
@@ -635,11 +637,70 @@ rules:
     leadingUnderscore: require
     trailingUnderscore: require
   - selector: accessor
+    modifiers:
+    - public
     format:
     - camelCase
     - PascalCase
     - snake_case
     - UPPER_CASE
+  - selector: accessor
+    modifiers:
+    - protected
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+    leadingUnderscore: require
+  - selector: accessor
+    modifiers:
+    - private
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+    leadingUnderscore: require
+    trailingUnderscore: require
+  - selector: accessor
+    modifiers:
+    - public
+    - static
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+  - selector: accessor
+    modifiers:
+    - protected
+    - static
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+    leadingUnderscore: require
+  - selector: property
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+    leadingUnderscore: allow
+    trailingUnderscore: allow
+  - selector: accessor
+    modifiers:
+    - private
+    - static
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+    leadingUnderscore: require
+    trailingUnderscore: require
 
 overrides:
 - files:
