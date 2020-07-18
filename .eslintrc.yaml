@@ -682,14 +682,6 @@ rules:
     - snake_case
     - UPPER_CASE
     leadingUnderscore: require
-  - selector: property
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-    leadingUnderscore: allow
-    trailingUnderscore: allow
   - selector: accessor
     modifiers:
     - private
@@ -701,6 +693,14 @@ rules:
     - UPPER_CASE
     leadingUnderscore: require
     trailingUnderscore: require
+  - selector: property
+    format:
+    - camelCase
+    - PascalCase
+    - snake_case
+    - UPPER_CASE
+    leadingUnderscore: allow
+    trailingUnderscore: allow
 
 overrides:
 - files:
