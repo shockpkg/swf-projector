@@ -40,8 +40,8 @@
 		"@babel/preset-env": "^7.10.4",
 		"@babel/preset-typescript": "^7.10.4",
 		"@babel/register": "^7.10.5",
-		"@shockpkg/cli": "^1.4.0",
-		"@shockpkg/core": "^1.11.0",
+		"@shockpkg/cli": "^1.5.0",
+		"@shockpkg/core": "^1.12.0",
 		"@types/fs-extra": "^9.0.1",
 		"@types/jasmine": "^3.5.11",
 		"@types/node": "^14.0.26",
@@ -71,11 +71,11 @@
 	},
 	"dependencies": {
 		"@babel/runtime": "^7.10.5",
-		"@shockpkg/archive-files": "^1.9.2",
-		"@shockpkg/plist-dom": "^1.6.1",
+		"@shockpkg/archive-files": "^1.10.0",
+		"@shockpkg/plist-dom": "^1.7.0",
 		"fs-extra": "^9.0.1",
-		"macho-unsign": "^1.0.1",
-		"portable-executable-signature": "^1.0.1",
+		"macho-unsign": "^1.1.0",
+		"portable-executable-signature": "^1.1.0",
 		"resedit": "^0.6.0"
 	}
 }
