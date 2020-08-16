@@ -10,7 +10,8 @@ matrix:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.414-linux-x86_64-sa
-        flash-player-32.0.0.414-windows-sa"
+        flash-player-32.0.0.414-windows-sa
+        flash-player-32.0.0.414-mac-sa-debug-zip"
 
   - os: osx
     node_js: v10.0.0
@@ -29,7 +30,8 @@ matrix:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.414-linux-x86_64-sa
-        flash-player-32.0.0.414-windows-sa"
+        flash-player-32.0.0.414-windows-sa
+        flash-player-32.0.0.414-mac-sa-debug-zip"
 
   - os: linux
     node_js: v14.6.0
@@ -37,7 +39,8 @@ matrix:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.414-linux-x86_64-sa
-        flash-player-32.0.0.414-windows-sa"
+        flash-player-32.0.0.414-windows-sa
+        flash-player-32.0.0.414-mac-sa-debug-zip"
 
   - os: osx
     node_js: v14.6.0
@@ -54,7 +57,8 @@ matrix:
     - SHOCKPKG_PACKAGES="
         flash-player-11.2.202.644-linux-i386-sa
         flash-player-32.0.0.414-linux-x86_64-sa
-        flash-player-32.0.0.414-windows-sa"
+        flash-player-32.0.0.414-windows-sa
+        flash-player-32.0.0.414-mac-sa-debug-zip"
 
   # Test other Windows versions:
   - os: windows
