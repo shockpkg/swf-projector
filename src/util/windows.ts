@@ -1,3 +1,5 @@
+import {TranscodeEncoding} from 'buffer';
+
 import {
 	checksumUpdate,
 	signatureGet,
@@ -179,7 +181,7 @@ export async function peResourceReplace(
 function * dataStrings(
 	data: Readonly<Buffer>,
 	pre: string,
-	enc: BufferEncoding,
+	enc: TranscodeEncoding,
 	reg: RegExp | null = null
 ) {
 	const nulled = Buffer.from('\0', enc);
