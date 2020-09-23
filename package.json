@@ -1,7 +1,7 @@
 {
 	"name": "@shockpkg/swf-projector",
 	"description": "Package for creating Flash Player projectors",
-	"version": "2.5.0",
+	"version": "2.5.1",
 	"keywords": [
 		"shockpkg",
 		"package",
