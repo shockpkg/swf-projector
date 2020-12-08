@@ -32,7 +32,7 @@ Reading DMG projector packages is only supported on macOS.
 ```js
 import {ProjectorWindows32} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorWindows('projector-windows32/application.exe');
+const projector = new ProjectorWindows32('projector-windows32/application.exe');
 
 // Optional custom icon.
 projector.iconFile = 'icon.ico';
