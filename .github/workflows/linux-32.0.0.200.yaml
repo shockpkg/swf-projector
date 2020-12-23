@@ -1,0 +1,22 @@
+name: 'linux-32.0.0.200'
+
+on: push
+
+jobs:
+  build:
+    runs-on: 'ubuntu-20.04'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '15.5.0'
+
+    - run: npm install
+    - run: npm run clean
+    - run: npm run shockpkg -- update --summary
+    - run: npm run shockpkg -- install flash-player-32.0.0.207-linux-x86_64-sa flash-player-32.0.0.207-linux-x86_64-sa-debug flash-player-32.0.0.223-linux-x86_64-sa flash-player-32.0.0.223-linux-x86_64-sa-debug flash-player-32.0.0.238-linux-x86_64-sa flash-player-32.0.0.238-linux-x86_64-sa-debug flash-player-32.0.0.255-linux-x86_64-sa flash-player-32.0.0.255-linux-x86_64-sa-debug flash-player-32.0.0.270-linux-x86_64-sa flash-player-32.0.0.270-linux-x86_64-sa-debug flash-player-32.0.0.293-linux-x86_64-sa flash-player-32.0.0.293-linux-x86_64-sa-debug
+    - run: npm run lint
+    - run: npm run build
+    - run: npm run test

@@ -1,0 +1,22 @@
+name: 'main'
+
+on: push
+
+jobs:
+  build:
+    runs-on: 'ubuntu-20.04'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '15.5.0'
+
+    - run: npm install
+    - run: npm run clean
+    - run: npm run shockpkg -- update --summary
+
+    - run: npm run lint
+    - run: npm run build
+    - run: npm run test

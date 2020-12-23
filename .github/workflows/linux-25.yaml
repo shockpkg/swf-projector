@@ -1,0 +1,22 @@
+name: 'linux-25'
+
+on: push
+
+jobs:
+  build:
+    runs-on: 'ubuntu-20.04'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '15.5.0'
+
+    - run: npm install
+    - run: npm run clean
+    - run: npm run shockpkg -- update --summary
+    - run: npm run shockpkg -- install flash-player-25.0.0.127-linux-x86_64-sa flash-player-25.0.0.127-linux-x86_64-sa-debug flash-player-25.0.0.148-linux-x86_64-sa flash-player-25.0.0.148-linux-x86_64-sa-debug flash-player-25.0.0.171-linux-x86_64-sa flash-player-25.0.0.171-linux-x86_64-sa-debug
+    - run: npm run lint
+    - run: npm run build
+    - run: npm run test

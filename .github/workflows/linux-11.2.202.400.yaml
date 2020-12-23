@@ -1,0 +1,22 @@
+name: 'linux-11.2.202.400'
+
+on: push
+
+jobs:
+  build:
+    runs-on: 'ubuntu-20.04'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '15.5.0'
+
+    - run: npm install
+    - run: npm run clean
+    - run: npm run shockpkg -- update --summary
+    - run: npm run shockpkg -- install flash-player-11.2.202.400-linux-i386-sa flash-player-11.2.202.400-linux-i386-sa-debug flash-player-11.2.202.406-linux-i386-sa flash-player-11.2.202.406-linux-i386-sa-debug flash-player-11.2.202.411-linux-i386-sa flash-player-11.2.202.411-linux-i386-sa-debug flash-player-11.2.202.418-linux-i386-sa flash-player-11.2.202.418-linux-i386-sa-debug flash-player-11.2.202.424-linux-i386-sa flash-player-11.2.202.424-linux-i386-sa-debug flash-player-11.2.202.425-linux-i386-sa flash-player-11.2.202.425-linux-i386-sa-debug flash-player-11.2.202.429-linux-i386-sa flash-player-11.2.202.429-linux-i386-sa-debug flash-player-11.2.202.438-linux-i386-sa flash-player-11.2.202.438-linux-i386-sa-debug flash-player-11.2.202.440-linux-i386-sa flash-player-11.2.202.440-linux-i386-sa-debug flash-player-11.2.202.442-linux-i386-sa flash-player-11.2.202.442-linux-i386-sa-debug flash-player-11.2.202.451-linux-i386-sa flash-player-11.2.202.451-linux-i386-sa-debug flash-player-11.2.202.457-linux-i386-sa flash-player-11.2.202.457-linux-i386-sa-debug flash-player-11.2.202.460-linux-i386-sa flash-player-11.2.202.460-linux-i386-sa-debug flash-player-11.2.202.466-linux-i386-sa flash-player-11.2.202.466-linux-i386-sa-debug flash-player-11.2.202.468-linux-i386-sa flash-player-11.2.202.468-linux-i386-sa-debug flash-player-11.2.202.481-linux-i386-sa flash-player-11.2.202.481-linux-i386-sa-debug flash-player-11.2.202.491-linux-i386-sa flash-player-11.2.202.491-linux-i386-sa-debug
+    - run: npm run lint
+    - run: npm run build
+    - run: npm run test

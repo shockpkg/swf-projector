@@ -1,0 +1,22 @@
+name: 'windows-other'
+
+on: push
+
+jobs:
+  build:
+    runs-on: 'ubuntu-20.04'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '15.5.0'
+
+    - run: npm install
+    - run: npm run clean
+    - run: npm run shockpkg -- update --summary
+    - run: npm run shockpkg -- install flash-player-3.0.8.0-windows-32bit-sa flash-player-4.0.7.0-windows-sa flash-player-5.0.30.0-windows-sa flash-player-5.0.30.0-windows-sa-debug flash-player-6.0.21.0-windows-sa flash-player-6.0.79.0-windows-sa flash-player-7.0.14.0-windows-sa flash-player-7.0.19.0-windows-sa flash-player-8.0.22.0-windows-sa flash-player-8.0.42.0-windows-sa flash-player-9.0.15.0-windows-sa-debug flash-player-9.0.115.0-windows-sa flash-player-9.0.280.0-windows-sa flash-player-9.0.289.0-windows-sa flash-player-10.0.12.36-windows-sa flash-player-10.0.45.2-windows-sa flash-player-10.3.183.90-windows-sa flash-player-11.1.102.55-windows-32bit-sa flash-player-32.0.0.465-windows-sa flash-player-32.0.0.465-windows-sa-debug
+    - run: npm run lint
+    - run: npm run build
+    - run: npm run test
