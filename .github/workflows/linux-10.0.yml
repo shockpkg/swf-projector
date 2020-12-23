@@ -17,6 +17,6 @@ jobs:
     - run: npm run clean
     - run: npm run shockpkg -- update --summary
     - run: npm run shockpkg -- install flash-player-10.0.12.36-linux-sa flash-player-10.0.12.36-linux-sa-debug flash-player-10.0.15.3-linux-sa flash-player-10.0.15.3-linux-sa-debug flash-player-10.0.22.87-linux-sa flash-player-10.0.22.87-linux-sa-debug flash-player-10.0.32.18-linux-sa flash-player-10.0.32.18-linux-sa-debug flash-player-10.0.42.34-linux-sa flash-player-10.0.42.34-linux-sa-debug flash-player-10.0.45.2-linux-sa-debug
-    - run: npm run lint
+
     - run: npm run build
     - run: npm run test

@@ -17,6 +17,6 @@ jobs:
     - run: npm run clean
     - run: npm run shockpkg -- update --summary
     - run: npm run shockpkg -- install flash-player-11.2.202.508-linux-i386-sa flash-player-11.2.202.508-linux-i386-sa-debug flash-player-11.2.202.521-linux-i386-sa flash-player-11.2.202.521-linux-i386-sa-debug flash-player-11.2.202.535-linux-i386-sa flash-player-11.2.202.535-linux-i386-sa-debug flash-player-11.2.202.540-linux-i386-sa flash-player-11.2.202.540-linux-i386-sa-debug flash-player-11.2.202.548-linux-i386-sa flash-player-11.2.202.548-linux-i386-sa-debug flash-player-11.2.202.554-linux-i386-sa flash-player-11.2.202.554-linux-i386-sa-debug flash-player-11.2.202.559-linux-i386-sa flash-player-11.2.202.559-linux-i386-sa-debug flash-player-11.2.202.569-linux-i386-sa flash-player-11.2.202.569-linux-i386-sa-debug flash-player-11.2.202.577-linux-i386-sa flash-player-11.2.202.577-linux-i386-sa-debug
-    - run: npm run lint
+
     - run: npm run build
     - run: npm run test

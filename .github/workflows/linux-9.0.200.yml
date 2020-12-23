@@ -1,0 +1,22 @@
+name: 'linux-9.0.200'
+
+on: push
+
+jobs:
+  build:
+    runs-on: 'ubuntu-20.04'
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - uses: actions/setup-node@v1
+      with:
+        node-version: '15.5.0'
+
+    - run: npm install
+    - run: npm run clean
+    - run: npm run shockpkg -- update --summary
+    - run: npm run shockpkg -- install flash-player-9.0.246.0-linux-sa flash-player-9.0.246.0-linux-sa-debug flash-player-9.0.260.0-linux-sa flash-player-9.0.260.0-linux-sa-debug flash-player-9.0.262.0-linux-sa flash-player-9.0.262.0-linux-sa-debug flash-player-9.0.277.0-linux-sa flash-player-9.0.277.0-linux-sa-debug flash-player-9.0.280.0-linux-sa flash-player-9.0.283.0-linux-sa flash-player-9.0.283.0-linux-sa-debug flash-player-9.0.289.0-linux-sa flash-player-9.0.289.0-linux-sa-debug
+
+    - run: npm run build
+    - run: npm run test

@@ -31,7 +31,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.2.202.644-linux-i386-sa',
@@ -46,7 +46,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			// Only 3.0 32-bit:
@@ -95,7 +95,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			// First Mac APP bundle, broken icon, DMG:
@@ -148,7 +148,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			// Only 6.0, first version (ZLIB):
@@ -181,7 +181,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-32.0.0.101-linux-x86_64-sa',
@@ -203,7 +203,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-32.0.0.207-linux-x86_64-sa',
@@ -225,7 +225,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-32.0.0.303-linux-x86_64-sa',
@@ -251,7 +251,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-32.0.0.403-linux-x86_64-sa',
@@ -273,7 +273,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-31.0.0.108-linux-x86_64-sa',
@@ -291,7 +291,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-30.0.0.113-linux-x86_64-sa',
@@ -307,7 +307,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-29.0.0.113-linux-x86_64-sa',
@@ -323,7 +323,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-28.0.0.126-linux-x86_64-sa',
@@ -339,7 +339,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-27.0.0.130-linux-x86_64-sa',
@@ -359,7 +359,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-26.0.0.126-linux-x86_64-sa',
@@ -377,7 +377,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-25.0.0.127-linux-x86_64-sa',
@@ -393,7 +393,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-24.0.0.186-linux-x86_64-sa',
@@ -410,7 +410,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.2.202.616-linux-i386-sa',
@@ -436,7 +436,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.2.202.508-linux-i386-sa',
@@ -464,7 +464,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.2.202.400-linux-i386-sa',
@@ -508,7 +508,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.2.202.310-linux-i386-sa',
@@ -541,7 +541,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.2.202.228-linux-i386-sa',
@@ -583,7 +583,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-11.0.1.152-linux-i386-sa',
@@ -597,11 +597,11 @@ const configs = [
 		]
 	],
 	[
-		'linux-10.3',
+		'linux-10.3.181.14-10.3.183.18',
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-10.3.181.14-linux-sa',
@@ -625,7 +625,17 @@ const configs = [
 			'flash-player-10.3.183.16-linux-sa',
 			'flash-player-10.3.183.16-linux-sa-debug',
 			'flash-player-10.3.183.18-linux-sa',
-			'flash-player-10.3.183.18-linux-sa-debug',
+			'flash-player-10.3.183.18-linux-sa-debug'
+		]
+	],
+	[
+		'linux-10.3.183.20-10.3.183.90',
+		'ubuntu-20.04',
+		'15.5.0',
+		{
+			lint: false
+		},
+		[
 			'flash-player-10.3.183.20-linux-sa',
 			'flash-player-10.3.183.20-linux-sa-debug',
 			'flash-player-10.3.183.23-linux-sa',
@@ -658,7 +668,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-10.2.152.26-linux-sa',
@@ -674,7 +684,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-10.1.53.64-linux-sa',
@@ -691,7 +701,7 @@ const configs = [
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
 			'flash-player-10.0.12.36-linux-sa',
@@ -708,14 +718,13 @@ const configs = [
 		]
 	],
 	[
-		'linux-6-9',
+		'linux-9.0.100',
 		'ubuntu-20.04',
 		'15.5.0',
 		{
-			lint: true
+			lint: false
 		},
 		[
-			'flash-player-6.0.79.0-linux-sa',
 			'flash-player-9.0.115.0-linux-sa',
 			'flash-player-9.0.115.0-linux-sa-debug',
 			'flash-player-9.0.124.0-linux-sa',
@@ -725,7 +734,17 @@ const configs = [
 			'flash-player-9.0.152.0-linux-sa',
 			'flash-player-9.0.152.0-linux-sa-debug',
 			'flash-player-9.0.159.0-linux-sa',
-			'flash-player-9.0.159.0-linux-sa-debug',
+			'flash-player-9.0.159.0-linux-sa-debug'
+		]
+	],
+	[
+		'linux-9.0.200',
+		'ubuntu-20.04',
+		'15.5.0',
+		{
+			lint: false
+		},
+		[
 			'flash-player-9.0.246.0-linux-sa',
 			'flash-player-9.0.246.0-linux-sa-debug',
 			'flash-player-9.0.260.0-linux-sa',
@@ -741,6 +760,7 @@ const configs = [
 			'flash-player-9.0.289.0-linux-sa-debug'
 		]
 	]
+	// Only Linux 6.0 version already tested.
 ];
 
 function template(name, runsOn, nodeVersion, lint, packages) {
