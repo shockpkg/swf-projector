@@ -776,7 +776,7 @@ ${linting}
 
 async function main() {
 	for (const [name, runsOn, nodeVersion, options, packages] of configs) {
-		await fs.writeFile(`${name}.yaml`, template(
+		await fs.writeFile(`${name}.yml`, template(
 			name,
 			runsOn,
 			nodeVersion,
