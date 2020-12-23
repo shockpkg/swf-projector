@@ -191,19 +191,19 @@ export abstract class Projector extends Object {
 	 *
 	 * @param player Player path.
 	 */
-	protected abstract async _writePlayer(player: string): Promise<void>;
+	protected abstract _writePlayer(player: string): Promise<void>;
 
 	/**
 	 * Modify the projector player.
 	 */
-	protected abstract async _modifyPlayer(): Promise<void>;
+	protected abstract _modifyPlayer(): Promise<void>;
 
 	/**
 	 * Write out the projector movie file.
 	 *
 	 * @param movieData Movie data or null.
 	 */
-	protected abstract async _writeMovie(
-		movieData: Readonly<Buffer> | null
+	protected abstract _writeMovie(
+movieData: Readonly<Buffer> | null
 	): Promise<void>;
 }

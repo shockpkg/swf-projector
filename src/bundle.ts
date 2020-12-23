@@ -647,5 +647,5 @@ export abstract class Bundle extends Object {
 	/**
 	 * Write the launcher file.
 	 */
-	protected abstract async _writeLauncher(): Promise<void>;
+	protected abstract _writeLauncher(): Promise<void>;
 }
