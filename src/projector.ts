@@ -204,6 +204,6 @@ export abstract class Projector extends Object {
 	 * @param movieData Movie data or null.
 	 */
 	protected abstract _writeMovie(
-movieData: Readonly<Buffer> | null
+		movieData: Readonly<Buffer> | null
 	): Promise<void>;
 }
