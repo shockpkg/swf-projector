@@ -1,4 +1,4 @@
-name: 'node-10.0.0'
+name: 'node-15'
 
 on: push
 
@@ -11,7 +11,7 @@ jobs:
 
     - uses: actions/setup-node@v1
       with:
-        node-version: '10.0.0'
+        node-version: '15.13.0'
 
     - run: npm install
     - run: npm run clean
