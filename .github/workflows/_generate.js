@@ -2,22 +2,15 @@
 
 const fs = require('fs').promises;
 
+const latestNode = '16.1.0';
+
 const configs = [
 	[
 		'main',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: true
-		},
-		[]
-	],
-	[
-		'node-10',
-		'ubuntu-20.04',
-		'10.0.0',
-		{
-			lint: false
 		},
 		[
 			'flash-player-11.2.202.644-linux-i386-sa',
@@ -27,9 +20,9 @@ const configs = [
 		]
 	],
 	[
-		'node-15',
+		'node-10',
 		'ubuntu-20.04',
-		'15.13.0',
+		'10.13.0',
 		{
 			lint: false
 		},
@@ -44,7 +37,7 @@ const configs = [
 	[
 		'windows-other',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -93,7 +86,7 @@ const configs = [
 	[
 		'mac-other',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -146,7 +139,7 @@ const configs = [
 	[
 		'linux-other',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -179,7 +172,7 @@ const configs = [
 	[
 		'linux-32.0.0.100',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -201,7 +194,7 @@ const configs = [
 	[
 		'linux-32.0.0.200',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -223,7 +216,7 @@ const configs = [
 	[
 		'linux-32.0.0.300',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -249,7 +242,7 @@ const configs = [
 	[
 		'linux-32.0.0.400',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -271,7 +264,7 @@ const configs = [
 	[
 		'linux-31',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -289,7 +282,7 @@ const configs = [
 	[
 		'linux-30',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -305,7 +298,7 @@ const configs = [
 	[
 		'linux-29',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -321,7 +314,7 @@ const configs = [
 	[
 		'linux-28',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -337,7 +330,7 @@ const configs = [
 	[
 		'linux-27',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -357,7 +350,7 @@ const configs = [
 	[
 		'linux-26',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -375,7 +368,7 @@ const configs = [
 	[
 		'linux-25',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -391,7 +384,7 @@ const configs = [
 	[
 		'linux-24',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -408,7 +401,7 @@ const configs = [
 	[
 		'linux-11.2.202.600',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -434,7 +427,7 @@ const configs = [
 	[
 		'linux-11.2.202.500',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -462,7 +455,7 @@ const configs = [
 	[
 		'linux-11.2.202.400',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -506,7 +499,7 @@ const configs = [
 	[
 		'linux-11.2.202.300',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -539,7 +532,7 @@ const configs = [
 	[
 		'linux-11.2.202.200',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -581,7 +574,7 @@ const configs = [
 	[
 		'linux-11.0-11.1',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -599,7 +592,7 @@ const configs = [
 	[
 		'linux-10.3.181.14-10.3.183.18',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -631,7 +624,7 @@ const configs = [
 	[
 		'linux-10.3.183.20-10.3.183.90',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -666,7 +659,7 @@ const configs = [
 	[
 		'linux-10.2',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -682,7 +675,7 @@ const configs = [
 	[
 		'linux-10.1',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -699,7 +692,7 @@ const configs = [
 	[
 		'linux-10.0',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -720,7 +713,7 @@ const configs = [
 	[
 		'linux-9.0.100',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},
@@ -740,7 +733,7 @@ const configs = [
 	[
 		'linux-9.0.200',
 		'ubuntu-20.04',
-		'15.13.0',
+		latestNode,
 		{
 			lint: false
 		},

@@ -11,12 +11,12 @@ jobs:
 
     - uses: actions/setup-node@v1
       with:
-        node-version: '15.13.0'
+        node-version: '16.1.0'
 
     - run: npm install
     - run: npm run clean
     - run: npm run shockpkg -- update --summary
-
+    - run: npm run shockpkg -- install flash-player-11.2.202.644-linux-i386-sa flash-player-32.0.0.465-linux-x86_64-sa flash-player-32.0.0.465-windows-sa flash-player-32.0.0.465-mac-sa-zip
     - run: npm run lint
     - run: npm run build
     - run: npm run test
