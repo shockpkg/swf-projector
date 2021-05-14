@@ -1,6 +1,0 @@
-{
-	"watch": [
-		"src"
-	],
-	"ext": "js mjs jsx mjsx ts tsx"
-}

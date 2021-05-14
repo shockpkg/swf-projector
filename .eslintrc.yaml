@@ -711,7 +711,7 @@ overrides:
   - '*.ts'
   - '*.tsx'
 - files:
-  - 'gulpfile.babel.js'
+  - 'gulpfile.babel.ts'
   rules:
     import/no-extraneous-dependencies:
     - error

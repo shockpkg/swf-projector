@@ -29,8 +29,7 @@ yarn.lock
 /.tern-project
 /tsconfig.json
 /tsconfig.eslint.json
-/gulpfile.babel.js
-/nodemon.json
+/gulpfile.babel.ts
 /spec
 /src
 

@@ -14,7 +14,6 @@ import gulpBabel from 'gulp-babel';
 import execa from 'execa';
 import del from 'del';
 import fse from 'fs-extra';
-import onetime from 'onetime';
 import download from 'download';
 
 const pipeline = util.promisify(stream.pipeline);
@@ -72,13 +71,13 @@ const launchers = [
 	}
 ];
 
-async function hashFile(file, algo) {
+async function hashFile(file: string, algo: string) {
 	const hash = crypto.createHash(algo).setEncoding('hex');
 	await pipeline(fse.createReadStream(file), hash);
 	return hash.read().toLowerCase();
 }
 
-async function downloaded(source, dest, hash) {
+async function downloaded(source: string, dest: string, hash: string) {
 	const exists = await fse.pathExists(dest);
 	if (exists && await hashFile(dest, 'sha256') === hash) {
 		return dest;
@@ -90,33 +89,54 @@ async function downloaded(source, dest, hash) {
 		filename: path.basename(part)
 	});
 	if (await hashFile(part, 'sha256') !== hash) {
-		await fse.remove(path);
+		await fse.remove(part);
 		throw new Error('Downloaded file has an unexpected hash');
 	}
 	await fse.rename(part, dest);
 	return dest;
 }
 
+function onetime<T>(f: () => T) {
+	const o = {};
+	let r = o;
+	return () => {
+		r = r === o ? f() : r;
+		return r as T;
+	};
+}
+
 const ensureLaunchers = onetime(async () => Promise.all(
 	launchers.map(async o => downloaded(o.url, o.path, o.hash))
 ));
 
-async function exec(cmd, args = []) {
+async function exec(cmd: string, args: string[] = []) {
 	await execa(cmd, args, {
 		preferLocal: true,
 		stdio: 'inherit'
 	});
 }
 
-const packageJson = onetime(async () => fse.readFile('package.json', 'utf8'));
+async function packageJSON() {
+	return JSON.parse(await fse.readFile('package.json', 'utf8'));
+}
 
-const babelrc = onetime(async () => fse.readFile('.babelrc', 'utf8'));
+async function babelrc() {
+	return {
+		...JSON.parse(await fse.readFile('.babelrc', 'utf8')),
+		babelrc: false
+	};
+}
 
-async function babelTarget(src, srcOpts, dest, modules) {
+async function babelTarget(
+	src: string[],
+	srcOpts: any,
+	dest: string,
+	modules: string | boolean
+) {
 	await ensureLaunchers();
 
 	// Change module.
-	const babelOptions = {...JSON.parse(await babelrc()), babelrc: false};
+	const babelOptions = await babelrc();
 	for (const preset of babelOptions.presets) {
 		if (preset[0] === '@babel/preset-env') {
 			preset[1].modules = modules;
@@ -138,7 +158,7 @@ async function babelTarget(src, srcOpts, dest, modules) {
 	}
 
 	// Read the package JSON.
-	const pkg = JSON.parse(await packageJson());
+	const pkg = await packageJSON();
 
 	const launchersData = {};
 	for (const {name, path} of launchers) {
@@ -156,9 +176,9 @@ async function babelTarget(src, srcOpts, dest, modules) {
 		["'@VERSION@'", JSON.stringify(pkg.version)],
 		["'@NAME@'", JSON.stringify(pkg.name)],
 		["'@LAUNCHERS@'", JSON.stringify(launchersData)]
-	].map(v => gulpReplace(...v));
+	].map(([f, r]) => gulpReplace(f, r));
 
-	await pipeline(...[
+	await pipeline(
 		gulp.src(src, srcOpts),
 		filterMeta,
 		...filterMetaReplaces,
@@ -184,18 +204,7 @@ async function babelTarget(src, srcOpts, dest, modules) {
 			return contents;
 		}),
 		gulp.dest(dest)
-	].filter(Boolean));
-}
-
-async function eslint(strict) {
-	try {
-		await exec('eslint', ['.']);
-	}
-	catch (err) {
-		if (strict) {
-			throw err;
-		}
-	}
+	);
 }
 
 // clean
@@ -233,20 +242,10 @@ gulp.task('clean', gulp.parallel([
 	'clean:bundles'
 ]));
 
-// lint (watch)
-
-gulp.task('lintw:es', async () => {
-	await eslint(false);
-});
-
-gulp.task('lintw', gulp.parallel([
-	'lintw:es'
-]));
-
 // lint
 
 gulp.task('lint:es', async () => {
-	await eslint(true);
+	await exec('eslint', ['.']);
 });
 
 gulp.task('lint', gulp.parallel([
@@ -287,22 +286,23 @@ gulp.task('test', gulp.parallel([
 	'test:node'
 ]));
 
+// watch
+
+gulp.task('watch', () => {
+	gulp.watch([
+		'src/**/*'
+	], gulp.series([
+		'all'
+	]));
+});
+
 // all
 
 gulp.task('all', gulp.series([
 	'clean',
-	'lint',
 	'build',
-	'test'
-]));
-
-// watched
-
-gulp.task('watched', gulp.series([
-	'clean',
-	'lintw',
-	'build',
-	'test'
+	'test',
+	'lint'
 ]));
 
 // prepack
