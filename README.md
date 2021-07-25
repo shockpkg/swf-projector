@@ -5,7 +5,7 @@ Package for creating Flash Player projectors
 [![npm](https://img.shields.io/npm/v/@shockpkg/swf-projector.svg)](https://npmjs.com/package/@shockpkg/swf-projector)
 [![node](https://img.shields.io/node/v/@shockpkg/swf-projector.svg)](https://nodejs.org)
 
-[![dependencies](https://img.shields.io/david/shockpkg/swf-projector.svg)](https://david-dm.org/shockpkg/swf-projector)
+[![dependencies](https://img.shields.io/david/shockpkg/swf-projector)](https://david-dm.org/shockpkg/swf-projector)
 [![size](https://packagephobia.now.sh/badge?p=@shockpkg/swf-projector)](https://packagephobia.now.sh/result?p=@shockpkg/swf-projector)
 [![downloads](https://img.shields.io/npm/dm/@shockpkg/swf-projector.svg)](https://npmcharts.com/compare/@shockpkg/swf-projector?minimal=true)
 
