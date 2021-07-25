@@ -2,7 +2,7 @@
 
 const fs = require('fs').promises;
 
-const latestNode = '16.1.0';
+const latestNode = '16.5.0';
 
 const configs = [
 	[
