@@ -1,0 +1,1 @@
+loadMovie("image.swf", "/");
