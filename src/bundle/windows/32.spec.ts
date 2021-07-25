@@ -14,6 +14,9 @@ import {
 	getPackageFile,
 	simpleSwf
 } from '../../util.spec';
+import {
+	loader
+} from '../../loader';
 
 import {
 	BundleWindows32
@@ -37,9 +40,14 @@ describe('bundle/windows/32', () => {
 					await b.withFile(await getPlayer(), simple);
 				});
 
-				if (pkg.version[0] < 6) {
+				if (pkg.version[0] < 4) {
 					return;
 				}
+
+				const swfv = pkg.version[0] < 5 ? 4 : 5;
+				const movies = pkg.version[0] < 6 ?
+					['swf4-loadmovie.swf', 'image.swf'] :
+					['swf6-loadmovie.swf', 'image.jpg'];
 
 				it('complex', async () => {
 					const dir = await getDir('complex');
@@ -50,13 +58,17 @@ describe('bundle/windows/32', () => {
 					b.projector.versionStrings = versionStrings;
 					b.projector.patchWindowTitle = 'Custom Title';
 					b.projector.removeCodeSignature = true;
-					await b.withFile(
+					await b.withData(
 						await getPlayer(),
-						fixtureFile('swf6-loadmovie.swf'),
+						loader(swfv, 600, 400, 30, 0xFFFFFF, 'main.swf'),
 						async b => {
 							await b.copyResource(
-								'image.jpg',
-								fixtureFile('image.jpg')
+								'main.swf',
+								fixtureFile(movies[0])
+							);
+							await b.copyResource(
+								movies[1],
+								fixtureFile(movies[1])
 							);
 						}
 					);

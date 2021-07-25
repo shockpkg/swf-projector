@@ -13,6 +13,9 @@ import {
 	getPackageFile,
 	simpleSwf
 } from '../../util.spec';
+import {
+	loader
+} from '../../loader';
 
 import {
 	BundleMacApp
@@ -52,10 +55,14 @@ describe('bundle/mac/app', () => {
 					b.projector.binaryName = 'application';
 					b.projector.bundleName = 'App Bundle Name';
 					b.projector.removeInfoPlistStrings = true;
-					await b.withFile(
+					await b.withData(
 						await getPlayer(),
-						fixtureFile('swf6-loadmovie.swf'),
+						loader(6, 600, 400, 30, 0xFFFFFF, 'main.swf'),
 						async b => {
+							await b.copyResource(
+								'main.swf',
+								fixtureFile('swf6-loadmovie.swf')
+							);
 							await b.copyResource(
 								'image.jpg',
 								fixtureFile('image.jpg')

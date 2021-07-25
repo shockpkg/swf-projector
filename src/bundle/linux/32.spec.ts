@@ -13,6 +13,9 @@ import {
 	getPackageFile,
 	simpleSwf
 } from '../../util.spec';
+import {
+	loader
+} from '../../loader';
 
 import {
 	BundleLinux32
@@ -45,10 +48,14 @@ describe('bundle/linux/32', () => {
 
 					const b = new BundleLinux32(dest);
 					b.projector.patchProjectorPath = pkg.patchProjectorPath;
-					await b.withFile(
+					await b.withData(
 						await getPlayer(),
-						fixtureFile('swf6-loadmovie.swf'),
+						loader(6, 600, 400, 30, 0xFFFFFF, 'main.swf', 30 / 2),
 						async b => {
+							await b.copyResource(
+								'main.swf',
+								fixtureFile('swf6-loadmovie.swf')
+							);
 							await b.copyResource(
 								'image.jpg',
 								fixtureFile('image.jpg')
