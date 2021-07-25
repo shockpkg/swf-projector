@@ -173,9 +173,9 @@ export function loader(
 
 	swf.tags.push(showFrame);
 
-	const endTag = new Tag();
-	endTag.code = 0;
-	swf.tags.push(endTag);
+	const end = new Tag();
+	end.code = 0;
+	swf.tags.push(end);
 
 	return swf.encode();
 }
