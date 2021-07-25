@@ -206,6 +206,29 @@ await bundle.withFile('player.tar.gz', 'movie.swf', async b => {
 });
 ```
 
+## Loader Generator
+
+To make it easier to create a SWF that loads another URL for use in a projector, there's a `loader` utility function which generates an ASVM1 stub which loads another URL into level 0 (effectively replacing the content).
+
+You can also specify a number of frames to delay loading the other movie, to give the player a chance to initialize before loading the other movie. This is especially useful on Linux where the player may take about 0.25s to finish resizing the window and may not finish with the correct size (mainly depending on the desktop environment's use of the menu bar). Loading another movie into level 0 after the initial resize is done will however correct the issue. Waiting 0.5s (or FPS / 2) should offer enough of a buffer.
+
+
+### SWF8 600x400 30fps white movie that loads `other.swf?param=1`
+
+```js
+import {loader} from '@shockpkg/swf-projector';
+
+const swfData = loader(8, 600, 400, 30, 0xFFFFFF, 'other.swf?param=1');
+```
+
+### SWF8 600x400 30fps red movie that loads `other.swf`, 0.5s delay
+
+```js
+import {loader} from '@shockpkg/swf-projector';
+
+const swfData = loader(8, 600, 400, 30, 0xFF0000, 'other.swf', 30 / 2);
+```
+
 
 # Notes
 
