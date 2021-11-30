@@ -45,11 +45,13 @@ const configs = [
 			// Only 3.0 32-bit:
 			'flash-player-3.0.8.0-windows-32bit-sa',
 			// Only 4.0:
+			'flash-player-4.0.4.0-windows-sa',
 			'flash-player-4.0.7.0-windows-sa',
 			// Only 5.0 (release, and first debug):
 			'flash-player-5.0.30.0-windows-sa',
 			'flash-player-5.0.30.0-windows-sa-debug',
 			// First 6.0:
+			'flash-player-6.0.4.0-windows-sa',
 			'flash-player-6.0.21.0-windows-sa',
 			// Last 6.0:
 			'flash-player-6.0.79.0-windows-sa',
