@@ -1,4 +1,4 @@
-# swf-projector
+# SWF Projector
 
 Package for creating Flash Player projectors
 
