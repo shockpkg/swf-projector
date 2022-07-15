@@ -366,7 +366,9 @@ export class ProjectorMacApp extends ProjectorMac {
 
 			const slashIndex = volumePath.indexOf('/');
 			const base =
-				slashIndex > -1 ? volumePath.substr(0, slashIndex) : volumePath;
+				slashIndex > -1
+					? volumePath.substring(0, slashIndex)
+					: volumePath;
 			const baseLower = base.toLowerCase();
 
 			if (baseLower.startsWith('.')) {

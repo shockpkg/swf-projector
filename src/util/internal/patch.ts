@@ -97,7 +97,7 @@ export function readCstr(
 			}
 		}
 	}
-	return data.slice(offset, end);
+	return data.subarray(offset, end);
 }
 
 /**

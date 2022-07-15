@@ -237,7 +237,7 @@ function windowsPatchWindowTitleRdata(data: Readonly<Buffer>, title: string) {
 	if (!rdataInfo) {
 		return null;
 	}
-	const rdata = data.slice(
+	const rdata = data.subarray(
 		rdataInfo.offset,
 		rdataInfo.offset + rdataInfo.size
 	);
@@ -279,7 +279,7 @@ function windowsPatchWindowTitleRdata(data: Readonly<Buffer>, title: string) {
 
 	// Copy data and replace the title.
 	const r = Buffer.concat([data as Buffer]);
-	const replacing = r.slice(
+	const replacing = r.subarray(
 		rdataInfo.offset + found[0],
 		rdataInfo.offset + found[0] + found[1]
 	);

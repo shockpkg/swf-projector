@@ -111,7 +111,7 @@ export abstract class ProjectorLinux extends Projector {
 			if (userExec === false) {
 				return;
 			}
-			const name = path.substr(path.lastIndexOf('/') + 1);
+			const name = path.substring(path.lastIndexOf('/') + 1);
 			const nameLower = name.toLowerCase();
 
 			if (!projectorArchiveNames.has(nameLower)) {
