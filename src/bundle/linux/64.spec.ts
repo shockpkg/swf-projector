@@ -1,26 +1,12 @@
-import {
-	join as pathJoin
-} from 'path';
+import {join as pathJoin} from 'path';
 
-import {
-	listSamples
-} from '../../projector/linux/64.spec';
-import {
-	cleanBundlesDir
-} from '../../bundle.spec';
-import {
-	fixtureFile,
-	getPackageFile,
-	simpleSwf
-} from '../../util.spec';
-import {
-	loader
-} from '../../loader';
+import {listSamples} from '../../projector/linux/64.spec';
+import {cleanBundlesDir} from '../../bundle.spec';
+import {fixtureFile, getPackageFile, simpleSwf} from '../../util.spec';
+import {loader} from '../../loader';
 import {BundleLinux} from '../linux';
 
-import {
-	BundleLinux64
-} from './64';
+import {BundleLinux64} from './64';
 
 describe('bundle/linux/64', () => {
 	describe('BundleLinux64', () => {
@@ -34,6 +20,7 @@ describe('bundle/linux/64', () => {
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
+			// eslint-disable-next-line no-loop-func
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
@@ -57,7 +44,7 @@ describe('bundle/linux/64', () => {
 					b.projector.patchProjectorPath = true;
 					await b.withData(
 						await getPlayer(),
-						loader(6, 600, 400, 30, 0xFFFFFF, 'main.swf', 30 / 2),
+						loader(6, 600, 400, 30, 0xffffff, 'main.swf', 30 / 2),
 						async b => {
 							await b.copyResource(
 								'main.swf',

@@ -1,16 +1,6 @@
-import {
-	Readable,
-	pipeline
-} from 'stream';
-import {
-	join as pathJoin,
-	dirname,
-	basename,
-	resolve
-} from 'path';
-import {
-	promisify
-} from 'util';
+import {Readable, pipeline} from 'stream';
+import {join as pathJoin, dirname, basename, resolve} from 'path';
+import {promisify} from 'util';
 
 import fse from 'fs-extra';
 import {
@@ -34,7 +24,7 @@ const userExec = 0b001000000;
  * Options for adding resources.
  */
 export interface IBundleResourceOptions {
-
+	//
 	/**
 	 * Access time.
 	 */
@@ -77,19 +67,13 @@ export interface IBundleResourceOptions {
 }
 
 /**
- * Bundle constructor.
- *
- * @param path Output path for the main executable.
+ * Bundle object.
  */
 export abstract class Bundle extends Object {
 	/**
 	 * File and directory names to exclude when adding a directory.
 	 */
-	public excludes = [
-		/^\./,
-		/^ehthumbs\.db$/,
-		/^Thumbs\.db$/
-	];
+	public excludes = [/^\./, /^ehthumbs\.db$/, /^Thumbs\.db$/];
 
 	/**
 	 * Bundle main executable path.
@@ -111,6 +95,11 @@ export abstract class Bundle extends Object {
 	 */
 	protected _closeQueue = new Queue();
 
+	/**
+	 * Bundle constructor.
+	 *
+	 * @param path Output path for the main executable.
+	 */
 	constructor(path: string) {
 		super();
 
@@ -178,8 +167,7 @@ export abstract class Bundle extends Object {
 
 		try {
 			await this._close();
-		}
-		finally {
+		} finally {
 			this._closeQueue.clear();
 		}
 
@@ -221,8 +209,7 @@ export abstract class Bundle extends Object {
 		await this.openData(player, movieData);
 		try {
 			return func ? await func.call(this, this) : null;
-		}
-		finally {
+		} finally {
 			await this.close();
 		}
 	}
@@ -244,7 +231,7 @@ export abstract class Bundle extends Object {
 	 * @returns True if destination exists, else false.
 	 */
 	public async resourceExists(destination: string) {
-		return !!fsLstatExists(this.resourcePath(destination));
+		return !!(await fsLstatExists(this.resourcePath(destination)));
 	}
 
 	/**
@@ -298,10 +285,11 @@ export abstract class Bundle extends Object {
 		// Create directory.
 		await this.createResourceDirectory(
 			destination,
-			options ? await this._expandResourceOptionsCopy(
-				options,
-				async () => fse.stat(source)
-			) : options
+			options
+				? await this._expandResourceOptionsCopy(options, async () =>
+						fse.stat(source)
+				  )
+				: options
 		);
 
 		// If not recursive do not walk contents.
@@ -346,10 +334,11 @@ export abstract class Bundle extends Object {
 		await this.streamResourceFile(
 			destination,
 			fse.createReadStream(source),
-			options ? await this._expandResourceOptionsCopy(
-				options,
-				async () => fse.stat(source)
-			) : options
+			options
+				? await this._expandResourceOptionsCopy(options, async () =>
+						fse.stat(source)
+				  )
+				: options
 		);
 	}
 
@@ -370,10 +359,11 @@ export abstract class Bundle extends Object {
 		await this.createResourceSymlink(
 			destination,
 			await fse.readlink(source),
-			options ? await this._expandResourceOptionsCopy(
-				options,
-				async () => fse.lstat(source)
-			) : options
+			options
+				? await this._expandResourceOptionsCopy(options, async () =>
+						fse.lstat(source)
+				  )
+				: options
 		);
 	}
 
@@ -421,12 +411,19 @@ export abstract class Bundle extends Object {
 	) {
 		this._assertIsOpen();
 
-		await this.streamResourceFile(destination, new Readable({
-			read() {
-				this.push(data);
-				this.push(null);
-			}
-		}), options);
+		await this.streamResourceFile(
+			destination,
+			new Readable({
+				/**
+				 * Read method.
+				 */
+				read() {
+					this.push(data);
+					this.push(null);
+				}
+			}),
+			options
+		);
 	}
 
 	/**
@@ -445,7 +442,7 @@ export abstract class Bundle extends Object {
 
 		const dest = await this._assertNotResourceExists(destination);
 		await fse.ensureDir(dirname(dest));
-		await fse.symlink(target as (string | Buffer), dest);
+		await fse.symlink(target as string | Buffer, dest);
 
 		if (options) {
 			await this._setResourceAttributes(dest, options);
@@ -496,11 +493,11 @@ export abstract class Bundle extends Object {
 	 */
 	protected async _expandResourceOptionsCopy(
 		options: Readonly<IBundleResourceOptions>,
-		stat: (() => Promise<{
+		stat: () => Promise<{
 			atime: Date;
 			mtime: Date;
 			mode: number;
-		}>)
+		}>
 	) {
 		const r = {...options} as IBundleResourceOptions;
 		const st = once(stat);
@@ -532,18 +529,20 @@ export abstract class Bundle extends Object {
 		// Maybe set executable if not a directory and supported.
 		if (typeof executable === 'boolean' && !st.isDirectory()) {
 			if (!st.isSymbolicLink()) {
-				await fse.chmod(path, this._setResourceModeExecutable(
-					st.mode,
-					executable
-				));
-			}
-			else if (fsLchmodSupported) {
-				await fsLchmod(path, this._setResourceModeExecutable(
-					// Workaround for a legacy Node issue.
-					// eslint-disable-next-line no-bitwise
-					st.mode & 0b111111111,
-					executable
-				));
+				await fse.chmod(
+					path,
+					this._setResourceModeExecutable(st.mode, executable)
+				);
+			} else if (fsLchmodSupported) {
+				await fsLchmod(
+					path,
+					this._setResourceModeExecutable(
+						// Workaround for a legacy Node issue.
+						// eslint-disable-next-line no-bitwise
+						st.mode & 0b111111111,
+						executable
+					)
+				);
 			}
 		}
 
@@ -551,8 +550,7 @@ export abstract class Bundle extends Object {
 		if (atime || mtime) {
 			if (!st.isSymbolicLink()) {
 				await fse.utimes(path, atime || st.atime, mtime || st.mtime);
-			}
-			else if (fsLutimesSupported) {
+			} else if (fsLutimesSupported) {
 				await fsLutimes(path, atime || st.atime, mtime || st.mtime);
 			}
 		}
@@ -578,7 +576,7 @@ export abstract class Bundle extends Object {
 	 */
 	protected _setResourceModeExecutable(mode: number, executable: boolean) {
 		// eslint-disable-next-line no-bitwise
-		return (executable ? (mode | userExec) : (mode & ~userExec)) >>> 0;
+		return (executable ? mode | userExec : mode & ~userExec) >>> 0;
 	}
 
 	/**

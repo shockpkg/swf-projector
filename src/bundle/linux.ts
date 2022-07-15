@@ -2,9 +2,7 @@ import {ProjectorLinux} from '../projector/linux';
 import {Bundle} from '../bundle';
 
 /**
- * BundleLinux constructor.
- *
- * @param path Output path for the main application.
+ * BundleLinux object.
  */
 export abstract class BundleLinux extends Bundle {
 	/**
@@ -12,6 +10,11 @@ export abstract class BundleLinux extends Bundle {
 	 */
 	public abstract readonly projector: ProjectorLinux;
 
+	/**
+	 * BundleLinux constructor.
+	 *
+	 * @param path Output path for the main application.
+	 */
 	constructor(path: string) {
 		super(path);
 	}

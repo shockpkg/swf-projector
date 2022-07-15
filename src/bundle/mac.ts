@@ -2,9 +2,7 @@ import {ProjectorMac} from '../projector/mac';
 import {Bundle} from '../bundle';
 
 /**
- * BundleMac constructor.
- *
- * @param path Output path for the main application.
+ * BundleMac object.
  */
 export abstract class BundleMac extends Bundle {
 	/**
@@ -12,6 +10,11 @@ export abstract class BundleMac extends Bundle {
 	 */
 	public abstract readonly projector: ProjectorMac;
 
+	/**
+	 * BundleMac constructor.
+	 *
+	 * @param path Output path for the main application.
+	 */
 	constructor(path: string) {
 		super(path);
 	}

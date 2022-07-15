@@ -1,9 +1,7 @@
-import {
-	Data
-} from './data';
+import {Data} from './data';
 
 /**
- * Fixed8 class.
+ * Fixed8 object.
  */
 export class Fixed8 extends Data {
 	/**
@@ -16,6 +14,9 @@ export class Fixed8 extends Data {
 	 */
 	public denominator: number = 0;
 
+	/**
+	 * Fixed8 constructor.
+	 */
 	constructor() {
 		super();
 	}
@@ -29,14 +30,24 @@ export class Fixed8 extends Data {
 		return 2;
 	}
 
+	/**
+	 * Value.
+	 *
+	 * @param value The value.
+	 */
 	public set value(value) {
 		const i16 = Math.floor(value * 256);
 		// eslint-disable-next-line no-bitwise
-		this.numerator = (i16 >> 8) & 0xFF;
+		this.numerator = (i16 >> 8) & 0xff;
 		// eslint-disable-next-line no-bitwise
-		this.denominator = i16 & 0xFF;
+		this.denominator = i16 & 0xff;
 	}
 
+	/**
+	 * Value.
+	 *
+	 * @returns The value.
+	 */
 	public get value() {
 		// eslint-disable-next-line no-bitwise
 		const i16 = (this.numerator << 8) | this.denominator;

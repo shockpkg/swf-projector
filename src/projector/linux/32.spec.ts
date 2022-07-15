@@ -1,12 +1,8 @@
-import {
-	join as pathJoin
-} from 'path';
+import {join as pathJoin} from 'path';
 
 import fse from 'fs-extra';
 
-import {
-	cleanProjectorDir
-} from '../../projector.spec';
+import {cleanProjectorDir} from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile,
@@ -16,9 +12,7 @@ import {
 } from '../../util.spec';
 import {ProjectorLinux} from '../linux';
 
-import {
-	ProjectorLinux32
-} from './32';
+import {ProjectorLinux32} from './32';
 
 export function listSamples() {
 	if (!shouldTest('linux32')) {
@@ -37,8 +31,9 @@ export function listSamples() {
 describe('projector/linux/32', () => {
 	describe('ProjectorLinux32', () => {
 		it('instanceof ProjectorLinux', () => {
-			expect(ProjectorLinux32.prototype instanceof ProjectorLinux)
-				.toBeTrue();
+			expect(
+				ProjectorLinux32.prototype instanceof ProjectorLinux
+			).toBeTrue();
 		});
 
 		describe('dummy', () => {
@@ -50,10 +45,7 @@ describe('projector/linux/32', () => {
 				const dest = pathJoin(dir, 'application');
 
 				const p = new ProjectorLinux32(dest);
-				await p.withFile(
-					fixtureFile('dummy'),
-					fixtureFile('swf3.swf')
-				);
+				await p.withFile(fixtureFile('dummy'), fixtureFile('swf3.swf'));
 			});
 		});
 
@@ -63,16 +55,14 @@ describe('projector/linux/32', () => {
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
+			// eslint-disable-next-line no-loop-func
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux32(dest);
-					await p.withFile(
-						await getPlayer(),
-						simple
-					);
+					await p.withFile(await getPlayer(), simple);
 				});
 
 				it('title', async () => {

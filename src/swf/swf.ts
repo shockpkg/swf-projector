@@ -1,18 +1,10 @@
-import {
-	Data
-} from './data';
-import {
-	Rect
-} from './rect';
-import {
-	Fixed8
-} from './fixed8';
-import {
-	Tag
-} from './tag';
+import {Data} from './data';
+import {Rect} from './rect';
+import {Fixed8} from './fixed8';
+import {Tag} from './tag';
 
 /**
- * Swf class.
+ * Swf object.
  */
 export class Swf extends Data {
 	/**
@@ -40,6 +32,9 @@ export class Swf extends Data {
 	 */
 	public tags: Tag[] = [];
 
+	/**
+	 * Swf constructor.
+	 */
 	constructor() {
 		super();
 	}

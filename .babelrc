@@ -1,14 +1,15 @@
 {
 	"presets": [
-		["@babel/preset-env", {
-			"modules": "commonjs",
-			"targets": {
-				"node": "10"
+		[
+			"@babel/preset-env",
+			{
+				"modules": "commonjs",
+				"targets": {
+					"node": "10"
+				}
 			}
-		}],
+		],
 		["@babel/preset-typescript"]
 	],
-	"plugins": [
-		["@babel/plugin-transform-runtime", {}]
-	]
+	"plugins": [["@babel/plugin-transform-runtime", {}]]
 }

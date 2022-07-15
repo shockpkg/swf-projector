@@ -1,7 +1,4 @@
-import {
-	join as pathJoin,
-	basename
-} from 'path';
+import {join as pathJoin, basename} from 'path';
 
 import fse from 'fs-extra';
 
@@ -18,9 +15,7 @@ import {ProjectorMacApp} from '../../projector/mac/app';
 import {BundleMac} from '../mac';
 
 /**
- * BundleMacApp constructor.
- *
- * @param path Output path for the main application.
+ * BundleMacApp object.
  */
 export class BundleMacApp extends BundleMac {
 	/**
@@ -28,6 +23,11 @@ export class BundleMacApp extends BundleMac {
 	 */
 	public readonly projector: ProjectorMacApp;
 
+	/**
+	 * BundleMacApp constructor.
+	 *
+	 * @param path Output path for the main application.
+	 */
 	constructor(path: string) {
 		super(path);
 

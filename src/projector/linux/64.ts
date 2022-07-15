@@ -6,14 +6,10 @@ import {
 	linux64PatchProjectorOffsetData,
 	linux64PatchProjectorPathData
 } from '../../util/linux';
-import {
-	ProjectorLinux
-} from '../linux';
+import {ProjectorLinux} from '../linux';
 
 /**
- * ProjectorLinux64 constructor.
- *
- * @param path Output path.
+ * ProjectorLinux64 object.
  */
 export class ProjectorLinux64 extends ProjectorLinux {
 	/**
@@ -44,6 +40,11 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	 */
 	public patchProjectorOffset = false;
 
+	/**
+	 * ProjectorLinux64 constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super(path);
 	}
@@ -69,12 +70,14 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		} = this;
 
 		// Skip if no patching was requested.
-		if (!(
-			patchWindowTitle ||
-			patchMenuRemove ||
-			patchProjectorPath ||
-			patchProjectorOffset
-		)) {
+		if (
+			!(
+				patchWindowTitle ||
+				patchMenuRemove ||
+				patchProjectorPath ||
+				patchProjectorOffset
+			)
+		) {
 			return;
 		}
 

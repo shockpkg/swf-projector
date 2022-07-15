@@ -1,36 +1,20 @@
 /* eslint-disable max-classes-per-file */
 
-import {
-	join as pathJoin
-} from 'path';
+import {join as pathJoin} from 'path';
 
-import {
-	Plist,
-	Value,
-	ValueDict,
-	ValueString
-} from '@shockpkg/plist-dom';
-import {
-	unsign
-} from 'macho-unsign';
+import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
+import {unsign} from 'macho-unsign';
 import fse from 'fs-extra';
 
-import {
-	once,
-	launcher
-} from '../util';
+import {once, launcher} from '../util';
 
-import {
-	findExact,
-	findFuzzy,
-	patchHexToBytes
-} from './internal/patch';
+import {findExact, findFuzzy, patchHexToBytes} from './internal/patch';
 
-const FAT_MAGIC = 0xCAFEBABE;
-const MH_MAGIC = 0xFEEDFACE;
-const MH_CIGAM = 0xCEFAEDFE;
-const MH_MAGIC_64 = 0xFEEDFACF;
-const MH_CIGAM_64 = 0xCFFAEDFE;
+const FAT_MAGIC = 0xcafebabe;
+const MH_MAGIC = 0xfeedface;
+const MH_CIGAM = 0xcefaedfe;
+const MH_MAGIC_64 = 0xfeedfacf;
+const MH_CIGAM_64 = 0xcffaedfe;
 
 const CPU_TYPE_POWERPC = 0x00000012;
 const CPU_TYPE_POWERPC64 = 0x01000012;
@@ -39,15 +23,18 @@ const CPU_TYPE_X86_64 = 0x01000007;
 
 const LC_SEGMENT = 1;
 
-const launcherMappings = once(() => new Map([
-	[CPU_TYPE_POWERPC, 'mac-app-ppc'],
-	[CPU_TYPE_POWERPC64, 'mac-app-ppc64'],
-	[CPU_TYPE_I386, 'mac-app-i386'],
-	[CPU_TYPE_X86_64, 'mac-app-x86_64']
-]));
+const launcherMappings = once(
+	() =>
+		new Map([
+			[CPU_TYPE_POWERPC, 'mac-app-ppc'],
+			[CPU_TYPE_POWERPC64, 'mac-app-ppc64'],
+			[CPU_TYPE_I386, 'mac-app-i386'],
+			[CPU_TYPE_X86_64, 'mac-app-x86_64']
+		])
+);
 
 export interface IMachoType {
-
+	//
 	/**
 	 * CPU type.
 	 */
@@ -80,6 +67,7 @@ function hex4(i: number) {
  * @param data Plist XML.
  * @returns Plist document.
  */
+// eslint-disable-next-line @typescript-eslint/require-await
 export async function plistParse(data: string) {
 	const plist = new Plist();
 	plist.fromXml(data);
@@ -133,8 +121,7 @@ export function infoPlistDictSet(
 	const dict = infoPlistDict(plist);
 	if (value) {
 		dict.set(key, value);
-	}
-	else {
+	} else {
 		dict.delete(key);
 	}
 }
@@ -146,8 +133,9 @@ export function infoPlistDictSet(
  * @returns Executable name.
  */
 export function infoPlistBundleExecutableGet(plist: Plist) {
-	return infoPlistDictGetValue(plist, 'CFBundleExecutable')
-		.castAs(ValueString).value;
+	return infoPlistDictGetValue(plist, 'CFBundleExecutable').castAs(
+		ValueString
+	).value;
 }
 
 /**
@@ -171,8 +159,8 @@ export function infoPlistBundleExecutableSet(
  * @returns Icon name.
  */
 export function infoPlistBundleIconFileGet(plist: Plist) {
-	return infoPlistDictGetValue(plist, 'CFBundleIconFile')
-		.castAs(ValueString).value;
+	return infoPlistDictGetValue(plist, 'CFBundleIconFile').castAs(ValueString)
+		.value;
 }
 
 /**
@@ -214,13 +202,29 @@ export function infoPlistBundleDocumentTypesDelete(plist: Plist) {
  */
 export function machoTypesData(data: Readonly<Buffer>) {
 	let le = false;
-	const uint32 = (offset: number) => (
-		le ? data.readUInt32LE(offset) : data.readUInt32BE(offset)
-	);
+
+	/**
+	 * Read UINT32 at offset.
+	 *
+	 * @param offset File offset.
+	 * @returns UINT32 value.
+	 */
+	// eslint-disable-next-line arrow-body-style
+	const uint32 = (offset: number) => {
+		return le ? data.readUInt32LE(offset) : data.readUInt32BE(offset);
+	};
+
+	/**
+	 * Read type at offset.
+	 *
+	 * @param offset File offset.
+	 * @returns Type object.
+	 */
 	const type = (offset: number): IMachoType => ({
 		cpuType: uint32(offset),
 		cpuSubtype: uint32(offset + 4)
 	});
+
 	const magic = uint32(0);
 	switch (magic) {
 		case FAT_MAGIC: {
@@ -331,11 +335,19 @@ export async function machoAppLauncherFat(
 	const pieces = [head];
 	let total = head.length;
 
-	// Helpers for add and pad pieces, updating the total length.
+	/**
+	 * Helper to add pieces and update total length.
+	 *
+	 * @param data Data.
+	 */
 	const add = (data: Buffer) => {
 		pieces.push(data);
 		total += data.length;
 	};
+
+	/**
+	 * Helper to pad pieces.
+	 */
 	const pad = () => {
 		const over = total % alignSize;
 		if (over) {
@@ -379,9 +391,9 @@ export async function machoAppLauncherFat(
 export async function machoAppLauncher(
 	types: Readonly<IMachoType> | Readonly<Readonly<IMachoType>[]>
 ) {
-	return Array.isArray(types) ?
-		machoAppLauncherFat(types) :
-		machoAppLauncherThin(types as IMachoType);
+	return Array.isArray(types)
+		? machoAppLauncherFat(types)
+		: machoAppLauncherThin(types as IMachoType);
 }
 
 /**
@@ -389,8 +401,9 @@ export async function machoAppLauncher(
  * Yields slices of the original buffer if a FAT binary.
  *
  * @param data Mach-O binary.
+ * @yields Mach-O slice.
  */
-export function * machoBinaries<T extends Readonly<Buffer>>(data: T) {
+export function* machoBinaries<T extends Readonly<Buffer>>(data: T) {
 	if (data.readUInt32BE(0) === FAT_MAGIC) {
 		const count = data.readUInt32BE(4);
 		let offset = 8;
@@ -400,8 +413,7 @@ export function * machoBinaries<T extends Readonly<Buffer>>(data: T) {
 			yield data.subarray(start, end) as any as T;
 			offset += 20;
 		}
-	}
-	else {
+	} else {
 		yield data;
 	}
 }
@@ -437,6 +449,9 @@ const machoAppUnusedStrings = [
 	'https://www.macromedia.com/bin/flashdownload.cgi'
 ];
 
+/**
+ * MachoAppWindowTitlePatch object.
+ */
 abstract class MachoAppWindowTitlePatch extends Object {
 	public static readonly CPU_TYPE: number;
 
@@ -448,6 +463,12 @@ abstract class MachoAppWindowTitlePatch extends Object {
 
 	protected _titleData: Buffer | null = null;
 
+	/**
+	 * MachoAppWindowTitlePatch constructor.
+	 *
+	 * @param data Data.
+	 * @param title Title.
+	 */
 	constructor(data: Buffer, title: string) {
 		super();
 
@@ -455,10 +476,25 @@ abstract class MachoAppWindowTitlePatch extends Object {
 		this._title = title;
 	}
 
+	/**
+	 * Check patch.
+	 *
+	 * @returns True if valid patch, else false.
+	 */
 	public abstract check(): boolean;
 
+	/**
+	 * Apply patch.
+	 */
 	public abstract patch(): void;
 
+	/**
+	 * Fuzzy find once, throw if more.
+	 *
+	 * @param data Data.
+	 * @param fuzzy Fuzzy data.
+	 * @returns Found offset.
+	 */
 	protected _findFuzzyOnce(data: Buffer, fuzzy: (number | null)[]) {
 		let r = null;
 		for (const found of findFuzzy(data, fuzzy)) {
@@ -470,12 +506,15 @@ abstract class MachoAppWindowTitlePatch extends Object {
 		return r;
 	}
 
+	/**
+	 * Find memory for title.
+	 */
 	protected _findTitleMemory() {
 		// Find the longest unused string match.
 		let titleData = null;
 		let titleOffset = -1;
 		const data = this._data;
-		OUTER:for (const str of machoAppUnusedStrings) {
+		OUTER: for (const str of machoAppUnusedStrings) {
 			const strD = Buffer.from(`\0${str}\0`, 'ascii');
 			for (const offset of findExact(data, strD)) {
 				const off = offset + 1;
@@ -495,6 +534,9 @@ abstract class MachoAppWindowTitlePatch extends Object {
 		this._titleData = titleData;
 	}
 
+	/**
+	 * Patch title memory.
+	 */
 	protected _patchTitleMemory() {
 		const titleData = this._titleData;
 		if (!titleData) {
@@ -502,11 +544,16 @@ abstract class MachoAppWindowTitlePatch extends Object {
 		}
 		const titleEncoded = this._titleEncoded();
 		titleData.fill(0);
-		for (let i = titleEncoded.length; i--;) {
+		for (let i = titleEncoded.length; i--; ) {
 			titleData.writeInt8(titleEncoded.readInt8(i), i);
 		}
 	}
 
+	/**
+	 * Get the title offset.
+	 *
+	 * @returns Title offset.
+	 */
 	protected _chars() {
 		const r = this._titleOffset;
 		if (r < 0) {
@@ -515,59 +562,105 @@ abstract class MachoAppWindowTitlePatch extends Object {
 		return r;
 	}
 
+	/**
+	 * Get number of characters.
+	 *
+	 * @returns Title length.
+	 */
 	protected _numChars() {
 		return this._title.length;
 	}
 
+	/**
+	 * Get the encoded title.
+	 */
 	protected abstract _titleEncoded(): Buffer;
 }
 
+/**
+ * MachoAppWindowTitlePatchI386 object.
+ */
 abstract class MachoAppWindowTitlePatchI386 extends MachoAppWindowTitlePatch {
 	public static readonly CPU_TYPE = CPU_TYPE_I386;
 
+	/**
+	 * @inheritDoc
+	 */
 	protected _titleEncoded() {
 		return Buffer.from(this._title, 'utf16le');
 	}
 }
 
+/**
+ * MachoAppWindowTitlePatchX8664 object.
+ */
 abstract class MachoAppWindowTitlePatchX8664 extends MachoAppWindowTitlePatch {
 	public static readonly CPU_TYPE = CPU_TYPE_X86_64;
 
+	/**
+	 * @inheritDoc
+	 */
 	protected _titleEncoded() {
 		return Buffer.from(this._title, 'utf16le');
 	}
 }
 
-const machoAppWindowTitlePatches: ({
+const machoAppWindowTitlePatches: {
 	// eslint-disable-next-line @typescript-eslint/naming-convention
 	CPU_TYPE: number;
-	new(data: Buffer, title: string): MachoAppWindowTitlePatch;
-})[] = [
-/* eslint-disable no-multi-spaces, line-comment-position, no-inline-comments */
-	// 11.0.1.152+
+	new (data: Buffer, title: string): MachoAppWindowTitlePatch;
+}[] = [
+	/**
+	 * 11.0.1.152+ versions.
+	 */
 	class extends MachoAppWindowTitlePatchI386 {
 		private _offset_ = -1;
 
+		/**
+		 * @inheritDoc
+		 */
 		public check() {
-			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
-				'55',                      // push    ebp
-				'89 E5',                   // mov     ebp, esp
-				'56',                      // push    esi
-				'53',                      // push    ebx
-				'83 EC 10',                // sub     esp, 0x10
-				'8B 75 08',                // mov     esi, DWORD PTR [ebp+0x8]
-				'8B 45 0C',                // mov     eax, DWORD PTR [ebp+0xc]
-				'8B 18',                   // mov     ebx, DWORD PTR [eax]
-				'8B 48 04',                // mov     ecx, DWORD PTR [eax+0x4]
-				'85 C9',                   // test    ecx, ecx
-				'0F 44 0D -- -- -- --',    // cmove   ecx, DWORD PTR ds:...
-				'89 5C 24 08',             // mov     DWORD PTR [esp+0x8], ebx
-				'89 4C 24 04',             // mov     DWORD PTR [esp+0x4], ecx
-				'8B 15 -- -- -- --',       // mov     edx, DWORD PTR ds:...
-				'8B 02',                   // mov     eax, DWORD PTR [edx]
-				'89 04 24',                // mov     DWORD PTR [esp], eax
-				'E8 -- -- -- --'           // call    -- -- -- --
-			].join(' ')));
+			const found = this._findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    ebp
+						'55',
+						// mov     ebp, esp
+						'89 E5',
+						// push    esi
+						'56',
+						// push    ebx
+						'53',
+						// sub     esp, 0x10
+						'83 EC 10',
+						// mov     esi, DWORD PTR [ebp+0x8]
+						'8B 75 08',
+						// mov     eax, DWORD PTR [ebp+0xc]
+						'8B 45 0C',
+						// mov     ebx, DWORD PTR [eax]
+						'8B 18',
+						// mov     ecx, DWORD PTR [eax+0x4]
+						'8B 48 04',
+						// test    ecx, ecx
+						'85 C9',
+						// cmove   ecx, DWORD PTR ds:...
+						'0F 44 0D -- -- -- --',
+						// mov     DWORD PTR [esp+0x8], ebx
+						'89 5C 24 08',
+						// mov     DWORD PTR [esp+0x4], ecx
+						'89 4C 24 04',
+						// mov     edx, DWORD PTR ds:...
+						'8B 15 -- -- -- --',
+						// mov     eax, DWORD PTR [edx]
+						'8B 02',
+						// mov     DWORD PTR [esp], eax
+						'89 04 24',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
 			if (found === null) {
 				return false;
 			}
@@ -577,6 +670,9 @@ const machoAppWindowTitlePatches: ({
 			return true;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public patch() {
 			this._patchTitleMemory();
 
@@ -585,13 +681,13 @@ const machoAppWindowTitlePatches: ({
 			const base = machoI386BaseAddress(d);
 
 			// mov ebx, numChars
-			d.writeUInt8(0xBB, i++);
+			d.writeUInt8(0xbb, i++);
 			d.writeInt32LE(this._numChars(), i);
 			i += 4;
 
 			// lea ecx, (base+chars)
-			d.writeUInt8(0x8D, i++);
-			d.writeUInt8(0x0D, i++);
+			d.writeUInt8(0x8d, i++);
+			d.writeUInt8(0x0d, i++);
 			d.writeInt32LE(base + this._chars(), i);
 			i += 4;
 
@@ -601,38 +697,65 @@ const machoAppWindowTitlePatches: ({
 			d.writeUInt8(0x90, i);
 		}
 	},
+
+	/**
+	 * 11.0.1.152+ versions.
+	 */
 	class extends MachoAppWindowTitlePatchX8664 {
 		private _offset_ = -1;
 
 		private _offsetJump_ = -1;
 
+		/**
+		 * @inheritDoc
+		 */
 		public check() {
-			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
-				'55',                      // push    rbp
-				'48 89 E5',                // mov     rbp, rsp
-				'41 54',                   // push    r12
-				'53',                      // push    rbx
-				'49 89 FC',                // mov     r12, rdi
-				'48 8B 16',                // mov     rdx, QWORD PTR [rsi]
-				'48 8B 76 08',             // mov     rsi, QWORD PTR [rsi+0x8]
-				'48 85 F6',                // test    rsi, rsi
-				'74 --',                   // je      --
-				'48 8B 05 -- -- -- --',    // mov     rax, QWORD PTR [rip+...]
-				'48 8B 38',                // mov     rdi, QWORD PTR [rax]
-				'E8 -- -- -- --'           // call    -- -- -- --
-			].join(' ')));
+			const found = this._findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    rbp
+						'55',
+						// mov     rbp, rsp
+						'48 89 E5',
+						// push    r12
+						'41 54',
+						// push    rbx
+						'53',
+						// mov     r12, rdi
+						'49 89 FC',
+						// mov     rdx, QWORD PTR [rsi]
+						'48 8B 16',
+						// mov     rsi, QWORD PTR [rsi+0x8]
+						'48 8B 76 08',
+						// test    rsi, rsi
+						'48 85 F6',
+						// je      --
+						'74 --',
+						// mov     rax, QWORD PTR [rip+...]
+						'48 8B 05 -- -- -- --',
+						// mov     rdi, QWORD PTR [rax]
+						'48 8B 38',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
 			if (found === null) {
 				return false;
 			}
 
 			// Sanity check the jump target instructions.
 			const offsetJump = found + 22 + this._data.readInt8(found + 21);
-			if (this._findFuzzyOnce(
-				this._data.subarray(offsetJump, offsetJump + 7),
-				patchHexToBytes(
-					'48 8D 35 -- -- -- --' // lea     rsi, [rip+...]
-				)
-			) !== 0) {
+			if (
+				this._findFuzzyOnce(
+					this._data.subarray(offsetJump, offsetJump + 7),
+					patchHexToBytes(
+						// lea     rsi, [rip+...]
+						'48 8D 35 -- -- -- --'
+					)
+				) !== 0
+			) {
 				throw new Error('Jump target instructions unexpected');
 			}
 
@@ -642,6 +765,9 @@ const machoAppWindowTitlePatches: ({
 			return true;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public patch() {
 			this._patchTitleMemory();
 
@@ -650,49 +776,78 @@ const machoAppWindowTitlePatches: ({
 
 			// mov rdx, numChars
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0xBA, i++);
+			d.writeUInt8(0xba, i++);
 			d.writeInt32LE(this._numChars(), i);
 			i += 4;
 			d.writeInt32LE(0, i);
 			i += 4;
 
 			// jmp --
-			d.writeUInt8(0xEB, i++);
+			d.writeUInt8(0xeb, i++);
 
 			i = this._offsetJump_;
 
 			// lea rsi, chars
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8D, i++);
+			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x35, i++);
 			d.writeInt32LE(this._chars() - (i + 4), i);
 		}
 	},
-	// 13.0.0.182+
+
+	/**
+	 * 13.0.0.182+ versions.
+	 */
 	class extends MachoAppWindowTitlePatchI386 {
 		private _offset_ = -1;
 
+		/**
+		 * @inheritDoc
+		 */
 		public check() {
-			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
-				'55',                      // push    ebp
-				'89 E5',                   // mov     ebp, esp
-				'57',                      // push    edi
-				'56',                      // push    esi
-				'83 EC 10',                // sub     esp, 0x10
-				'E8 00 00 00 00',          // call    0xd
-				'5F',                      // pop     edi
-				'8B 45 0C',                // mov     eax, DWORD PTR [ebp+0xc]
-				'8B 08',                   // mov     ecx, DWORD PTR [eax]
-				'8B 40 04',                // mov     eax, DWORD PTR [eax+0x4]
-				'89 4C 24 08',             // mov     DWORD PTR [esp+0x8], ecx
-				'85 C0',                   // test    eax, eax
-				'0F 44 87 -- -- -- --',    // cmove   eax, DWORD PTR [edi+...]
-				'89 44 24 04',             // mov     DWORD PTR [esp+0x4], eax
-				'8B 87 -- -- -- --',       // mov     eax, DWORD PTR [edi+...]
-				'8B 00',                   // mov     eax, DWORD PTR [eax]
-				'89 04 24',                // mov     DWORD PTR [esp], eax
-				'E8 -- -- -- --'           // call    -- -- -- --
-			].join(' ')));
+			const found = this._findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    ebp
+						'55',
+						// mov     ebp, esp
+						'89 E5',
+						// push    edi
+						'57',
+						// push    esi
+						'56',
+						// sub     esp, 0x10
+						'83 EC 10',
+						// call    0xd
+						'E8 00 00 00 00',
+						// pop     edi
+						'5F',
+						// mov     eax, DWORD PTR [ebp+0xc]
+						'8B 45 0C',
+						// mov     ecx, DWORD PTR [eax]
+						'8B 08',
+						// mov     eax, DWORD PTR [eax+0x4]
+						'8B 40 04',
+						// mov     DWORD PTR [esp+0x8], ecx
+						'89 4C 24 08',
+						// test    eax, eax
+						'85 C0',
+						// cmove   eax, DWORD PTR [edi+...]
+						'0F 44 87 -- -- -- --',
+						// mov     DWORD PTR [esp+0x4], eax
+						'89 44 24 04',
+						// mov     eax, DWORD PTR [edi+...]
+						'8B 87 -- -- -- --',
+						// mov     eax, DWORD PTR [eax]
+						'8B 00',
+						// mov     DWORD PTR [esp], eax
+						'89 04 24',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
 			if (found === null) {
 				return false;
 			}
@@ -702,6 +857,9 @@ const machoAppWindowTitlePatches: ({
 			return true;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public patch() {
 			this._patchTitleMemory();
 
@@ -710,7 +868,7 @@ const machoAppWindowTitlePatches: ({
 			let i = this._offset_ + 17;
 
 			// mov ecx, numChars
-			d.writeUInt8(0xB9, i++);
+			d.writeUInt8(0xb9, i++);
 			d.writeInt32LE(this._numChars(), i);
 			i += 4;
 
@@ -718,7 +876,7 @@ const machoAppWindowTitlePatches: ({
 			i += 4;
 
 			// lea eax, [edi+(chars-edi)]
-			d.writeUInt8(0x8D, i++);
+			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x87, i++);
 			d.writeInt32LE(this._chars() - edi, i);
 			i += 4;
@@ -729,24 +887,48 @@ const machoAppWindowTitlePatches: ({
 			d.writeUInt8(0x90, i);
 		}
 	},
+
+	/**
+	 * 13.0.0.182+ versions.
+	 */
 	class extends MachoAppWindowTitlePatchX8664 {
 		private _offset_ = -1;
 
+		/**
+		 * @inheritDoc
+		 */
 		public check() {
-			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
-				'55',                      // push    rbp
-				'48 89 E5',                // mov     rbp, rsp
-				'41 56',                   // push    r14
-				'53',                      // push    rbx
-				'49 89 FE',                // mov     r14, rdi
-				'48 8B 16',                // mov     rdx, QWORD PTR [rsi]
-				'48 8B 76 08',             // mov     rsi, QWORD PTR [rsi+0x8]
-				'48 85 F6',                // test    rsi, rsi
-				'48 0F 44 35 -- -- -- --', // cmove   rsi, QWORD PTR [rip+...]
-				'48 8B 05 -- -- -- --',    // mov     rax, QWORD PTR [rip+...]
-				'48 8B 38',                // mov     rdi, QWORD PTR [rax]
-				'E8 -- -- -- --'           // call    -- -- -- --
-			].join(' ')));
+			const found = this._findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    rbp
+						'55',
+						// mov     rbp, rsp
+						'48 89 E5',
+						// push    r14
+						'41 56',
+						// push    rbx
+						'53',
+						// mov     r14, rdi
+						'49 89 FE',
+						// mov     rdx, QWORD PTR [rsi]
+						'48 8B 16',
+						// mov     rsi, QWORD PTR [rsi+0x8]
+						'48 8B 76 08',
+						// test    rsi, rsi
+						'48 85 F6',
+						// cmove   rsi, QWORD PTR [rip+...]
+						'48 0F 44 35 -- -- -- --',
+						// mov     rax, QWORD PTR [rip+...]
+						'48 8B 05 -- -- -- --',
+						// mov     rdi, QWORD PTR [rax]
+						'48 8B 38',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
 			if (found === null) {
 				return false;
 			}
@@ -756,6 +938,9 @@ const machoAppWindowTitlePatches: ({
 			return true;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public patch() {
 			this._patchTitleMemory();
 
@@ -764,14 +949,14 @@ const machoAppWindowTitlePatches: ({
 
 			// lea rsi, chars
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8D, i++);
+			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x35, i++);
 			d.writeInt32LE(this._chars() - (i + 4), i);
 			i += 4;
 
 			// mov rdx, numChars
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0xBA, i++);
+			d.writeUInt8(0xba, i++);
 			d.writeInt32LE(this._numChars(), i);
 			i += 4;
 			d.writeInt32LE(0, i);
@@ -781,31 +966,60 @@ const machoAppWindowTitlePatches: ({
 			d.writeUInt8(0x90, i);
 		}
 	},
-	// 23.0.0.162+
+
+	/**
+	 * 23.0.0.162+ versions.
+	 */
 	class extends MachoAppWindowTitlePatchI386 {
 		private _offset_ = -1;
 
+		/**
+		 * @inheritDoc
+		 */
 		public check() {
-			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
-				'55',                      // push    ebp
-				'89 E5',                   // mov     ebp, esp
-				'57',                      // push    edi
-				'56',                      // push    esi
-				'83 EC 10',                // sub     esp, 0x10
-				'E8 00 00 00 00',          // call    0xd
-				'5F',                      // pop     edi
-				'8B 45 0C',                // mov     eax, DWORD PTR [ebp+0xc]
-				'8B 8F -- -- -- --',       // mov     ecx, DWORD PTR [edi+...]
-				'8B 09',                   // mov     ecx, DWORD PTR [ecx]
-				'8B 10',                   // mov     edx, DWORD PTR [eax]
-				'8B 40 04',                // mov     eax, DWORD PTR [eax+0x4]
-				'85 C0',                   // test    eax, eax
-				'0F 44 87 -- -- -- --',    // cmove   eax, DWORD PTR [edi+...]
-				'89 54 24 08',             // mov     DWORD PTR [esp+0x8], edx
-				'89 44 24 04',             // mov     DWORD PTR [esp+0x4], eax
-				'89 0C 24',                // mov     DWORD PTR [esp], ecx
-				'E8 -- -- -- --'           // call    -- -- -- --
-			].join(' ')));
+			const found = this._findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    ebp
+						'55',
+						// mov     ebp, esp
+						'89 E5',
+						// push    edi
+						'57',
+						// push    esi
+						'56',
+						// sub     esp, 0x10
+						'83 EC 10',
+						// call    0xd
+						'E8 00 00 00 00',
+						// pop     edi
+						'5F',
+						// mov     eax, DWORD PTR [ebp+0xc]
+						'8B 45 0C',
+						// mov     ecx, DWORD PTR [edi+...]
+						'8B 8F -- -- -- --',
+						// mov     ecx, DWORD PTR [ecx]
+						'8B 09',
+						// mov     edx, DWORD PTR [eax]
+						'8B 10',
+						// mov     eax, DWORD PTR [eax+0x4]
+						'8B 40 04',
+						// test    eax, eax
+						'85 C0',
+						// cmove   eax, DWORD PTR [edi+...]
+						'0F 44 87 -- -- -- --',
+						// mov     DWORD PTR [esp+0x8], edx
+						'89 54 24 08',
+						// mov     DWORD PTR [esp+0x4], eax
+						'89 44 24 04',
+						// mov     DWORD PTR [esp], ecx
+						'89 0C 24',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
 			if (found === null) {
 				return false;
 			}
@@ -815,6 +1029,9 @@ const machoAppWindowTitlePatches: ({
 			return true;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public patch() {
 			this._patchTitleMemory();
 
@@ -823,12 +1040,12 @@ const machoAppWindowTitlePatches: ({
 			let i = this._offset_ + 25;
 
 			// mov edx, numChars
-			d.writeUInt8(0xBA, i++);
+			d.writeUInt8(0xba, i++);
 			d.writeInt32LE(this._numChars(), i);
 			i += 4;
 
 			// lea eax, [edi+(chars-edi)]
-			d.writeUInt8(0x8D, i++);
+			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x87, i++);
 			d.writeInt32LE(this._chars() - edi, i);
 			i += 4;
@@ -839,24 +1056,48 @@ const machoAppWindowTitlePatches: ({
 			d.writeUInt8(0x90, i);
 		}
 	},
+
+	/**
+	 * 23.0.0.162+ versions.
+	 */
 	class extends MachoAppWindowTitlePatchX8664 {
 		private _offset_ = -1;
 
+		/**
+		 * @inheritDoc
+		 */
 		public check() {
-			const found = this._findFuzzyOnce(this._data, patchHexToBytes([
-				'55',                      // push    rbp
-				'48 89 E5',                // mov     rbp, rsp
-				'41 56',                   // push    r14
-				'53',                      // push    rbx
-				'49 89 FE',                // mov     r14, rdi
-				'48 8B 05 -- -- -- --',    // mov     rax, QWORD PTR [rip+...]
-				'48 8B 38',                // mov     rdi, QWORD PTR [rax]
-				'48 8B 16',                // mov     rdx, QWORD PTR [rsi]
-				'48 8B 76 08',             // mov     rsi, QWORD PTR [rsi+0x8]
-				'48 85 F6',                // test    rsi, rsi
-				'48 0F 44 35 -- -- -- --', // cmove   rsi, QWORD PTR [rip+...]
-				'E8 -- -- -- --'           // call    -- -- -- --
-			].join(' ')));
+			const found = this._findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    rbp
+						'55',
+						// mov     rbp, rsp
+						'48 89 E5',
+						// push    r14
+						'41 56',
+						// push    rbx
+						'53',
+						// mov     r14, rdi
+						'49 89 FE',
+						// mov     rax, QWORD PTR [rip+...]
+						'48 8B 05 -- -- -- --',
+						// mov     rdi, QWORD PTR [rax]
+						'48 8B 38',
+						// mov     rdx, QWORD PTR [rsi]
+						'48 8B 16',
+						// mov     rsi, QWORD PTR [rsi+0x8]
+						'48 8B 76 08',
+						// test    rsi, rsi
+						'48 85 F6',
+						// cmove   rsi, QWORD PTR [rip+...]
+						'48 0F 44 35 -- -- -- --',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
 			if (found === null) {
 				return false;
 			}
@@ -866,6 +1107,9 @@ const machoAppWindowTitlePatches: ({
 			return true;
 		}
 
+		/**
+		 * @inheritDoc
+		 */
 		public patch() {
 			this._patchTitleMemory();
 
@@ -874,14 +1118,14 @@ const machoAppWindowTitlePatches: ({
 
 			// lea rsi, chars
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8D, i++);
+			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x35, i++);
 			d.writeInt32LE(this._chars() - (i + 4), i);
 			i += 4;
 
 			// mov rdx, numChars
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0xBA, i++);
+			d.writeUInt8(0xba, i++);
 			d.writeInt32LE(this._numChars(), i);
 			i += 4;
 			d.writeInt32LE(0, i);
@@ -891,11 +1135,10 @@ const machoAppWindowTitlePatches: ({
 			d.writeUInt8(0x90, i);
 		}
 	}
-/* eslint-enable no-multi-spaces, line-comment-position, no-inline-comments */
 ];
 
 const machoAppWindowTitlePatchesByCpuType = once(() => {
-	const r = new Map<number, (typeof machoAppWindowTitlePatches[0])[]>();
+	const r = new Map<number, typeof machoAppWindowTitlePatches[0][]>();
 	for (const Patcher of machoAppWindowTitlePatches) {
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const {CPU_TYPE} = Patcher;
@@ -930,13 +1173,11 @@ export function machoAppWindowTitle(data: Buffer, title: string) {
 				break;
 			}
 			default: {
-				throw new Error(
-					`Unknown header magic: 0x${hex4(magic)}`
-				);
+				throw new Error(`Unknown header magic: 0x${hex4(magic)}`);
 			}
 		}
-		const patchers = machoAppWindowTitlePatchesByCpuType()
-			.get(cpuType) || [];
+		const patchers =
+			machoAppWindowTitlePatchesByCpuType().get(cpuType) || [];
 		let found: MachoAppWindowTitlePatch | null = null;
 		for (const Patcher of patchers) {
 			const patcher = new Patcher(binary, title);

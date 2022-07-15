@@ -1,16 +1,10 @@
 import fse from 'fs-extra';
 
-import {
-	ProjectorWindows
-} from '../windows';
-import {
-	windowsPatchWindowTitle
-} from '../../util/windows';
+import {ProjectorWindows} from '../windows';
+import {windowsPatchWindowTitle} from '../../util/windows';
 
 /**
- * ProjectorWindows32 constructor.
- *
- * @param path Output path.
+ * ProjectorWindows32 object.
  */
 export class ProjectorWindows32 extends ProjectorWindows {
 	/**
@@ -21,6 +15,11 @@ export class ProjectorWindows32 extends ProjectorWindows {
 	 */
 	public patchWindowTitle: string | null = null;
 
+	/**
+	 * ProjectorWindows32 constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super(path);
 	}

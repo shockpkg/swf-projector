@@ -1,18 +1,11 @@
 import crypto from 'crypto';
 
-import {
-	machoAppLauncher,
-	machoTypesData
-} from './mac';
+import {machoAppLauncher, machoTypesData} from './mac';
 
 const unhex = (hex: string) => Buffer.from(hex.replace(/\s/g, ''), 'hex');
 
 function sha256(data: Buffer) {
-	return crypto
-		.createHash('sha256')
-		.update(data)
-		.digest('hex')
-		.toLowerCase();
+	return crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
 }
 
 const machoTypes = [
@@ -58,13 +51,15 @@ const machoTypes = [
 	},
 	{
 		name: 'fat: ppc, ppc64, i386, x86_64',
-		data: unhex([
-			'CA FE BA BE 00 00 00 04',
-			'00 00 00 12 00 00 00 0A 00 00 00 00 00 00 00 00 00 00 00 00',
-			'01 00 00 12 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00',
-			'00 00 00 07 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00',
-			'01 00 00 07 80 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00'
-		].join('')),
+		data: unhex(
+			[
+				'CA FE BA BE 00 00 00 04',
+				'00 00 00 12 00 00 00 0A 00 00 00 00 00 00 00 00 00 00 00 00',
+				'01 00 00 12 80 00 00 00 00 00 00 00 00 00 00 00 00 00 00 00',
+				'00 00 00 07 00 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00',
+				'01 00 00 07 80 00 00 03 00 00 00 00 00 00 00 00 00 00 00 00'
+			].join('')
+		),
 		format: [
 			{
 				cpuType: 0x00000012,
@@ -91,6 +86,7 @@ const machoTypes = [
 describe('util/mac', () => {
 	describe('machoTypesData', () => {
 		for (const {name, data, format} of machoTypes) {
+			// eslint-disable-next-line no-loop-func
 			it(name, () => {
 				expect(machoTypesData(data)).toEqual(format);
 			});
@@ -99,6 +95,7 @@ describe('util/mac', () => {
 
 	describe('machoAppLauncher', () => {
 		for (const {name, format, launcher} of machoTypes) {
+			// eslint-disable-next-line no-loop-func
 			it(name, async () => {
 				const data = await machoAppLauncher(format);
 				expect(machoTypesData(data)).toEqual(format);

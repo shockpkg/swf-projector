@@ -5,9 +5,7 @@
 		"module": "commonjs",
 		"moduleResolution": "Node",
 		"allowSyntheticDefaultImports": true,
-		"lib": [
-			"ESNext"
-		],
+		"lib": ["ESNext"],
 		"newLine": "lf",
 
 		"alwaysStrict": true,
@@ -27,13 +25,8 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 
-		"types": [
-			"node",
-			"jasmine"
-		],
+		"types": ["node", "jasmine"],
 		"outDir": "lib"
 	},
-	"include": [
-		"src/**/*.ts"
-	]
+	"include": ["src/**/*.ts"]
 }

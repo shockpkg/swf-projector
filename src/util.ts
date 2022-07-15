@@ -38,11 +38,7 @@ export function trimDotSlash(path: string) {
  * @param nocase Match case-insensitive.
  * @returns Returns path, or null.
  */
-export function pathRelativeBase(
-	path: string,
-	start: string,
-	nocase = false
-) {
+export function pathRelativeBase(path: string, start: string, nocase = false) {
 	const p = trimDotSlash(nocase ? path.toLowerCase() : path);
 	const s = trimDotSlash(nocase ? start.toLowerCase() : start);
 	if (p === s) {
@@ -78,11 +74,7 @@ export function pathRelativeBaseMatch(
  * @param nocase Match case-insensitive.
  * @returns Path without file extension.
  */
-export function trimExtension(
-	path: string,
-	ext: string,
-	nocase = false
-) {
+export function trimExtension(path: string, ext: string, nocase = false) {
 	const p = nocase ? path.toLowerCase() : path;
 	const e = nocase ? ext.toLowerCase() : ext;
 	return p.endsWith(e) ? path.substr(0, p.length - e.length) : path;

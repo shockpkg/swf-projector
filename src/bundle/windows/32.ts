@@ -1,7 +1,4 @@
-import {
-	join as pathJoin,
-	basename
-} from 'path';
+import {join as pathJoin, basename} from 'path';
 
 import fse from 'fs-extra';
 
@@ -11,9 +8,7 @@ import {ProjectorWindows32} from '../../projector/windows/32';
 import {BundleWindows} from '../windows';
 
 /**
- * BundleWindows32 constructor.
- *
- * @param path Output path for the main application.
+ * BundleWindows32 object.
  */
 export class BundleWindows32 extends BundleWindows {
 	/**
@@ -21,6 +16,11 @@ export class BundleWindows32 extends BundleWindows {
 	 */
 	public readonly projector: ProjectorWindows32;
 
+	/**
+	 * BundleWindows32 constructor.
+	 *
+	 * @param path Output path for the main application.
+	 */
 	constructor(path: string) {
 		super(path);
 

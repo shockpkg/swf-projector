@@ -1,14 +1,8 @@
-import {
-	Data
-} from './data';
-import {
-	bitCountS,
-	bitCountToBytes,
-	bitWriter
-} from './util';
+import {Data} from './data';
+import {bitCountS, bitCountToBytes, bitWriter} from './util';
 
 /**
- * Rect class.
+ * Rect object.
  */
 export class Rect extends Data {
 	/**
@@ -31,6 +25,9 @@ export class Rect extends Data {
 	 */
 	public yMax: number = 0;
 
+	/**
+	 * Rect constructor.
+	 */
 	constructor() {
 		super();
 	}
@@ -55,7 +52,7 @@ export class Rect extends Data {
 	 * @returns The size.
 	 */
 	public get size() {
-		return bitCountToBytes(5 + (this.nBits * 4));
+		return bitCountToBytes(5 + this.nBits * 4);
 	}
 
 	/**

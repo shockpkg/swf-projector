@@ -1,14 +1,22 @@
 parser: '@typescript-eslint/parser'
 
 plugins:
-- eslint-plugin-import
-- eslint-plugin-jsdoc
-- '@typescript-eslint'
+  - eslint-plugin-import
+  - eslint-plugin-jsdoc
+  - '@typescript-eslint'
 
 parserOptions:
   ecmaVersion: 9
   sourceType: module
   project: ./tsconfig.eslint.json
+
+extends:
+  - eslint:recommended
+  - prettier
+  - plugin:@typescript-eslint/recommended-requiring-type-checking
+  - plugin:import/recommended
+  - plugin:import/typescript
+  - plugin:jsdoc/recommended
 
 env:
   es6: true
@@ -17,153 +25,86 @@ env:
 
 rules:
   # Possible Errors:
-  for-direction: error
-  getter-return:
-  - error
-  - allowImplicit: true
-  no-async-promise-executor: error
   no-await-in-loop: error
-  no-compare-neg-zero: error
-  no-cond-assign: error
   no-console: error
-  no-constant-condition: error
-  no-control-regex: error
-  no-debugger: error
-  no-dupe-args: error
-  no-dupe-keys: error
-  no-duplicate-case: error
-  no-empty: error
-  no-empty-character-class: error
-  no-ex-assign: error
-  no-extra-boolean-cast: error
-  no-extra-semi: error
-  no-func-assign: error
-  no-inner-declarations: error
-  no-invalid-regexp: error
-  no-irregular-whitespace: error
   no-loss-of-precision: error
-  no-misleading-character-class: error
-  no-obj-calls: error
-  no-prototype-builtins: error
-  no-regex-spaces: error
-  no-sparse-arrays: error
   no-template-curly-in-string: error
-  no-unexpected-multiline: error
   no-unreachable: error
-  no-unsafe-finally: error
-  no-unsafe-negation: error
-  use-isnan: error
-  valid-typeof: error
 
   # Best Practices:
   accessor-pairs: error
   array-callback-return: error
   block-scoped-var: error
   consistent-return: error
-  curly: error
   default-case: error
-  dot-location:
-  - error
-  - property
-  dot-notation:
-  - error
-  - allowKeywords: true
   eqeqeq: error
   guard-for-in: error
   max-classes-per-file:
-  - error
-  - 1
+    - error
+    - 1
   no-alert: error
   no-caller: error
-  no-case-declarations: error
   no-div-regex: error
   no-else-return: error
-  # Using @typescript-eslint/no-empty-function
-  # no-empty-function: error
-  no-empty-pattern: error
   no-eq-null: error
   no-eval: error
   no-extend-native: error
   no-extra-bind: error
   no-extra-label: error
-  no-fallthrough: error
   no-floating-decimal: error
-  no-global-assign: error
   no-implicit-globals: error
   no-implied-eval: error
   no-invalid-this: error
   no-iterator: error
   no-labels:
-  - error
-  - allowLoop: true
-    allowSwitch: true
+    - error
+    - allowLoop: true
+      allowSwitch: true
   no-lone-blocks: error
   no-loop-func: error
-  no-multi-spaces: error
   no-multi-str: error
   no-new: error
   no-new-func: error
   no-new-wrappers: error
-  no-octal: error
   no-octal-escape: error
   no-proto: error
-  no-redeclare: error
   no-return-assign: error
   no-return-await: error
   no-script-url: error
-  no-self-assign: error
   no-self-compare: error
   no-sequences: error
   no-throw-literal: error
   no-unmodified-loop-condition: error
   no-unused-expressions: error
-  no-unused-labels: error
   no-useless-call: error
-  no-useless-catch: error
   no-useless-concat: error
-  no-useless-escape: error
   no-void: error
   no-warning-comments: warn
-  no-with: error
   radix: error
-  # Using @typescript-eslint/require-await
-  # require-await: error
   wrap-iife:
-  - error
-  - inside
+    - error
+    - inside
   yoda: error
 
   # Strict Mode:
   strict:
-  - error
-  - global
+    - error
+    - global
 
   # Variables:
-  no-delete-var: error
   no-label-var: error
-  no-shadow-restricted-names: error
-  no-undef:
-  - error
-  - typeof: true
   no-undef-init: error
   no-undefined: error
   # Using @typescript-eslint/no-unused-vars
-  # no-unused-vars:
-  # - error
-  # - vars: all
-  #   args: none
-  # Using @typescript-eslint/no-use-before-define
-  # no-use-before-define:
-  # - error
-  # - nofunc
+  no-unused-vars: off
 
   # Node.js and CommonJS:
   callback-return:
-  - error
-  - - callback
-    - cb
-    - next
-    - done
+    - error
+    - - callback
+      - cb
+      - next
+      - done
   global-require: error
   handle-callback-err: error
   no-buffer-constructor: error
@@ -176,564 +117,354 @@ rules:
 
   # Stylistic Issues:
   array-bracket-spacing:
-  - error
-  - never
-  - singleValue: false
-    objectsInArrays: false
-    arraysInArrays: false
-  block-spacing:
-  - error
-  - always
-  brace-style:
-  - error
-  - stroustrup
-  - allowSingleLine: false
-  # Using @typescript-eslint/naming-convention
-  # camelcase:
-  # - error
-  comma-dangle:
-  - error
-  - arrays: never
-    objects: never
-    imports: never
-    exports: never
-    functions: never
-  comma-spacing:
-  - error
-  - before: false
-    after: true
-  comma-style:
-  - error
-  - last
-  computed-property-spacing:
-  - error
-  - never
-  eol-last:
-  - error
-  - unix
-  # Using @typescript-eslint/func-call-spacing
-  # func-call-spacing:
-  # - error
+    - error
+    - never
+    - singleValue: false
+      objectsInArrays: false
+      arraysInArrays: false
   func-name-matching:
-  - error
-  - always
-  - includeCommonJSModuleExports: false
-  # Using @typescript-eslint/indent
-  # indent:
-  # - error
-  # - tab
-  # - SwitchCase: 1
-  #   VariableDeclarator: 1
-  jsx-quotes:
-  - error
-  - prefer-double
-  key-spacing:
-  - error
-  - beforeColon: false
-    afterColon: true
-    mode: strict
-  keyword-spacing:
-  - error
-  - before: true
-    after: true
+    - error
+    - always
+    - includeCommonJSModuleExports: false
   line-comment-position:
-  - error
-  - position: above
-  linebreak-style:
-  - error
-  - unix
+    - error
+    - position: above
   lines-around-comment:
-  - error
-  - beforeBlockComment: true
-    allowBlockStart: true
-    allowObjectStart: true
-    allowArrayStart: true
+    - error
+    - beforeBlockComment: true
+      allowBlockStart: true
+      allowObjectStart: true
+      allowArrayStart: true
   lines-between-class-members:
-  - error
-  - always
+    - error
+    - always
   max-depth:
-  - error
-  - 6
+    - error
+    - 6
   max-len:
-  - error
-  - 80
-  - 4
-  - ignoreComments: false
-    ignoreUrls: true
-    ignorePattern: '^\s*(//|/\*)\s*eslint'
+    - error
+    - 80
+    - 4
+    - ignoreComments: false
+      ignoreUrls: true
+      ignorePattern: '^\s*(//|/\*)\s*eslint'
   max-nested-callbacks:
-  - error
-  - 4
+    - error
+    - 4
   max-params:
-  - error
-  - 8
+    - error
+    - 8
   new-cap: error
-  new-parens: error
-  newline-per-chained-call:
-  - error
-  - ignoreChainWithDepth: 2
-  # Using @typescript-eslint/no-array-constructor
-  # no-array-constructor: error
   no-bitwise: error
   no-inline-comments: error
   no-lonely-if: error
-  no-mixed-operators:
-  - error
-  - allowSamePrecedence: true
-  no-mixed-spaces-and-tabs: error
-  no-multiple-empty-lines:
-  - error
-  - max: 1
-    maxEOF: 1
   no-negated-condition: error
   no-nested-ternary: error
   no-new-object: error
-  no-trailing-spaces:
-  - error
-  - skipBlankLines: false
   no-unneeded-ternary:
-  - error
-  - defaultAssignment: false
-  no-whitespace-before-property: error
-  object-curly-spacing:
-  - error
-  - never
-  - objectsInObjects: false
-    arraysInObjects: false
+    - error
+    - defaultAssignment: false
   one-var:
-  - error
-  - never
-  operator-assignment:
-  - error
-  - always
-  operator-linebreak:
-  - error
-  - after
-  padded-blocks:
-  - error
-  - never
-  padding-line-between-statements:
-  - error
-  - blankLine: "always"
-    prev: "directive"
-    next: "*"
-  quote-props:
-  - error
-  - as-needed
-  - keywords: false
-    unnecessary: true
-    numbers: true
-  quotes:
-  - error
-  - single
-  - avoid-escape
-  # Using @typescript-eslint/semi
-  # semi:
-  # - error
-  # - always
-  semi-spacing:
-  - error
-  - before: false
-    after: true
-  semi-style:
-  - error
-  - last
-  space-before-blocks: error
-  space-before-function-paren:
-  - error
-  - anonymous: "never"
-    named: "never"
-    asyncArrow: "always"
-  space-in-parens:
-  - error
-  - never
-  space-infix-ops:
-  - error
-  - int32Hint: true
-  space-unary-ops:
-  - error
-  - words: true
-    nonwords: false
+    - error
+    - never
   spaced-comment:
-  - error
-  - always
-  switch-colon-spacing:
-  - error
-  - after: true
-    before: false
-  template-tag-spacing:
-  - error
-  - never
+    - error
+    - always
   unicode-bom:
-  - error
-  - never
+    - error
+    - never
 
   # ECMAScript 6:
   arrow-body-style:
-  - error
-  - as-needed
-  arrow-parens:
-  - error
-  - as-needed
-  arrow-spacing:
-  - error
-  - before: true
-    after: true
-  constructor-super: error
-  generator-star-spacing:
-  - error
-  - before: true
-    after: true
-  no-class-assign: error
+    - error
+    - as-needed
   no-confusing-arrow:
-  - error
-  - allowParens: true
-  no-const-assign: error
-  no-dupe-class-members: error
+    - error
+    - allowParens: true
   no-duplicate-imports:
-  - error
-  - includeExports: false
-  no-new-symbol: error
-  no-this-before-super: error
+    - error
+    - includeExports: false
   no-useless-computed-key: error
   no-useless-rename:
-  - error
-  - ignoreDestructuring: false
-    ignoreImport: false
-    ignoreExport: false
+    - error
+    - ignoreDestructuring: false
+      ignoreImport: false
+      ignoreExport: false
   no-var: error
   object-shorthand:
-  - error
-  - always
+    - error
+    - always
   prefer-arrow-callback:
-  - error
-  - allowNamedFunctions: false
-    allowUnboundThis: true
+    - error
+    - allowNamedFunctions: false
+      allowUnboundThis: true
   prefer-const: error
   prefer-destructuring: error
   prefer-numeric-literals: error
   prefer-rest-params: error
   prefer-spread: error
   prefer-template: error
-  require-yield: error
-  rest-spread-spacing:
-  - error
-  - never
   symbol-description: error
-  template-curly-spacing:
-  - error
-  - never
-  yield-star-spacing:
-  - error
-  - before: true
-    after: false
 
   # Import plugin:
-  import/no-default-export: error
   import/no-deprecated: warn
-  import/no-duplicates: warn
   import/no-extraneous-dependencies:
-  - error
-  - devDependencies: false
-    optionalDependencies: false
-    peerDependencies: false
-  import/no-internal-modules: error
+    - error
+    - devDependencies: true
+      optionalDependencies: true
+      peerDependencies: true
   import/no-unassigned-import: error
   import/order:
-  - error
-  - groups:
-    - builtin
-    - external
-    - parent
-    - sibling
-    - index
-    newlines-between: always
+    - warn
+    - newlines-between: always
 
   # JSDoc plugin:
-  jsdoc/check-alignment: warn
   jsdoc/check-indentation: warn
-  jsdoc/check-param-names: warn
   jsdoc/check-syntax: warn
-  jsdoc/check-tag-names: warn
-  jsdoc/check-types: warn
-  jsdoc/implements-on-classes: warn
   jsdoc/match-description:
-  - warn
-  - tags:
-      param: true
-      returns: true
-  jsdoc/newline-after-description: warn
+    - warn
+    - tags:
+        param: true
+        returns: true
   jsdoc/no-types: warn
-  jsdoc/no-undefined-types: warn
-  jsdoc/require-description-complete-sentence:
-  - warn
-  - tags:
-    - see
-    - copyright
   jsdoc/require-description: warn
-  jsdoc/require-jsdoc: warn
-  jsdoc/require-param-description: warn
-  jsdoc/require-param-name: warn
-  # Using TypeScript
-  # jsdoc/require-param-type: warn
-  jsdoc/require-param: warn
-  jsdoc/require-returns-check: warn
-  jsdoc/require-returns-description: warn
-  # Using TypeScript
-  # jsdoc/require-returns-type: warn
-  jsdoc/require-returns: warn
-  jsdoc/valid-types: warn
+  jsdoc/require-description-complete-sentence:
+    - warn
+    - tags:
+        - see
+        - copyright
+  jsdoc/require-param-type: off
+  jsdoc/require-returns-type: off
+  jsdoc/require-jsdoc:
+    - warn
+    - require:
+        ArrowFunctionExpression: true
+        ClassDeclaration: true
+        ClassExpression: true
+        FunctionDeclaration: true
+        FunctionExpression: true
+        MethodDefinition: true
+      checkGetters: true
+      checkSetters: true
 
   # TypeScript Simple:
-  '@typescript-eslint/adjacent-overload-signatures': error
-  '@typescript-eslint/array-type':
-  - error
+  '@typescript-eslint/array-type': error
   '@typescript-eslint/consistent-type-assertions': error
   '@typescript-eslint/consistent-type-definitions': error
   '@typescript-eslint/explicit-member-accessibility':
-  - error
-  - overrides:
-      constructors: no-public
+    - error
+    - overrides:
+        constructors: no-public
   '@typescript-eslint/func-call-spacing': error
-  '@typescript-eslint/indent':
-  - error
-  - tab
-  - SwitchCase: 1
-    VariableDeclarator: 1
   '@typescript-eslint/member-delimiter-style': error
   '@typescript-eslint/member-ordering':
-  - error
-  - default:
-    - public-static-field
-    - private-static-field
-    - public-instance-field
-    - private-instance-field
-    - public-constructor
-    - private-constructor
-    - public-instance-method
-    - protected-instance-method
-    - private-instance-method
-  '@typescript-eslint/no-array-constructor': error
-  '@typescript-eslint/no-empty-function': error
-  '@typescript-eslint/no-empty-interface': error
-  '@typescript-eslint/no-for-in-array': error
-  '@typescript-eslint/no-misused-new': error
-  '@typescript-eslint/no-namespace': error
-  '@typescript-eslint/no-parameter-properties': error
+    - error
+    - default:
+        - public-static-field
+        - private-static-field
+        - public-instance-field
+        - private-instance-field
+        - public-constructor
+        - private-constructor
+        - public-instance-method
+        - protected-instance-method
+        - private-instance-method
   '@typescript-eslint/no-require-imports': error
-  '@typescript-eslint/no-this-alias': error
   '@typescript-eslint/no-unused-vars':
-  - error
-  - vars: all
-    args: none
+    - error
+    - vars: all
+      args: none
   '@typescript-eslint/no-use-before-define':
-  - error
-  - nofunc
-  '@typescript-eslint/no-var-requires': error
+    - error
+    - nofunc
   '@typescript-eslint/prefer-for-of': error
   '@typescript-eslint/prefer-function-type': error
-  '@typescript-eslint/prefer-namespace-keyword': error
-  '@typescript-eslint/semi':
-  - error
-  - always
-  '@typescript-eslint/type-annotation-spacing':
-  - error
-  - before: false
-    after: true
-    overrides:
-      arrow:
-        before: true
   '@typescript-eslint/unified-signatures': error
   '@typescript-eslint/no-confusing-non-null-assertion': error
 
   # TypeScript Project:
-  '@typescript-eslint/await-thenable': error
-  '@typescript-eslint/no-floating-promises': error
   '@typescript-eslint/no-unnecessary-qualifier': error
-  '@typescript-eslint/no-unnecessary-type-assertion': error
   '@typescript-eslint/prefer-includes': error
   '@typescript-eslint/prefer-readonly': error
   '@typescript-eslint/prefer-string-starts-ends-with': error
   '@typescript-eslint/promise-function-async': error
-  # '@typescript-eslint/require-await': error
-  '@typescript-eslint/restrict-plus-operands': error
-  '@typescript-eslint/unbound-method': error
   '@typescript-eslint/no-unnecessary-boolean-literal-compare':
-  - error
-  - allowComparingNullableBooleansToTrue: true
-    allowComparingNullableBooleansToFalse: true
+    - error
+    - allowComparingNullableBooleansToTrue: true
+      allowComparingNullableBooleansToFalse: true
   '@typescript-eslint/naming-convention':
-  - error
-  - selector: default
-    format:
-    - camelCase
-  - selector: typeLike
-    format:
-    - PascalCase
-  - selector: interface
-    format:
-    - PascalCase
-    custom:
-      regex: '^I[A-Z]'
-      match: true
-  - selector: variable
-    format:
-    - camelCase
-    - PascalCase
-    - UPPER_CASE
-    leadingUnderscore: allow
-    trailingUnderscore: allow
-  - selector: parameter
-    format:
-    - camelCase
-    - PascalCase
-    leadingUnderscore: allow
-  - selector: class
-    format:
-    - PascalCase
-  - selector: memberLike
-    modifiers:
-    - public
-    format:
-    - camelCase
-    - PascalCase
-  - selector: memberLike
-    modifiers:
-    - protected
-    format:
-    - camelCase
-    - PascalCase
-    leadingUnderscore: require
-  - selector: memberLike
-    modifiers:
-    - private
-    format:
-    - camelCase
-    - PascalCase
-    leadingUnderscore: require
-    trailingUnderscore: require
-  - selector: memberLike
-    modifiers:
-    - public
-    - readonly
-    - static
-    format:
-    - UPPER_CASE
-  - selector: memberLike
-    modifiers:
-    - protected
-    - readonly
-    - static
-    format:
-    - UPPER_CASE
-    leadingUnderscore: require
-  - selector: memberLike
-    modifiers:
-    - private
-    - readonly
-    - static
-    format:
-    - UPPER_CASE
-    leadingUnderscore: require
-    trailingUnderscore: require
-  - selector: accessor
-    modifiers:
-    - public
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-  - selector: accessor
-    modifiers:
-    - protected
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-    leadingUnderscore: require
-  - selector: accessor
-    modifiers:
-    - private
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-    leadingUnderscore: require
-    trailingUnderscore: require
-  - selector: accessor
-    modifiers:
-    - public
-    - static
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-  - selector: accessor
-    modifiers:
-    - protected
-    - static
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-    leadingUnderscore: require
-  - selector: accessor
-    modifiers:
-    - private
-    - static
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-    leadingUnderscore: require
-    trailingUnderscore: require
-  - selector: property
-    format:
-    - camelCase
-    - PascalCase
-    - snake_case
-    - UPPER_CASE
-    leadingUnderscore: allow
-    trailingUnderscore: allow
+    - error
+    - selector: default
+      format:
+        - camelCase
+    - selector: typeLike
+      format:
+        - PascalCase
+    - selector: interface
+      format:
+        - PascalCase
+    - selector: variable
+      format:
+        - camelCase
+        - PascalCase
+        - UPPER_CASE
+      leadingUnderscore: allow
+      trailingUnderscore: allow
+    - selector: parameter
+      format:
+        - camelCase
+        - PascalCase
+      leadingUnderscore: allow
+    - selector: class
+      format:
+        - PascalCase
+    - selector: memberLike
+      modifiers:
+        - public
+      format:
+        - camelCase
+        - PascalCase
+    - selector: memberLike
+      modifiers:
+        - protected
+      format:
+        - camelCase
+        - PascalCase
+      leadingUnderscore: require
+    - selector: memberLike
+      modifiers:
+        - private
+      format:
+        - camelCase
+        - PascalCase
+      leadingUnderscore: require
+      trailingUnderscore: require
+    - selector: memberLike
+      modifiers:
+        - public
+        - readonly
+        - static
+      format:
+        - UPPER_CASE
+    - selector: memberLike
+      modifiers:
+        - protected
+        - readonly
+        - static
+      format:
+        - UPPER_CASE
+      leadingUnderscore: require
+    - selector: memberLike
+      modifiers:
+        - private
+        - readonly
+        - static
+      format:
+        - UPPER_CASE
+      leadingUnderscore: require
+      trailingUnderscore: require
+    - selector: accessor
+      modifiers:
+        - public
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+    - selector: accessor
+      modifiers:
+        - protected
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+      leadingUnderscore: require
+    - selector: accessor
+      modifiers:
+        - private
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+      leadingUnderscore: require
+      trailingUnderscore: require
+    - selector: accessor
+      modifiers:
+        - public
+        - static
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+    - selector: accessor
+      modifiers:
+        - protected
+        - static
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+      leadingUnderscore: require
+    - selector: accessor
+      modifiers:
+        - private
+        - static
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+      leadingUnderscore: require
+      trailingUnderscore: require
+    - selector: property
+      format:
+        - camelCase
+        - PascalCase
+        - snake_case
+        - UPPER_CASE
+      leadingUnderscore: allow
+      trailingUnderscore: allow
 
 overrides:
-- files:
-  - '*.js'
-  - '*.jsx'
-  - '*.mjs'
-  - '*.mjsx'
-  - '*.ts'
-  - '*.tsx'
-- files:
-  - 'gulpfile.babel.ts'
-  rules:
-    import/no-extraneous-dependencies:
-    - error
-    - devDependencies: true
-      optionalDependencies: false
-      peerDependencies: false
-    jsdoc/require-jsdoc: off
-- files:
-  - '*.spec.js'
-  - '*.spec.jsx'
-  - '*.spec.mjs'
-  - '*.spec.mjsx'
-  - '*.spec.ts'
-  - '*.spec.tsx'
-  rules:
-    max-classes-per-file: off
-    max-nested-callbacks: off
-    import/no-extraneous-dependencies:
-    - error
-    - devDependencies: true
-      optionalDependencies: false
-      peerDependencies: false
-    jsdoc/require-jsdoc: off
-  env:
-    jasmine: true
+  - files:
+      - '*.js'
+      - '*.jsx'
+      - '*.mjs'
+      - '*.mjsx'
+      - '*.ts'
+      - '*.tsx'
+  - files:
+      - '*.js'
+      - '*.jsx'
+      - '*.mjs'
+      - '*.mjsx'
+    rules:
+      '@typescript-eslint/no-unsafe-assignment': off
+      '@typescript-eslint/no-unsafe-member-access': off
+  - files:
+      - '*.ts'
+      - '*.tsx'
+    rules:
+      jsdoc/no-types: warn
+  - files:
+      - '*.spec.js'
+      - '*.spec.jsx'
+      - '*.spec.mjs'
+      - '*.spec.mjsx'
+      - '*.spec.ts'
+      - '*.spec.tsx'
+    rules:
+      jsdoc/require-jsdoc: off
+  - files:
+      - 'gulpfile.babel.ts'
+    rules:
+      import/no-extraneous-dependencies:
+        - error
+        - devDependencies: true
+          optionalDependencies: false
+          peerDependencies: false
+      jsdoc/require-jsdoc: off

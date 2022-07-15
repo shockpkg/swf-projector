@@ -1,9 +1,7 @@
-import {
-	Data
-} from './data';
+import {Data} from './data';
 
 /**
- * Tag class.
+ * Tag object.
  */
 export class Tag extends Data {
 	/**
@@ -16,6 +14,9 @@ export class Tag extends Data {
 	 */
 	public data: Buffer = Buffer.alloc(0);
 
+	/**
+	 * Tag constructor.
+	 */
 	constructor() {
 		super();
 	}

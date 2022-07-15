@@ -10,7 +10,6 @@ Package for creating Flash Player projectors
 
 [![Build Status](https://github.com/shockpkg/swf-projector/workflows/main/badge.svg?branch=master)](https://github.com/shockpkg/swf-projector/actions?query=workflow%3Amain+branch%3Amaster)
 
-
 # Overview
 
 Creates Flash projectors from a standalone Flash Player.
@@ -20,7 +19,6 @@ Takes a standalone Flash Player file, a directory containing a standalone Flash 
 Can also create bundles that group the projector and resources in a directory beside a single launcher for Windows and Linux or within an application bundle for macOS.
 
 Reading DMG projector packages is only supported on macOS.
-
 
 # Usage
 
@@ -137,7 +135,6 @@ projector.patchProjectorOffset = true;
 await projector.withFile('player.tar.gz', 'movie.swf');
 ```
 
-
 ## Bundle
 
 ### Windows
@@ -211,13 +208,12 @@ To make it easier to create a SWF that loads another URL for use in a projector,
 
 You can also specify a number of frames to delay loading the other movie, to give the player a chance to initialize before loading the other movie. This is especially useful on Linux where the player may take about 0.25s to finish resizing the window and may not finish with the correct size (mainly depending on the desktop environment's use of the menu bar). Loading another movie into level 0 after the initial resize is done will however correct the issue. Waiting 0.5s (or FPS / 2) should offer enough of a buffer.
 
-
 ### SWF8 600x400 30fps white movie that loads `other.swf?param=1`
 
 ```js
 import {loader} from '@shockpkg/swf-projector';
 
-const swfData = loader(8, 600, 400, 30, 0xFFFFFF, 'other.swf?param=1');
+const swfData = loader(8, 600, 400, 30, 0xffffff, 'other.swf?param=1');
 ```
 
 ### SWF8 600x400 30fps red movie that loads `other.swf`, 0.5s delay
@@ -225,9 +221,8 @@ const swfData = loader(8, 600, 400, 30, 0xFFFFFF, 'other.swf?param=1');
 ```js
 import {loader} from '@shockpkg/swf-projector';
 
-const swfData = loader(8, 600, 400, 30, 0xFF0000, 'other.swf', 30 / 2);
+const swfData = loader(8, 600, 400, 30, 0xff0000, 'other.swf', 30 / 2);
 ```
-
 
 # Notes
 
@@ -269,11 +264,9 @@ Not a perfect patch because it does not resolve the full path first, if run from
 
 The Linux projector reading code was never updated for 64-bit ELF compatibility. This patch fixes reading projector data in 64-bit Linux projectors.
 
-
 # Bugs
 
 If you find a bug or have compatibility issues, please open a ticket under issues section for this repository.
-
 
 # License
 

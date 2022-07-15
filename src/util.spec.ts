@@ -1,16 +1,8 @@
-import {
-	join as pathJoin
-} from 'path';
+import {join as pathJoin} from 'path';
 
-import {
-	Manager
-} from '@shockpkg/core';
+import {Manager} from '@shockpkg/core';
 
-import {
-	pathRelativeBase,
-	trimExtension,
-	once
-} from './util';
+import {pathRelativeBase, trimExtension, once} from './util';
 
 export const platformIsMac = process.platform === 'darwin';
 
@@ -18,9 +10,9 @@ export const platformIsMac = process.platform === 'darwin';
 const envTest = process.env.SWF_PROJECTOR_TEST || null;
 
 export function shouldTest(name: string) {
-	return !envTest || (
-		envTest.toLowerCase().split(',')
-			.includes(name.toLowerCase())
+	return (
+		!envTest ||
+		envTest.toLowerCase().split(',').includes(name.toLowerCase())
 	);
 }
 
@@ -31,9 +23,7 @@ export function fixtureFile(name: string) {
 }
 
 export async function getPackageFile(pkg: string) {
-	return (new Manager()).with(
-		async manager => manager.packageInstallFile(pkg)
-	);
+	return new Manager().with(async manager => manager.packageInstallFile(pkg));
 }
 
 let getInstalledPackagesCache: string[] | null = null;
@@ -43,8 +33,7 @@ export function getInstalledPackagesSync() {
 		const installed = process.env.SWF_PROJECTOR_INSTALLED || null;
 		if (installed) {
 			getInstalledPackagesCache = installed.split(',');
-		}
-		else {
+		} else {
 			getInstalledPackagesCache = [];
 		}
 	}
@@ -97,8 +86,8 @@ export function getInstalledPackagesInfoSync() {
 		}
 	}
 
-	r.sort((a, b) => (+a.debug) - (+b.debug));
-	for (let i = 4; i--;) {
+	r.sort((a, b) => +a.debug - +b.debug);
+	for (let i = 4; i--; ) {
 		r.sort((a, b) => (a.version[i] || 0) - (b.version[i] || 0));
 	}
 

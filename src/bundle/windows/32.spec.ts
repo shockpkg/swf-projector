@@ -1,33 +1,19 @@
-import {
-	join as pathJoin
-} from 'path';
+import {join as pathJoin} from 'path';
 
-import {
-	listSamples,
-	versionStrings
-} from '../../projector/windows/32.spec';
-import {
-	cleanBundlesDir
-} from '../../bundle.spec';
-import {
-	fixtureFile,
-	getPackageFile,
-	simpleSwf
-} from '../../util.spec';
-import {
-	loader
-} from '../../loader';
+import {listSamples, versionStrings} from '../../projector/windows/32.spec';
+import {cleanBundlesDir} from '../../bundle.spec';
+import {fixtureFile, getPackageFile, simpleSwf} from '../../util.spec';
+import {loader} from '../../loader';
 import {BundleWindows} from '../windows';
 
-import {
-	BundleWindows32
-} from './32';
+import {BundleWindows32} from './32';
 
 describe('bundle/windows/32', () => {
 	describe('BundleWindows32', () => {
 		it('instanceof BundleWindows', () => {
-			expect(BundleWindows32.prototype instanceof BundleWindows)
-				.toBeTrue();
+			expect(
+				BundleWindows32.prototype instanceof BundleWindows
+			).toBeTrue();
 		});
 
 		for (const pkg of listSamples()) {
@@ -36,6 +22,7 @@ describe('bundle/windows/32', () => {
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
+			// eslint-disable-next-line no-loop-func
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
@@ -51,9 +38,10 @@ describe('bundle/windows/32', () => {
 				}
 
 				const swfv = pkg.version[0] < 5 ? 4 : 5;
-				const movies = pkg.version[0] < 6 ?
-					['swf4-loadmovie.swf', 'image.swf'] :
-					['swf6-loadmovie.swf', 'image.jpg'];
+				const movies =
+					pkg.version[0] < 6
+						? ['swf4-loadmovie.swf', 'image.swf']
+						: ['swf6-loadmovie.swf', 'image.jpg'];
 
 				it('complex', async () => {
 					const dir = await getDir('complex');
@@ -66,7 +54,7 @@ describe('bundle/windows/32', () => {
 					b.projector.removeCodeSignature = true;
 					await b.withData(
 						await getPlayer(),
-						loader(swfv, 600, 400, 30, 0xFFFFFF, 'main.swf'),
+						loader(swfv, 600, 400, 30, 0xffffff, 'main.swf'),
 						async b => {
 							await b.copyResource(
 								'main.swf',

@@ -17,6 +17,9 @@ report.*.json
 *.tgz
 yarn.lock
 
+# IDE config
+.vscode
+
 # Launcher binaries
 /launchers
 

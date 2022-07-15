@@ -1,7 +1,4 @@
-import {
-	join as pathJoin,
-	basename
-} from 'path';
+import {join as pathJoin, basename} from 'path';
 
 import {
 	ArchiveDir,
@@ -10,15 +7,10 @@ import {
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
-import {
-	Plist
-} from '@shockpkg/plist-dom';
+import {Plist} from '@shockpkg/plist-dom';
 import fse from 'fs-extra';
 
-import {
-	pathRelativeBase,
-	trimExtension
-} from '../../util';
+import {pathRelativeBase, trimExtension} from '../../util';
 import {
 	machoAppUnsign,
 	machoAppWindowTitle,
@@ -31,14 +23,10 @@ import {
 	infoPlistBundleNameSet,
 	infoPlistBundleDocumentTypesDelete
 } from '../../util/mac';
-import {
-	ProjectorMac
-} from '../mac';
+import {ProjectorMac} from '../mac';
 
 /**
- * ProjectorMacApp constructor.
- *
- * @param path Output path.
+ * ProjectorMacApp object.
  */
 export class ProjectorMacApp extends ProjectorMac {
 	/**
@@ -66,9 +54,11 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * Info.plist data.
 	 * Currently only supports XML plist.
 	 */
-	public infoPlistData: (
-		string | Readonly<string[]> | Readonly<Buffer> | null
-	) = null;
+	public infoPlistData:
+		| string
+		| Readonly<string[]>
+		| Readonly<Buffer>
+		| null = null;
 
 	/**
 	 * Info.plist document.
@@ -125,6 +115,11 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	public patchWindowTitle: string | null = null;
 
+	/**
+	 * ProjectorMacApp constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super(path);
 	}
@@ -260,28 +255,19 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @returns Info.plist data or null.
 	 */
 	public async getInfoPlistDocument() {
-		const {
-			infoPlistDocument,
-			infoPlistData,
-			infoPlistFile
-		} = this;
+		const {infoPlistDocument, infoPlistData, infoPlistFile} = this;
 		let xml;
 		if (infoPlistDocument) {
 			xml = infoPlistDocument.toXml();
-		}
-		else if (typeof infoPlistData === 'string') {
+		} else if (typeof infoPlistData === 'string') {
 			xml = infoPlistData;
-		}
-		else if (Array.isArray(infoPlistData)) {
+		} else if (Array.isArray(infoPlistData)) {
 			xml = infoPlistData.join('\n');
-		}
-		else if (infoPlistData) {
+		} else if (infoPlistData) {
 			xml = (infoPlistData as Readonly<Buffer>).toString('utf8');
-		}
-		else if (infoPlistFile) {
+		} else if (infoPlistFile) {
 			xml = await fse.readFile(infoPlistFile, 'utf8');
-		}
-		else {
+		} else {
 			return null;
 		}
 		return plistParse(xml);
@@ -307,9 +293,9 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	public getBundleName() {
 		const {bundleName} = this;
-		return bundleName === true ?
-			trimExtension(basename(this.path), this.extension, true) :
-			bundleName;
+		return bundleName === true
+			? trimExtension(basename(this.path), this.extension, true)
+			: bundleName;
 	}
 
 	/**
@@ -319,14 +305,11 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	protected async _writePlayer(player: string) {
 		if (
-			player.toLowerCase().endsWith(
-				this.extension.toLowerCase()
-			) &&
+			player.toLowerCase().endsWith(this.extension.toLowerCase()) &&
 			(await fse.stat(player)).isDirectory()
 		) {
 			await this._writePlayerFile(player);
-		}
-		else {
+		} else {
 			await this._writePlayerArchive(player);
 		}
 	}
@@ -368,10 +351,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	protected async _writePlayerArchive(player: string) {
 		const extensionLower = this.extension.toLowerCase();
 		let playerName = '';
-		const {
-			path,
-			removeInfoPlistStrings
-		} = this;
+		const {path, removeInfoPlistStrings} = this;
 		const infoPlistStrings =
 			/^Contents\/Resources\/[^/]+\.lproj\/InfoPlist\.strings$/i;
 
@@ -385,9 +365,8 @@ export class ProjectorMacApp extends ProjectorMac {
 			const {volumePath} = entry;
 
 			const slashIndex = volumePath.indexOf('/');
-			const base = slashIndex > -1 ?
-				volumePath.substr(0, slashIndex) :
-				volumePath;
+			const base =
+				slashIndex > -1 ? volumePath.substr(0, slashIndex) : volumePath;
 			const baseLower = base.toLowerCase();
 
 			if (baseLower.startsWith('.')) {
@@ -545,15 +524,8 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * Update paths in the projector bundle.
 	 */
 	protected async _updateContentPaths() {
-		const {
-			binaryName,
-			appIconName,
-			appRsrcName
-		} = this;
-		if (!(
-			binaryName ||
-			appIconName
-		)) {
+		const {binaryName, appIconName, appRsrcName} = this;
+		if (!(binaryName || appIconName)) {
 			return;
 		}
 
@@ -590,18 +562,16 @@ export class ProjectorMacApp extends ProjectorMac {
 	protected async _updateInfoPlist() {
 		const customPlist = await this.getInfoPlistDocument();
 		const bundleName = this.getBundleName();
-		const {
-			binaryName,
-			appIconName,
-			removeFileAssociations
-		} = this;
-		if (!(
-			customPlist ||
-			appIconName ||
-			binaryName ||
-			bundleName !== false ||
-			removeFileAssociations
-		)) {
+		const {binaryName, appIconName, removeFileAssociations} = this;
+		if (
+			!(
+				customPlist ||
+				appIconName ||
+				binaryName ||
+				bundleName !== false ||
+				removeFileAssociations
+			)
+		) {
 			return;
 		}
 

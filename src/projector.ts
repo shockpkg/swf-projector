@@ -7,9 +7,7 @@ import {
 import fse from 'fs-extra';
 
 /**
- * Projector constructor.
- *
- * @param path Output path.
+ * Projector object.
  */
 export abstract class Projector extends Object {
 	/**
@@ -22,6 +20,11 @@ export abstract class Projector extends Object {
 	 */
 	public readonly path: string;
 
+	/**
+	 * Projector constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super();
 
@@ -173,8 +176,7 @@ export abstract class Projector extends Object {
 				// eslint-disable-next-line no-await-in-loop
 				await fse.appendFile(fd, b);
 			}
-		}
-		finally {
+		} finally {
 			await fse.close(fd);
 		}
 	}

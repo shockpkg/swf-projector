@@ -59,7 +59,7 @@ export function bitCountS(i: number) {
  */
 export function bitCountToBytes(bits: number) {
 	const over = bits % 8;
-	return ((bits - over) / 8) + (over ? 1 : 0);
+	return (bits - over) / 8 + (over ? 1 : 0);
 }
 
 /**
@@ -79,11 +79,10 @@ export function bitWriter(data: Buffer, start = 0) {
 			// eslint-disable-next-line no-bitwise
 			const flag = 1 << (7 - bitI);
 			// eslint-disable-next-line no-bitwise
-			if ((v >> ((c - 1) - i)) & 1) {
+			if ((v >> (c - 1 - i)) & 1) {
 				// eslint-disable-next-line no-bitwise
 				byteV |= flag;
-			}
-			else {
+			} else {
 				// eslint-disable-next-line no-bitwise
 				byteV &= ~flag;
 			}

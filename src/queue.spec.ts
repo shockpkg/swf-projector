@@ -1,6 +1,5 @@
-import {
-	Queue
-} from './queue';
+/* eslint-disable @typescript-eslint/require-await */
+import {Queue} from './queue';
 
 describe('queue', () => {
 	describe('Queue', () => {

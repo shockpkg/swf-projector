@@ -1,7 +1,4 @@
-import {
-	join as pathJoin,
-	dirname
-} from 'path';
+import {join as pathJoin, dirname} from 'path';
 
 import fse from 'fs-extra';
 
@@ -17,8 +14,7 @@ export async function cleanProjectorDir(...path: string[]) {
 	return dir;
 }
 
-const getDir = async (d: string) =>
-	cleanProjectorDir('dummy', d);
+const getDir = async (d: string) => cleanProjectorDir('dummy', d);
 
 export class ProjectorDummy extends Projector {
 	constructor(path: string) {
@@ -54,10 +50,7 @@ describe('projector', () => {
 			const dest = pathJoin(dir, 'application.exe');
 
 			const p = new ProjectorDummy(dest);
-			await p.withFile(
-				fixtureFile('dummy.exe'),
-				fixtureFile('swf3.swf')
-			);
+			await p.withFile(fixtureFile('dummy.exe'), fixtureFile('swf3.swf'));
 		});
 	});
 });

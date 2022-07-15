@@ -2,9 +2,7 @@ import {ProjectorWindows} from '../projector/windows';
 import {Bundle} from '../bundle';
 
 /**
- * BundleWindows constructor.
- *
- * @param path Output path for the main application.
+ * BundleWindows object.
  */
 export abstract class BundleWindows extends Bundle {
 	/**
@@ -12,6 +10,11 @@ export abstract class BundleWindows extends Bundle {
 	 */
 	public abstract readonly projector: ProjectorWindows;
 
+	/**
+	 * BundleWindows constructor.
+	 *
+	 * @param path Output path for the main application.
+	 */
 	constructor(path: string) {
 		super(path);
 	}

@@ -31,8 +31,8 @@ rules:
 
   # Import plugin:
   import/no-extraneous-dependencies:
-  - error
-  - devDependencies: true
+    - error
+    - devDependencies: true
 
   # JSDoc plugin:
   jsdoc/require-jsdoc: off

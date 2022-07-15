@@ -1,7 +1,4 @@
-import {
-	join as pathJoin,
-	basename
-} from 'path';
+import {join as pathJoin, basename} from 'path';
 
 import fse from 'fs-extra';
 
@@ -10,9 +7,7 @@ import {ProjectorLinux32} from '../../projector/linux/32';
 import {BundleLinux} from '../linux';
 
 /**
- * BundleLinux32 constructor.
- *
- * @param path Output path for the main application.
+ * BundleLinux32 object.
  */
 export class BundleLinux32 extends BundleLinux {
 	/**
@@ -20,6 +15,11 @@ export class BundleLinux32 extends BundleLinux {
 	 */
 	public readonly projector: ProjectorLinux32;
 
+	/**
+	 * BundleLinux32 constructor.
+	 *
+	 * @param path Output path for the main application.
+	 */
 	constructor(path: string) {
 		super(path);
 
@@ -41,12 +41,8 @@ export class BundleLinux32 extends BundleLinux {
 	 */
 	protected async _writeLauncher() {
 		// Create launcher script with same mode.
-		await fse.outputFile(
-			this.path,
-			await linuxLauncher('i386'),
-			{
-				mode: (await fse.stat(this.projector.path)).mode
-			}
-		);
+		await fse.outputFile(this.path, await linuxLauncher('i386'), {
+			mode: (await fse.stat(this.projector.path)).mode
+		});
 	}
 }

@@ -1,13 +1,7 @@
-import {
-	join as pathJoin,
-	basename
-} from 'path';
+import {join as pathJoin, basename} from 'path';
 
 import fse from 'fs-extra';
-import {
-	fsLchmod,
-	fsLutimes
-} from '@shockpkg/archive-files';
+import {fsLchmod, fsLutimes} from '@shockpkg/archive-files';
 
 import {trimExtension} from './util';
 import {fixtureFile} from './util.spec';
@@ -73,10 +67,7 @@ describe('bundle', () => {
 			const dest = pathJoin(dir, 'application.exe');
 
 			const p = new BundleDummy(dest);
-			await p.withFile(
-				fixtureFile('dummy.exe'),
-				fixtureFile('swf3.swf')
-			);
+			await p.withFile(fixtureFile('dummy.exe'), fixtureFile('swf3.swf'));
 		});
 
 		it('resources', async () => {
@@ -122,59 +113,36 @@ describe('bundle', () => {
 				fixtureFile('dummy.exe'),
 				fixtureFile('swf3.swf'),
 				async p => {
-					await p.copyResource(
-						'resources0',
-						resources
-					);
+					await p.copyResource('resources0', resources);
 
-					await p.copyResource(
-						'resources1',
-						resources,
-						{
-							atimeCopy: true,
-							mtimeCopy: true,
-							executableCopy: true
-						}
-					);
+					await p.copyResource('resources1', resources, {
+						atimeCopy: true,
+						mtimeCopy: true,
+						executableCopy: true
+					});
 
-					await p.copyResource(
-						'resources2/a.txt',
-						resourcesA,
-						{
+					await p.copyResource('resources2/a.txt', resourcesA, {
+						atime: dateB,
+						mtime: dateB,
+						executable: true
+					});
+					await p.copyResource('resources2/d/b.txt', resourcesB, {
+						atime: dateB,
+						mtime: dateB,
+						executable: false
+					});
+
+					if (supportsSymlinks) {
+						await p.copyResource('resources2/l1.txt', resourcesL1, {
 							atime: dateB,
 							mtime: dateB,
 							executable: true
-						}
-					);
-					await p.copyResource(
-						'resources2/d/b.txt',
-						resourcesB,
-						{
+						});
+						await p.copyResource('resources2/l2.txt', resourcesL2, {
 							atime: dateB,
 							mtime: dateB,
 							executable: false
-						}
-					);
-
-					if (supportsSymlinks) {
-						await p.copyResource(
-							'resources2/l1.txt',
-							resourcesL1,
-							{
-								atime: dateB,
-								mtime: dateB,
-								executable: true
-							}
-						);
-						await p.copyResource(
-							'resources2/l2.txt',
-							resourcesL2,
-							{
-								atime: dateB,
-								mtime: dateB,
-								executable: false
-							}
-						);
+						});
 					}
 				}
 			);
@@ -333,19 +301,12 @@ describe('bundle', () => {
 				fixtureFile('dummy.exe'),
 				fixtureFile('swf3.swf'),
 				async p => {
-					await p.createResourceFile(
-						'd/b.txt',
-						'beta'
-					);
+					await p.createResourceFile('d/b.txt', 'beta');
 
 					// Merge contents at root of resources.
-					await p.copyResource(
-						'.',
-						resources,
-						{
-							merge: true
-						}
-					);
+					await p.copyResource('.', resources, {
+						merge: true
+					});
 				}
 			);
 

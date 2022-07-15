@@ -1,15 +1,13 @@
-import {
-	loader
-} from './loader';
+import {loader} from './loader';
 
 function bufferHex(buffer: Buffer) {
-	return buffer.toString('hex')
+	return buffer
+		.toString('hex')
 		.replace(/(.{2})/g, '$1 ')
 		.replace(/ $/, '')
 		.toUpperCase();
 }
 
-/* eslint-disable no-multi-spaces, line-comment-position, no-inline-comments */
 const swf4 = [
 	// Magic 'SWF'
 	'46 57 53',
@@ -106,26 +104,27 @@ const swf5Complex = [
 	// End.
 	'00 00'
 ].join(' ');
-/* eslint-enable no-multi-spaces, line-comment-position, no-inline-comments */
 
 describe('loader', () => {
 	describe('loader', () => {
 		it('swfv: 4', () => {
-			expect(bufferHex(
-				loader(4, 600, 400, 30, 0x336699, 'other.swf')
-			)).toBe(swf4);
+			expect(
+				bufferHex(loader(4, 600, 400, 30, 0x336699, 'other.swf'))
+			).toBe(swf4);
 		});
 
 		it('swfv: 5', () => {
-			expect(bufferHex(
-				loader(5, 600, 400, 30, 0x336699, 'other.swf')
-			)).toBe(swf5);
+			expect(
+				bufferHex(loader(5, 600, 400, 30, 0x336699, 'other.swf'))
+			).toBe(swf5);
 		});
 
 		it('swfv: 5 complex', () => {
-			expect(bufferHex(
-				loader(5, 600.5, 400.5, 30.5, 0x336699, 'other.swf', 2)
-			)).toBe(swf5Complex);
+			expect(
+				bufferHex(
+					loader(5, 600.5, 400.5, 30.5, 0x336699, 'other.swf', 2)
+				)
+			).toBe(swf5Complex);
 		});
 	});
 });

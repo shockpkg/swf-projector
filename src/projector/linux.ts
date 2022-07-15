@@ -8,16 +8,17 @@ import {
 } from '@shockpkg/archive-files';
 import fse from 'fs-extra';
 
-import {
-	Projector
-} from '../projector';
+import {Projector} from '../projector';
 
 /**
- * ProjectorLinux constructor.
- *
- * @param path Output path.
+ * ProjectorLinux object.
  */
 export abstract class ProjectorLinux extends Projector {
+	/**
+	 * ProjectorLinux constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super(path);
 	}
@@ -37,11 +38,7 @@ export abstract class ProjectorLinux extends Projector {
 	 * @returns List of names known to be used in projectors.
 	 */
 	public getProjectorArchiveNames() {
-		return [
-			'flashplayer',
-			'flashplayerdebugger',
-			'gflashplayer'
-		];
+		return ['flashplayer', 'flashplayerdebugger', 'gflashplayer'];
 	}
 
 	/**
@@ -53,16 +50,16 @@ export abstract class ProjectorLinux extends Projector {
 		// Try reading as archive, else assume Linux binary if not a directory.
 		try {
 			await this._writePlayerArchive(player);
-		}
-		catch (err) {
+		} catch (err) {
 			if (
 				!(await fse.stat(player)).isDirectory() &&
 				err &&
-				`${err.message}`.startsWith('Archive file type unknown: ')
+				`${(err as {message: string}).message}`.startsWith(
+					'Archive file type unknown: '
+				)
 			) {
 				await this._writePlayerFile(player);
-			}
-			else {
+			} else {
 				throw err;
 			}
 		}
@@ -106,10 +103,7 @@ export abstract class ProjectorLinux extends Projector {
 			if (entry.type !== PathType.FILE) {
 				return;
 			}
-			const {
-				mode,
-				path
-			} = entry;
+			const {mode, path} = entry;
 
 			// The file should be user executable, assuming mode is available.
 			// eslint-disable-next-line no-bitwise

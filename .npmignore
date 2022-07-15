@@ -18,6 +18,9 @@ report.*.json
 yarn.lock
 .nvmrc
 
+# IDE config
+.vscode
+
 /package-lock.json
 /.gitattributes
 /.gitignore
@@ -26,6 +29,8 @@ yarn.lock
 /.editorconfig
 /.eslintignore
 /.eslintrc.yaml
+/.prettierrc.yaml
+/.prettierignore
 /tsconfig.json
 /tsconfig.eslint.json
 /gulpfile.babel.ts

@@ -1,12 +1,8 @@
-import {
-	join as pathJoin
-} from 'path';
+import {join as pathJoin} from 'path';
 
 import fse from 'fs-extra';
 
-import {
-	cleanProjectorDir
-} from '../../projector.spec';
+import {cleanProjectorDir} from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile,
@@ -16,16 +12,15 @@ import {
 } from '../../util.spec';
 import {ProjectorWindows} from '../windows';
 
-import {
-	ProjectorWindows32
-} from './32';
+import {ProjectorWindows32} from './32';
 
 export function listSamples() {
 	if (!shouldTest('windows32')) {
 		return [];
 	}
-	return getInstalledPackagesInfoSync()
-		.filter(o => o.platform.startsWith('windows'));
+	return getInstalledPackagesInfoSync().filter(o =>
+		o.platform.startsWith('windows')
+	);
 }
 
 export const versionStrings = {
@@ -44,8 +39,9 @@ export const versionStrings = {
 describe('projector/windows/32', () => {
 	describe('ProjectorWindows32', () => {
 		it('instanceof ProjectorWindows', () => {
-			expect(ProjectorWindows32.prototype instanceof ProjectorWindows)
-				.toBeTrue();
+			expect(
+				ProjectorWindows32.prototype instanceof ProjectorWindows
+			).toBeTrue();
 		});
 
 		describe('dummy', () => {
@@ -83,6 +79,7 @@ describe('projector/windows/32', () => {
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
+			// eslint-disable-next-line no-loop-func
 			describe(pkg.name, () => {
 				it('simple', async () => {
 					const dir = await getDir('simple');
@@ -90,10 +87,7 @@ describe('projector/windows/32', () => {
 
 					const p = new ProjectorWindows32(dest);
 					p.removeCodeSignature = true;
-					await p.withFile(
-						await getPlayer(),
-						simple
-					);
+					await p.withFile(await getPlayer(), simple);
 				});
 
 				it('title', async () => {

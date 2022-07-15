@@ -1,15 +1,9 @@
 import crypto from 'crypto';
 
-import {
-	windowsLauncher
-} from './windows';
+import {windowsLauncher} from './windows';
 
 function sha256(data: Buffer) {
-	return crypto
-		.createHash('sha256')
-		.update(data)
-		.digest('hex')
-		.toLowerCase();
+	return crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
 }
 
 const launcherTypes: ['i686' | 'x86_64', string][] = [
@@ -26,6 +20,7 @@ const launcherTypes: ['i686' | 'x86_64', string][] = [
 describe('util/windows', () => {
 	describe('windowsLauncher', () => {
 		for (const [type, hash] of launcherTypes) {
+			// eslint-disable-next-line no-loop-func
 			it(type, async () => {
 				const data = await windowsLauncher(type);
 				expect(sha256(data)).toBe(hash);

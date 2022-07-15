@@ -4,14 +4,15 @@
  * @param data Data to search.
  * @param find Search for.
  * @param from Search from.
+ * @yields Index.
  */
-export function * findExact(
+export function* findExact(
 	data: Readonly<Buffer>,
 	find: Readonly<Buffer> | string | Readonly<Uint8Array>,
 	from = 0
 ) {
-	for (let index = from - 1; ;) {
-		index = data.indexOf(find as any, index + 1);
+	for (let index = from - 1; ; ) {
+		index = data.indexOf(find as unknown as Buffer, index + 1);
 		if (index < 0) {
 			break;
 		}
@@ -25,8 +26,9 @@ export function * findExact(
  * @param data Data to search.
  * @param find Search for.
  * @param from Search from.
+ * @yields Index.
  */
-export function * findFuzzy(
+export function* findFuzzy(
 	data: Readonly<Buffer>,
 	find: (number | null)[],
 	from = 0
@@ -122,11 +124,11 @@ export function patchHexToBytes(str: string) {
  */
 export function patchGroupOffsets(
 	data: Readonly<Buffer>,
-	patches: ({
+	patches: {
 		count: number;
 		find: (number | null)[];
 		replace: (number | null)[];
-	})[]
+	}[]
 ) {
 	const offsets = [];
 	for (const {find, replace, count} of patches) {
@@ -148,11 +150,14 @@ export function patchGroupOffsets(
  * @param data Data to be patched.
  * @param patches Patches list.
  */
-export function patchOnce(data: Buffer, patches: ({
-	count: number;
-	find: (number | null)[];
-	replace: (number | null)[];
-})[][]) {
+export function patchOnce(
+	data: Buffer,
+	patches: {
+		count: number;
+		find: (number | null)[];
+		replace: (number | null)[];
+	}[][]
+) {
 	// Search the buffer for patch candidates.
 	let foundOffsets = null;
 	let foundGroup = null;

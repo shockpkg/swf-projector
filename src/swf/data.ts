@@ -1,12 +1,12 @@
-
-import {
-	subview
-} from './util';
+import {subview} from './util';
 
 /**
- * Data class.
+ * Data object.
  */
 export abstract class Data extends Object {
+	/**
+	 * Data constructor.
+	 */
 	constructor() {
 		super();
 	}

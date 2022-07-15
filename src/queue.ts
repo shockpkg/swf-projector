@@ -10,6 +10,9 @@ export class Queue extends Object {
 		handler: () => Promise<any>;
 	}[] = [];
 
+	/**
+	 * Queue constructor.
+	 */
 	constructor() {
 		super();
 	}
@@ -39,7 +42,7 @@ export class Queue extends Object {
 	public push(handler: () => Promise<any>, priority = 0) {
 		const queue = this._queue_;
 		let index = 0;
-		for (let i = queue.length; i--;) {
+		for (let i = queue.length; i--; ) {
 			if (queue[i].priority < priority) {
 				index = i + 1;
 				break;

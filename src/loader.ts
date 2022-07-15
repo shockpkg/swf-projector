@@ -1,12 +1,6 @@
-import {
-	stringToCStr
-} from './swf/util';
-import {
-	Tag
-} from './swf/tag';
-import {
-	Swf
-} from './swf/swf';
+import {stringToCStr} from './swf/util';
+import {Tag} from './swf/tag';
+import {Swf} from './swf/swf';
 
 /**
  * Type string.
@@ -65,7 +59,7 @@ function asmv1ActionPush(pushed: Buffer[]) {
  */
 function asvm1ActionLoadMovie() {
 	const data = Buffer.alloc(4);
-	data.writeUInt8(0x9A, 0);
+	data.writeUInt8(0x9a, 0);
 	data.writeUInt16LE(data.length - 3, 1);
 	data.writeUInt8(0x40, 3);
 	return data;
@@ -104,10 +98,7 @@ function bytecodeLoadMovieSwf4(url: string) {
 function bytecodeLoadMovieSwf5(url: string) {
 	return Buffer.concat([
 		asmv1ActionConstantPool([url, '_level0']),
-		asmv1ActionPush([
-			asvm1TypeConstant8(0),
-			asvm1TypeConstant8(1)
-		]),
+		asmv1ActionPush([asvm1TypeConstant8(0), asvm1TypeConstant8(1)]),
 		asvm1ActionLoadMovie(),
 		asvm1ActionEnd()
 	]);
@@ -151,11 +142,11 @@ export function loader(
 	setBackgroundColor.code = 9;
 	setBackgroundColor.data = Buffer.alloc(3);
 	// eslint-disable-next-line no-bitwise
-	setBackgroundColor.data.writeUInt8(color & 0xFF, 2);
+	setBackgroundColor.data.writeUInt8(color & 0xff, 2);
 	// eslint-disable-next-line no-bitwise
-	setBackgroundColor.data.writeUInt8((color >> 8) & 0xFF, 1);
+	setBackgroundColor.data.writeUInt8((color >> 8) & 0xff, 1);
 	// eslint-disable-next-line no-bitwise
-	setBackgroundColor.data.writeUInt8((color >> 16) & 0xFF, 0);
+	setBackgroundColor.data.writeUInt8((color >> 16) & 0xff, 0);
 	swf.tags.push(setBackgroundColor);
 
 	const showFrame = new Tag();
@@ -166,9 +157,8 @@ export function loader(
 
 	const doAction = new Tag();
 	doAction.code = 12;
-	doAction.data = swfv < 5 ?
-		bytecodeLoadMovieSwf4(url) :
-		bytecodeLoadMovieSwf5(url);
+	doAction.data =
+		swfv < 5 ? bytecodeLoadMovieSwf4(url) : bytecodeLoadMovieSwf5(url);
 	swf.tags.push(doAction);
 
 	swf.tags.push(showFrame);

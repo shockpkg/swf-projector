@@ -5,14 +5,10 @@ import {
 	linuxPatchMenuRemoveData,
 	linuxPatchProjectorPathData
 } from '../../util/linux';
-import {
-	ProjectorLinux
-} from '../linux';
+import {ProjectorLinux} from '../linux';
 
 /**
- * ProjectorLinux32 constructor.
- *
- * @param path Output path.
+ * ProjectorLinux32 object.
  */
 export class ProjectorLinux32 extends ProjectorLinux {
 	/**
@@ -36,6 +32,11 @@ export class ProjectorLinux32 extends ProjectorLinux {
 	 */
 	public patchProjectorPath = false;
 
+	/**
+	 * ProjectorLinux32 constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super(path);
 	}
@@ -44,18 +45,10 @@ export class ProjectorLinux32 extends ProjectorLinux {
 	 * Modify the projector player.
 	 */
 	protected async _modifyPlayer() {
-		const {
-			patchWindowTitle,
-			patchMenuRemove,
-			patchProjectorPath
-		} = this;
+		const {patchWindowTitle, patchMenuRemove, patchProjectorPath} = this;
 
 		// Skip if no patching was requested.
-		if (!(
-			patchWindowTitle ||
-			patchMenuRemove ||
-			patchProjectorPath
-		)) {
+		if (!(patchWindowTitle || patchMenuRemove || patchProjectorPath)) {
 			return;
 		}
 

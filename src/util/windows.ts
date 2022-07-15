@@ -8,33 +8,27 @@ import {
 import * as resedit from 'resedit';
 import fse from 'fs-extra';
 
-import {
-	bufferToArrayBuffer,
-	launcher
-} from '../util';
+import {bufferToArrayBuffer, launcher} from '../util';
 
-import {
-	findExact
-} from './internal/patch';
+import {findExact} from './internal/patch';
 
 const ResEditNtExecutable =
-	resedit.NtExecutable ||
-	(resedit as any).default.NtExecutable;
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+	resedit.NtExecutable || (resedit as any).default.NtExecutable;
 
 const ResEditNtExecutableResource =
 	resedit.NtExecutableResource ||
+	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
 	(resedit as any).default.NtExecutableResource;
 
-const ResEditResource =
-	resedit.Resource ||
-	(resedit as any).default.Resource;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const ResEditResource = resedit.Resource || (resedit as any).default.Resource;
 
-const ResEditData =
-	resedit.Data ||
-	(resedit as any).default.Data;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
+const ResEditData = resedit.Data || (resedit as any).default.Data;
 
 export interface IPeResourceReplace {
-
+	//
 	/**
 	 * Replace icons if not null.
 	 *
@@ -68,17 +62,19 @@ export function peVersionInts(version: string): [number, number] | null {
 	const numbers = [];
 	for (const part of parts) {
 		const n = /^\d+$/.test(part) ? +part : NaN;
-		if (!(n >= 0 && n <= 0xFFFF)) {
+		if (!(n >= 0 && n <= 0xffff)) {
 			return null;
 		}
 		numbers.push(n);
 	}
-	return numbers.length ? [
-		// eslint-disable-next-line no-bitwise
-		(((numbers[0] || 0) << 16) | (numbers[1] || 0)) >>> 0,
-		// eslint-disable-next-line no-bitwise
-		(((numbers[2] || 0) << 16) | (numbers[3] || 0)) >>> 0
-	] : null;
+	return numbers.length
+		? [
+				// eslint-disable-next-line no-bitwise
+				(((numbers[0] || 0) << 16) | (numbers[1] || 0)) >>> 0,
+				// eslint-disable-next-line no-bitwise
+				(((numbers[2] || 0) << 16) | (numbers[3] || 0)) >>> 0
+		  ]
+		: null;
 }
 
 /**
@@ -91,11 +87,7 @@ export async function peResourceReplace(
 	path: string,
 	options: Readonly<IPeResourceReplace>
 ) {
-	const {
-		iconData,
-		versionStrings,
-		removeSignature
-	} = options;
+	const {iconData, versionStrings, removeSignature} = options;
 
 	// Read EXE file and remove signature if present.
 	const exeOriginal = await fse.readFile(path);
@@ -108,9 +100,7 @@ export async function peResourceReplace(
 
 	// Replace all the icons in all icon groups.
 	if (iconData) {
-		const ico = ResEditData.IconFile.from(
-			bufferToArrayBuffer(iconData)
-		);
+		const ico = ResEditData.IconFile.from(bufferToArrayBuffer(iconData));
 		for (const iconGroup of ResEditResource.IconGroupEntry.fromEntries(
 			res.entries
 		)) {
@@ -177,8 +167,9 @@ export async function peResourceReplace(
  * @param pre String prefix to search for.
  * @param enc String encoding.
  * @param reg Regex strings must match.
+ * @yields String entry.
  */
-function * dataStrings(
+function* dataStrings(
 	data: Readonly<Buffer>,
 	pre: string,
 	enc: TranscodeEncoding,
@@ -189,12 +180,12 @@ function * dataStrings(
 	const preSize = pre.length * bytes;
 	for (const index of findExact(data, Buffer.from(pre, enc))) {
 		let more = 0;
-		for (more of findExact(data.slice(index + preSize), nulled)) {
+		for (more of findExact(data.subarray(index + preSize), nulled)) {
 			if (!(more % bytes)) {
 				break;
 			}
 		}
-		const stringData = data.slice(index, index + preSize + more);
+		const stringData = data.subarray(index, index + preSize + more);
 		const string = stringData.toString(enc);
 		if (reg && !reg.test(string)) {
 			continue;
@@ -419,7 +410,7 @@ export async function windowsLauncher(
 			break;
 		}
 		default: {
-			throw new Error(`Invalid type: ${type}`);
+			throw new Error(`Invalid type: ${type as string}`);
 		}
 	}
 
@@ -434,16 +425,16 @@ export async function windowsLauncher(
 
 	// Read resources from file.
 	const res = ResEditNtExecutableResource.from(
-		ResEditNtExecutable.from(
-			await fse.readFile(resources),
-			{
-				ignoreCert: true
-			}
-		)
+		ResEditNtExecutable.from(await fse.readFile(resources), {
+			ignoreCert: true
+		})
 	);
 
 	// Find the first icon group for each language.
-	const resIconGroups = new Map();
+	const resIconGroups = new Map<
+		string | number,
+		resedit.Resource.IconGroupEntry
+	>();
 	for (const iconGroup of ResEditResource.IconGroupEntry.fromEntries(
 		res.entries
 	)) {
@@ -467,11 +458,12 @@ export async function windowsLauncher(
 	const typeVersionInfo = 16;
 	const typeIcon = 3;
 	const typeIconGroup = 14;
-	res.entries = res.entries.filter(entry => (
-		entry.type === typeVersionInfo ||
-		(entry.type === typeIcon && iconDatas.has(entry.id)) ||
-		(entry.type === typeIconGroup && iconGroups.has(entry.id))
-	));
+	res.entries = res.entries.filter(
+		entry =>
+			entry.type === typeVersionInfo ||
+			(entry.type === typeIcon && iconDatas.has(entry.id)) ||
+			(entry.type === typeIconGroup && iconGroups.has(entry.id))
+	);
 
 	// Apply resources to launcher.
 	const exe = ResEditNtExecutable.from(exeData);

@@ -8,17 +8,11 @@ import {
 	PathType
 } from '@shockpkg/archive-files';
 
-import {
-	peResourceReplace
-} from '../util/windows';
-import {
-	Projector
-} from '../projector';
+import {peResourceReplace} from '../util/windows';
+import {Projector} from '../projector';
 
 /**
- * ProjectorWindows constructor.
- *
- * @param path Output path.
+ * ProjectorWindows object.
  */
 export abstract class ProjectorWindows extends Projector {
 	/**
@@ -41,6 +35,11 @@ export abstract class ProjectorWindows extends Projector {
 	 */
 	public removeCodeSignature = false;
 
+	/**
+	 * ProjectorWindows constructor.
+	 *
+	 * @param path Output path.
+	 */
 	constructor(path: string) {
 		super(path);
 	}
@@ -71,14 +70,11 @@ export abstract class ProjectorWindows extends Projector {
 	 */
 	protected async _writePlayer(player: string) {
 		if (
-			player.toLowerCase().endsWith(
-				this.extension.toLowerCase()
-			) &&
+			player.toLowerCase().endsWith(this.extension.toLowerCase()) &&
 			(await fse.stat(player)).isFile()
 		) {
 			await this._writePlayerFile(player);
-		}
-		else {
+		} else {
 			await this._writePlayerArchive(player);
 		}
 	}
@@ -141,15 +137,8 @@ export abstract class ProjectorWindows extends Projector {
 	 */
 	protected async _modifyPlayer() {
 		const iconData = await this.getIconData();
-		const {
-			versionStrings,
-			removeCodeSignature
-		} = this;
-		if (!(
-			iconData ||
-			versionStrings ||
-			removeCodeSignature
-		)) {
+		const {versionStrings, removeCodeSignature} = this;
+		if (!(iconData || versionStrings || removeCodeSignature)) {
 			return;
 		}
 

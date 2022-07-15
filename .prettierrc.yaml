@@ -1,0 +1,16 @@
+tabWidth: 4
+printWidth: 80
+useTabs: true
+semi: true
+singleQuote: true
+quoteProps: as-needed
+trailingComma: none
+bracketSpacing: false
+arrowParens: avoid
+overrides:
+  - files:
+      - '*.yaml'
+      - '*.yml'
+    options:
+      tabWidth: 2
+      useTabs: false
