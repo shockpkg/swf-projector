@@ -14,6 +14,7 @@ import {
 	getInstalledPackagesInfoSync,
 	simpleSwf
 } from '../../util.spec';
+import {ProjectorWindows} from '../windows';
 
 import {
 	ProjectorWindows32
@@ -42,6 +43,11 @@ export const versionStrings = {
 
 describe('projector/windows/32', () => {
 	describe('ProjectorWindows32', () => {
+		it('instanceof ProjectorWindows', () => {
+			expect(ProjectorWindows32.prototype instanceof ProjectorWindows)
+				.toBeTrue();
+		});
+
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
 				cleanProjectorDir('windows32', 'dummy', d);

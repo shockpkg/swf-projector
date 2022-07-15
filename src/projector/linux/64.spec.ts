@@ -14,6 +14,7 @@ import {
 	getInstalledPackagesInfoSync,
 	simpleSwf
 } from '../../util.spec';
+import {ProjectorLinux} from '../linux';
 
 import {
 	ProjectorLinux64
@@ -29,6 +30,11 @@ export function listSamples() {
 
 describe('projector/linux/64', () => {
 	describe('ProjectorLinux64', () => {
+		it('instanceof ProjectorLinux', () => {
+			expect(ProjectorLinux64.prototype instanceof ProjectorLinux)
+				.toBeTrue();
+		});
+
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
 				cleanProjectorDir('linux64', 'dummy', d);

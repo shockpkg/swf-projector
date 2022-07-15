@@ -16,6 +16,7 @@ import {
 import {
 	loader
 } from '../../loader';
+import {BundleLinux} from '../linux';
 
 import {
 	BundleLinux64
@@ -23,6 +24,10 @@ import {
 
 describe('bundle/linux/64', () => {
 	describe('BundleLinux64', () => {
+		it('instanceof BundleLinux', () => {
+			expect(BundleLinux64.prototype instanceof BundleLinux).toBeTrue();
+		});
+
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
 				cleanBundlesDir('linux64', pkg.name, d);

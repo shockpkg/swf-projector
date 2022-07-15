@@ -15,6 +15,7 @@ import {
 	getInstalledPackagesInfoSync,
 	simpleSwf
 } from '../../util.spec';
+import {ProjectorMac} from '../mac';
 
 import {
 	ProjectorMacApp
@@ -38,6 +39,11 @@ export function listSamples() {
 
 describe('projector/mac/app', () => {
 	describe('ProjectorMacApp', () => {
+		it('instanceof ProjectorMac', () => {
+			expect(ProjectorMacApp.prototype instanceof ProjectorMac)
+				.toBeTrue();
+		});
+
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
 				cleanProjectorDir('macapp', 'dummy', d);

@@ -17,6 +17,7 @@ import {
 import {
 	loader
 } from '../../loader';
+import {BundleWindows} from '../windows';
 
 import {
 	BundleWindows32
@@ -24,6 +25,11 @@ import {
 
 describe('bundle/windows/32', () => {
 	describe('BundleWindows32', () => {
+		it('instanceof BundleWindows', () => {
+			expect(BundleWindows32.prototype instanceof BundleWindows)
+				.toBeTrue();
+		});
+
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
 				cleanBundlesDir('windows32', pkg.name, d);

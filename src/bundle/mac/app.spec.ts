@@ -16,6 +16,7 @@ import {
 import {
 	loader
 } from '../../loader';
+import {BundleMac} from '../mac';
 
 import {
 	BundleMacApp
@@ -23,6 +24,11 @@ import {
 
 describe('bundle/mac/app', () => {
 	describe('BundleMacApp', () => {
+		it('instanceof BundleMac', () => {
+			expect(BundleMacApp.prototype instanceof BundleMac)
+				.toBeTrue();
+		});
+
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
 				cleanBundlesDir('macapp', pkg.name, d);
