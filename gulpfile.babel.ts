@@ -234,7 +234,12 @@ async function babelTarget(
 // clean
 
 gulp.task('clean:logs', async () => {
-	await del(['npm-debug.log*', 'yarn-debug.log*', 'yarn-error.log*']);
+	await del([
+		'npm-debug.log*',
+		'yarn-debug.log*',
+		'yarn-error.log*',
+		'report.*.json'
+	]);
 });
 
 gulp.task('clean:lib', async () => {
@@ -279,28 +284,23 @@ gulp.task('formatted', async () => {
 
 // build
 
-gulp.task('build:lib:dts', async () => {
+gulp.task('build:dts', async () => {
 	await exec('tsc');
 });
 
-gulp.task('build:lib:cjs', async () => {
+gulp.task('build:cjs', async () => {
 	await babelTarget(['src/**/*.ts'], 'lib', 'commonjs');
 });
 
-gulp.task('build:lib:mjs', async () => {
+gulp.task('build:esm', async () => {
 	await babelTarget(['src/**/*.ts'], 'lib', false);
 });
 
-gulp.task(
-	'build:lib',
-	gulp.parallel(['build:lib:dts', 'build:lib:cjs', 'build:lib:mjs'])
-);
-
-gulp.task('build', gulp.parallel(['build:lib']));
+gulp.task('build', gulp.parallel(['build:dts', 'build:cjs', 'build:esm']));
 
 // test
 
-gulp.task('test:node', async () => {
+gulp.task('test:cjs', async () => {
 	const installed = await new Manager().with(async manager =>
 		manager.installed()
 	);
@@ -309,7 +309,16 @@ gulp.task('test:node', async () => {
 	});
 });
 
-gulp.task('test', gulp.parallel(['test:node']));
+gulp.task('test:esm', async () => {
+	const installed = await new Manager().with(async manager =>
+		manager.installed()
+	);
+	await exec('jasmine', ['--config=spec/support/jasmine.esm.json'], {
+		SWF_PROJECTOR_INSTALLED: installed.map(p => p.name).join(',')
+	});
+});
+
+gulp.task('test', gulp.series(['test:cjs', 'test:esm']));
 
 // watch
 
@@ -317,7 +326,25 @@ gulp.task('watch', () => {
 	gulp.watch(['src/**/*'], gulp.series(['all']));
 });
 
+gulp.task('watch:cjs', () => {
+	gulp.watch(['src/**/*'], gulp.series(['all:cjs']));
+});
+
+gulp.task('watch:esm', () => {
+	gulp.watch(['src/**/*'], gulp.series(['all:esm']));
+});
+
 // all
+
+gulp.task(
+	'all:cjs',
+	gulp.series(['clean', 'build:cjs', 'test:cjs', 'lint', 'formatted'])
+);
+
+gulp.task(
+	'all:esm',
+	gulp.series(['clean', 'build:esm', 'test:esm', 'lint', 'formatted'])
+);
 
 gulp.task('all', gulp.series(['clean', 'build', 'test', 'lint', 'formatted']));
 

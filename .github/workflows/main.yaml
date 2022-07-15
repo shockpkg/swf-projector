@@ -614,8 +614,12 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test
-        run: npm run test
+      - name: Test CJS
+        run: npm run test:cjs
+
+      - name: Test ESM
+        run: npm run test:esm
+        if: matrix.config.NO_ESM != 1
 
       - name: Lint
         run: npm run lint
