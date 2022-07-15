@@ -14,7 +14,7 @@ import gulpSourcemaps from 'gulp-sourcemaps';
 import gulpBabel from 'gulp-babel';
 import del from 'del';
 import fse from 'fs-extra';
-import download from 'download';
+import fetch from 'node-fetch';
 import {Manager} from '@shockpkg/core';
 
 const pipeline = util.promisify(stream.pipeline);
@@ -80,18 +80,21 @@ async function hashFile(file: string, algo: string) {
 
 async function downloaded(source: string, dest: string, hash: string) {
 	const exists = await fse.pathExists(dest);
-	if (exists && await hashFile(dest, 'sha256') === hash) {
+	if (exists && (await hashFile(dest, 'sha256')) === hash) {
 		return dest;
 	}
 	await fse.remove(dest);
 	const part = `${dest}.part`;
 	await fse.remove(part);
-	await download(source, path.dirname(part), {
-		filename: path.basename(part)
-	});
-	if (await hashFile(part, 'sha256') !== hash) {
+	await fse.ensureDir(path.dirname(part));
+	const response = await fetch(source);
+	if (response.status !== 200) {
+		throw new Error(`Status ${response.status}: ${source}`);
+	}
+	await pipeline(response.body, fse.createWriteStream(part));
+	if ((await hashFile(part, 'sha256')) !== hash) {
 		await fse.remove(part);
-		throw new Error('Downloaded file has an unexpected hash');
+		throw new Error(`Unexpected hash: ${source}`);
 	}
 	await fse.rename(part, dest);
 	return dest;
