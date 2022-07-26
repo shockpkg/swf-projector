@@ -4,6 +4,7 @@
 			"@babel/preset-env",
 			{
 				"modules": "commonjs",
+				"exclude": ["proposal-dynamic-import"],
 				"targets": {
 					"node": "14.15.0"
 				}
@@ -11,5 +12,5 @@
 		],
 		["@babel/preset-typescript"]
 	],
-	"plugins": [["@babel/plugin-transform-runtime", {}]]
+	"plugins": []
 }

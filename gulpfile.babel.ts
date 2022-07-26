@@ -1,9 +1,10 @@
-import path from 'path';
-import stream from 'stream';
-import childProcess from 'child_process';
-import util from 'util';
-import zlib from 'zlib';
-import crypto from 'crypto';
+import {mkdir, readFile, rm, writeFile} from 'fs/promises';
+import {basename, dirname} from 'path';
+import {pipeline} from 'stream';
+import {spawn} from 'child_process';
+import {promisify} from 'util';
+import {deflateRaw} from 'zlib';
+import {createHash} from 'crypto';
 
 import gulp from 'gulp';
 import gulpRename from 'gulp-rename';
@@ -12,13 +13,10 @@ import gulpFilter from 'gulp-filter';
 import gulpReplace from 'gulp-replace';
 import gulpSourcemaps from 'gulp-sourcemaps';
 import gulpBabel from 'gulp-babel';
-import del from 'del';
-import fse from 'fs-extra';
-import fetch from 'node-fetch';
 import {Manager} from '@shockpkg/core';
 
-const pipeline = util.promisify(stream.pipeline);
-const deflateRaw = util.promisify(zlib.deflateRaw);
+const pipe = promisify(pipeline);
+const deflateRawP = promisify(deflateRaw);
 
 // The launchers and where to download them from.
 const launchers = [
@@ -72,32 +70,28 @@ const launchers = [
 	}
 ];
 
-async function hashFile(file: string, algo: string) {
-	const hash = crypto.createHash(algo).setEncoding('hex');
-	await pipeline(fse.createReadStream(file), hash);
-	return (hash.read() as string).toLowerCase();
+function sha256(data: Buffer) {
+	return createHash('sha256').update(data).digest().toString('hex');
 }
 
 async function downloaded(source: string, dest: string, hash: string) {
-	const exists = await fse.pathExists(dest);
-	if (exists && (await hashFile(dest, 'sha256')) === hash) {
-		return dest;
+	const data = await readFile(dest).catch(_ => null);
+	if (data && sha256(data) === hash) {
+		return data;
 	}
-	await fse.remove(dest);
-	const part = `${dest}.part`;
-	await fse.remove(part);
-	await fse.ensureDir(path.dirname(part));
+	await rm(dest, {force: true});
+	const {default: fetch} = await import('node-fetch');
 	const response = await fetch(source);
 	if (response.status !== 200) {
 		throw new Error(`Status ${response.status}: ${source}`);
 	}
-	await pipeline(response.body, fse.createWriteStream(part));
-	if ((await hashFile(part, 'sha256')) !== hash) {
-		await fse.remove(part);
+	const body = Buffer.from(await response.arrayBuffer());
+	if (sha256(body) !== hash) {
 		throw new Error(`Unexpected hash: ${source}`);
 	}
-	await fse.rename(part, dest);
-	return dest;
+	await mkdir(dirname(dest), {recursive: true});
+	await writeFile(dest, body);
+	return body;
 }
 
 function onetime<T>(f: () => T) {
@@ -109,9 +103,19 @@ function onetime<T>(f: () => T) {
 	};
 }
 
-const ensureLaunchers = onetime(async () =>
-	Promise.all(launchers.map(async o => downloaded(o.url, o.path, o.hash)))
-);
+const readLaunchers = onetime(async () => {
+	const r = {};
+	for (const {name, data} of await Promise.all(
+		launchers.map(async ({name, path, url, hash}) =>
+			downloaded(url, path, hash)
+				.then(deflateRawP)
+				.then(d => ({name, data: d.toString('base64')}))
+		)
+	)) {
+		r[name] = data;
+	}
+	return r;
+});
 
 async function exec(
 	cmd: string,
@@ -119,7 +123,7 @@ async function exec(
 	env: {[e: string]: string} = {}
 ) {
 	const code = await new Promise<number | null>((resolve, reject) => {
-		const p = childProcess.spawn(cmd, args, {
+		const p = spawn(cmd, args, {
 			stdio: 'inherit',
 			shell: true,
 			// eslint-disable-next-line no-process-env
@@ -134,14 +138,14 @@ async function exec(
 }
 
 async function packageJson() {
-	return JSON.parse(await fse.readFile('package.json', 'utf8')) as {
+	return JSON.parse(await readFile('package.json', 'utf8')) as {
 		[p: string]: string;
 	};
 }
 
 async function babelrc() {
 	return {
-		...JSON.parse(await fse.readFile('.babelrc', 'utf8')),
+		...JSON.parse(await readFile('.babelrc', 'utf8')),
 		babelrc: false
 	} as {
 		presets: [string, unknown][];
@@ -155,42 +159,33 @@ async function babelTarget(
 	dest: string,
 	modules: string | boolean
 ) {
-	await ensureLaunchers();
+	const ext = modules ? '.js' : '.mjs';
 
-	// Change module.
 	const babelOptions = await babelrc();
 	for (const preset of babelOptions.presets) {
 		if (preset[0] === '@babel/preset-env') {
 			(preset[1] as {modules: string | boolean}).modules = modules;
 		}
 	}
-	if (!modules) {
+	if (modules === 'commonjs') {
 		babelOptions.plugins.push([
-			'esm-resolver',
-			{
-				source: {
-					extensions: [
-						[
-							['.js', '.mjs', '.jsx', '.mjsx', '.ts', '.tsx'],
-							'.mjs'
-						]
-					]
-				}
-			}
+			'@babel/plugin-transform-modules-commonjs',
+			{importInterop: 'node'}
 		]);
 	}
+	babelOptions.plugins.push([
+		'esm-resolver',
+		{
+			source: {
+				extensions: [
+					[['.js', '.mjs', '.jsx', '.mjsx', '.ts', '.tsx'], ext]
+				]
+			}
+		}
+	]);
 
 	// Read the package JSON.
 	const pkg = await packageJson();
-
-	const launchersData = {};
-	for (const {name, path} of launchers) {
-		// eslint-disable-next-line no-await-in-loop
-		const data = (await deflateRaw(await fse.readFile(path))).toString(
-			'base64'
-		);
-		launchersData[name] = data;
-	}
 
 	// Filter meta data file and create replace transform.
 	const filterMeta = gulpFilter(['*/meta.ts', '*/launchers.ts'], {
@@ -199,10 +194,10 @@ async function babelTarget(
 	const filterMetaReplaces = [
 		["'@VERSION@'", JSON.stringify(pkg.version)],
 		["'@NAME@'", JSON.stringify(pkg.name)],
-		["'@LAUNCHERS@'", JSON.stringify(launchersData)]
+		["'@LAUNCHERS@'", JSON.stringify(await readLaunchers())]
 	].map(([f, r]) => gulpReplace(f, r));
 
-	await pipeline(
+	await pipe(
 		gulp.src(src),
 		filterMeta,
 		...filterMetaReplaces,
@@ -210,22 +205,18 @@ async function babelTarget(
 		gulpSourcemaps.init(),
 		gulpBabel(babelOptions as {}),
 		gulpRename(path => {
-			if (!modules && path.extname === '.js') {
-				path.extname = '.mjs';
-			}
+			path.extname = ext;
 		}),
 		gulpSourcemaps.write('.', {
 			includeContent: true,
 			addComment: false,
 			destPath: dest
 		}),
-		gulpInsert.transform((contents, file) => {
-			// Manually append sourcemap comment.
-			if (/\.m?js$/i.test(file.path)) {
-				const base = path.basename(file.path);
-				return `${contents}\n//# sourceMappingURL=${base}.map\n`;
+		gulpInsert.transform((code, {path}) => {
+			if (path.endsWith(ext)) {
+				return `${code}\n//# sourceMappingURL=${basename(path)}.map\n`;
 			}
-			return contents;
+			return code;
 		}),
 		gulp.dest(dest)
 	);
@@ -233,44 +224,19 @@ async function babelTarget(
 
 // clean
 
-gulp.task('clean:logs', async () => {
-	await del([
-		'npm-debug.log*',
-		'yarn-debug.log*',
-		'yarn-error.log*',
-		'report.*.json'
+gulp.task('clean', async () => {
+	await Promise.all([
+		rm('lib', {recursive: true, force: true}),
+		rm('spec/projectors', {recursive: true, force: true}),
+		rm('spec/bundles', {recursive: true, force: true})
 	]);
 });
 
-gulp.task('clean:lib', async () => {
-	await del(['lib']);
-});
-
-gulp.task('clean:projectors', async () => {
-	await del(['spec/projectors']);
-});
-
-gulp.task('clean:bundles', async () => {
-	await del(['spec/bundles']);
-});
-
-gulp.task(
-	'clean',
-	gulp.parallel([
-		'clean:logs',
-		'clean:lib',
-		'clean:projectors',
-		'clean:bundles'
-	])
-);
-
 // lint
 
-gulp.task('lint:es', async () => {
+gulp.task('lint', async () => {
 	await exec('eslint', ['.']);
 });
-
-gulp.task('lint', gulp.parallel(['lint:es']));
 
 // formatting
 
