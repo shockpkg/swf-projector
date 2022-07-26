@@ -5,7 +5,7 @@
 			{
 				"modules": "commonjs",
 				"targets": {
-					"node": "10"
+					"node": "14.15.0"
 				}
 			}
 		],

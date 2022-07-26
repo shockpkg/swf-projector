@@ -7,18 +7,6 @@ jobs:
     strategy:
       matrix:
         config:
-          - node-version: '10.13.0' # LTS
-            NO_FORMATTED: 1
-            NO_LINT: 1
-            NO_ESM: 1
-            PKG: ''
-
-          - node-version: '12.13.0' # LTS
-            NO_FORMATTED: 1
-            NO_LINT: 1
-            NO_ESM: 1
-            PKG: ''
-
           - node-version: '14.15.0' # LTS
             NO_FORMATTED: 1
             NO_LINT: 1
@@ -619,7 +607,6 @@ jobs:
 
       - name: Test ESM
         run: npm run test:esm
-        if: matrix.config.NO_ESM != 1
 
       - name: Lint
         run: npm run lint
