@@ -1,6 +1,5 @@
+import {copyFile} from 'fs/promises';
 import {join as pathJoin} from 'path';
-
-import fse from 'fs-extra';
 
 import {cleanProjectorDir} from '../../projector.spec';
 import {
@@ -90,7 +89,7 @@ describe('projector/linux/64', () => {
 						fixtureFile('swf6-loadmovie.swf')
 					);
 
-					await fse.copy(
+					await copyFile(
 						fixtureFile('image.jpg'),
 						pathJoin(dir, 'image.jpg')
 					);
@@ -120,7 +119,7 @@ describe('projector/linux/64', () => {
 						fixtureFile('swf6-loadmovie.swf')
 					);
 
-					await fse.copy(
+					await copyFile(
 						fixtureFile('image.jpg'),
 						pathJoin(dir, 'image.jpg')
 					);

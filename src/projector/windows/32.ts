@@ -1,4 +1,4 @@
-import fse from 'fs-extra';
+import {readFile, writeFile} from 'fs/promises';
 
 import {ProjectorWindows} from '../windows';
 import {windowsPatchWindowTitle} from '../../util/windows';
@@ -48,12 +48,9 @@ export class ProjectorWindows32 extends ProjectorWindows {
 			return;
 		}
 
-		await fse.writeFile(
+		await writeFile(
 			this.path,
-			windowsPatchWindowTitle(
-				await fse.readFile(this.path),
-				patchWindowTitle
-			)
+			windowsPatchWindowTitle(await readFile(this.path), patchWindowTitle)
 		);
 	}
 }

@@ -1,8 +1,18 @@
+import {createReadStream, createWriteStream} from 'fs';
+import {
+	chmod,
+	lstat,
+	mkdir,
+	readFile,
+	readlink,
+	stat,
+	symlink,
+	utimes
+} from 'fs/promises';
 import {Readable, pipeline} from 'stream';
 import {join as pathJoin, dirname, basename, resolve} from 'path';
 import {promisify} from 'util';
 
-import fse from 'fs-extra';
 import {
 	fsLchmodSupported,
 	fsLchmod,
@@ -137,7 +147,7 @@ export abstract class Bundle extends Object {
 	 * @param movieFile Movie file.
 	 */
 	public async openFile(player: string, movieFile: string | null) {
-		const movieData = movieFile ? await fse.readFile(movieFile) : null;
+		const movieData = movieFile ? await readFile(movieFile) : null;
 		await this.openData(player, movieData);
 	}
 
@@ -188,7 +198,7 @@ export abstract class Bundle extends Object {
 		movieFile: string | null,
 		func: ((self: this) => Promise<T>) | null = null
 	) {
-		const movieData = movieFile ? await fse.readFile(movieFile) : null;
+		const movieData = movieFile ? await readFile(movieFile) : null;
 		return this.withData(player, movieData, func);
 	}
 
@@ -248,7 +258,7 @@ export abstract class Bundle extends Object {
 	) {
 		this._assertIsOpen();
 
-		const stat = await fse.lstat(source);
+		const stat = await lstat(source);
 		switch (true) {
 			case stat.isSymbolicLink(): {
 				await this.copyResourceSymlink(destination, source, options);
@@ -287,7 +297,7 @@ export abstract class Bundle extends Object {
 			destination,
 			options
 				? await this._expandResourceOptionsCopy(options, async () =>
-						fse.stat(source)
+						stat(source)
 				  )
 				: options
 		);
@@ -333,10 +343,10 @@ export abstract class Bundle extends Object {
 
 		await this.streamResourceFile(
 			destination,
-			fse.createReadStream(source),
+			createReadStream(source),
 			options
 				? await this._expandResourceOptionsCopy(options, async () =>
-						fse.stat(source)
+						stat(source)
 				  )
 				: options
 		);
@@ -358,10 +368,10 @@ export abstract class Bundle extends Object {
 
 		await this.createResourceSymlink(
 			destination,
-			await fse.readlink(source),
+			await readlink(source),
 			options
 				? await this._expandResourceOptionsCopy(options, async () =>
-						fse.lstat(source)
+						lstat(source)
 				  )
 				: options
 		);
@@ -383,7 +393,7 @@ export abstract class Bundle extends Object {
 			destination,
 			!!(options && options.merge)
 		);
-		await fse.ensureDir(dest);
+		await mkdir(dest, {recursive: true});
 
 		// If either is set, queue up change times when closing.
 		if (options && (options.atime || options.mtime)) {
@@ -441,8 +451,8 @@ export abstract class Bundle extends Object {
 		this._assertIsOpen();
 
 		const dest = await this._assertNotResourceExists(destination);
-		await fse.ensureDir(dirname(dest));
-		await fse.symlink(target as string | Buffer, dest);
+		await mkdir(dirname(dest), {recursive: true});
+		await symlink(target as string | Buffer, dest);
 
 		if (options) {
 			await this._setResourceAttributes(dest, options);
@@ -464,8 +474,8 @@ export abstract class Bundle extends Object {
 		this._assertIsOpen();
 
 		const dest = await this._assertNotResourceExists(destination);
-		await fse.ensureDir(dirname(dest));
-		await pipelineP(data, fse.createWriteStream(dest));
+		await mkdir(dirname(dest), {recursive: true});
+		await pipelineP(data, createWriteStream(dest));
 
 		if (options) {
 			await this._setResourceAttributes(dest, options);
@@ -478,7 +488,7 @@ export abstract class Bundle extends Object {
 	protected async _checkOutput() {
 		for (const p of [this.path, this.resourcePath('')]) {
 			// eslint-disable-next-line no-await-in-loop
-			if (await fse.pathExists(p)) {
+			if (await fsLstatExists(p)) {
 				throw new Error(`Output path already exists: ${p}`);
 			}
 		}
@@ -524,12 +534,12 @@ export abstract class Bundle extends Object {
 		options: Readonly<IBundleResourceOptions>
 	) {
 		const {atime, mtime, executable} = options;
-		const st = await fse.lstat(path);
+		const st = await lstat(path);
 
 		// Maybe set executable if not a directory and supported.
 		if (typeof executable === 'boolean' && !st.isDirectory()) {
 			if (!st.isSymbolicLink()) {
-				await fse.chmod(
+				await chmod(
 					path,
 					this._setResourceModeExecutable(st.mode, executable)
 				);
@@ -549,7 +559,7 @@ export abstract class Bundle extends Object {
 		// Maybe change times if either is set and supported.
 		if (atime || mtime) {
 			if (!st.isSymbolicLink()) {
-				await fse.utimes(path, atime || st.atime, mtime || st.mtime);
+				await utimes(path, atime || st.atime, mtime || st.mtime);
 			} else if (fsLutimesSupported) {
 				await fsLutimes(path, atime || st.atime, mtime || st.mtime);
 			}

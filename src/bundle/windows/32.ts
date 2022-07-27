@@ -1,6 +1,5 @@
-import {join as pathJoin, basename} from 'path';
-
-import fse from 'fs-extra';
+import {mkdir, writeFile} from 'fs/promises';
+import {join as pathJoin, basename, dirname} from 'path';
 
 import {trimExtension} from '../../util';
 import {windowsLauncher} from '../../util/windows';
@@ -45,9 +44,8 @@ export class BundleWindows32 extends BundleWindows {
 	 * Write the launcher file.
 	 */
 	protected async _writeLauncher() {
-		await fse.outputFile(
-			this.path,
-			await windowsLauncher('i686', this.projector.path)
-		);
+		const {path, projector} = this;
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, await windowsLauncher('i686', projector.path));
 	}
 }

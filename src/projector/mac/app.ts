@@ -1,4 +1,5 @@
-import {join as pathJoin, basename} from 'path';
+import {mkdir, readFile, rename, rm, stat, writeFile} from 'fs/promises';
+import {join as pathJoin, basename, dirname} from 'path';
 
 import {
 	ArchiveDir,
@@ -8,7 +9,6 @@ import {
 	PathType
 } from '@shockpkg/archive-files';
 import {Plist} from '@shockpkg/plist-dom';
-import fse from 'fs-extra';
 
 import {pathRelativeBase, trimExtension} from '../../util';
 import {
@@ -246,7 +246,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	public async getIconData() {
 		const {iconData, iconFile} = this;
-		return iconData || (iconFile ? fse.readFile(iconFile) : null);
+		return iconData || (iconFile ? readFile(iconFile) : null);
 	}
 
 	/**
@@ -266,7 +266,7 @@ export class ProjectorMacApp extends ProjectorMac {
 		} else if (infoPlistData) {
 			xml = (infoPlistData as Readonly<Buffer>).toString('utf8');
 		} else if (infoPlistFile) {
-			xml = await fse.readFile(infoPlistFile, 'utf8');
+			xml = await readFile(infoPlistFile, 'utf8');
 		} else {
 			return null;
 		}
@@ -283,7 +283,7 @@ export class ProjectorMacApp extends ProjectorMac {
 		if (typeof pkgInfoData === 'string') {
 			return Buffer.from(pkgInfoData, 'ascii');
 		}
-		return pkgInfoData || (pkgInfoFile ? fse.readFile(pkgInfoFile) : null);
+		return pkgInfoData || (pkgInfoFile ? readFile(pkgInfoFile) : null);
 	}
 
 	/**
@@ -306,7 +306,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	protected async _writePlayer(player: string) {
 		if (
 			player.toLowerCase().endsWith(this.extension.toLowerCase()) &&
-			(await fse.stat(player)).isDirectory()
+			(await stat(player)).isDirectory()
 		) {
 			await this._writePlayerFile(player);
 		} else {
@@ -320,13 +320,13 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @param player Player path.
 	 */
 	protected async _writePlayerFile(player: string) {
-		const stat = await fse.stat(player);
-		if (!stat.isDirectory()) {
+		const st = await stat(player);
+		if (!st.isDirectory()) {
 			throw new Error(`Path is not directory: ${player}`);
 		}
 
 		const playerOut = this.path;
-		await fse.ensureDir(playerOut);
+		await mkdir(playerOut, {recursive: true});
 
 		// Open directory as archive, for copying.
 		const archive = new ArchiveDir(player);
@@ -339,8 +339,8 @@ export class ProjectorMacApp extends ProjectorMac {
 			await entry.extract(pathJoin(playerOut, entry.volumePath));
 		});
 
-		await fsChmod(playerOut, modePermissionBits(stat.mode));
-		await fsUtimes(playerOut, stat.atime, stat.mtime);
+		await fsChmod(playerOut, modePermissionBits(st.mode));
+		await fsUtimes(playerOut, st.atime, st.mtime);
 	}
 
 	/**
@@ -430,13 +430,13 @@ export class ProjectorMacApp extends ProjectorMac {
 		const plist = await this._readInfoPlist();
 		const executableName = infoPlistBundleExecutableGet(plist);
 		const binaryPath = this.getBinaryPath(executableName);
-		let data = await fse.readFile(binaryPath);
+		let data = await readFile(binaryPath);
 
 		// Patch the binary data.
 		data = machoAppWindowTitle(data, patchWindowTitle);
 
 		// Write the patched binary.
-		await fse.writeFile(binaryPath, data);
+		await writeFile(binaryPath, data);
 	}
 
 	/**
@@ -449,7 +449,7 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		await fse.writeFile(this.moviePath, movieData);
+		await writeFile(this.moviePath, movieData);
 	}
 
 	/**
@@ -493,8 +493,9 @@ export class ProjectorMacApp extends ProjectorMac {
 		const iconName = infoPlistBundleIconFileGet(plist);
 
 		const path = this.getIconPath(iconName);
-		await fse.remove(path);
-		await fse.outputFile(path, data);
+		await rm(path, {force: true});
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, data);
 	}
 
 	/**
@@ -507,8 +508,9 @@ export class ProjectorMacApp extends ProjectorMac {
 		}
 
 		const path = this.pkgInfoPath;
-		await fse.remove(path);
-		await fse.outputFile(path, data);
+		await rm(path, {force: true});
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, data);
 	}
 
 	/**
@@ -544,8 +546,8 @@ export class ProjectorMacApp extends ProjectorMac {
 			const binaryPathOld = this.getBinaryPath(executableName);
 			const binaryPathNew = this.getBinaryPath(binaryName);
 
-			await fse.move(binaryPathOld, binaryPathNew);
-			await fse.move(rsrcPathOld, rsrcPathNew);
+			await rename(binaryPathOld, binaryPathNew);
+			await rename(rsrcPathOld, rsrcPathNew);
 		}
 
 		if (appIconName) {
@@ -554,7 +556,7 @@ export class ProjectorMacApp extends ProjectorMac {
 			const iconPathOld = this.getIconPath(iconName);
 			const iconPathNew = this.getIconPath(appIconName);
 
-			await fse.move(iconPathOld, iconPathNew);
+			await rename(iconPathOld, iconPathNew);
 		}
 	}
 
@@ -614,7 +616,8 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	protected async _writeInfoPlist(plist: Plist) {
 		const path = this.infoPlistPath;
-		await fse.remove(path);
-		await fse.outputFile(path, plist.toXml(), 'utf8');
+		await rm(path, {force: true});
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, plist.toXml(), 'utf8');
 	}
 }

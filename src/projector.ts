@@ -1,10 +1,12 @@
+import {open, readFile, stat} from 'fs/promises';
+
 import {
 	Archive,
 	ArchiveDir,
 	ArchiveHdi,
-	createArchiveByFileExtension
+	createArchiveByFileExtension,
+	fsLstatExists
 } from '@shockpkg/archive-files';
-import fse from 'fs-extra';
 
 /**
  * Projector object.
@@ -47,11 +49,11 @@ export abstract class Projector extends Object {
 	 * @returns Archive instance.
 	 */
 	public async openAsArchive(path: string): Promise<Archive> {
-		const stat = await fse.stat(path);
-		if (stat.isDirectory()) {
+		const st = await stat(path);
+		if (st.isDirectory()) {
 			return new ArchiveDir(path);
 		}
-		if (!stat.isFile()) {
+		if (!st.isFile()) {
 			throw new Error(`Archive path not file or directory: ${path}`);
 		}
 
@@ -77,7 +79,7 @@ export abstract class Projector extends Object {
 	 * @param movieFile Movie file.
 	 */
 	public async withFile(player: string, movieFile: string | null) {
-		const movieData = movieFile ? await fse.readFile(movieFile) : null;
+		const movieData = movieFile ? await readFile(movieFile) : null;
 		await this.withData(player, movieData);
 	}
 
@@ -98,7 +100,7 @@ export abstract class Projector extends Object {
 	 * Check that output path is valid, else throws.
 	 */
 	protected async _checkOutput() {
-		if (await fse.pathExists(this.path)) {
+		if (await fsLstatExists(this.path)) {
 			throw new Error(`Output path already exists: ${this.path}`);
 		}
 	}
@@ -165,19 +167,19 @@ export abstract class Projector extends Object {
 			}
 		}
 
-		const stat = await fse.stat(file);
-		if (!stat.isFile()) {
+		const st = await stat(file);
+		if (!st.isFile()) {
 			throw new Error(`Path not a file: ${file}`);
 		}
 
-		const fd = await fse.open(file, 'a');
+		const f = await open(file, 'a');
 		try {
 			for (const b of buffers) {
 				// eslint-disable-next-line no-await-in-loop
-				await fse.appendFile(fd, b);
+				await f.appendFile(b);
 			}
 		} finally {
-			await fse.close(fd);
+			await f.close();
 		}
 	}
 

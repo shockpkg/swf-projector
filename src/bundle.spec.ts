@@ -1,6 +1,6 @@
-import {join as pathJoin, basename} from 'path';
+import {chmod, lstat, mkdir, rm, symlink, utimes, writeFile} from 'fs/promises';
+import {join as pathJoin, basename, dirname} from 'path';
 
-import fse from 'fs-extra';
 import {fsLchmod, fsLutimes} from '@shockpkg/archive-files';
 
 import {trimExtension} from './util';
@@ -12,8 +12,8 @@ export const specBundlesPath = pathJoin('spec', 'bundles');
 
 export async function cleanBundlesDir(...path: string[]) {
 	const dir = pathJoin(specBundlesPath, ...path);
-	await fse.remove(dir);
-	await fse.ensureDir(dir);
+	await rm(dir, {recursive: true, force: true});
+	await mkdir(dir, {recursive: true});
 	return dir;
 }
 
@@ -56,7 +56,8 @@ class BundleDummy extends Bundle {
 	}
 
 	protected async _writeLauncher() {
-		await fse.outputFile(this.path, 'DUMMY_PE_LAUNCHER_EXE\n', 'utf8');
+		await mkdir(dirname(this.path), {recursive: true});
+		await writeFile(this.path, 'DUMMY_PE_LAUNCHER_EXE\n', 'utf8');
 	}
 }
 
@@ -83,19 +84,21 @@ describe('bundle', () => {
 			const resourcesL1 = pathJoin(resources, 'l1.txt');
 			const resourcesL2 = pathJoin(resources, 'l2.txt');
 
-			await fse.ensureDir(resources);
+			await mkdir(resources, {recursive: true});
 
-			await fse.outputFile(resourcesA, 'alpha');
-			await fse.chmod(resourcesA, 0o666);
-			await fse.utimes(resourcesA, dateA, dateA);
+			await mkdir(dirname(resourcesA), {recursive: true});
+			await writeFile(resourcesA, 'alpha');
+			await chmod(resourcesA, 0o666);
+			await utimes(resourcesA, dateA, dateA);
 
-			await fse.outputFile(resourcesB, 'beta');
-			await fse.chmod(resourcesB, 0o777);
-			await fse.utimes(resourcesB, dateA, dateA);
+			await mkdir(dirname(resourcesB), {recursive: true});
+			await writeFile(resourcesB, 'beta');
+			await chmod(resourcesB, 0o777);
+			await utimes(resourcesB, dateA, dateA);
 
 			if (supportsSymlinks) {
-				await fse.symlink('a.txt', resourcesL1);
-				await fse.symlink('a.txt', resourcesL2);
+				await symlink('a.txt', resourcesL1);
+				await symlink('a.txt', resourcesL2);
 
 				if (supportsSymlinkAttrs) {
 					await fsLchmod(resourcesL1, 0o777);
@@ -106,7 +109,7 @@ describe('bundle', () => {
 				}
 			}
 
-			await fse.utimes(resources, dateA, dateA);
+			await utimes(resources, dateA, dateA);
 
 			const p = new BundleDummy(dest);
 			await p.withFile(
@@ -147,9 +150,9 @@ describe('bundle', () => {
 				}
 			);
 
-			await fse.remove(resources);
+			await rm(resources, {recursive: true, force: true});
 
-			const st = async (path: string) => fse.lstat(p.resourcePath(path));
+			const st = async (path: string) => lstat(p.resourcePath(path));
 
 			const res0 = await st('resources0');
 			expect(res0.atime.getFullYear()).not.toBe(2001);
@@ -292,9 +295,10 @@ describe('bundle', () => {
 			const resources = pathJoin(dir, 'resources');
 			const resourcesA = pathJoin(resources, 'd/a.txt');
 
-			await fse.ensureDir(resources);
+			await mkdir(resources, {recursive: true});
 
-			await fse.outputFile(resourcesA, 'alpha');
+			await mkdir(dirname(resourcesA), {recursive: true});
+			await writeFile(resourcesA, 'alpha');
 
 			const p = new BundleDummy(dest);
 			await p.withFile(
@@ -310,9 +314,9 @@ describe('bundle', () => {
 				}
 			);
 
-			await fse.remove(resources);
+			await rm(resources, {recursive: true, force: true});
 
-			const st = async (path: string) => fse.lstat(p.resourcePath(path));
+			const st = async (path: string) => lstat(p.resourcePath(path));
 
 			expect((await st('d/a.txt')).isFile()).toBeTrue();
 			expect((await st('d/b.txt')).isFile()).toBeTrue();

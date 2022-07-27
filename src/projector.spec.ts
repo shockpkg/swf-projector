@@ -1,6 +1,5 @@
+import {rm, mkdir, copyFile} from 'fs/promises';
 import {join as pathJoin, dirname} from 'path';
-
-import fse from 'fs-extra';
 
 import {fixtureFile} from './util.spec';
 import {Projector} from './projector';
@@ -9,8 +8,8 @@ export const specProjectorsPath = pathJoin('spec', 'projectors');
 
 export async function cleanProjectorDir(...path: string[]) {
 	const dir = pathJoin(specProjectorsPath, ...path);
-	await fse.remove(dir);
-	await fse.ensureDir(dir);
+	await rm(dir, {recursive: true, force: true});
+	await mkdir(dir, {recursive: true});
 	return dir;
 }
 
@@ -26,8 +25,8 @@ export class ProjectorDummy extends Projector {
 	}
 
 	protected async _writePlayer(player: string) {
-		await fse.ensureDir(dirname(this.path));
-		await fse.copyFile(player, this.path);
+		await mkdir(dirname(this.path), {recursive: true});
+		await copyFile(player, this.path);
 	}
 
 	protected async _modifyPlayer() {

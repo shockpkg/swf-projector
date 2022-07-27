@@ -1,6 +1,6 @@
+import {copyFile, mkdir, readFile, stat} from 'fs/promises';
 import {dirname} from 'path';
 
-import fse from 'fs-extra';
 import {
 	fsChmod,
 	fsUtimes,
@@ -60,7 +60,7 @@ export abstract class ProjectorWindows extends Projector {
 	 */
 	public async getIconData() {
 		const {iconData, iconFile} = this;
-		return iconData || (iconFile ? fse.readFile(iconFile) : null);
+		return iconData || (iconFile ? readFile(iconFile) : null);
 	}
 
 	/**
@@ -71,7 +71,7 @@ export abstract class ProjectorWindows extends Projector {
 	protected async _writePlayer(player: string) {
 		if (
 			player.toLowerCase().endsWith(this.extension.toLowerCase()) &&
-			(await fse.stat(player)).isFile()
+			(await stat(player)).isFile()
 		) {
 			await this._writePlayerFile(player);
 		} else {
@@ -85,16 +85,16 @@ export abstract class ProjectorWindows extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayerFile(player: string) {
-		const stat = await fse.stat(player);
-		if (!stat.isFile()) {
+		const st = await stat(player);
+		if (!st.isFile()) {
 			throw new Error(`Path not a file: ${player}`);
 		}
 
 		const {path} = this;
-		await fse.ensureDir(dirname(path));
-		await fse.copyFile(player, path);
-		await fsChmod(path, modePermissionBits(stat.mode));
-		await fsUtimes(path, stat.atime, stat.mtime);
+		await mkdir(dirname(path), {recursive: true});
+		await copyFile(player, path);
+		await fsChmod(path, modePermissionBits(st.mode));
+		await fsUtimes(path, st.atime, st.mtime);
 	}
 
 	/**

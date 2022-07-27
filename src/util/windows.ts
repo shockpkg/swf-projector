@@ -1,3 +1,4 @@
+import {readFile, writeFile} from 'fs/promises';
 import {TranscodeEncoding} from 'buffer';
 
 import {
@@ -6,7 +7,6 @@ import {
 	signatureSet
 } from 'portable-executable-signature';
 import * as resedit from 'resedit';
-import fse from 'fs-extra';
 
 import {bufferToArrayBuffer, launcher} from '../util';
 
@@ -90,7 +90,7 @@ export async function peResourceReplace(
 	const {iconData, versionStrings, removeSignature} = options;
 
 	// Read EXE file and remove signature if present.
-	const exeOriginal = await fse.readFile(path);
+	const exeOriginal = await readFile(path);
 	const signedData = removeSignature ? null : signatureGet(exeOriginal);
 	let exeData = signatureSet(exeOriginal, null, true, true);
 
@@ -157,7 +157,7 @@ export async function peResourceReplace(
 	}
 
 	// Write updated EXE file.
-	await fse.writeFile(path, Buffer.from(exeData));
+	await writeFile(path, Buffer.from(exeData));
 }
 
 /**
@@ -425,7 +425,7 @@ export async function windowsLauncher(
 
 	// Read resources from file.
 	const res = ResEditNtExecutableResource.from(
-		ResEditNtExecutable.from(await fse.readFile(resources), {
+		ResEditNtExecutable.from(await readFile(resources), {
 			ignoreCert: true
 		})
 	);

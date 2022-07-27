@@ -1,6 +1,5 @@
-import {join as pathJoin, basename} from 'path';
-
-import fse from 'fs-extra';
+import {mkdir, stat, writeFile} from 'fs/promises';
+import {join as pathJoin, basename, dirname} from 'path';
 
 import {linuxLauncher} from '../../util/linux';
 import {ProjectorLinux32} from '../../projector/linux/32';
@@ -41,8 +40,10 @@ export class BundleLinux32 extends BundleLinux {
 	 */
 	protected async _writeLauncher() {
 		// Create launcher script with same mode.
-		await fse.outputFile(this.path, await linuxLauncher('i386'), {
-			mode: (await fse.stat(this.projector.path)).mode
+		const {path, projector} = this;
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, await linuxLauncher('i386'), {
+			mode: (await stat(projector.path)).mode
 		});
 	}
 }

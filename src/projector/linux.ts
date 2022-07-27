@@ -1,3 +1,4 @@
+import {copyFile, mkdir, stat} from 'fs/promises';
 import {dirname} from 'path';
 
 import {
@@ -6,7 +7,6 @@ import {
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
-import fse from 'fs-extra';
 
 import {Projector} from '../projector';
 
@@ -52,7 +52,7 @@ export abstract class ProjectorLinux extends Projector {
 			await this._writePlayerArchive(player);
 		} catch (err) {
 			if (
-				!(await fse.stat(player)).isDirectory() &&
+				!(await stat(player)).isDirectory() &&
 				err &&
 				`${(err as {message: string}).message}`.startsWith(
 					'Archive file type unknown: '
@@ -71,16 +71,16 @@ export abstract class ProjectorLinux extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayerFile(player: string) {
-		const stat = await fse.stat(player);
-		if (!stat.isFile()) {
+		const st = await stat(player);
+		if (!st.isFile()) {
 			throw new Error(`Path not a file: ${player}`);
 		}
 
 		const {path} = this;
-		await fse.ensureDir(dirname(path));
-		await fse.copyFile(player, path);
-		await fsChmod(path, modePermissionBits(stat.mode));
-		await fsUtimes(path, stat.atime, stat.mtime);
+		await mkdir(dirname(path), {recursive: true});
+		await copyFile(player, path);
+		await fsChmod(path, modePermissionBits(st.mode));
+		await fsUtimes(path, st.atime, st.mtime);
 	}
 
 	/**

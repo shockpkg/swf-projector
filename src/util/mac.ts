@@ -1,10 +1,9 @@
 /* eslint-disable max-classes-per-file */
-
+import {readFile, rm, writeFile} from 'fs/promises';
 import {join as pathJoin} from 'path';
 
 import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
 import {unsign} from 'macho-unsign';
-import fse from 'fs-extra';
 
 import {once, launcher} from '../util';
 
@@ -82,7 +81,7 @@ export async function plistParse(data: string) {
  * @returns Plist document.
  */
 export async function plistRead(path: string) {
-	return plistParse(await fse.readFile(path, 'utf8'));
+	return plistParse(await readFile(path, 'utf8'));
 }
 
 /**
@@ -259,7 +258,7 @@ export function machoTypesData(data: Readonly<Buffer>) {
  * @returns Mach-O types.
  */
 export async function machoTypesFile(path: string) {
-	return machoTypesData(await fse.readFile(path));
+	return machoTypesData(await readFile(path));
 }
 
 /**
@@ -270,13 +269,13 @@ export async function machoTypesFile(path: string) {
  */
 export async function machoUnsignFile(path: string) {
 	// Unsign data if signed.
-	const unsigned = unsign(await fse.readFile(path));
+	const unsigned = unsign(await readFile(path));
 	if (!unsigned) {
 		return false;
 	}
 
 	// Write out the change.
-	await fse.writeFile(path, Buffer.from(unsigned));
+	await writeFile(path, Buffer.from(unsigned));
 	return true;
 }
 
@@ -292,8 +291,14 @@ export async function machoAppUnsign(path: string) {
 	);
 	await Promise.all([
 		machoUnsignFile(pathJoin(contents, 'MacOS', executable)),
-		fse.remove(pathJoin(contents, 'CodeResources')),
-		fse.remove(pathJoin(contents, '_CodeSignature'))
+		rm(pathJoin(contents, 'CodeResources'), {
+			recursive: true,
+			force: true
+		}),
+		rm(pathJoin(contents, '_CodeSignature'), {
+			recursive: true,
+			force: true
+		})
 	]);
 }
 

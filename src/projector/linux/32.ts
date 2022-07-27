@@ -1,4 +1,4 @@
-import fse from 'fs-extra';
+import {readFile, writeFile} from 'fs/promises';
 
 import {
 	linuxPatchWindowTitle,
@@ -54,7 +54,7 @@ export class ProjectorLinux32 extends ProjectorLinux {
 
 		// Read the projector file.
 		const {path} = this;
-		let data = await fse.readFile(path);
+		let data = await readFile(path);
 
 		// Attempt to patch the projector data.
 		if (patchWindowTitle) {
@@ -68,7 +68,7 @@ export class ProjectorLinux32 extends ProjectorLinux {
 		}
 
 		// Write out patched data.
-		await fse.writeFile(path, data);
+		await writeFile(path, data);
 	}
 
 	/**
