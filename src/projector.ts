@@ -11,7 +11,7 @@ import {
 /**
  * Projector object.
  */
-export abstract class Projector extends Object {
+export abstract class Projector {
 	/**
 	 * Path to hdiutil binary.
 	 */
@@ -28,8 +28,6 @@ export abstract class Projector extends Object {
 	 * @param path Output path.
 	 */
 	constructor(path: string) {
-		super();
-
 		this.path = path;
 	}
 

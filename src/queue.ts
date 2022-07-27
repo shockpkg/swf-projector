@@ -1,7 +1,7 @@
 /**
  * A simple queue with optional priority.
  */
-export class Queue extends Object {
+export class Queue {
 	/**
 	 * Queue data.
 	 */
@@ -13,9 +13,7 @@ export class Queue extends Object {
 	/**
 	 * Queue constructor.
 	 */
-	constructor() {
-		super();
-	}
+	constructor() {}
 
 	/**
 	 * Get size of queue.

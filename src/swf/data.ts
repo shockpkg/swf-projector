@@ -3,13 +3,11 @@ import {subview} from './util';
 /**
  * Data object.
  */
-export abstract class Data extends Object {
+export abstract class Data {
 	/**
 	 * Data constructor.
 	 */
-	constructor() {
-		super();
-	}
+	constructor() {}
 
 	/**
 	 * Encode size.

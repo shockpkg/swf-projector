@@ -457,7 +457,7 @@ const machoAppUnusedStrings = [
 /**
  * MachoAppWindowTitlePatch object.
  */
-abstract class MachoAppWindowTitlePatch extends Object {
+abstract class MachoAppWindowTitlePatch {
 	public static readonly CPU_TYPE: number;
 
 	protected _data: Buffer;
@@ -475,8 +475,6 @@ abstract class MachoAppWindowTitlePatch extends Object {
 	 * @param title Title.
 	 */
 	constructor(data: Buffer, title: string) {
-		super();
-
 		this._data = data;
 		this._title = title;
 	}

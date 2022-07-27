@@ -79,7 +79,7 @@ export interface IBundleResourceOptions {
 /**
  * Bundle object.
  */
-export abstract class Bundle extends Object {
+export abstract class Bundle {
 	/**
 	 * File and directory names to exclude when adding a directory.
 	 */
@@ -111,8 +111,6 @@ export abstract class Bundle extends Object {
 	 * @param path Output path for the main executable.
 	 */
 	constructor(path: string) {
-		super();
-
 		this.path = path;
 	}
 
