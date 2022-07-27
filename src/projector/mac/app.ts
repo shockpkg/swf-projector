@@ -54,16 +54,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * Info.plist data.
 	 * Currently only supports XML plist.
 	 */
-	public infoPlistData:
-		| string
-		| Readonly<string[]>
-		| Readonly<Buffer>
-		| null = null;
-
-	/**
-	 * Info.plist document.
-	 */
-	public infoPlistDocument: Plist | null = null;
+	public infoPlistData: string | Readonly<Buffer> | null = null;
 
 	/**
 	 * PkgInfo file.
@@ -255,16 +246,12 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @returns Info.plist data or null.
 	 */
 	public async getInfoPlistDocument() {
-		const {infoPlistDocument, infoPlistData, infoPlistFile} = this;
+		const {infoPlistData, infoPlistFile} = this;
 		let xml;
-		if (infoPlistDocument) {
-			xml = infoPlistDocument.toXml();
-		} else if (typeof infoPlistData === 'string') {
+		if (typeof infoPlistData === 'string') {
 			xml = infoPlistData;
-		} else if (Array.isArray(infoPlistData)) {
-			xml = infoPlistData.join('\n');
 		} else if (infoPlistData) {
-			xml = (infoPlistData as Readonly<Buffer>).toString('utf8');
+			xml = infoPlistData.toString('utf8');
 		} else if (infoPlistFile) {
 			xml = await readFile(infoPlistFile, 'utf8');
 		} else {
