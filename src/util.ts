@@ -1,4 +1,4 @@
-import zlib from 'zlib';
+import {inflateRaw} from 'zlib';
 
 import {launchers} from './launchers';
 
@@ -104,7 +104,7 @@ export async function launcher(id: string) {
 	}
 
 	return new Promise<Buffer>((resolve, reject) => {
-		zlib.inflateRaw(Buffer.from(b64, 'base64'), (err, data) => {
+		inflateRaw(Buffer.from(b64, 'base64'), (err, data) => {
 			if (err) {
 				reject(err);
 				return;

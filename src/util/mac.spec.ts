@@ -1,11 +1,11 @@
-import crypto from 'crypto';
+import {createHash} from 'crypto';
 
 import {machoAppLauncher, machoTypesData} from './mac';
 
 const unhex = (hex: string) => Buffer.from(hex.replace(/\s/g, ''), 'hex');
 
 function sha256(data: Buffer) {
-	return crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
+	return createHash('sha256').update(data).digest('hex');
 }
 
 const machoTypes = [

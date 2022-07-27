@@ -6,26 +6,11 @@ import {
 	signatureGet,
 	signatureSet
 } from 'portable-executable-signature';
-import * as resedit from 'resedit';
+import {NtExecutable, NtExecutableResource, Resource, Data} from 'resedit';
 
 import {bufferToArrayBuffer, launcher} from '../util';
 
 import {findExact} from './internal/patch';
-
-const ResEditNtExecutable =
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-	resedit.NtExecutable || (resedit as any).default.NtExecutable;
-
-const ResEditNtExecutableResource =
-	resedit.NtExecutableResource ||
-	// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-	(resedit as any).default.NtExecutableResource;
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-const ResEditResource = resedit.Resource || (resedit as any).default.Resource;
-
-// eslint-disable-next-line @typescript-eslint/no-unsafe-member-access
-const ResEditData = resedit.Data || (resedit as any).default.Data;
 
 export interface IPeResourceReplace {
 	//
@@ -95,16 +80,16 @@ export async function peResourceReplace(
 	let exeData = signatureSet(exeOriginal, null, true, true);
 
 	// Parse resources.
-	const exe = ResEditNtExecutable.from(exeData);
-	const res = ResEditNtExecutableResource.from(exe);
+	const exe = NtExecutable.from(exeData);
+	const res = NtExecutableResource.from(exe);
 
 	// Replace all the icons in all icon groups.
 	if (iconData) {
-		const ico = ResEditData.IconFile.from(bufferToArrayBuffer(iconData));
-		for (const iconGroup of ResEditResource.IconGroupEntry.fromEntries(
+		const ico = Data.IconFile.from(bufferToArrayBuffer(iconData));
+		for (const iconGroup of Resource.IconGroupEntry.fromEntries(
 			res.entries
 		)) {
-			ResEditResource.IconGroupEntry.replaceIconsForResource(
+			Resource.IconGroupEntry.replaceIconsForResource(
 				res.entries,
 				iconGroup.id,
 				iconGroup.lang,
@@ -115,7 +100,7 @@ export async function peResourceReplace(
 
 	// Update strings if present for all the languages.
 	if (versionStrings) {
-		for (const versionInfo of ResEditResource.VersionInfo.fromEntries(
+		for (const versionInfo of Resource.VersionInfo.fromEntries(
 			res.entries
 		)) {
 			// Get all the languages, not just available languages.
@@ -205,7 +190,7 @@ function* dataStrings(
  * @returns PE sections.
  */
 function windowsPeSections(data: Readonly<Buffer>) {
-	return ResEditNtExecutable.from(bufferToArrayBuffer(data), {
+	return NtExecutable.from(bufferToArrayBuffer(data), {
 		ignoreCert: true
 	})
 		.getAllSections()
@@ -304,8 +289,8 @@ function windowsPatchWindowTitleRsrc(data: Readonly<Buffer>, title: string) {
 	let exeData = signatureSet(data, null, true, true);
 
 	// Parse resources.
-	const exe = ResEditNtExecutable.from(exeData);
-	const res = ResEditNtExecutableResource.from(exe);
+	const exe = NtExecutable.from(exeData);
+	const res = NtExecutableResource.from(exe);
 
 	// Match all known titles.
 	const titleMatch =
@@ -319,9 +304,7 @@ function windowsPatchWindowTitleRsrc(data: Readonly<Buffer>, title: string) {
 		if (entry.type !== typeStringTable) {
 			continue;
 		}
-		const table = ResEditResource.StringTable.fromEntries(entry.lang, [
-			entry
-		]);
+		const table = Resource.StringTable.fromEntries(entry.lang, [entry]);
 		for (const {text} of table.getAllStrings()) {
 			if (text.startsWith('Projector ')) {
 				titleStringTableId = entry.id;
@@ -348,9 +331,7 @@ function windowsPatchWindowTitleRsrc(data: Readonly<Buffer>, title: string) {
 		if (entry.type !== typeStringTable || entry.id !== titleStringTableId) {
 			continue;
 		}
-		const table = ResEditResource.StringTable.fromEntries(entry.lang, [
-			entry
-		]);
+		const table = Resource.StringTable.fromEntries(entry.lang, [entry]);
 		table.setById(titleStringTableEntryId, title);
 		table.replaceStringEntriesForExecutable(res);
 	}
@@ -424,20 +405,15 @@ export async function windowsLauncher(
 	let exeData = signatureSet(data, null, true, true);
 
 	// Read resources from file.
-	const res = ResEditNtExecutableResource.from(
-		ResEditNtExecutable.from(await readFile(resources), {
+	const res = NtExecutableResource.from(
+		NtExecutable.from(await readFile(resources), {
 			ignoreCert: true
 		})
 	);
 
 	// Find the first icon group for each language.
-	const resIconGroups = new Map<
-		string | number,
-		resedit.Resource.IconGroupEntry
-	>();
-	for (const iconGroup of ResEditResource.IconGroupEntry.fromEntries(
-		res.entries
-	)) {
+	const resIconGroups = new Map<string | number, Resource.IconGroupEntry>();
+	for (const iconGroup of Resource.IconGroupEntry.fromEntries(res.entries)) {
 		const known = resIconGroups.get(iconGroup.lang) || null;
 		if (!known || iconGroup.id < known.id) {
 			resIconGroups.set(iconGroup.lang, iconGroup);
@@ -466,7 +442,7 @@ export async function windowsLauncher(
 	);
 
 	// Apply resources to launcher.
-	const exe = ResEditNtExecutable.from(exeData);
+	const exe = NtExecutable.from(exeData);
 	res.outputResource(exe);
 	exeData = exe.generate();
 

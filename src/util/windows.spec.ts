@@ -1,9 +1,9 @@
-import crypto from 'crypto';
+import {createHash} from 'crypto';
 
 import {windowsLauncher} from './windows';
 
 function sha256(data: Buffer) {
-	return crypto.createHash('sha256').update(data).digest('hex').toLowerCase();
+	return createHash('sha256').update(data).digest('hex');
 }
 
 const launcherTypes: ['i686' | 'x86_64', string][] = [
