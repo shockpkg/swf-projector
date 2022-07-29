@@ -17,8 +17,11 @@ export function listSamples() {
 	if (!shouldTest('windows32')) {
 		return [];
 	}
-	return getInstalledPackagesInfoSync().filter(o =>
-		o.platform.startsWith('windows')
+	return getInstalledPackagesInfoSync().filter(
+		o =>
+			o.platform === 'windows' ||
+			o.platform === 'windows-32bit' ||
+			o.platform === 'windows-i386'
 	);
 }
 
