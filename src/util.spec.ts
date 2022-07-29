@@ -59,7 +59,7 @@ export function simpleSwf(zlib: boolean, lzma: boolean) {
 }
 
 export function packageInfo(name: string) {
-	const m = name.match(/^flash-player-([\d.]+)-(.*)-sa(-debug)?$/);
+	const m = name.match(/^flash-player-([\d.]+)-(.*)-sa(-debug)?(-.*)?$/);
 	if (!m) {
 		return null;
 	}
