@@ -1,7 +1,10 @@
 import {readFile, writeFile} from 'fs/promises';
 
 import {ProjectorWindows} from '../windows';
-import {windowsPatchWindowTitle} from '../../util/windows';
+import {
+	windowsPatchWindowTitle,
+	patchOutOfDateDisable32
+} from '../../util/windows';
 
 /**
  * ProjectorWindows32 object.
@@ -14,6 +17,12 @@ export class ProjectorWindows32 extends ProjectorWindows {
 	 * That size limit depends on the size of the string being replaced.
 	 */
 	public patchWindowTitle: string | null = null;
+
+	/**
+	 * Disable the out-of-date check introduced in version 30.
+	 * Important since version 35 where there are 90 and 180 day defaults.
+	 */
+	public patchOutOfDateDisable = false;
 
 	/**
 	 * ProjectorWindows32 constructor.
@@ -43,14 +52,19 @@ export class ProjectorWindows32 extends ProjectorWindows {
 	protected async _modifyPlayer() {
 		await super._modifyPlayer();
 
-		const {patchWindowTitle} = this;
-		if (!patchWindowTitle) {
+		const {path, patchWindowTitle, patchOutOfDateDisable} = this;
+		if (!patchWindowTitle && !patchOutOfDateDisable) {
 			return;
 		}
 
-		await writeFile(
-			this.path,
-			windowsPatchWindowTitle(await readFile(this.path), patchWindowTitle)
-		);
+		let data = await readFile(path);
+		if (patchOutOfDateDisable) {
+			data = patchOutOfDateDisable32(data);
+		}
+		if (patchWindowTitle) {
+			data = windowsPatchWindowTitle(data, patchWindowTitle);
+		}
+
+		await writeFile(path, data);
 	}
 }

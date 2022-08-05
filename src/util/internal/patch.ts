@@ -131,10 +131,7 @@ export function patchGroupOffsets(
 	}[]
 ) {
 	const offsets = [];
-	for (const {find, replace, count} of patches) {
-		if (replace.length !== find.length) {
-			throw new Error('Internal error');
-		}
+	for (const {find, count} of patches) {
 		const found = [...findFuzzy(data, find)];
 		if (found.length !== count) {
 			return null;

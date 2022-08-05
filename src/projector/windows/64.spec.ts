@@ -17,9 +17,9 @@ export function listSamples() {
 	if (!shouldTest('windows64')) {
 		return [];
 	}
-	return getInstalledPackagesInfoSync().filter(
-		o => o.platform === 'windows-x86_64'
-	);
+	return getInstalledPackagesInfoSync()
+		.filter(o => o.platform === 'windows-x86_64')
+		.map(o => ({...o, patchOutOfDateDisable: o.version[0] >= 30}));
 }
 
 export const versionStrings = {
@@ -84,6 +84,7 @@ describe('projector/windows/64', () => {
 
 					const p = new ProjectorWindows64(dest);
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(await getPlayer(), simple);
 				});
 
@@ -94,6 +95,7 @@ describe('projector/windows/64', () => {
 					const p = new ProjectorWindows64(dest);
 					p.patchWindowTitle = 'Custom Title';
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
@@ -108,6 +110,7 @@ describe('projector/windows/64', () => {
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
@@ -124,6 +127,7 @@ describe('projector/windows/64', () => {
 
 					const p = new ProjectorWindows64(dest);
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
@@ -141,6 +145,7 @@ describe('projector/windows/64', () => {
 
 					const p = new ProjectorWindows64(dest);
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')

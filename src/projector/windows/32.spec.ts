@@ -17,12 +17,14 @@ export function listSamples() {
 	if (!shouldTest('windows32')) {
 		return [];
 	}
-	return getInstalledPackagesInfoSync().filter(
-		o =>
-			o.platform === 'windows' ||
-			o.platform === 'windows-32bit' ||
-			o.platform === 'windows-i386'
-	);
+	return getInstalledPackagesInfoSync()
+		.filter(
+			o =>
+				o.platform === 'windows' ||
+				o.platform === 'windows-32bit' ||
+				o.platform === 'windows-i386'
+		)
+		.map(o => ({...o, patchOutOfDateDisable: o.version[0] >= 30}));
 }
 
 export const versionStrings = {
@@ -87,6 +89,7 @@ describe('projector/windows/32', () => {
 
 					const p = new ProjectorWindows32(dest);
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(await getPlayer(), simple);
 				});
 
@@ -97,6 +100,7 @@ describe('projector/windows/32', () => {
 					const p = new ProjectorWindows32(dest);
 					p.patchWindowTitle = 'Custom Title';
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
@@ -111,6 +115,7 @@ describe('projector/windows/32', () => {
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
@@ -127,6 +132,7 @@ describe('projector/windows/32', () => {
 
 					const p = new ProjectorWindows32(dest);
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
@@ -144,6 +150,7 @@ describe('projector/windows/32', () => {
 
 					const p = new ProjectorWindows32(dest);
 					p.removeCodeSignature = true;
+					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')

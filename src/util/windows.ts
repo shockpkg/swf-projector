@@ -8,9 +8,9 @@ import {
 } from 'portable-executable-signature';
 import {NtExecutable, NtExecutableResource, Resource, Data} from 'resedit';
 
-import {bufferToArrayBuffer, launcher} from '../util';
+import {bufferToArrayBuffer, launcher, once} from '../util';
 
-import {findExact} from './internal/patch';
+import {findExact, patchHexToBytes, patchOnce} from './internal/patch';
 
 export interface IPeResourceReplace {
 	//
@@ -199,6 +199,471 @@ function windowsPeSections(data: Readonly<Buffer>) {
 			offset: info.pointerToRawData,
 			size: info.sizeOfRawData
 		}));
+}
+
+const patchOutOfDateDisable32Patches = once(() => [
+	// 30.0.0.113
+	[
+		{
+			count: 1,
+			find: patchHexToBytes(
+				[
+					// push    ebp
+					'55',
+					// mov     ebp, esp
+					'8B EC',
+					// push    esi
+					'56',
+					// mov     esi, ecx
+					'8B F1',
+					// push    edi
+					'57',
+					// mov     edi, DWORD PTR [ebp+0x8]
+					'8B 7D 08',
+					// push    edi
+					'57',
+					// lea     ecx, [esi+0x4]
+					'8D 4E 04',
+					// call    ...
+					'E8 -- -- -- --',
+					// mov     eax, DWORD PTR [esi]
+					'8B 06',
+					// cmp     eax, 0xE
+					'83 F8 0E',
+					// ja      0x6F
+					'77 55',
+					// jmp     DWORD PTR [eax*4+...]
+					'FF 24 85 -- -- -- --',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 44',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 3A',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 30',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 26',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 1C',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 12',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x6F
+					'EB 08',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// pop     edi
+					'5F',
+					// pop     esi
+					'5E',
+					// pop     ebp
+					'5D',
+					// ret     0x4
+					'C2 04 00'
+				].join(' ')
+			),
+			replace: patchHexToBytes(
+				[
+					// ret     0x4
+					'C2 04 00'
+				].join(' ')
+			)
+		}
+	],
+	// 31.0.0.108
+	[
+		{
+			count: 1,
+			find: patchHexToBytes(
+				[
+					// push    ebp
+					'55',
+					// mov     ebp, esp
+					'8B EC',
+					// push    esi
+					'56',
+					// mov     esi, ecx
+					'8B F1',
+					// push    edi
+					'57',
+					// mov     edi, DWORD PTR [ebp+0x8]
+					'8B 7D 08',
+					// push    edi
+					'57',
+					// lea     ecx, [esi+0x4]
+					'8D 4E 04',
+					// call    ...
+					'E8 -- -- -- --',
+					// mov     eax, DWORD PTR [esi]
+					'8B 06',
+					// dec     eax
+					'48',
+					// cmp     eax, 0x7
+					'83 F8 07',
+					// ja      0x70
+					'77 55',
+					// jmp     DWORD PTR [eax*4+...]
+					'FF 24 85 -- -- -- --',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 44',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 3A',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 30',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 26',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 1C',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 12',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0x70
+					'EB 08',
+					// push    edi
+					'57',
+					// mov     ecx, esi
+					'8B CE',
+					// call    ...
+					'E8 -- -- -- --',
+					// pop     edi
+					'5F',
+					// pop     esi
+					'5E',
+					// pop     ebp
+					'5D',
+					// ret     0x4
+					'C2 04 00'
+				].join(' ')
+			),
+			replace: patchHexToBytes(
+				[
+					// ret     0x4
+					'C2 04 00'
+				].join(' ')
+			)
+		}
+	]
+]);
+const patchOutOfDateDisable64Patches = once(() => [
+	// 26.0.0.137, 32.0.0.270
+	[
+		{
+			count: 1,
+			find: patchHexToBytes(
+				[
+					// mov     QWORD PTR [rsp+0x8], rbx
+					'48 89 5C 24 08',
+					// push    rdi
+					'57',
+					// sub     rsp, 0x20
+					'48 83 EC 20',
+					// mov     rbx, rcx
+					'48 8B D9',
+					// mov     rdi, rdx
+					'48 8B FA',
+					// add     rcx, 0x8
+					'48 83 C1 08',
+					// call    ...
+					'E8 -- -- -- --',
+					// mov     r8d, DWORD PTR [rbx]
+					'44 8B 03',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0xAB
+					'0F 84 85 00 00 00',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0x9E
+					'74 72',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0x91
+					'74 5F',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0x84
+					'74 4C',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0x77
+					'74 39',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0x6A
+					'74 26',
+					// sub     r8d, 0x1
+					'41 83 E8 01',
+					// je      0x5D
+					'74 13',
+					// cmp     r8d, 0x1
+					'41 83 F8 01',
+					// jne     0xB6
+					'75 66',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 59',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 4C',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 3F',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 32',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 25',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 18',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// jmp     0xB6
+					'EB 0B',
+					// mov     rdx, rdi
+					'48 8B D7',
+					// mov     rcx, rbx
+					'48 8B CB',
+					// call    ...
+					'E8 -- -- -- --',
+					// mov     rbx, QWORD PTR [rsp+0x30]
+					'48 8B 5C 24 30',
+					// add     rsp, 0x20
+					'48 83 C4 20',
+					// pop     rdi
+					'5F',
+					// ret
+					'C3'
+				].join(' ')
+			),
+			replace: patchHexToBytes(
+				[
+					// ret
+					'C3'
+				].join(' ')
+			)
+		}
+	],
+	// 30.0.0.134
+	[
+		{
+			count: 1,
+			find: patchHexToBytes(
+				[
+					'48 89 5C 24 08',
+					'57',
+					'48 83 EC 20',
+					'48 8B D9',
+					'48 8B FA',
+					'48 83 C1 08',
+					'E8 -- -- -- --',
+					'44 8B 03',
+					'41 83 F8 05',
+					'7F 64',
+					'74 55',
+					'45 85 C0',
+					'0F 84 90 00 00 00',
+					'41 83 E8 01',
+					'74 39',
+					'41 83 E8 01',
+					'74 26',
+					'41 83 E8 01',
+					'74 13',
+					'41 83 F8 01',
+					'75 78',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 6B',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 5E',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 51',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 44',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 37',
+					'41 83 F8 06',
+					'74 26',
+					'41 83 F8 07',
+					'74 13',
+					'41 83 F8 08',
+					'75 25',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 18',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'EB 0B',
+					'48 8B D7',
+					'48 8B CB',
+					'E8 -- -- -- --',
+					'48 8B 5C 24 30',
+					'48 83 C4 20',
+					'5F',
+					'C3'
+				].join(' ')
+			),
+			replace: patchHexToBytes(
+				[
+					// ret
+					'C3'
+				].join(' ')
+			)
+		}
+	]
+]);
+
+/**
+ * Attempt to disable the out-of-date check, for 32-bit.
+ *
+ * @param data Projector data.
+ * @returns Patched data, can be same buffer, but modified.
+ */
+export function patchOutOfDateDisable32(data: Buffer) {
+	patchOnce(data, patchOutOfDateDisable32Patches());
+	return data;
+}
+
+/**
+ * Attempt to disable the out-of-date check, for 64-bit.
+ *
+ * @param data Projector data.
+ * @returns Patched data, can be same buffer, but modified.
+ */
+export function patchOutOfDateDisable64(data: Buffer) {
+	patchOnce(data, patchOutOfDateDisable64Patches());
+	return data;
 }
 
 /**
