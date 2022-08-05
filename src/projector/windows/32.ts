@@ -52,11 +52,12 @@ export class ProjectorWindows32 extends ProjectorWindows {
 	protected async _modifyPlayer() {
 		await super._modifyPlayer();
 
-		const {path, patchWindowTitle, patchOutOfDateDisable} = this;
+		const {patchWindowTitle, patchOutOfDateDisable} = this;
 		if (!patchWindowTitle && !patchOutOfDateDisable) {
 			return;
 		}
 
+		const {path} = this;
 		let data = await readFile(path);
 		if (patchOutOfDateDisable) {
 			data = patchOutOfDateDisable32(data);

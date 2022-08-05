@@ -674,7 +674,7 @@ export function patchOutOfDateDisable64(data: Buffer) {
  * @param title Replacement title.
  * @returns Patched data or null if no patch found.
  */
-function windowsPatchWindowTitleRdata(data: Readonly<Buffer>, title: string) {
+function windowsPatchWindowTitleRdata(data: Buffer, title: string) {
 	const enc = 'utf16le';
 
 	// Locate the rdata section in the buffer.
@@ -727,18 +727,15 @@ function windowsPatchWindowTitleRdata(data: Readonly<Buffer>, title: string) {
 		return null;
 	}
 
-	// Copy data and replace the title.
-	const r = Buffer.concat([data as Buffer]);
-	const replacing = r.subarray(
-		rdataInfo.offset + found[0],
-		rdataInfo.offset + found[0] + found[1]
-	);
+	// Replace title.
+	const replacingO = rdataInfo.offset + found[0];
+	const replacing = data.subarray(replacingO, replacingO + found[1]);
 	replacing.fill(0);
 	replacing.write(title, enc);
 
 	// Update checksum.
-	checksumUpdate(r, true);
-	return r;
+	checksumUpdate(data, true);
+	return data;
 }
 
 /**
@@ -748,7 +745,7 @@ function windowsPatchWindowTitleRdata(data: Readonly<Buffer>, title: string) {
  * @param title Replacement title.
  * @returns Patched data or null if no patch found.
  */
-function windowsPatchWindowTitleRsrc(data: Readonly<Buffer>, title: string) {
+function windowsPatchWindowTitleRsrc(data: Buffer, title: string) {
 	// Read EXE file and remove signature if present.
 	const signedData = signatureGet(data);
 	let exeData = signatureSet(data, null, true, true);
@@ -818,9 +815,9 @@ function windowsPatchWindowTitleRsrc(data: Readonly<Buffer>, title: string) {
  *
  * @param data Projector data.
  * @param title Replacement title.
- * @returns Patched data.
+ * @returns Patched data, can be same buffer, but modified.
  */
-export function windowsPatchWindowTitle(data: Readonly<Buffer>, title: string) {
+export function windowsPatchWindowTitle(data: Buffer, title: string) {
 	const patchRdata = windowsPatchWindowTitleRdata(data, title);
 	if (patchRdata) {
 		return patchRdata;
