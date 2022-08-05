@@ -47,7 +47,6 @@ describe('projector/mac/app', () => {
 				const dest = pathJoin(dir, 'application.app');
 
 				const p = new ProjectorMacApp(dest);
-				p.removeCodeSignature = false;
 				await p.withFile(
 					fixtureFile('dummy.app'),
 					fixtureFile('swf3.swf')

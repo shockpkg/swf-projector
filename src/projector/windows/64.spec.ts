@@ -52,7 +52,6 @@ describe('projector/windows/64', () => {
 				const dest = pathJoin(dir, 'application.exe');
 
 				const p = new ProjectorWindows64(dest);
-				p.removeCodeSignature = false;
 				await p.withFile(
 					fixtureFile('dummy.exe'),
 					fixtureFile('swf3.swf')
@@ -64,7 +63,6 @@ describe('projector/windows/64', () => {
 				const dest = pathJoin(dir, 'application.exe');
 
 				const p = new ProjectorWindows64(dest);
-				p.removeCodeSignature = false;
 				await p.withFile(
 					fixtureFile('dummy.exe.zip'),
 					fixtureFile('swf3.swf')
