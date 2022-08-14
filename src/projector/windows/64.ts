@@ -2,6 +2,7 @@ import {readFile, writeFile} from 'fs/promises';
 
 import {ProjectorWindows} from '../windows';
 import {
+	peResourceReplace,
 	windowsPatchWindowTitle,
 	patchOutOfDateDisable64
 } from '../../util/windows';
@@ -10,6 +11,26 @@ import {
  * ProjectorWindows64 object.
  */
 export class ProjectorWindows64 extends ProjectorWindows {
+	/**
+	 * Icon file.
+	 */
+	public iconFile: string | null = null;
+
+	/**
+	 * Icon data.
+	 */
+	public iconData: Readonly<Buffer> | null = null;
+
+	/**
+	 * Version strings.
+	 */
+	public versionStrings: Readonly<{[key: string]: string}> | null = null;
+
+	/**
+	 * Remove the code signature.
+	 */
+	public removeCodeSignature = false;
+
 	/**
 	 * Attempt to patch the window title with a custom title.
 	 * Set to a non-empty string to automatically patch the binary if possible.
@@ -34,6 +55,16 @@ export class ProjectorWindows64 extends ProjectorWindows {
 	}
 
 	/**
+	 * Get icon data if any specified, from data or file.
+	 *
+	 * @returns Icon data or null.
+	 */
+	public async getIconData() {
+		const {iconData, iconFile} = this;
+		return iconData || (iconFile ? readFile(iconFile) : null);
+	}
+
+	/**
 	 * Write out the projector movie file.
 	 *
 	 * @param movieData Movie data or null.
@@ -50,14 +81,32 @@ export class ProjectorWindows64 extends ProjectorWindows {
 	 * Modify the projector player.
 	 */
 	protected async _modifyPlayer() {
-		await super._modifyPlayer();
-
-		const {patchWindowTitle, patchOutOfDateDisable} = this;
-		if (!patchWindowTitle && !patchOutOfDateDisable) {
+		const {
+			path,
+			versionStrings,
+			removeCodeSignature,
+			patchWindowTitle,
+			patchOutOfDateDisable
+		} = this;
+		const iconData = await this.getIconData();
+		if (
+			!(
+				iconData ||
+				versionStrings ||
+				removeCodeSignature ||
+				patchWindowTitle ||
+				patchOutOfDateDisable
+			)
+		) {
 			return;
 		}
 
-		const {path} = this;
+		await peResourceReplace(this.path, {
+			iconData,
+			versionStrings,
+			removeSignature: removeCodeSignature
+		});
+
 		let data = await readFile(path);
 		if (patchOutOfDateDisable) {
 			data = patchOutOfDateDisable64(data);

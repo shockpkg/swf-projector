@@ -1,4 +1,4 @@
-import {copyFile, mkdir, readFile, stat} from 'fs/promises';
+import {copyFile, mkdir, stat} from 'fs/promises';
 import {dirname} from 'path';
 
 import {
@@ -8,33 +8,12 @@ import {
 	PathType
 } from '@shockpkg/archive-files';
 
-import {peResourceReplace} from '../util/windows';
 import {Projector} from '../projector';
 
 /**
  * ProjectorWindows object.
  */
 export abstract class ProjectorWindows extends Projector {
-	/**
-	 * Icon file.
-	 */
-	public iconFile: string | null = null;
-
-	/**
-	 * Icon data.
-	 */
-	public iconData: Readonly<Buffer> | null = null;
-
-	/**
-	 * Version strings.
-	 */
-	public versionStrings: Readonly<{[key: string]: string}> | null = null;
-
-	/**
-	 * Remove the code signature.
-	 */
-	public removeCodeSignature = false;
-
 	/**
 	 * ProjectorWindows constructor.
 	 *
@@ -51,16 +30,6 @@ export abstract class ProjectorWindows extends Projector {
 	 */
 	public get extension() {
 		return '.exe';
-	}
-
-	/**
-	 * Get icon data if any specified, from data or file.
-	 *
-	 * @returns Icon data or null.
-	 */
-	public async getIconData() {
-		const {iconData, iconFile} = this;
-		return iconData || (iconFile ? readFile(iconFile) : null);
 	}
 
 	/**
@@ -130,22 +99,5 @@ export abstract class ProjectorWindows extends Projector {
 		if (!playerPath) {
 			throw new Error(`Failed to locate player in archive: ${player}`);
 		}
-	}
-
-	/**
-	 * Modify the projector player.
-	 */
-	protected async _modifyPlayer() {
-		const iconData = await this.getIconData();
-		const {versionStrings, removeCodeSignature} = this;
-		if (!(iconData || versionStrings || removeCodeSignature)) {
-			return;
-		}
-
-		await peResourceReplace(this.path, {
-			iconData,
-			versionStrings,
-			removeSignature: removeCodeSignature
-		});
 	}
 }
