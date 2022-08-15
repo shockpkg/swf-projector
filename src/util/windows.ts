@@ -1427,7 +1427,7 @@ export function windowsProjectorPatch(
 		}
 
 		// Add rsrc back.
-		rsrc.outputResource(exe);
+		rsrc.outputResource(exe, false, true);
 
 		// Add reloc back.
 		exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
@@ -1528,7 +1528,7 @@ export async function windowsLauncher(
 	const reloc = exeRemoveReloc(exe);
 
 	// Apply resources to launcher.
-	rsrc.outputResource(exe);
+	rsrc.outputResource(exe, false, true);
 
 	// Add reloc back.
 	exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
