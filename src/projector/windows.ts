@@ -1,4 +1,4 @@
-import {copyFile, mkdir, stat} from 'fs/promises';
+import {copyFile, mkdir, stat, readFile} from 'fs/promises';
 import {dirname} from 'path';
 
 import {
@@ -15,6 +15,26 @@ import {Projector} from '../projector';
  */
 export abstract class ProjectorWindows extends Projector {
 	/**
+	 * Icon file.
+	 */
+	public iconFile: string | null = null;
+
+	/**
+	 * Icon data.
+	 */
+	public iconData: Readonly<Buffer> | null = null;
+
+	/**
+	 * Version strings.
+	 */
+	public versionStrings: Readonly<{[key: string]: string}> | null = null;
+
+	/**
+	 * Remove the code signature.
+	 */
+	public removeCodeSignature = false;
+
+	/**
 	 * ProjectorWindows constructor.
 	 *
 	 * @param path Output path.
@@ -30,6 +50,16 @@ export abstract class ProjectorWindows extends Projector {
 	 */
 	public get extension() {
 		return '.exe';
+	}
+
+	/**
+	 * Get icon data if any specified, from data or file.
+	 *
+	 * @returns Icon data or null.
+	 */
+	public async getIconData() {
+		const {iconData, iconFile} = this;
+		return iconData || (iconFile ? readFile(iconFile) : null);
 	}
 
 	/**

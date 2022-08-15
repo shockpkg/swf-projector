@@ -8,30 +8,8 @@ import {windowsProjectorPatch} from '../../util/windows';
  */
 export class ProjectorWindows64 extends ProjectorWindows {
 	/**
-	 * Icon file.
-	 */
-	public iconFile: string | null = null;
-
-	/**
-	 * Icon data.
-	 */
-	public iconData: Readonly<Buffer> | null = null;
-
-	/**
-	 * Version strings.
-	 */
-	public versionStrings: Readonly<{[key: string]: string}> | null = null;
-
-	/**
-	 * Remove the code signature.
-	 */
-	public removeCodeSignature = false;
-
-	/**
 	 * Attempt to patch the window title with a custom title.
-	 * Set to a non-empty string to automatically patch the binary if possible.
-	 * There is a size limit if the title is stored in the .rdata section.
-	 * That size limit depends on the size of the string being replaced.
+	 * Set to string to automatically patch the binary if possible.
 	 */
 	public patchWindowTitle: string | null = null;
 
@@ -48,16 +26,6 @@ export class ProjectorWindows64 extends ProjectorWindows {
 	 */
 	constructor(path: string) {
 		super(path);
-	}
-
-	/**
-	 * Get icon data if any specified, from data or file.
-	 *
-	 * @returns Icon data or null.
-	 */
-	public async getIconData() {
-		const {iconData, iconFile} = this;
-		return iconData || (iconFile ? readFile(iconFile) : null);
 	}
 
 	/**
