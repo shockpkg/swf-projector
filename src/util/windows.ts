@@ -1431,11 +1431,13 @@ export function windowsProjectorPatch(
 
 		// Add reloc back.
 		exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
+
+		// Update sizes.
+		exeUpdateSizes(exe);
 	}
 
 	// If the EXE was parsed generate new data from it.
 	if (exe) {
-		exeUpdateSizes(exe);
 		d = exe.generate();
 	}
 
@@ -1478,12 +1480,8 @@ export async function windowsLauncher(
 		return data;
 	}
 
-	// Remove signature if present.
-	const signedData = signatureGet(data);
-	let exeData = signatureSet(data, null, true, true);
-
 	// Read resources from file.
-	const res = NtExecutableResource.from(
+	const rsrc = NtExecutableResource.from(
 		NtExecutable.from(await readFile(resources), {
 			ignoreCert: true
 		})
@@ -1491,7 +1489,7 @@ export async function windowsLauncher(
 
 	// Find the first icon group for each language.
 	const resIconGroups = new Map<string | number, Resource.IconGroupEntry>();
-	for (const iconGroup of Resource.IconGroupEntry.fromEntries(res.entries)) {
+	for (const iconGroup of Resource.IconGroupEntry.fromEntries(rsrc.entries)) {
 		const known = resIconGroups.get(iconGroup.lang) || null;
 		if (!known || iconGroup.id < known.id) {
 			resIconGroups.set(iconGroup.lang, iconGroup);
@@ -1512,16 +1510,33 @@ export async function windowsLauncher(
 	const typeVersionInfo = 16;
 	const typeIcon = 3;
 	const typeIconGroup = 14;
-	res.entries = res.entries.filter(
+	rsrc.entries = rsrc.entries.filter(
 		entry =>
 			entry.type === typeVersionInfo ||
 			(entry.type === typeIcon && iconDatas.has(entry.id)) ||
 			(entry.type === typeIconGroup && iconGroups.has(entry.id))
 	);
 
-	// Apply resources to launcher.
+	// Remove signature if present.
+	const signedData = signatureGet(data);
+	let exeData = signatureSet(data, null, true, true);
+
+	// Parse launcher.
 	const exe = NtExecutable.from(exeData);
-	res.outputResource(exe);
+
+	// Remove reloc so rsrc can safely be resized.
+	const reloc = exeRemoveReloc(exe);
+
+	// Apply resources to launcher.
+	rsrc.outputResource(exe);
+
+	// Add reloc back.
+	exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
+
+	// Update sizes.
+	exeUpdateSizes(exe);
+
+	// Generated the updated launcher.
 	exeData = exe.generate();
 
 	// Add back signature if one present.
