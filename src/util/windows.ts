@@ -820,7 +820,7 @@ function windowsProjectorPatchWindowTitleData(
 	exe: NtExecutable,
 	address: number
 ) {
-	// Get read-only data sections excluding the excetion and inserted ones.
+	// Get read-only data sections excluding the exception and inserted ones.
 	const excluded = [address];
 	for (const idd of [IDD_EXCEPTION]) {
 		const s = exe.getSectionByEntry(idd);
