@@ -1,3 +1,5 @@
+import {TranscodeEncoding} from 'buffer';
+
 /**
  * Find exact matches in data.
  *
@@ -178,5 +180,43 @@ export function patchOnce(
 		for (const offset of foundOffsets[i]) {
 			writeFuzzy(data, offset, foundGroup[i].replace);
 		}
+	}
+}
+
+/**
+ * Search data for string, yields indexes and strings.
+ *
+ * @param data Data to search.
+ * @param pre String prefix to search for.
+ * @param enc String encoding.
+ * @param reg Regex strings must match.
+ * @yields String entry.
+ */
+export function* dataStrings(
+	data: Readonly<Buffer>,
+	pre: string,
+	enc: TranscodeEncoding,
+	reg: RegExp | null = null
+) {
+	const nulled = Buffer.from('\0', enc);
+	const bytes = nulled.length;
+	const preSize = pre.length * bytes;
+	for (const index of findExact(data, Buffer.from(pre, enc))) {
+		let more = 0;
+		for (more of findExact(data.subarray(index + preSize), nulled)) {
+			if (!(more % bytes)) {
+				break;
+			}
+		}
+		const stringData = data.subarray(index, index + preSize + more);
+		const string = stringData.toString(enc);
+		if (reg && !reg.test(string)) {
+			continue;
+		}
+		yield {
+			index,
+			data: stringData,
+			string
+		};
 	}
 }
