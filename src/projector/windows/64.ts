@@ -1,11 +1,7 @@
 import {readFile, writeFile} from 'fs/promises';
 
 import {ProjectorWindows} from '../windows';
-import {
-	peResourceReplace,
-	windowsPatchWindowTitle,
-	patchOutOfDateDisable64
-} from '../../util/windows';
+import {windowsProjectorPatch} from '../../util/windows';
 
 /**
  * ProjectorWindows64 object.
@@ -101,20 +97,15 @@ export class ProjectorWindows64 extends ProjectorWindows {
 			return;
 		}
 
-		await peResourceReplace(this.path, {
-			iconData,
-			versionStrings,
-			removeSignature: removeCodeSignature
-		});
-
-		let data = await readFile(path);
-		if (patchOutOfDateDisable) {
-			data = patchOutOfDateDisable64(data);
-		}
-		if (patchWindowTitle) {
-			data = windowsPatchWindowTitle(data, patchWindowTitle);
-		}
-
-		await writeFile(path, data);
+		await writeFile(
+			path,
+			windowsProjectorPatch(await readFile(path), {
+				iconData,
+				versionStrings,
+				removeCodeSignature,
+				patchWindowTitle,
+				patchOutOfDateDisable
+			})
+		);
 	}
 }

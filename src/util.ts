@@ -81,6 +81,30 @@ export function trimExtension(path: string, ext: string, nocase = false) {
 }
 
 /**
+ * Align integer.
+ *
+ * @param i Integer value.
+ * @param align Alignment amount.
+ * @returns Aligned integer.
+ */
+export function align(i: number, align: number) {
+	const o = i % align;
+	return o ? align - o + i : i;
+}
+
+/**
+ * Align Buffer.
+ *
+ * @param buffer Buffer instance.
+ * @param align Align amount.
+ * @returns Aligned buffer, or same buffer if already aligned.
+ */
+export function bufferAlign(buffer: Readonly<Buffer>, align: number) {
+	const o = buffer.length % align;
+	return o ? Buffer.concat([buffer, Buffer.alloc(align - o)]) : buffer;
+}
+
+/**
  * Get ArrayBuffer from Buffer.
  *
  * @param buffer Buffer instance.

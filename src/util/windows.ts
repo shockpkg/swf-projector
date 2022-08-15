@@ -8,9 +8,29 @@ import {
 } from 'portable-executable-signature';
 import {NtExecutable, NtExecutableResource, Resource, Data} from 'resedit';
 
-import {bufferToArrayBuffer, launcher, once} from '../util';
+import {align, bufferAlign, bufferToArrayBuffer, launcher, once} from '../util';
 
-import {findExact, patchHexToBytes, patchOnce} from './internal/patch';
+import {
+	findExact,
+	findFuzzy,
+	patchHexToBytes,
+	patchOnce
+} from './internal/patch';
+
+// IMAGE_DATA_DIRECTORY indexes.
+const IDD_RESOURCE = 2;
+const IDD_EXCEPTION = 3;
+const IDD_BASE_RELOCATION = 5;
+const IDD_RESERVED = 15;
+
+// IMAGE_SECTION_HEADER characteristics.
+const IMAGE_SCN_CNT_CODE = 0x00000020;
+const IMAGE_SCN_CNT_INITIALIZED_DATA = 0x00000040;
+const IMAGE_SCN_CNT_UNINITIALIZED_DATA = 0x00000080;
+const IMAGE_SCN_MEM_SHARED = 0x10000000;
+const IMAGE_SCN_MEM_EXECUTE = 0x20000000;
+const IMAGE_SCN_MEM_READ = 0x40000000;
+const IMAGE_SCN_MEM_WRITE = 0x80000000;
 
 export interface IPeResourceReplace {
 	//
@@ -34,6 +54,44 @@ export interface IPeResourceReplace {
 	 * @default false
 	 */
 	removeSignature?: boolean | null;
+}
+
+export interface IPePatchProjector {
+	//
+	/**
+	 * Replace icons if not null.
+	 *
+	 * @default null
+	 */
+	iconData?: Readonly<Buffer> | null;
+
+	/**
+	 * Replace version strings if not null.
+	 *
+	 * @default null
+	 */
+	versionStrings?: Readonly<{[key: string]: string}> | null;
+
+	/**
+	 * Remove signature if present and true.
+	 *
+	 * @default false
+	 */
+	removeCodeSignature?: boolean;
+
+	/**
+	 * Attempt to replace Windows window title if not null.
+	 *
+	 * @default null
+	 */
+	patchWindowTitle?: string | null;
+
+	/**
+	 * Attempt to disable the out-of-date check if true.
+	 *
+	 * @default false
+	 */
+	patchOutOfDateDisable?: boolean;
 }
 
 /**
@@ -201,7 +259,7 @@ function windowsPeSections(data: Readonly<Buffer>) {
 		}));
 }
 
-const patchOutOfDateDisable32Patches = once(() => [
+const patchesOutOfDateDisable32 = once(() => [
 	// 30.0.0.113
 	[
 		{
@@ -429,7 +487,7 @@ const patchOutOfDateDisable32Patches = once(() => [
 		}
 	]
 ]);
-const patchOutOfDateDisable64Patches = once(() => [
+const patchesOutOfDateDisable64 = once(() => [
 	// 26.0.0.137, 32.0.0.270
 	[
 		{
@@ -707,28 +765,6 @@ const patchOutOfDateDisable64Patches = once(() => [
 ]);
 
 /**
- * Attempt to disable the out-of-date check, for 32-bit.
- *
- * @param data Projector data.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function patchOutOfDateDisable32(data: Buffer) {
-	patchOnce(data, patchOutOfDateDisable32Patches());
-	return data;
-}
-
-/**
- * Attempt to disable the out-of-date check, for 64-bit.
- *
- * @param data Projector data.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function patchOutOfDateDisable64(data: Buffer) {
-	patchOnce(data, patchOutOfDateDisable64Patches());
-	return data;
-}
-
-/**
  * Attempt to replace Windows window title by modifying the .rdata section.
  * Throws an error if replacement title larger than current title.
  *
@@ -891,6 +927,524 @@ export function windowsPatchWindowTitle(data: Buffer, title: string) {
 	}
 
 	throw new Error('Failed to patch the window title');
+}
+
+/**
+ * Get the EXE section that includes an address.
+ *
+ * @param exe NtExecutable instance.
+ * @param address The address.
+ * @returns The section or null if section not found.
+ */
+function exeSectionByAddress(exe: NtExecutable, address: number) {
+	for (const {info, data} of exe.getAllSections()) {
+		const {virtualAddress, virtualSize} = info;
+		if (
+			address >= virtualAddress &&
+			address < virtualAddress + virtualSize
+		) {
+			return {
+				info,
+				data
+			};
+		}
+	}
+	return null;
+}
+
+/**
+ * Get the EXE section that includes an address.
+ *
+ * @param exe NtExecutable instance.
+ * @returns The section.
+ */
+function exeCodeSection(exe: NtExecutable) {
+	const s = exeSectionByAddress(exe, exe.newHeader.optionalHeader.baseOfCode);
+	if (!s || !s.data) {
+		throw new Error(`Invalid PE code section`);
+	}
+	return {
+		info: s.info,
+		data: s.data
+	};
+}
+
+/**
+ * Assert the given section is last section.
+ *
+ * @param exe NtExecutable instance.
+ * @param index ImageDirectory index.
+ * @param name Friendly name for messages.
+ */
+function exeAssertLastSection(exe: NtExecutable, index: number, name: string) {
+	const section = exe.getSectionByEntry(index);
+	if (!section) {
+		throw new Error(`Missing section: ${index}:${name}`);
+	}
+	const allSections = exe.getAllSections();
+	let last = allSections[0].info;
+	for (const {info} of allSections) {
+		if (info.pointerToRawData > last.pointerToRawData) {
+			last = info;
+		}
+	}
+	const {info} = section;
+	if (info.pointerToRawData < last.pointerToRawData) {
+		throw new Error(`Not the last section: ${index}:${name}`);
+	}
+}
+
+/**
+ * Removes the reloc section if exists, fails if not the last section.
+ *
+ * @param exe NtExecutable instance.
+ * @returns Reloc section or null.
+ */
+function exeRemoveReloc(exe: NtExecutable) {
+	let section = exe.getSectionByEntry(IDD_BASE_RELOCATION);
+	if (section) {
+		exeAssertLastSection(exe, IDD_BASE_RELOCATION, '.reloc');
+		if (section.data) {
+			// Only the used data for correct Image Data Directory size.
+			section = {
+				info: section.info,
+				data: section.data.slice(0, section.info.virtualSize)
+			};
+		}
+		exe.setSectionByEntry(IDD_BASE_RELOCATION, null);
+		return section;
+	}
+	return null;
+}
+
+/**
+ * Replace all the icons in all icon groups.
+ *
+ * @param rsrc NtExecutableResource instance.
+ * @param iconData Icon data.
+ */
+function rsrcPatchIcon(rsrc: NtExecutableResource, iconData: Readonly<Buffer>) {
+	const ico = Data.IconFile.from(bufferToArrayBuffer(iconData));
+	for (const iconGroup of Resource.IconGroupEntry.fromEntries(rsrc.entries)) {
+		Resource.IconGroupEntry.replaceIconsForResource(
+			rsrc.entries,
+			iconGroup.id,
+			iconGroup.lang,
+			ico.icons.map(icon => icon.data)
+		);
+	}
+}
+
+/**
+ * Update strings if present for all the languages.
+ *
+ * @param rsrc NtExecutableResource instance.
+ * @param versionStrings Version strings.
+ */
+function rsrcPatchVersion(
+	rsrc: NtExecutableResource,
+	versionStrings: Readonly<{[key: string]: string}>
+) {
+	for (const versionInfo of Resource.VersionInfo.fromEntries(rsrc.entries)) {
+		// Get all the languages, not just available languages.
+		const languages = versionInfo.getAllLanguagesForStringValues();
+		for (const language of languages) {
+			versionInfo.setStringValues(language, versionStrings);
+		}
+
+		// Update integer values from parsed strings if possible.
+		const {FileVersion, ProductVersion} = versionStrings;
+		if (FileVersion) {
+			const uints = peVersionInts(FileVersion);
+			if (uints) {
+				const [ms, ls] = uints;
+				versionInfo.fixedInfo.fileVersionMS = ms;
+				versionInfo.fixedInfo.fileVersionLS = ls;
+			}
+		}
+		if (ProductVersion) {
+			const uints = peVersionInts(ProductVersion);
+			if (uints) {
+				const [ms, ls] = uints;
+				versionInfo.fixedInfo.productVersionMS = ms;
+				versionInfo.fixedInfo.productVersionLS = ls;
+			}
+		}
+
+		versionInfo.outputToResourceEntries(rsrc.entries);
+	}
+}
+
+/**
+ * Patch projector window title stored in resources (versions before 11.2).
+ *
+ * @param rsrc NtExecutableResource instance.
+ * @param title Window title.
+ * @returns Returns true if found, else false.
+ */
+function windowsProjectorPatchWindowTitleRsrc(
+	rsrc: NtExecutableResource,
+	title: string
+) {
+	// Match all known titles.
+	const titleMatch =
+		/^((Shockwave )?Flash|(Adobe|Macromedia) Flash Player \d+([.,]\d+)*)$/;
+
+	// Find ID of string table with the title and ID of title if present.
+	const typeStringTable = 6;
+	let titleStringTableId = null;
+	let titleStringTableEntryId = null;
+	for (const entry of rsrc.entries) {
+		if (entry.type !== typeStringTable) {
+			continue;
+		}
+		const table = Resource.StringTable.fromEntries(entry.lang, [entry]);
+		for (const {text} of table.getAllStrings()) {
+			if (text.startsWith('Projector ')) {
+				titleStringTableId = entry.id;
+				break;
+			}
+		}
+		if (titleStringTableId === null) {
+			// 2.0.0.11 (does not support projectors, but can patch title).
+			const strings = table.getAllStrings().map(s => s.text);
+			if (
+				strings.length === 2 &&
+				strings[0] === 'Shockwave Flash' &&
+				strings[1].startsWith('Shockwave Flash ')
+			) {
+				titleStringTableId = entry.id;
+			}
+		}
+		if (titleStringTableId === null) {
+			continue;
+		}
+		for (const {id, text} of table.getAllStrings()) {
+			if (titleMatch.test(text)) {
+				titleStringTableEntryId = id;
+				break;
+			}
+		}
+		break;
+	}
+	if (titleStringTableId === null || titleStringTableEntryId === null) {
+		return false;
+	}
+
+	// Replace all the entries.
+	for (const entry of rsrc.entries) {
+		if (entry.type !== typeStringTable || entry.id !== titleStringTableId) {
+			continue;
+		}
+		const table = Resource.StringTable.fromEntries(entry.lang, [entry]);
+		table.setById(titleStringTableEntryId, title);
+		table.replaceStringEntriesForExecutable(rsrc);
+	}
+	return true;
+}
+
+/**
+ * Patch projector window title stored in data (versions from 11.2).
+ *
+ * @param exe NtExecutable instance.
+ * @param address The virtualAddress of inserted section title.
+ */
+function windowsProjectorPatchWindowTitleData(
+	exe: NtExecutable,
+	address: number
+) {
+	// Get read-only data sections excluding the excetion and inserted ones.
+	const excluded = [address];
+	for (const idd of [IDD_EXCEPTION]) {
+		const s = exe.getSectionByEntry(idd);
+		if (s) {
+			excluded.push(s.info.virtualAddress);
+		}
+	}
+	const dataSections = exe
+		.getAllSections()
+		.filter(
+			({
+				info: {
+					characteristics,
+					sizeOfRawData,
+					virtualAddress,
+					virtualSize
+				},
+				data
+			}) => {
+				if (
+					!sizeOfRawData ||
+					// eslint-disable-next-line no-bitwise
+					!(characteristics & IMAGE_SCN_MEM_READ) ||
+					// eslint-disable-next-line no-bitwise
+					characteristics & IMAGE_SCN_MEM_WRITE ||
+					// eslint-disable-next-line no-bitwise
+					characteristics & IMAGE_SCN_MEM_EXECUTE ||
+					// eslint-disable-next-line no-bitwise
+					characteristics & IMAGE_SCN_MEM_SHARED
+				) {
+					return false;
+				}
+				for (const a of excluded) {
+					if (
+						a >= virtualAddress &&
+						a < virtualAddress + virtualSize
+					) {
+						return false;
+					}
+				}
+				return true;
+			}
+		);
+
+	// Search for known titles (only one format known).
+	const titles: [string, RegExp][] = [
+		['Adobe Flash Player ', /^Adobe Flash Player \d+([.,]\d+)*$/]
+	];
+	let oldAddress = 0;
+	for (const {
+		info: {virtualAddress},
+		data
+	} of dataSections) {
+		if (!data) {
+			continue;
+		}
+		const d = Buffer.from(data);
+		for (const [pre, reg] of titles) {
+			for (const {index} of dataStrings(d, pre, 'utf16le', reg)) {
+				// Only one match expected.
+				if (oldAddress) {
+					throw new Error('Multiple window titles found');
+				}
+
+				// Remember address for later.
+				oldAddress = virtualAddress + index;
+			}
+		}
+	}
+	if (!oldAddress) {
+		throw new Error('No window titles found');
+	}
+
+	let references = 0;
+	const code = exeCodeSection(exe);
+	const {virtualAddress} = code.info;
+	const data = Buffer.from(code.data);
+	const {newHeader} = exe;
+	if (newHeader.is32bit()) {
+		const {imageBase} = newHeader.optionalHeader;
+		const oldA = imageBase + oldAddress;
+		const patches: [number, (number | null)[]][] = [
+			// All versions.
+			// push    ...
+			[1, [0x68, null, null, null, null]]
+		];
+		for (const [o, patch] of patches) {
+			for (const i of findFuzzy(data, patch)) {
+				const off = i + o;
+				const a = data.readUint32LE(off);
+				if (a !== oldA) {
+					continue;
+				}
+				data.writeUint32LE(imageBase + address, off);
+				references++;
+			}
+		}
+	} else {
+		const patches: [number, (number | null)[]][] = [
+			// All versions.
+			// lea     r9, [rip+...]
+			[3, [0x4c, 0x8d, 0x0d, null, null, null, null]]
+		];
+		for (const [o, patch] of patches) {
+			const l = patch.length;
+			for (const i of findFuzzy(data, patch)) {
+				const rip = virtualAddress + i + l;
+				const off = i + o;
+				const a = rip + data.readUint32LE(off);
+				if (a !== oldAddress) {
+					continue;
+				}
+				data.writeUint32LE(address - rip, off);
+				references++;
+			}
+		}
+	}
+	if (references !== 1) {
+		throw new Error(`Unexpected window title references: ${references}`);
+	}
+}
+
+/**
+ * Update the sizes in EXE headers.
+ *
+ * @param exe NtExecutable instance.
+ */
+function exeUpdateSizes(exe: NtExecutable) {
+	const {optionalHeader} = exe.newHeader;
+	const {fileAlignment} = optionalHeader;
+	let sizeOfCode = 0;
+	let sizeOfInitializedData = 0;
+	let sizeOfUninitializedData = 0;
+	for (const {
+		info: {characteristics, sizeOfRawData, virtualSize}
+	} of exe.getAllSections()) {
+		// eslint-disable-next-line no-bitwise
+		if (characteristics & IMAGE_SCN_CNT_CODE) {
+			sizeOfCode += sizeOfRawData;
+		}
+		// eslint-disable-next-line no-bitwise
+		if (characteristics & IMAGE_SCN_CNT_INITIALIZED_DATA) {
+			sizeOfInitializedData += Math.max(
+				sizeOfRawData,
+				align(virtualSize, fileAlignment)
+			);
+		}
+		// eslint-disable-next-line no-bitwise
+		if (characteristics & IMAGE_SCN_CNT_UNINITIALIZED_DATA) {
+			sizeOfUninitializedData += align(virtualSize, fileAlignment);
+		}
+	}
+	optionalHeader.sizeOfCode = sizeOfCode;
+	optionalHeader.sizeOfInitializedData = sizeOfInitializedData;
+	optionalHeader.sizeOfUninitializedData = sizeOfUninitializedData;
+}
+
+/**
+ * Apply patches to projector.
+ *
+ * @param data Projector data.
+ * @param options Patch options.
+ * @returns Patched projector.
+ */
+export function windowsProjectorPatch(
+	data: Readonly<Buffer>,
+	options: IPePatchProjector
+) {
+	const {
+		iconData,
+		versionStrings,
+		removeCodeSignature,
+		patchWindowTitle,
+		patchOutOfDateDisable
+	} = options;
+	let d = bufferToArrayBuffer(data);
+
+	// Remove signature, possibly preserved for later.
+	const signature = removeCodeSignature ? null : signatureGet(d);
+	d = signatureSet(d, null, true, true);
+
+	// Parse the EXE once, if needed.
+	let exe: NtExecutable | null = null;
+
+	// Patch the out-of-date check.
+	if (patchOutOfDateDisable) {
+		exe = exe || NtExecutable.from(d);
+
+		// Narrow the search to just the code section and patch.
+		const code = exeCodeSection(exe);
+		const data = Buffer.from(code.data);
+		patchOnce(
+			data,
+			exe.newHeader.is32bit()
+				? patchesOutOfDateDisable32()
+				: patchesOutOfDateDisable64()
+		);
+		code.data = bufferToArrayBuffer(data);
+	}
+
+	// Do patches that require changing size.
+	if (iconData || versionStrings || patchWindowTitle) {
+		exe = exe || NtExecutable.from(d);
+
+		// Remove reloc so rsrc can safely be resized.
+		const reloc = exeRemoveReloc(exe);
+
+		// Remove rsrc to modify and so sections can be added.
+		exeAssertLastSection(exe, IDD_RESOURCE, '.rsrc');
+		const rsrc = NtExecutableResource.from(exe);
+		exe.setSectionByEntry(IDD_RESOURCE, null);
+
+		if (iconData) {
+			rsrcPatchIcon(rsrc, iconData);
+		}
+
+		if (versionStrings) {
+			rsrcPatchVersion(rsrc, versionStrings);
+		}
+
+		// If patching title and cannot be done by resource changes.
+		let sdTitle: Buffer | null = null;
+		if (
+			typeof patchWindowTitle === 'string' &&
+			!windowsProjectorPatchWindowTitleRsrc(rsrc, patchWindowTitle)
+		) {
+			sdTitle = bufferAlign(
+				Buffer.from(`${patchWindowTitle}\0`, 'utf16le'),
+				16
+			);
+		}
+
+		// Assemble new data section if any.
+		const sd = sdTitle;
+		if (sd) {
+			// PE library lacks a way to add an arbitrary section.
+			// Using the reserved index temporarily, then clearing it.
+			exe.setSectionByEntry(IDD_RESERVED, {
+				info: {
+					name: '.shockd',
+					virtualSize: sd.length,
+					virtualAddress: 0,
+					sizeOfRawData: sd.length,
+					pointerToRawData: 0,
+					pointerToRelocations: 0,
+					pointerToLineNumbers: 0,
+					numberOfRelocations: 0,
+					numberOfLineNumbers: 0,
+					characteristics:
+						// eslint-disable-next-line no-bitwise
+						IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ
+				},
+				data: bufferToArrayBuffer(sd)
+			});
+			const s = exe.getSectionByEntry(IDD_RESERVED);
+			exe.newHeader.optionalHeaderDataDirectory.set(IDD_RESERVED, {
+				virtualAddress: 0,
+				size: 0
+			});
+			if (!s) {
+				throw new Error('Internal error');
+			}
+
+			// Patch title if in the data.
+			if (sdTitle) {
+				windowsProjectorPatchWindowTitleData(
+					exe,
+					s.info.virtualAddress
+				);
+			}
+		}
+
+		// Add rsrc back.
+		rsrc.outputResource(exe);
+
+		// Add reloc back.
+		exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
+	}
+
+	// If the EXE was parsed generate new data from it.
+	if (exe) {
+		exeUpdateSizes(exe);
+		d = exe.generate();
+	}
+
+	// Add back signature if one preserved.
+	if (signature) {
+		d = signatureSet(d, signature, true, true);
+	}
+
+	return Buffer.from(d);
 }
 
 /**
