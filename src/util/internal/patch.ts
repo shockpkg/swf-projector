@@ -1,5 +1,3 @@
-import {TranscodeEncoding} from 'buffer';
-
 /**
  * Find exact matches in data.
  *
@@ -195,7 +193,7 @@ export function patchOnce(
 export function* dataStrings(
 	data: Readonly<Buffer>,
 	pre: string,
-	enc: TranscodeEncoding,
+	enc: 'ascii' | 'utf8' | 'utf16le' | 'ucs2' | 'latin1',
 	reg: RegExp | null = null
 ) {
 	const nulled = Buffer.from('\0', enc);
