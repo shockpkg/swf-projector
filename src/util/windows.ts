@@ -665,23 +665,26 @@ function exeAssertLastSection(exe: NtExecutable, index: number, name: string) {
  * Removes the reloc section if exists, fails if not the last section.
  *
  * @param exe NtExecutable instance.
- * @returns Reloc section or null.
+ * @returns Restore function.
  */
 function exeRemoveReloc(exe: NtExecutable) {
-	let section = exe.getSectionByEntry(IDD_BASE_RELOCATION);
-	if (section) {
-		exeAssertLastSection(exe, IDD_BASE_RELOCATION, '.reloc');
-		if (section.data) {
-			// Only the used data for correct Image Data Directory size.
-			section = {
-				info: section.info,
-				data: section.data.slice(0, section.info.virtualSize)
-			};
-		}
-		exe.setSectionByEntry(IDD_BASE_RELOCATION, null);
-		return section;
+	const section = exe.getSectionByEntry(IDD_BASE_RELOCATION);
+	if (!section) {
+		return () => {};
 	}
-	return null;
+	const {size} =
+		exe.newHeader.optionalHeaderDataDirectory.get(IDD_BASE_RELOCATION);
+	exeAssertLastSection(exe, IDD_BASE_RELOCATION, '.reloc');
+	exe.setSectionByEntry(IDD_BASE_RELOCATION, null);
+	return () => {
+		exe.setSectionByEntry(IDD_BASE_RELOCATION, section);
+		const {virtualAddress} =
+			exe.newHeader.optionalHeaderDataDirectory.get(IDD_BASE_RELOCATION);
+		exe.newHeader.optionalHeaderDataDirectory.set(IDD_BASE_RELOCATION, {
+			virtualAddress,
+			size
+		});
+	};
 }
 
 /**
@@ -1026,7 +1029,7 @@ export function windowsProjectorPatch(
 		exe = exe || NtExecutable.from(d);
 
 		// Remove reloc so rsrc can safely be resized.
-		const reloc = exeRemoveReloc(exe);
+		const relocRestore = exeRemoveReloc(exe);
 
 		// Remove rsrc to modify and so sections can be added.
 		exeAssertLastSection(exe, IDD_RESOURCE, '.rsrc');
@@ -1097,7 +1100,7 @@ export function windowsProjectorPatch(
 		rsrc.outputResource(exe, false, true);
 
 		// Add reloc back.
-		exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
+		relocRestore();
 
 		// Update sizes.
 		exeUpdateSizes(exe);
@@ -1192,13 +1195,13 @@ export async function windowsLauncher(
 	const exe = NtExecutable.from(exeData);
 
 	// Remove reloc so rsrc can safely be resized.
-	const reloc = exeRemoveReloc(exe);
+	const relocRestore = exeRemoveReloc(exe);
 
 	// Apply resources to launcher.
 	rsrc.outputResource(exe, false, true);
 
 	// Add reloc back.
-	exe.setSectionByEntry(IDD_BASE_RELOCATION, reloc);
+	relocRestore();
 
 	// Update sizes.
 	exeUpdateSizes(exe);
