@@ -88,28 +88,15 @@ describe('projector/windows/64', () => {
 					await p.withFile(await getPlayer(), simple);
 				});
 
-				it('title', async () => {
-					const dir = await getDir('title');
-					const dest = pathJoin(dir, 'application.exe');
-
-					const p = new ProjectorWindows64(dest);
-					p.patchWindowTitle = 'Custom Title';
-					p.removeCodeSignature = true;
-					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf3.swf')
-					);
-				});
-
-				it('resedit', async () => {
-					const dir = await getDir('resedit');
+				it('complex', async () => {
+					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.exe');
 
 					const p = new ProjectorWindows64(dest);
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
+					p.patchWindowTitle = 'Custom Title';
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),
