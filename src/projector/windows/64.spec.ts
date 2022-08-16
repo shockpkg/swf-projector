@@ -22,6 +22,9 @@ export function listSamples() {
 		.map(o => ({...o, patchOutOfDateDisable: o.version[0] >= 30}));
 }
 
+export const customWindowTitle =
+	'Custom Window Title (Longer Than The Original Window Title Was)';
+
 export const versionStrings = {
 	FileVersion: '3.14.15.92',
 	ProductVersion: '3.1.4.1',
@@ -96,7 +99,7 @@ describe('projector/windows/64', () => {
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
-					p.patchWindowTitle = 'Custom Title';
+					p.patchWindowTitle = customWindowTitle;
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(
 						await getPlayer(),

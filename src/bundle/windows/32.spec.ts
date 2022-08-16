@@ -1,6 +1,10 @@
 import {join as pathJoin} from 'path';
 
-import {listSamples, versionStrings} from '../../projector/windows/32.spec';
+import {
+	listSamples,
+	customWindowTitle,
+	versionStrings
+} from '../../projector/windows/32.spec';
 import {cleanBundlesDir} from '../../bundle.spec';
 import {fixtureFile, getPackageFile, simpleSwf} from '../../util.spec';
 import {loader} from '../../loader';
@@ -50,7 +54,7 @@ describe('bundle/windows/32', () => {
 					const b = new BundleWindows32(dest);
 					b.projector.iconFile = fixtureFile('icon.ico');
 					b.projector.versionStrings = versionStrings;
-					b.projector.patchWindowTitle = 'Custom Title';
+					b.projector.patchWindowTitle = customWindowTitle;
 					b.projector.removeCodeSignature = true;
 					await b.withData(
 						await getPlayer(),
