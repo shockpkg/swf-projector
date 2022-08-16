@@ -1,4 +1,6 @@
 /package-lock.json
 /lib
 /spec/fixtures
+/spec/projectors
+/spec/bundles
 /shockpkg
