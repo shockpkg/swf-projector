@@ -262,6 +262,101 @@ export async function machoTypesFile(path: string) {
 }
 
 /**
+ * Create FAT Mach-O data from thin Mach-O binaries.
+ *
+ * @param machos Mach-O file binary data.
+ * @returns FAT binary.
+ */
+export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
+	// The lipo utility always uses 12/4096 for ppc, ppc64, i386, and x86_64.
+	const align = 12;
+	// eslint-disable-next-line no-bitwise
+	const alignSize = (1 << align) >>> 0;
+
+	// Create the FAT header.
+	const head = Buffer.alloc(8);
+	head.writeUInt32BE(FAT_MAGIC, 0);
+
+	// Start assembling the pieces.
+	const pieces = [head];
+	let total = head.length;
+
+	/**
+	 * Helper to add pieces and update total length.
+	 *
+	 * @param data Data.
+	 */
+	const add = (data: Buffer) => {
+		pieces.push(data);
+		total += data.length;
+	};
+
+	/**
+	 * Helper to pad pieces.
+	 */
+	const pad = () => {
+		const over = total % alignSize;
+		if (over) {
+			add(Buffer.alloc(alignSize - over));
+		}
+	};
+
+	// List all the binaries.
+	const thins = [];
+	for (const body of machos) {
+		const type = machoTypesData(body);
+		if (Array.isArray(type)) {
+			throw new Error('Cannot nest FAT binary');
+		}
+		const head = Buffer.alloc(20);
+		head.writeUInt32BE(type.cpuType, 0);
+		head.writeUInt32BE(type.cpuSubtype, 4);
+		head.writeUInt32BE(align, 16);
+		add(head);
+		thins.push({
+			head,
+			body
+		});
+	}
+
+	// Set count in header.
+	head.writeUInt32BE(thins.length, 4);
+
+	// Add binaries aligned, updating their headers.
+	for (const {head, body} of thins) {
+		pad();
+		head.writeUInt32BE(total, 8);
+		head.writeUInt32BE(body.length, 12);
+		add(body);
+	}
+
+	// Merge all the pieces.
+	return Buffer.concat(pieces, total);
+}
+
+/**
+ * Read the binaries in a Mach-O binary which might be FAT.
+ * Yields slices of the original buffer if a FAT binary.
+ *
+ * @param data Mach-O binary.
+ * @yields Mach-O slice.
+ */
+export function* machoBinaries<T extends Readonly<Buffer>>(data: T) {
+	if (data.readUInt32BE(0) === FAT_MAGIC) {
+		const count = data.readUInt32BE(4);
+		let offset = 8;
+		for (let i = 0; i < count; i++) {
+			const start = data.readUInt32BE(offset + 8);
+			const end = start + data.readUInt32BE(offset + 12);
+			yield data.subarray(start, end) as any as T;
+			offset += 20;
+		}
+	} else {
+		yield data;
+	}
+}
+
+/**
  * Unsign a Mach-O binary if signed.
  *
  * @param path Binary path.
@@ -326,65 +421,7 @@ export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
 export async function machoAppLauncherFat(
 	types: Readonly<Readonly<IMachoType>[]>
 ) {
-	// The lipo utility always uses 12/4096 for ppc, ppc64, i386, and x86_64.
-	const align = 12;
-	// eslint-disable-next-line no-bitwise
-	const alignSize = (1 << align) >>> 0;
-
-	// Create the FAT header.
-	const head = Buffer.alloc(8);
-	head.writeUInt32BE(FAT_MAGIC, 0);
-	head.writeUInt32BE(types.length, 4);
-
-	// The pieces and their total length.
-	const pieces = [head];
-	let total = head.length;
-
-	/**
-	 * Helper to add pieces and update total length.
-	 *
-	 * @param data Data.
-	 */
-	const add = (data: Buffer) => {
-		pieces.push(data);
-		total += data.length;
-	};
-
-	/**
-	 * Helper to pad pieces.
-	 */
-	const pad = () => {
-		const over = total % alignSize;
-		if (over) {
-			add(Buffer.alloc(alignSize - over));
-		}
-	};
-
-	// Create a head and get the body for each type.
-	const parts = [];
-	for (const type of types) {
-		const head = Buffer.alloc(20);
-		head.writeUInt32BE(type.cpuType, 0);
-		head.writeUInt32BE(type.cpuSubtype, 4);
-		head.writeUInt32BE(align, 16);
-		parts.push({
-			head,
-			// eslint-disable-next-line no-await-in-loop
-			body: await machoAppLauncherThin(type)
-		});
-		add(head);
-	}
-
-	// Add binaries aligned, updating their headers.
-	for (const {head, body} of parts) {
-		pad();
-		head.writeUInt32BE(total, 8);
-		head.writeUInt32BE(body.length, 12);
-		add(body);
-	}
-
-	// Merge all the pieces.
-	return Buffer.concat(pieces, total);
+	return machoFat(await Promise.all(types.map(machoAppLauncherThin)));
 }
 
 /**
@@ -397,30 +434,8 @@ export async function machoAppLauncher(
 	types: Readonly<IMachoType> | Readonly<Readonly<IMachoType>[]>
 ) {
 	return Array.isArray(types)
-		? machoAppLauncherFat(types)
+		? machoAppLauncherFat(types as IMachoType[])
 		: machoAppLauncherThin(types as IMachoType);
-}
-
-/**
- * Read the binaries in a Mach-O binary which might be FAT.
- * Yields slices of the original buffer if a FAT binary.
- *
- * @param data Mach-O binary.
- * @yields Mach-O slice.
- */
-export function* machoBinaries<T extends Readonly<Buffer>>(data: T) {
-	if (data.readUInt32BE(0) === FAT_MAGIC) {
-		const count = data.readUInt32BE(4);
-		let offset = 8;
-		for (let i = 0; i < count; i++) {
-			const start = data.readUInt32BE(offset + 8);
-			const end = start + data.readUInt32BE(offset + 12);
-			yield data.subarray(start, end) as any as T;
-			offset += 20;
-		}
-	} else {
-		yield data;
-	}
 }
 
 /**
