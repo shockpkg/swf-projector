@@ -393,8 +393,8 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * Modify the projector player.
 	 */
 	protected async _modifyPlayer() {
-		await this._removeCodeSignature();
 		await this._fixPlayer();
+		await this._removeCodeSignature();
 		await this._patchBinary();
 		await this._replaceIcon();
 		await this._replacePkgInfo();
