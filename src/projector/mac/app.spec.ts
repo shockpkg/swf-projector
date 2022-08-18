@@ -23,7 +23,7 @@ export function listSamples() {
 		'flash-player-9.0.45.0-mac-sa-debug'
 	]);
 	return getInstalledPackagesInfoSync()
-		.filter(o => o.platform === 'mac')
+		.filter(o => o.platform.startsWith('mac'))
 		.map(o => ({
 			...o,
 			fixBrokenIconPaths: fixBrokenIconPathsSet.has(o.name)
