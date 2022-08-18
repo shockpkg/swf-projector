@@ -534,7 +534,14 @@ export class ProjectorMacApp extends ProjectorMac {
 			const binaryPathNew = this.getBinaryPath(binaryName);
 
 			await rename(binaryPathOld, binaryPathNew);
-			await rename(rsrcPathOld, rsrcPathNew);
+			try {
+				await rename(rsrcPathOld, rsrcPathNew);
+			} catch (err) {
+				// The rsrc file does not exist in 35+.
+				if (!err || (err as {code: string}).code !== 'ENOENT') {
+					throw err;
+				}
+			}
 		}
 
 		if (appIconName) {
