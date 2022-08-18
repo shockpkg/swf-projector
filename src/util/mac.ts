@@ -264,7 +264,7 @@ export async function machoTypesFile(path: string) {
 /**
  * Create FAT Mach-O data from thin Mach-O binaries.
  *
- * @param machos Mach-O file binary data.
+ * @param machos Mach-O binary datas.
  * @returns FAT binary.
  */
 export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
@@ -335,25 +335,27 @@ export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
 }
 
 /**
- * Read the binaries in a Mach-O binary which might be FAT.
- * Yields slices of the original buffer if a FAT binary.
+ * Read THIN binaries in a Mach-O binary which might be FAT.
+ * Returns slices of the original buffer if a FAT binary.
+ * Else it just returns the single THIN binary.
  *
- * @param data Mach-O binary.
- * @yields Mach-O slice.
+ * @param data Mach-O binary data.
+ * @returns Mach-O binary data or datas.
  */
-export function* machoBinaries<T extends Readonly<Buffer>>(data: T) {
-	if (data.readUInt32BE(0) === FAT_MAGIC) {
-		const count = data.readUInt32BE(4);
-		let offset = 8;
-		for (let i = 0; i < count; i++) {
-			const start = data.readUInt32BE(offset + 8);
-			const end = start + data.readUInt32BE(offset + 12);
-			yield data.subarray(start, end) as any as T;
-			offset += 20;
-		}
-	} else {
-		yield data;
+export function machoThins<T extends Readonly<Buffer>>(data: T) {
+	if (data.readUInt32BE(0) !== FAT_MAGIC) {
+		return data;
 	}
+	const r = [];
+	const count = data.readUInt32BE(4);
+	let offset = 8;
+	for (let i = 0; i < count; i++) {
+		const start = data.readUInt32BE(offset + 8);
+		const end = start + data.readUInt32BE(offset + 12);
+		r.push(data.subarray(start, end) as T);
+		offset += 20;
+	}
+	return r;
 }
 
 /**
@@ -1176,7 +1178,8 @@ const machoAppWindowTitlePatchesByCpuType = once(() => {
  */
 export function machoAppWindowTitle(data: Buffer, title: string) {
 	const pendingPatches: MachoAppWindowTitlePatch[] = [];
-	for (const binary of machoBinaries(data)) {
+	const thins = machoThins(data);
+	for (const binary of Array.isArray(thins) ? thins : [thins]) {
 		const magic = binary.readUInt32BE(0);
 		let cpuType = 0;
 		switch (magic) {
