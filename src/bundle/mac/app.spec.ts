@@ -1,6 +1,6 @@
 import {join as pathJoin} from 'path';
 
-import {listSamples} from '../../projector/mac/app.spec';
+import {listSamples, customWindowTitle} from '../../projector/mac/app.spec';
 import {cleanBundlesDir} from '../../bundle.spec';
 import {fixtureFile, getPackageFile, simpleSwf} from '../../util.spec';
 import {loader} from '../../loader';
@@ -47,6 +47,9 @@ describe('bundle/mac/app', () => {
 					b.projector.binaryName = 'application';
 					b.projector.bundleName = 'App Bundle Name';
 					b.projector.removeInfoPlistStrings = true;
+					if (pkg.version[0] >= 11) {
+						b.projector.patchWindowTitle = customWindowTitle;
+					}
 					await b.withData(
 						await getPlayer(),
 						loader(6, 600, 400, 30, 0xffffff, 'main.swf'),

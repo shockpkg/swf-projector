@@ -30,6 +30,9 @@ export function listSamples() {
 		}));
 }
 
+export const customWindowTitle =
+	'Custom Window Title (Longer Than Possible Existing Unused Strings)';
+
 describe('projector/mac/app', () => {
 	describe('ProjectorMacApp', () => {
 		it('instanceof ProjectorMac', () => {
@@ -111,26 +114,14 @@ describe('projector/mac/app', () => {
 					p.bundleName = 'App Bundle Name';
 					p.removeInfoPlistStrings = true;
 					p.removeCodeSignature = true;
+					if (pkg.version[0] >= 11) {
+						p.patchWindowTitle = customWindowTitle;
+					}
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
 					);
 				});
-
-				if (pkg.version[0] >= 11) {
-					it('title', async () => {
-						const dir = await getDir('title');
-						const dest = pathJoin(dir, 'application.app');
-
-						const p = new ProjectorMacApp(dest);
-						p.patchWindowTitle = 'Custom Title';
-						p.removeCodeSignature = true;
-						await p.withFile(
-							await getPlayer(),
-							fixtureFile('swf3.swf')
-						);
-					});
-				}
 
 				if (pkg.version[0] < 6) {
 					return;
