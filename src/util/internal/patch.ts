@@ -1,3 +1,5 @@
+import {getU32, setU32} from '../../util';
+
 /**
  * Find exact matches in data.
  *
@@ -47,6 +49,27 @@ export function* findFuzzy(
 			yield i;
 		}
 	}
+}
+
+/**
+ * Fuzzy find once, null if multiple.
+ *
+ * @param data Data.
+ * @param fuzzy Fuzzy data.
+ * @returns Index or null.
+ */
+export function findFuzzyOnce(
+	data: Readonly<Buffer>,
+	fuzzy: (number | null)[]
+) {
+	let r = null;
+	for (const found of findFuzzy(data, fuzzy)) {
+		if (r !== null) {
+			return null;
+		}
+		r = found;
+	}
+	return r;
 }
 
 /**
@@ -217,4 +240,31 @@ export function* dataStrings(
 			string
 		};
 	}
+}
+
+/**
+ * A utility to slide values within a window.
+ *
+ * @param amount The amount to slide.
+ * @param offset Window offset.
+ * @param size Window size.
+ * @returns Sliding functions.
+ */
+export function slider(amount: number, offset: number, size: number) {
+	const end = offset + size;
+	return {
+		/**
+		 * For UINT32.
+		 *
+		 * @param data Buffer data.
+		 * @param i Integer offset.
+		 * @param le Little endian if true.
+		 */
+		u32: (data: Buffer, i: number, le: boolean) => {
+			const v = getU32(data, i, le);
+			if (v >= offset && v <= end) {
+				setU32(data, i, le, v + amount);
+			}
+		}
+	};
 }

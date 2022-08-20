@@ -1,13 +1,25 @@
 /* eslint-disable max-classes-per-file */
-import {readFile, rm, writeFile} from 'fs/promises';
-import {join as pathJoin} from 'path';
+import {readFile} from 'fs/promises';
 
 import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
 import {unsign} from 'macho-unsign';
 
-import {once, launcher} from '../util';
+import {
+	once,
+	launcher,
+	hex4,
+	align,
+	getU32,
+	getCstrN,
+	getU64,
+	bufferAlign,
+	setU32,
+	setU64
+} from '../util';
 
-import {findExact, findFuzzy, patchHexToBytes} from './internal/patch';
+import {findFuzzyOnce, patchHexToBytes, slider} from './internal/patch';
+
+const VM_PROT_READ = 0x1;
 
 const FAT_MAGIC = 0xcafebabe;
 const MH_MAGIC = 0xfeedface;
@@ -15,12 +27,34 @@ const MH_CIGAM = 0xcefaedfe;
 const MH_MAGIC_64 = 0xfeedfacf;
 const MH_CIGAM_64 = 0xcffaedfe;
 
+const LC_REQ_DYLD = 0x80000000;
+
+const LC_SEGMENT = 0x1;
+const LC_SYMTAB = 0x2;
+const LC_DYSYMTAB = 0xb;
+const LC_SEGMENT_64 = 0x19;
+const LC_CODE_SIGNATURE = 0x1d;
+const LC_SEGMENT_SPLIT_INFO = 0x1e;
+const LC_DYLD_INFO = 0x22;
+// eslint-disable-next-line no-bitwise
+const LC_DYLD_INFO_ONLY = (0x22 | LC_REQ_DYLD) >>> 0;
+const LC_FUNCTION_STARTS = 0x26;
+const LC_DATA_IN_CODE = 0x29;
+const LC_DYLIB_CODE_SIGN_DRS = 0x2b;
+const LC_LINKER_OPTIMIZATION_HINT = 0x2e;
+// eslint-disable-next-line no-bitwise
+const LC_DYLD_EXPORTS_TRIE = (0x33 | LC_REQ_DYLD) >>> 0;
+// eslint-disable-next-line no-bitwise
+const LC_DYLD_CHAINED_FIXUPS = (0x34 | LC_REQ_DYLD) >>> 0;
+
+const SEG_TEXT = '__TEXT';
+const SECT_TEXT = '__text';
+const SEG_LINKEDIT = '__LINKEDIT';
+
 const CPU_TYPE_POWERPC = 0x00000012;
 const CPU_TYPE_POWERPC64 = 0x01000012;
 const CPU_TYPE_I386 = 0x00000007;
 const CPU_TYPE_X86_64 = 0x01000007;
-
-const LC_SEGMENT = 1;
 
 const launcherMappings = once(
 	() =>
@@ -46,17 +80,13 @@ export interface IMachoType {
 }
 
 /**
- * Encode integer as 4 byte hex.
+ * Align size for vmsize.
  *
- * @param i The integer to encode.
- * @returns Hex string.
+ * @param size Raw size.
+ * @returns Aligned vmsize.
  */
-function hex4(i: number) {
-	let r = i.toString(16);
-	while (r.length < 8) {
-		r = `0${r}`;
-	}
-	return r;
+function alignVmsize(size: number) {
+	return align(Math.max(size, 0x4000), 0x1000);
 }
 
 /**
@@ -359,47 +389,6 @@ export function machoThins<T extends Readonly<Buffer>>(data: T) {
 }
 
 /**
- * Unsign a Mach-O binary if signed.
- *
- * @param path Binary path.
- * @returns Returns true if signed, else false.
- */
-export async function machoUnsignFile(path: string) {
-	// Unsign data if signed.
-	const unsigned = unsign(await readFile(path));
-	if (!unsigned) {
-		return false;
-	}
-
-	// Write out the change.
-	await writeFile(path, Buffer.from(unsigned));
-	return true;
-}
-
-/**
- * Unsign an application bundle.
- *
- * @param path Path to application bundle.
- */
-export async function machoAppUnsign(path: string) {
-	const contents = pathJoin(path, 'Contents');
-	const executable = infoPlistBundleExecutableGet(
-		await plistRead(pathJoin(contents, 'Info.plist'))
-	);
-	await Promise.all([
-		machoUnsignFile(pathJoin(contents, 'MacOS', executable)),
-		rm(pathJoin(contents, 'CodeResources'), {
-			recursive: true,
-			force: true
-		}),
-		rm(pathJoin(contents, '_CodeSignature'), {
-			recursive: true,
-			force: true
-		})
-	]);
-}
-
-/**
  * Get Mach-O app launcher for a single type.
  *
  * @param type Mach-O type.
@@ -441,58 +430,27 @@ export async function machoAppLauncher(
 }
 
 /**
- * Read an i386 Mach-O binary to get the base address.
- *
- * @param data Mach-O binary.
- * @returns Base address.
+ * MacProjectTitlePatch object.
  */
-function machoI386BaseAddress(data: Readonly<Buffer>) {
-	const loadCommands = data.readUInt32LE(16);
-	let offset = 28;
-	for (let i = 0; i < loadCommands; i++) {
-		const command = data.readUInt32LE(offset);
-		const commandSize = data.readUInt32LE(offset + 4);
-		if (command === LC_SEGMENT) {
-			const segmentName = data.subarray(offset + 8, offset + 24);
-			if (!segmentName.indexOf('__TEXT\0')) {
-				return data.readUInt32LE(offset + 24);
-			}
-		}
-		offset += commandSize;
-	}
-	throw new Error('Failed to locate __TEXT load command');
-}
-
-// These strings should not be used in a projector.
-// Sorted longest to shortest.
-const machoAppUnusedStrings = [
-	'This application is not properly licensed to embed Adobe Flash Player.',
-	'The installed version of Adobe Flash Player is too old.',
-	'https://www.macromedia.com/bin/flashdownload.cgi'
-];
-
-/**
- * MachoAppWindowTitlePatch object.
- */
-abstract class MachoAppWindowTitlePatch {
+abstract class MacProjectTitlePatch {
 	public static readonly CPU_TYPE: number;
 
 	protected _data: Buffer;
 
-	protected _title: string;
+	protected _vmaddr: number;
 
-	protected _titleOffset = -1;
-
-	protected _titleData: Buffer | null = null;
+	protected _title: number;
 
 	/**
-	 * MachoAppWindowTitlePatch constructor.
+	 * MacProjectTitlePatch constructor.
 	 *
-	 * @param data Data.
-	 * @param title Title.
+	 * @param data Code data.
+	 * @param vmaddr Code address.
+	 * @param title Title address.
 	 */
-	constructor(data: Buffer, title: string) {
+	constructor(data: Buffer, vmaddr: number, title: number) {
 		this._data = data;
+		this._vmaddr = vmaddr;
 		this._title = title;
 	}
 
@@ -507,140 +465,37 @@ abstract class MachoAppWindowTitlePatch {
 	 * Apply patch.
 	 */
 	public abstract patch(): void;
-
-	/**
-	 * Fuzzy find once, throw if more.
-	 *
-	 * @param data Data.
-	 * @param fuzzy Fuzzy data.
-	 * @returns Found offset.
-	 */
-	protected _findFuzzyOnce(data: Buffer, fuzzy: (number | null)[]) {
-		let r = null;
-		for (const found of findFuzzy(data, fuzzy)) {
-			if (r !== null) {
-				throw new Error('Found multiple fuzzy matches');
-			}
-			r = found;
-		}
-		return r;
-	}
-
-	/**
-	 * Find memory for title.
-	 */
-	protected _findTitleMemory() {
-		// Find the longest unused string match.
-		let titleData = null;
-		let titleOffset = -1;
-		const data = this._data;
-		OUTER: for (const str of machoAppUnusedStrings) {
-			const strD = Buffer.from(`\0${str}\0`, 'ascii');
-			for (const offset of findExact(data, strD)) {
-				const off = offset + 1;
-				titleData = data.subarray(off, off + strD.length - 1);
-				titleOffset = off;
-				break OUTER;
-			}
-		}
-		if (!titleData) {
-			throw new Error('No unused memory found');
-		}
-		const titleEncoded = this._titleEncoded();
-		if (titleEncoded.length > titleData.length) {
-			throw new Error('Encoded replacement window title too large');
-		}
-		this._titleOffset = titleOffset;
-		this._titleData = titleData;
-	}
-
-	/**
-	 * Patch title memory.
-	 */
-	protected _patchTitleMemory() {
-		const titleData = this._titleData;
-		if (!titleData) {
-			throw new Error('Internal error');
-		}
-		const titleEncoded = this._titleEncoded();
-		titleData.fill(0);
-		for (let i = titleEncoded.length; i--; ) {
-			titleData.writeInt8(titleEncoded.readInt8(i), i);
-		}
-	}
-
-	/**
-	 * Get the title offset.
-	 *
-	 * @returns Title offset.
-	 */
-	protected _chars() {
-		const r = this._titleOffset;
-		if (r < 0) {
-			throw new Error('Internal error');
-		}
-		return r;
-	}
-
-	/**
-	 * Get number of characters.
-	 *
-	 * @returns Title length.
-	 */
-	protected _numChars() {
-		return this._title.length;
-	}
-
-	/**
-	 * Get the encoded title.
-	 */
-	protected abstract _titleEncoded(): Buffer;
 }
 
 /**
- * MachoAppWindowTitlePatchI386 object.
+ * MacProjectTitlePatchI386 object.
  */
-abstract class MachoAppWindowTitlePatchI386 extends MachoAppWindowTitlePatch {
+abstract class MacProjectTitlePatchI386 extends MacProjectTitlePatch {
 	public static readonly CPU_TYPE = CPU_TYPE_I386;
-
-	/**
-	 * @inheritDoc
-	 */
-	protected _titleEncoded() {
-		return Buffer.from(this._title, 'utf16le');
-	}
 }
 
 /**
- * MachoAppWindowTitlePatchX8664 object.
+ * MacProjectTitlePatchX8664 object.
  */
-abstract class MachoAppWindowTitlePatchX8664 extends MachoAppWindowTitlePatch {
+abstract class MacProjectTitlePatchX8664 extends MacProjectTitlePatch {
 	public static readonly CPU_TYPE = CPU_TYPE_X86_64;
-
-	/**
-	 * @inheritDoc
-	 */
-	protected _titleEncoded() {
-		return Buffer.from(this._title, 'utf16le');
-	}
 }
 
-const machoAppWindowTitlePatches: {
-	// eslint-disable-next-line @typescript-eslint/naming-convention
+const macProjectTitlePatches: {
 	CPU_TYPE: number;
-	new (data: Buffer, title: string): MachoAppWindowTitlePatch;
+	new (data: Buffer, vmaddr: number, title: number): MacProjectTitlePatch;
 }[] = [
 	/**
-	 * 11.0.1.152+ versions.
+	 * 11.0.1.152 i386.
 	 */
-	class extends MachoAppWindowTitlePatchI386 {
-		private _offset_ = -1;
+	class extends MacProjectTitlePatchI386 {
+		private _offset_ = 0;
 
 		/**
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = this._findFuzzyOnce(
+			const found = findFuzzyOnce(
 				this._data,
 				patchHexToBytes(
 					[
@@ -685,7 +540,6 @@ const machoAppWindowTitlePatches: {
 				return false;
 			}
 
-			this._findTitleMemory();
 			this._offset_ = found;
 			return true;
 		}
@@ -694,43 +548,47 @@ const machoAppWindowTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			this._patchTitleMemory();
-
 			const d = this._data;
-			let i = this._offset_ + 14;
-			const base = machoI386BaseAddress(d);
+			let i = this._offset_ + 11;
 
-			// mov ebx, numChars
-			d.writeUInt8(0xbb, i++);
-			d.writeInt32LE(this._numChars(), i);
-			i += 4;
-
-			// lea ecx, (base+chars)
+			// lea ecx, ...
 			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x0d, i++);
-			d.writeInt32LE(base + this._chars(), i);
+			d.writeInt32LE(this._title, i);
 			i += 4;
 
-			// nop x3
+			// mov ebx, DWORD PTR [ecx]
+			d.writeUInt8(0x8b, i++);
+			d.writeUInt8(0x19, i++);
+
+			// add ecx, 0x4
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc1, i++);
+			d.writeUInt8(0x04, i++);
+
+			// nop 6
 			d.writeUInt8(0x90, i++);
 			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
 		}
 	},
 
 	/**
-	 * 11.0.1.152+ versions.
+	 * 11.0.1.152 x86_64.
 	 */
-	class extends MachoAppWindowTitlePatchX8664 {
-		private _offset_ = -1;
+	class extends MacProjectTitlePatchX8664 {
+		private _offset_ = 0;
 
-		private _offsetJump_ = -1;
+		private _offsetJump_ = 0;
 
 		/**
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = this._findFuzzyOnce(
+			const found = findFuzzyOnce(
 				this._data,
 				patchHexToBytes(
 					[
@@ -768,7 +626,7 @@ const machoAppWindowTitlePatches: {
 			// Sanity check the jump target instructions.
 			const offsetJump = found + 22 + this._data.readInt8(found + 21);
 			if (
-				this._findFuzzyOnce(
+				findFuzzyOnce(
 					this._data.subarray(offsetJump, offsetJump + 7),
 					patchHexToBytes(
 						// lea     rsi, [rip+...]
@@ -776,10 +634,9 @@ const machoAppWindowTitlePatches: {
 					)
 				) !== 0
 			) {
-				throw new Error('Jump target instructions unexpected');
+				return false;
 			}
 
-			this._findTitleMemory();
 			this._offset_ = found;
 			this._offsetJump_ = offsetJump;
 			return true;
@@ -789,43 +646,50 @@ const machoAppWindowTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			this._patchTitleMemory();
-
 			const d = this._data;
 			let i = this._offset_ + 10;
 
-			// mov rdx, numChars
+			// lea rsi, [rip+...]
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0xba, i++);
-			d.writeInt32LE(this._numChars(), i);
+			d.writeUInt8(0x8d, i++);
+			d.writeUInt8(0x35, i++);
+			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
 			i += 4;
-			d.writeInt32LE(0, i);
-			i += 4;
+
+			// movsxd rdx, DWORD PTR [rsi]
+			d.writeUInt8(0x48, i++);
+			d.writeUInt8(0x63, i++);
+			d.writeUInt8(0x16, i++);
 
 			// jmp --
 			d.writeUInt8(0xeb, i++);
 
 			i = this._offsetJump_;
 
-			// lea rsi, chars
+			// add rsi, 0x4
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._chars() - (i + 4), i);
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc6, i++);
+			d.writeUInt8(0x04, i++);
+
+			// nop 3
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
 		}
 	},
 
 	/**
-	 * 13.0.0.182+ versions.
+	 * 13.0.0.182 i386.
 	 */
-	class extends MachoAppWindowTitlePatchI386 {
-		private _offset_ = -1;
+	class extends MacProjectTitlePatchI386 {
+		private _offset_ = 0;
 
 		/**
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = this._findFuzzyOnce(
+			const found = findFuzzyOnce(
 				this._data,
 				patchHexToBytes(
 					[
@@ -872,7 +736,6 @@ const machoAppWindowTitlePatches: {
 				return false;
 			}
 
-			this._findTitleMemory();
 			this._offset_ = found;
 			return true;
 		}
@@ -881,44 +744,49 @@ const machoAppWindowTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			this._patchTitleMemory();
-
-			const edi = this._offset_ + 13;
+			const edi = this._vmaddr + this._offset_ + 13;
 			const d = this._data;
-			let i = this._offset_ + 17;
+			let i = this._offset_ + 14;
 
-			// mov ecx, numChars
-			d.writeUInt8(0xb9, i++);
-			d.writeInt32LE(this._numChars(), i);
+			// lea eax, [edi+...]
+			d.writeUInt8(0x8d, i++);
+			d.writeUInt8(0x87, i++);
+			d.writeInt32LE(this._title - edi, i);
 			i += 4;
+
+			// mov ecx, DWORD PTR [eax]
+			d.writeUInt8(0x8b, i++);
+			d.writeUInt8(0x08, i++);
 
 			// mov DWORD PTR [esp+0x8], ecx
 			i += 4;
 
-			// lea eax, [edi+(chars-edi)]
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x87, i++);
-			d.writeInt32LE(this._chars() - edi, i);
-			i += 4;
+			// add eax, 0x4
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc0, i++);
+			d.writeUInt8(0x04, i++);
 
-			// nop x3
+			// nop 6
 			d.writeUInt8(0x90, i++);
 			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
 		}
 	},
 
 	/**
-	 * 13.0.0.182+ versions.
+	 * 13.0.0.182 x86_64.
 	 */
-	class extends MachoAppWindowTitlePatchX8664 {
-		private _offset_ = -1;
+	class extends MacProjectTitlePatchX8664 {
+		private _offset_ = 0;
 
 		/**
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = this._findFuzzyOnce(
+			const found = findFuzzyOnce(
 				this._data,
 				patchHexToBytes(
 					[
@@ -952,8 +820,6 @@ const machoAppWindowTitlePatches: {
 			if (found === null) {
 				return false;
 			}
-
-			this._findTitleMemory();
 			this._offset_ = found;
 			return true;
 		}
@@ -962,42 +828,46 @@ const machoAppWindowTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			this._patchTitleMemory();
-
 			const d = this._data;
 			let i = this._offset_ + 10;
 
-			// lea rsi, chars
+			// lea rsi, [rip+...]
 			d.writeUInt8(0x48, i++);
 			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._chars() - (i + 4), i);
+			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
 			i += 4;
 
-			// mov rdx, numChars
+			// movsxd rdx, DWORD PTR [rsi]
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0xba, i++);
-			d.writeInt32LE(this._numChars(), i);
-			i += 4;
-			d.writeInt32LE(0, i);
-			i += 4;
+			d.writeUInt8(0x63, i++);
+			d.writeUInt8(0x16, i++);
 
-			// nop
-			d.writeUInt8(0x90, i);
+			// add rsi, 0x4
+			d.writeUInt8(0x48, i++);
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc6, i++);
+			d.writeUInt8(0x04, i++);
+
+			// nop 4
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
 		}
 	},
 
 	/**
-	 * 23.0.0.162+ versions.
+	 * 23.0.0.162 i386.
 	 */
-	class extends MachoAppWindowTitlePatchI386 {
-		private _offset_ = -1;
+	class extends MacProjectTitlePatchI386 {
+		private _offset_ = 0;
 
 		/**
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = this._findFuzzyOnce(
+			const found = findFuzzyOnce(
 				this._data,
 				patchHexToBytes(
 					[
@@ -1044,7 +914,6 @@ const machoAppWindowTitlePatches: {
 				return false;
 			}
 
-			this._findTitleMemory();
 			this._offset_ = found;
 			return true;
 		}
@@ -1053,41 +922,43 @@ const machoAppWindowTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			this._patchTitleMemory();
-
-			const edi = this._offset_ + 13;
+			const edi = this._vmaddr + this._offset_ + 13;
 			const d = this._data;
 			let i = this._offset_ + 25;
 
-			// mov edx, numChars
-			d.writeUInt8(0xba, i++);
-			d.writeInt32LE(this._numChars(), i);
-			i += 4;
-
-			// lea eax, [edi+(chars-edi)]
+			// lea eax, [edi+...]
 			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x87, i++);
-			d.writeInt32LE(this._chars() - edi, i);
+			d.writeInt32LE(this._title - edi, i);
 			i += 4;
 
-			// nop x3
+			// mov edx, DWORD PTR [eax]
+			d.writeUInt8(0x8b, i++);
+			d.writeUInt8(0x10, i++);
+
+			// add eax, 0x4
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc0, i++);
+			d.writeUInt8(0x04, i++);
+
+			// nop 3
 			d.writeUInt8(0x90, i++);
 			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i);
+			d.writeUInt8(0x90, i++);
 		}
 	},
 
 	/**
-	 * 23.0.0.162+ versions.
+	 * 23.0.0.162 x86_64.
 	 */
-	class extends MachoAppWindowTitlePatchX8664 {
-		private _offset_ = -1;
+	class extends MacProjectTitlePatchX8664 {
+		private _offset_ = 0;
 
 		/**
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = this._findFuzzyOnce(
+			const found = findFuzzyOnce(
 				this._data,
 				patchHexToBytes(
 					[
@@ -1121,8 +992,6 @@ const machoAppWindowTitlePatches: {
 			if (found === null) {
 				return false;
 			}
-
-			this._findTitleMemory();
 			this._offset_ = found;
 			return true;
 		}
@@ -1131,35 +1000,39 @@ const machoAppWindowTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			this._patchTitleMemory();
-
 			const d = this._data;
 			let i = this._offset_ + 20;
 
-			// lea rsi, chars
+			// lea rsi, [rip+...]
 			d.writeUInt8(0x48, i++);
 			d.writeUInt8(0x8d, i++);
 			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._chars() - (i + 4), i);
+			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
 			i += 4;
 
-			// mov rdx, numChars
+			// movsxd rdx, DWORD PTR [rsi]
 			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0xba, i++);
-			d.writeInt32LE(this._numChars(), i);
-			i += 4;
-			d.writeInt32LE(0, i);
-			i += 4;
+			d.writeUInt8(0x63, i++);
+			d.writeUInt8(0x16, i++);
 
-			// nop
-			d.writeUInt8(0x90, i);
+			// add rsi, 0x4
+			d.writeUInt8(0x48, i++);
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc6, i++);
+			d.writeUInt8(0x04, i++);
+
+			// nop 4
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
 		}
 	}
 ];
 
-const machoAppWindowTitlePatchesByCpuType = once(() => {
-	const r = new Map<number, typeof machoAppWindowTitlePatches[0][]>();
-	for (const Patcher of machoAppWindowTitlePatches) {
+const macProjectTitlePatchesByCpuType = once(() => {
+	const r = new Map<number, typeof macProjectTitlePatches[0][]>();
+	for (const Patcher of macProjectTitlePatches) {
 		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const {CPU_TYPE} = Patcher;
 		const list = r.get(CPU_TYPE) || [];
@@ -1169,55 +1042,317 @@ const machoAppWindowTitlePatchesByCpuType = once(() => {
 	return r;
 });
 
+export interface IMacProjectorMachoPatch {
+	//
+	/**
+	 * Remove signature if present and true.
+	 *
+	 * @default false
+	 */
+	removeCodeSignature?: boolean;
+
+	/**
+	 * Attempt to replace the window title if not null.
+	 *
+	 * @default null
+	 */
+	patchWindowTitle?: string | null;
+}
+
 /**
- * Attempt to replace Mach-O app window title.
+ * Patcher for each binary.
  *
- * @param data Projector data, maybe modified.
- * @param title Replacement title.
- * @returns Patched data, can be same buffer, but modified.
+ * @param data Mach-O data.
+ * @param title Window title.
+ * @returns Patched binary.
  */
-export function machoAppWindowTitle(data: Buffer, title: string) {
-	const pendingPatches: MachoAppWindowTitlePatch[] = [];
-	const thins = machoThins(data);
-	for (const binary of Array.isArray(thins) ? thins : [thins]) {
-		const magic = binary.readUInt32BE(0);
-		let cpuType = 0;
-		switch (magic) {
-			case MH_MAGIC:
-			case MH_MAGIC_64: {
-				cpuType = binary.readUInt32BE(4);
+function macProjectorMachoPatchEach(data: Buffer, title: string) {
+	let le = false;
+	let lp = false;
+	const magic = getU32(data, 0, le);
+	switch (magic) {
+		case MH_MAGIC: {
+			le = false;
+			lp = false;
+			break;
+		}
+		case MH_MAGIC_64: {
+			le = false;
+			lp = true;
+			break;
+		}
+		case MH_CIGAM: {
+			le = true;
+			lp = false;
+			break;
+		}
+		case MH_CIGAM_64: {
+			le = true;
+			lp = true;
+			break;
+		}
+		default: {
+			throw new Error(`Unknown header magic: 0x${hex4(magic)}`);
+		}
+	}
+	const SEGMENT = lp ? LC_SEGMENT_64 : LC_SEGMENT;
+
+	// Read header and commands.
+	const headerSize = lp ? 32 : 28;
+	const header = data.subarray(0, headerSize);
+	const numLoadCommands = getU32(header, 16, le);
+	const sizeOfLoadCommands = getU32(header, 20, le);
+	const commands = [];
+	let lcd = data.subarray(headerSize, headerSize + sizeOfLoadCommands);
+	for (let c = 0; c < numLoadCommands; c++) {
+		const commandSize = getU32(lcd, 4, le);
+		commands.push(lcd.subarray(0, commandSize));
+		lcd = lcd.subarray(commandSize);
+	}
+
+	// Find the closing segment.
+	let linkeditI = -1;
+	for (let i = 0; i < commands.length; i++) {
+		const command = commands[i];
+		if (
+			getU32(command, 0, le) === SEGMENT &&
+			getCstrN(command, 8, 16) === SEG_LINKEDIT
+		) {
+			if (linkeditI > 0) {
+				throw new Error(`Multiple ${SEG_LINKEDIT}`);
+			}
+			linkeditI = i;
+		}
+	}
+	if (linkeditI < 0) {
+		throw new Error(`Missing ${SEG_LINKEDIT}`);
+	}
+	const linkedit = commands[linkeditI];
+
+	// Remember closing segment position to put one there before it.
+	const vmaddr = lp ? getU64(linkedit, 24, le) : getU32(linkedit, 24, le);
+	const fileoff = lp ? getU64(linkedit, 40, le) : getU32(linkedit, 32, le);
+	const filesize = lp ? getU64(linkedit, 48, le) : getU32(linkedit, 36, le);
+
+	// Create the new section and segment.
+	const aligned = 16;
+	const segname = '__SHOCKPKG_DATA';
+	const secname = segname.toLowerCase();
+	const secdata = bufferAlign(
+		Buffer.concat([Buffer.alloc(4), Buffer.from(`${title}\0`, 'utf16le')]),
+		aligned
+	);
+	setU32(secdata, 0, le, title.length);
+	const seg = Buffer.alloc(lp ? 72 + 80 : 56 + 68);
+	const sec = seg.subarray(lp ? 72 : 56);
+	sec.write(secname, 0, 16, 'ascii');
+	sec.write(segname, 16, 16, 'ascii');
+	sec.write(segname, 16, 16, 'ascii');
+	if (lp) {
+		setU64(sec, 32, le, vmaddr);
+		setU64(sec, 40, le, secdata.length);
+		setU32(sec, 48, le, fileoff);
+		setU32(sec, 52, le, secdata.length < aligned ? 0 : 4);
+	} else {
+		setU32(sec, 32, le, vmaddr);
+		setU32(sec, 36, le, secdata.length);
+		setU32(sec, 40, le, fileoff);
+		setU32(sec, 44, le, secdata.length < aligned ? 0 : 4);
+	}
+	setU32(seg, 0, le, SEGMENT);
+	setU32(seg, 4, le, seg.length);
+	seg.write(segname, 8, 16, 'ascii');
+	const segSize = alignVmsize(secdata.length);
+	if (lp) {
+		setU64(seg, 24, le, vmaddr);
+		setU64(seg, 32, le, segSize);
+		setU64(seg, 40, le, fileoff);
+		setU64(seg, 48, le, segSize);
+		setU32(seg, 56, le, VM_PROT_READ);
+		setU32(seg, 60, le, VM_PROT_READ);
+		setU32(seg, 64, le, 1);
+	} else {
+		setU32(seg, 24, le, vmaddr);
+		setU32(seg, 28, le, segSize);
+		setU32(seg, 32, le, fileoff);
+		setU32(seg, 36, le, segSize);
+		setU32(seg, 40, le, VM_PROT_READ);
+		setU32(seg, 44, le, VM_PROT_READ);
+		setU32(seg, 48, le, 1);
+	}
+
+	// Shift closing segment down.
+	if (lp) {
+		setU64(linkedit, 24, le, vmaddr + segSize);
+		setU64(linkedit, 40, le, fileoff + segSize);
+	} else {
+		setU32(linkedit, 24, le, vmaddr + segSize);
+		setU32(linkedit, 32, le, fileoff + segSize);
+	}
+
+	// Shift any offsets that could reference closing segment.
+	const slide = slider(segSize, fileoff, filesize);
+	for (const command of commands) {
+		switch (getU32(command, 0, le)) {
+			case LC_DYLD_INFO:
+			case LC_DYLD_INFO_ONLY: {
+				slide.u32(command, 8, le);
+				slide.u32(command, 16, le);
+				slide.u32(command, 24, le);
+				slide.u32(command, 32, le);
+				slide.u32(command, 40, le);
 				break;
 			}
-			case MH_CIGAM:
-			case MH_CIGAM_64: {
-				cpuType = binary.readUInt32LE(4);
+			case LC_SYMTAB: {
+				slide.u32(command, 8, le);
+				slide.u32(command, 16, le);
+				break;
+			}
+			case LC_DYSYMTAB: {
+				slide.u32(command, 32, le);
+				slide.u32(command, 40, le);
+				slide.u32(command, 48, le);
+				slide.u32(command, 56, le);
+				slide.u32(command, 64, le);
+				slide.u32(command, 72, le);
+				break;
+			}
+			case LC_CODE_SIGNATURE:
+			case LC_SEGMENT_SPLIT_INFO:
+			case LC_FUNCTION_STARTS:
+			case LC_DATA_IN_CODE:
+			case LC_DYLIB_CODE_SIGN_DRS:
+			case LC_LINKER_OPTIMIZATION_HINT:
+			case LC_DYLD_EXPORTS_TRIE:
+			case LC_DYLD_CHAINED_FIXUPS: {
+				slide.u32(command, 8, le);
 				break;
 			}
 			default: {
-				throw new Error(`Unknown header magic: 0x${hex4(magic)}`);
+				// Do nothing.
 			}
 		}
-		const patchers =
-			machoAppWindowTitlePatchesByCpuType().get(cpuType) || [];
-		let found: MachoAppWindowTitlePatch | null = null;
-		for (const Patcher of patchers) {
-			const patcher = new Patcher(binary, title);
-			if (patcher.check()) {
-				if (found) {
-					throw new Error(
-						`Duplicate patcher for CPU type: 0x${hex4(cpuType)}`
-					);
-				}
-				found = patcher;
+	}
+
+	// Update header and insert the segment.
+	setU32(header, 16, le, numLoadCommands + 1);
+	setU32(header, 20, le, sizeOfLoadCommands + seg.length);
+	commands.splice(linkeditI, 0, seg);
+
+	// Construct the new binary, inserting new section data.
+	const macho = Buffer.concat([
+		header,
+		...commands,
+		data.subarray(
+			commands.reduce((v, c) => v + c.length, header.length),
+			fileoff
+		),
+		secdata,
+		Buffer.alloc(segSize - secdata.length),
+		data.subarray(fileoff)
+	]);
+
+	// Find the text section.
+	let textSegment: Buffer | null = null;
+	for (const command of commands) {
+		if (
+			getU32(command, 0, le) === SEGMENT &&
+			getCstrN(command, 8, 16) === SEG_TEXT
+		) {
+			if (textSegment) {
+				throw new Error(`Multiple ${SEG_TEXT}`);
 			}
+			textSegment = command;
 		}
-		if (!found) {
-			throw new Error(`No patcher for CPU type: 0x${hex4(cpuType)}`);
+	}
+	if (!textSegment) {
+		throw new Error(`Missing ${SEG_TEXT}`);
+	}
+	const textSectionCount = getU32(textSegment, lp ? 64 : 48, le);
+	let textSection: Buffer | null = null;
+	for (let i = 0; i < textSectionCount; i++) {
+		const o = lp ? 72 + 80 * i : 56 + 68 * i;
+		if (getCstrN(textSegment, o, 16) === SECT_TEXT) {
+			if (textSection) {
+				throw new Error(`Multiple ${SECT_TEXT}`);
+			}
+			textSection = textSegment.subarray(o, o + (lp ? 80 : 68));
 		}
-		pendingPatches.push(found);
 	}
-	for (const patcher of pendingPatches) {
-		patcher.patch();
+	if (!textSection) {
+		throw new Error(`Missing ${SECT_TEXT}`);
 	}
-	return data;
+	const textSectionAddress = lp
+		? getU64(textSection, 32, le)
+		: getU32(textSection, 32, le);
+	const textSectionSize = lp
+		? getU64(textSection, 40, le)
+		: getU32(textSection, 36, le);
+	const textSectionOffset = lp
+		? getU32(textSection, 48, le)
+		: getU32(textSection, 40, le);
+	const textSectionData = macho.subarray(
+		textSectionOffset,
+		textSectionOffset + textSectionSize
+	);
+
+	// Patch the text section to reference the title.
+	const cpuType = getU32(header, 4, le);
+	let found: MacProjectTitlePatch | null = null;
+	const patchers = macProjectTitlePatchesByCpuType().get(cpuType) || [];
+	for (const Patcher of patchers) {
+		const patcher = new Patcher(
+			textSectionData,
+			textSectionAddress,
+			vmaddr
+		);
+		if (patcher.check()) {
+			if (found) {
+				throw new Error(
+					`Duplicate patcher for CPU type: 0x${hex4(cpuType)}`
+				);
+			}
+			found = patcher;
+		}
+	}
+	if (!found) {
+		throw new Error(`No patcher for CPU type: 0x${hex4(cpuType)}`);
+	}
+	found.patch();
+	return macho;
+}
+
+/**
+ * Apply patches to projector Mach-O binary.
+ *
+ * @param macho Mach-O data.
+ * @param options Patch options.
+ * @returns Patched Mach-O.
+ */
+export function macProjectorMachoPatch(
+	macho: Readonly<Buffer>,
+	options: Readonly<IMacProjectorMachoPatch>
+) {
+	const {removeCodeSignature, patchWindowTitle} = options;
+
+	// Remove signature, make copy.
+	let data;
+	if (removeCodeSignature) {
+		const unsigned = unsign(macho);
+		data = unsigned ? Buffer.from(unsigned) : Buffer.concat([macho]);
+	} else {
+		data = Buffer.concat([macho]);
+	}
+
+	if (typeof patchWindowTitle !== 'string') {
+		return data;
+	}
+
+	const thins = machoThins(data);
+	if (!Array.isArray(thins)) {
+		return macProjectorMachoPatchEach(thins, patchWindowTitle);
+	}
+	return machoFat(
+		thins.map(thin => macProjectorMachoPatchEach(thin, patchWindowTitle))
+	);
 }

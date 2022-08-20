@@ -12,8 +12,6 @@ import {Plist} from '@shockpkg/plist-dom';
 
 import {pathRelativeBase, trimExtension} from '../../util';
 import {
-	machoAppUnsign,
-	machoAppWindowTitle,
 	plistRead,
 	plistParse,
 	infoPlistBundleExecutableGet,
@@ -21,7 +19,8 @@ import {
 	infoPlistBundleIconFileGet,
 	infoPlistBundleIconFileSet,
 	infoPlistBundleNameSet,
-	infoPlistBundleDocumentTypesDelete
+	infoPlistBundleDocumentTypesDelete,
+	macProjectorMachoPatch
 } from '../../util/mac';
 import {ProjectorMac} from '../mac';
 
@@ -394,8 +393,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	protected async _modifyPlayer() {
 		await this._fixPlayer();
-		await this._removeCodeSignature();
-		await this._patchBinary();
+		await this._patchProjector();
 		await this._replaceIcon();
 		await this._replacePkgInfo();
 		await this._updateContentPaths();
@@ -403,27 +401,42 @@ export class ProjectorMacApp extends ProjectorMac {
 	}
 
 	/**
-	 * Patch the main binary.
+	 * Patch projector.
 	 */
-	protected async _patchBinary() {
-		const {patchWindowTitle} = this;
+	protected async _patchProjector() {
+		const {path, removeCodeSignature, patchWindowTitle} = this;
 
 		// Skip if no patching was requested.
-		if (!patchWindowTitle) {
+		if (!(removeCodeSignature || patchWindowTitle !== null)) {
 			return;
 		}
 
-		// Read the projector binary.
+		// Patch the projector binary.
 		const plist = await this._readInfoPlist();
 		const executableName = infoPlistBundleExecutableGet(plist);
 		const binaryPath = this.getBinaryPath(executableName);
-		let data = await readFile(binaryPath);
+		await writeFile(
+			binaryPath,
+			macProjectorMachoPatch(await readFile(binaryPath), {
+				removeCodeSignature,
+				patchWindowTitle
+			})
+		);
 
-		// Patch the binary data.
-		data = machoAppWindowTitle(data, patchWindowTitle);
-
-		// Write the patched binary.
-		await writeFile(binaryPath, data);
+		// Finish removing the signature if requested.
+		if (removeCodeSignature) {
+			const contents = pathJoin(path, 'Contents');
+			await Promise.all([
+				rm(pathJoin(contents, 'CodeResources'), {
+					recursive: true,
+					force: true
+				}),
+				rm(pathJoin(contents, '_CodeSignature'), {
+					recursive: true,
+					force: true
+				})
+			]);
+		}
 	}
 
 	/**
@@ -498,17 +511,6 @@ export class ProjectorMacApp extends ProjectorMac {
 		await rm(path, {force: true});
 		await mkdir(dirname(path), {recursive: true});
 		await writeFile(path, data);
-	}
-
-	/**
-	 * Remove projector code signature.
-	 */
-	protected async _removeCodeSignature() {
-		if (!this.removeCodeSignature) {
-			return;
-		}
-
-		await machoAppUnsign(this.path);
 	}
 
 	/**
