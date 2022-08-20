@@ -3,7 +3,7 @@ import {patchHexToBytes} from '../patch';
 
 // Essentially search for the reference to "file:" that we need to replace.
 // Checking the offset in the bytes actually points there is also necessary.
-export const linux64PatchProjectorPathPatches = once(() => [
+export const pathPatches64 = once(() => [
 	{
 		find: patchHexToBytes(
 			[

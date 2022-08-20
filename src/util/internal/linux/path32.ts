@@ -7,7 +7,7 @@ import {patchHexToBytes} from '../patch';
  * @param at Where in the match the offset integer is.
  * @returns Function that preforms patching testing and optionally applying.
  */
-export function pathPatcherAbs(at: number) {
+function pathPatcherAbs(at: number) {
 	return (
 		data: Buffer,
 		off: number,
@@ -39,7 +39,7 @@ export function pathPatcherAbs(at: number) {
  * @param atValue Where in the match the offset integer is.
  * @returns Function that preforms patching testing and optionally applying.
  */
-export function pathPatcherRel(atBase: number, atValue: number) {
+function pathPatcherRel(atBase: number, atValue: number) {
 	return (
 		data: Buffer,
 		off: number,
@@ -64,7 +64,9 @@ export function pathPatcherRel(atBase: number, atValue: number) {
 	};
 }
 
-export const linuxPatchProjectorPathPatches = once(() => [
+// Essentially search for the reference to "file:" that we need to replace.
+// Checking the offset in the bytes actually points there is also necessary.
+export const pathPatches32 = once(() => [
 	// 9.0.115.0
 	{
 		find: patchHexToBytes(
