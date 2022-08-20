@@ -943,7 +943,7 @@ function exeUpdateSizes(exe: NtExecutable) {
 	optionalHeader.sizeOfUninitializedData = sizeOfUninitializedData;
 }
 
-export interface IPePatchProjector {
+export interface IWindowsPatchProjector {
 	//
 	/**
 	 * Replace icons if not null.
@@ -990,7 +990,7 @@ export interface IPePatchProjector {
  */
 export function windowsProjectorPatch(
 	data: Readonly<Buffer>,
-	options: IPePatchProjector
+	options: IWindowsPatchProjector
 ) {
 	const {
 		iconData,
