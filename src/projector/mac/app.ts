@@ -99,8 +99,6 @@ export class ProjectorMacApp extends ProjectorMac {
 
 	/**
 	 * Attempt to patch the window title with a custom title.
-	 * Set to a non-empty string to automatically patch the binary if possible.
-	 * Size limit depends on the size of the string being replaced.
 	 * Currently supports versions 11+.
 	 */
 	public patchWindowTitle: string | null = null;
