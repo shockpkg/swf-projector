@@ -990,7 +990,7 @@ export interface IWindowsPatchProjector {
  */
 export function windowsProjectorPatch(
 	data: Readonly<Buffer>,
-	options: IWindowsPatchProjector
+	options: Readonly<IWindowsPatchProjector>
 ) {
 	const {
 		iconData,
