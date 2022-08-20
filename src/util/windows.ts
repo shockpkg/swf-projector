@@ -27,44 +27,6 @@ const IMAGE_SCN_MEM_EXECUTE = 0x20000000;
 const IMAGE_SCN_MEM_READ = 0x40000000;
 const IMAGE_SCN_MEM_WRITE = 0x80000000;
 
-export interface IPePatchProjector {
-	//
-	/**
-	 * Replace icons if not null.
-	 *
-	 * @default null
-	 */
-	iconData?: Readonly<Buffer> | null;
-
-	/**
-	 * Replace version strings if not null.
-	 *
-	 * @default null
-	 */
-	versionStrings?: Readonly<{[key: string]: string}> | null;
-
-	/**
-	 * Remove signature if present and true.
-	 *
-	 * @default false
-	 */
-	removeCodeSignature?: boolean;
-
-	/**
-	 * Attempt to replace Windows window title if not null.
-	 *
-	 * @default null
-	 */
-	patchWindowTitle?: string | null;
-
-	/**
-	 * Attempt to disable the out-of-date check if true.
-	 *
-	 * @default false
-	 */
-	patchOutOfDateDisable?: boolean;
-}
-
 /**
  * Parse PE version string to integers (MS then LS bits) or null.
  *
@@ -979,6 +941,44 @@ function exeUpdateSizes(exe: NtExecutable) {
 	optionalHeader.sizeOfCode = sizeOfCode;
 	optionalHeader.sizeOfInitializedData = sizeOfInitializedData;
 	optionalHeader.sizeOfUninitializedData = sizeOfUninitializedData;
+}
+
+export interface IPePatchProjector {
+	//
+	/**
+	 * Replace icons if not null.
+	 *
+	 * @default null
+	 */
+	iconData?: Readonly<Buffer> | null;
+
+	/**
+	 * Replace version strings if not null.
+	 *
+	 * @default null
+	 */
+	versionStrings?: Readonly<{[key: string]: string}> | null;
+
+	/**
+	 * Remove signature if present and true.
+	 *
+	 * @default false
+	 */
+	removeCodeSignature?: boolean;
+
+	/**
+	 * Attempt to replace Windows window title if not null.
+	 *
+	 * @default null
+	 */
+	patchWindowTitle?: string | null;
+
+	/**
+	 * Attempt to disable the out-of-date check if true.
+	 *
+	 * @default false
+	 */
+	patchOutOfDateDisable?: boolean;
 }
 
 /**
