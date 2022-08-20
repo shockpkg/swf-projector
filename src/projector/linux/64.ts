@@ -14,7 +14,7 @@ import {ProjectorLinux} from '../linux';
 export class ProjectorLinux64 extends ProjectorLinux {
 	/**
 	 * Attempt to patch the window title with a custom title.
-	 * Set to a non-empty string to automatically patch the binary if possible.
+	 * Set to a string to automatically patch the binary if possible.
 	 * Size limit depends on the size of the string being replaced.
 	 */
 	public patchWindowTitle: string | null = null;
@@ -72,7 +72,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		// Skip if no patching was requested.
 		if (
 			!(
-				patchWindowTitle ||
+				patchWindowTitle !== null ||
 				patchMenuRemove ||
 				patchProjectorPath ||
 				patchProjectorOffset
@@ -86,7 +86,7 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		let data = await readFile(path);
 
 		// Attempt to patch the projector data.
-		if (patchWindowTitle) {
+		if (patchWindowTitle !== null) {
 			data = linux64PatchWindowTitle(data, patchWindowTitle);
 		}
 		if (patchMenuRemove) {
