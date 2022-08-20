@@ -1,6 +1,6 @@
 import {launcher} from '../util';
 
-import {findExact, findFuzzy, readCstr, patchOnce} from './internal/patch';
+import {findExact, findFuzzy, getCstr, patchOnce} from './internal/patch';
 import {menuRemovePatches32} from './internal/linux/menu32';
 import {menuRemovePatches64} from './internal/linux/menu64';
 import {offsetPatches64} from './internal/linux/offset64';
@@ -39,7 +39,7 @@ export function linuxPatchWindowTitle(data: Buffer, title: string) {
 	};
 
 	for (const offset of findExact(data, '\0Adobe Flash Player ')) {
-		const cstr = readCstr(data, offset + 1, true, false);
+		const cstr = getCstr(data, offset + 1, true, false);
 		const [str] = cstr.toString('ascii').split('\0', 1);
 		if (regAFP.test(str)) {
 			matched(cstr);
@@ -49,7 +49,7 @@ export function linuxPatchWindowTitle(data: Buffer, title: string) {
 	if (!targets.length) {
 		// Not sure why Flash Player 9 is like this, but this does find it.
 		for (const offset of findExact(data, '\x08Adobe Flash Player ')) {
-			const cstr = readCstr(data, offset + 1, true, false);
+			const cstr = getCstr(data, offset + 1, true, false);
 			const [str] = cstr.toString('ascii').split('\0', 1);
 			if (regAFP.test(str)) {
 				matched(cstr);
@@ -59,7 +59,7 @@ export function linuxPatchWindowTitle(data: Buffer, title: string) {
 
 	if (!targets.length) {
 		for (const offset of findExact(data, '\0Macromedia Flash Player ')) {
-			const cstr = readCstr(data, offset + 1, true, false);
+			const cstr = getCstr(data, offset + 1, true, false);
 			const [str] = cstr.toString('ascii').split('\0', 1);
 			if (regMFP.test(str)) {
 				matched(cstr);

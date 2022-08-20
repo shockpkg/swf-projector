@@ -3,20 +3,17 @@ import {readFile} from 'fs/promises';
 import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
 import {unsign} from 'macho-unsign';
 
-import {
-	once,
-	launcher,
-	hex4,
-	align,
-	getU32,
-	getCstrN,
-	getU64,
-	bufferAlign,
-	setU32,
-	setU64
-} from '../util';
+import {once, launcher, align, bufferAlign} from '../util';
 
-import {slider} from './internal/patch';
+import {
+	hex4,
+	getU32,
+	setU32,
+	getU64,
+	setU64,
+	getCstrN,
+	slider
+} from './internal/patch';
 import {
 	VM_PROT_READ,
 	FAT_MAGIC,

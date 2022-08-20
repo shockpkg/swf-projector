@@ -1,4 +1,79 @@
-import {getU32, setU32} from '../../util';
+/**
+ * Encode integer as 4 byte hex.
+ *
+ * @param i The integer to encode.
+ * @returns Hex string.
+ */
+export function hex4(i: number) {
+	let r = i.toString(16);
+	while (r.length < 8) {
+		r = `0${r}`;
+	}
+	return r;
+}
+
+/**
+ * Get UINT32 from data.
+ *
+ * @param data Data buffer.
+ * @param i Integer offset.
+ * @param le Little endia if true.
+ * @returns UINT32 value.
+ */
+export function getU32(data: Readonly<Buffer>, i: number, le: boolean) {
+	return le ? data.readUInt32LE(i) : data.readUInt32BE(i);
+}
+
+/**
+ * Set UINT32 in data.
+ *
+ * @param data Data buffer.
+ * @param i Integer offset.
+ * @param le Little endia if true.
+ * @param value UINT32 value.
+ */
+export function setU32(data: Buffer, i: number, le: boolean, value: number) {
+	if (le) {
+		data.writeUInt32LE(value, i);
+	} else {
+		data.writeUInt32BE(value, i);
+	}
+}
+
+/**
+ * Get UINT64 from data.
+ * Returns inexact value where larger than max safe int value.
+ *
+ * @param data Data buffer.
+ * @param i Integer offset.
+ * @param le Little endia if true.
+ * @returns UINT64 value.
+ */
+export function getU64(data: Readonly<Buffer>, i: number, le: boolean) {
+	const l = le ? data.readUInt32LE(i) : data.readUInt32BE(i + 4);
+	const h = le ? data.readUInt32LE(i + 4) : data.readUInt32BE(i);
+	return h * 0x100000000 + l;
+}
+
+/**
+ * Set UINT64 in data.
+ *
+ * @param data Data buffer.
+ * @param i Integer offset.
+ * @param le Little endia if true.
+ * @param value UINT64 value.
+ */
+export function setU64(data: Buffer, i: number, le: boolean, value: number) {
+	const l = value % 0x100000000;
+	const h = value > l ? (value - l) / 0x100000000 : 0;
+	if (le) {
+		data.writeUInt32LE(h, i + 4);
+		data.writeUInt32LE(l, i);
+	} else {
+		data.writeUInt32BE(l, i + 4);
+		data.writeUInt32BE(h, i);
+	}
+}
 
 /**
  * Find exact matches in data.
@@ -102,7 +177,7 @@ export function writeFuzzy(
  * @param includeAlign Optionally include allignment bytes.
  * @returns Buffer slice.
  */
-export function readCstr(
+export function getCstr(
 	data: Readonly<Buffer>,
 	offset: number,
 	includeNull = false,
@@ -121,6 +196,26 @@ export function readCstr(
 		}
 	}
 	return data.subarray(offset, end);
+}
+
+/**
+ * Get C-String with a max length.
+ *
+ * @param data Data buffer.
+ * @param i Integer offset.
+ * @param l Max length.
+ * @returns ASCII string.
+ */
+export function getCstrN(data: Readonly<Buffer>, i: number, l: number) {
+	const codes = [];
+	for (let c = 0; c < l; c++) {
+		const code = data.readUint8(i + c);
+		if (!code) {
+			break;
+		}
+		codes.push(code);
+	}
+	return String.fromCharCode(...codes);
 }
 
 /**
