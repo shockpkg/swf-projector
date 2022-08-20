@@ -1,6 +1,6 @@
 import {NtExecutableResource, Resource, Data} from 'resedit';
 
-import {bufferToArrayBuffer} from '../../../util';
+import {bufferToArrayBuffer} from '../patch';
 
 /**
  * Parse PE version string to integers (MS then LS bits) or null.

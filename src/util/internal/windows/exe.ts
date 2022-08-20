@@ -1,6 +1,6 @@
 import {NtExecutable} from 'resedit';
 
-import {align} from '../../../util';
+import {align} from '../patch';
 
 import {
 	IDD_BASE_RELOCATION,

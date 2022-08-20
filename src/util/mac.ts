@@ -3,7 +3,7 @@ import {readFile} from 'fs/promises';
 import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
 import {unsign} from 'macho-unsign';
 
-import {once, launcher, align, bufferAlign} from '../util';
+import {once, launcher} from '../util';
 
 import {
 	hex4,
@@ -12,7 +12,9 @@ import {
 	getU64,
 	setU64,
 	getCstrN,
-	slider
+	slider,
+	align,
+	bufferAlign
 } from './internal/patch';
 import {
 	VM_PROT_READ,

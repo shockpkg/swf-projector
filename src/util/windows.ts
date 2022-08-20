@@ -3,9 +3,9 @@ import {readFile} from 'fs/promises';
 import {signatureGet, signatureSet} from 'portable-executable-signature';
 import {NtExecutable, NtExecutableResource, Resource} from 'resedit';
 
-import {bufferAlign, bufferToArrayBuffer, launcher} from '../util';
+import {launcher} from '../util';
 
-import {patchOnce} from './internal/patch';
+import {bufferAlign, bufferToArrayBuffer, patchOnce} from './internal/patch';
 import {
 	IDD_RESERVED,
 	IDD_RESOURCE,
