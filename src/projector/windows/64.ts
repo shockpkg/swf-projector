@@ -58,7 +58,7 @@ export class ProjectorWindows64 extends ProjectorWindows {
 				iconData ||
 				versionStrings ||
 				removeCodeSignature ||
-				patchWindowTitle ||
+				patchWindowTitle !== null ||
 				patchOutOfDateDisable
 			)
 		) {
