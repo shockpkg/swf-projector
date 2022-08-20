@@ -383,47 +383,6 @@ export function machoThins<T extends Readonly<Buffer>>(data: T) {
 	return r;
 }
 
-/**
- * Get Mach-O app launcher for a single type.
- *
- * @param type Mach-O type.
- * @returns Launcher data.
- */
-export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
-	const {cpuType} = type;
-	const id = launcherMappings().get(cpuType);
-	if (!id) {
-		throw new Error(`Unknown CPU type: 0x${hex4(cpuType)}`);
-	}
-	return launcher(id);
-}
-
-/**
- * Get Mach-O app launcher for a type list.
- *
- * @param types Mach-O types.
- * @returns Launcher data.
- */
-export async function machoAppLauncherFat(
-	types: Readonly<Readonly<IMachoType>[]>
-) {
-	return machoFat(await Promise.all(types.map(machoAppLauncherThin)));
-}
-
-/**
- * Get Mach-O app launcher for a single or multiple types.
- *
- * @param types Mach-O types.
- * @returns Launcher data.
- */
-export async function machoAppLauncher(
-	types: Readonly<IMachoType> | Readonly<Readonly<IMachoType>[]>
-) {
-	return Array.isArray(types)
-		? machoAppLauncherFat(types as IMachoType[])
-		: machoAppLauncherThin(types as IMachoType);
-}
-
 export interface IMacProjectorMachoPatch {
 	//
 	/**
@@ -737,4 +696,45 @@ export function macProjectorMachoPatch(
 	return machoFat(
 		thins.map(thin => macProjectorMachoPatchEach(thin, patchWindowTitle))
 	);
+}
+
+/**
+ * Get Mach-O app launcher for a single type.
+ *
+ * @param type Mach-O type.
+ * @returns Launcher data.
+ */
+export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
+	const {cpuType} = type;
+	const id = launcherMappings().get(cpuType);
+	if (!id) {
+		throw new Error(`Unknown CPU type: 0x${hex4(cpuType)}`);
+	}
+	return launcher(id);
+}
+
+/**
+ * Get Mach-O app launcher for a type list.
+ *
+ * @param types Mach-O types.
+ * @returns Launcher data.
+ */
+export async function machoAppLauncherFat(
+	types: Readonly<Readonly<IMachoType>[]>
+) {
+	return machoFat(await Promise.all(types.map(machoAppLauncherThin)));
+}
+
+/**
+ * Get Mach-O app launcher for a single or multiple types.
+ *
+ * @param types Mach-O types.
+ * @returns Launcher data.
+ */
+export async function machoAppLauncher(
+	types: Readonly<IMachoType> | Readonly<Readonly<IMachoType>[]>
+) {
+	return Array.isArray(types)
+		? machoAppLauncherFat(types as IMachoType[])
+		: machoAppLauncherThin(types as IMachoType);
 }
