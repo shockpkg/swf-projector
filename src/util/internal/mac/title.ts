@@ -603,6 +603,90 @@ export const macProjectTitlePatches: {
 			d.writeUInt8(0x90, i++);
 			d.writeUInt8(0x90, i++);
 		}
+	},
+
+	/**
+	 * 35.0.0.1 x86_64.
+	 */
+	class extends MacProjectTitlePatchX8664 {
+		private _offset_ = 0;
+
+		/**
+		 * @inheritDoc
+		 */
+		public check() {
+			const found = findFuzzyOnce(
+				this._data,
+				patchHexToBytes(
+					[
+						// push    rbp
+						'55',
+						// mov     rbp, rsp
+						'48 89 E5',
+						// push    r14
+						'41 56',
+						// push    rbx
+						'53',
+						// mov     r14, rdi
+						'49 89 FE',
+						// mov     rax, QWORD PTR [rip+...]
+						'48 8B 05 -- -- -- --',
+						// mov     rdi, QWORD PTR [rax]
+						'48 8B 38',
+						// mov     rdx, QWORD PTR [rsi]
+						'48 8B 16',
+						// mov     rsi, QWORD PTR [rsi+0x8]
+						'48 8B 76 08',
+						// test    rsi, rsi
+						'48 85 F6',
+						// jne     0x1d
+						'75 07',
+						// lea     rsi, [rip+...]
+						'48 8D 35 -- -- -- --',
+						// call    -- -- -- --
+						'E8 -- -- -- --'
+					].join(' ')
+				)
+			);
+			if (found === null) {
+				return false;
+			}
+			this._offset_ = found;
+			return true;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public patch() {
+			const d = this._data;
+			let i = this._offset_ + 20;
+
+			// lea rsi, [rip+...]
+			d.writeUInt8(0x48, i++);
+			d.writeUInt8(0x8d, i++);
+			d.writeUInt8(0x35, i++);
+			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
+			i += 4;
+
+			// movsxd rdx, DWORD PTR [rsi]
+			d.writeUInt8(0x48, i++);
+			d.writeUInt8(0x63, i++);
+			d.writeUInt8(0x16, i++);
+
+			// add rsi, 0x4
+			d.writeUInt8(0x48, i++);
+			d.writeUInt8(0x83, i++);
+			d.writeUInt8(0xc6, i++);
+			d.writeUInt8(0x04, i++);
+
+			// nop 5
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+			d.writeUInt8(0x90, i++);
+		}
 	}
 ];
 
