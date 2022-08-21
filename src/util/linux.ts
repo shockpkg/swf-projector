@@ -14,7 +14,7 @@ import {pathPatches64} from './internal/linux/path64';
  * @param title Replacement title.
  * @returns Patched data, can be same buffer, but modified.
  */
-export function linuxPatchWindowTitle(data: Buffer, title: string) {
+export function linux32PatchWindowTitle(data: Buffer, title: string) {
 	// Encode the replacement string.
 	const titleData = Buffer.from(title, 'utf8');
 
@@ -85,7 +85,7 @@ export function linuxPatchWindowTitle(data: Buffer, title: string) {
  */
 export function linux64PatchWindowTitle(data: Buffer, title: string) {
 	// Can just use the 32-bit patcher.
-	return linuxPatchWindowTitle(data, title);
+	return linux32PatchWindowTitle(data, title);
 }
 
 /**
@@ -96,7 +96,7 @@ export function linux64PatchWindowTitle(data: Buffer, title: string) {
  * @param data Projector data, maybe modified.
  * @returns Patched data, can be same buffer, but modified.
  */
-export function linuxPatchMenuRemoveData(data: Buffer) {
+export function linux32PatchMenuRemoveData(data: Buffer) {
 	patchOnce(data, menuRemovePatches32());
 	return data;
 }
@@ -133,7 +133,7 @@ export function linux64PatchProjectorOffsetData(data: Buffer) {
  * @param data Projector data, maybe modified.
  * @returns Patched data, can be same buffer, but modified.
  */
-export function linuxPatchProjectorPathData(data: Buffer) {
+export function linux32PatchProjectorPathData(data: Buffer) {
 	// Find candidates for the string to replace the reference to.
 	const fileNoSlashes = [...findExact(data, '\0file:\0')].map(i => i + 1);
 	if (!fileNoSlashes.length) {

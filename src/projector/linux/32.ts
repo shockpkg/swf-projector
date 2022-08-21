@@ -1,9 +1,9 @@
 import {readFile, writeFile} from 'fs/promises';
 
 import {
-	linuxPatchWindowTitle,
-	linuxPatchMenuRemoveData,
-	linuxPatchProjectorPathData
+	linux32PatchWindowTitle,
+	linux32PatchMenuRemoveData,
+	linux32PatchProjectorPathData
 } from '../../util/linux';
 import {ProjectorLinux} from '../linux';
 
@@ -64,13 +64,13 @@ export class ProjectorLinux32 extends ProjectorLinux {
 
 		// Attempt to patch the projector data.
 		if (patchWindowTitle !== null) {
-			data = linuxPatchWindowTitle(data, patchWindowTitle);
+			data = linux32PatchWindowTitle(data, patchWindowTitle);
 		}
 		if (patchMenuRemove) {
-			data = linuxPatchMenuRemoveData(data);
+			data = linux32PatchMenuRemoveData(data);
 		}
 		if (patchProjectorPath) {
-			data = linuxPatchProjectorPathData(data);
+			data = linux32PatchProjectorPathData(data);
 		}
 
 		// Write out patched data.
