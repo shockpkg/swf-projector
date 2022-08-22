@@ -17,7 +17,7 @@ export function hex4(i: number) {
  *
  * @param data Data buffer.
  * @param i Integer offset.
- * @param le Little endia if true.
+ * @param le Little endian if true.
  * @returns UINT32 value.
  */
 export function getU32(data: Readonly<Buffer>, i: number, le: boolean) {
@@ -29,14 +29,19 @@ export function getU32(data: Readonly<Buffer>, i: number, le: boolean) {
  *
  * @param data Data buffer.
  * @param i Integer offset.
- * @param le Little endia if true.
+ * @param le Little endian if true.
  * @param value UINT32 value.
  */
-export function setU32(data: Buffer, i: number, le: boolean, value: number) {
+export function setU32(
+	data: Buffer,
+	i: number,
+	le: boolean,
+	value: number | bigint
+) {
 	if (le) {
-		data.writeUInt32LE(value, i);
+		data.writeUInt32LE(Number(value), i);
 	} else {
-		data.writeUInt32BE(value, i);
+		data.writeUInt32BE(Number(value), i);
 	}
 }
 
@@ -46,13 +51,11 @@ export function setU32(data: Buffer, i: number, le: boolean, value: number) {
  *
  * @param data Data buffer.
  * @param i Integer offset.
- * @param le Little endia if true.
+ * @param le Little endian if true.
  * @returns UINT64 value.
  */
 export function getU64(data: Readonly<Buffer>, i: number, le: boolean) {
-	const l = le ? data.readUInt32LE(i) : data.readUInt32BE(i + 4);
-	const h = le ? data.readUInt32LE(i + 4) : data.readUInt32BE(i);
-	return h * 0x100000000 + l;
+	return le ? data.readBigInt64LE(i) : data.readBigInt64BE(i);
 }
 
 /**
@@ -60,18 +63,19 @@ export function getU64(data: Readonly<Buffer>, i: number, le: boolean) {
  *
  * @param data Data buffer.
  * @param i Integer offset.
- * @param le Little endia if true.
+ * @param le Little endian if true.
  * @param value UINT64 value.
  */
-export function setU64(data: Buffer, i: number, le: boolean, value: number) {
-	const l = value % 0x100000000;
-	const h = value > l ? (value - l) / 0x100000000 : 0;
+export function setU64(
+	data: Buffer,
+	i: number,
+	le: boolean,
+	value: bigint | number
+) {
 	if (le) {
-		data.writeUInt32LE(h, i + 4);
-		data.writeUInt32LE(l, i);
+		data.writeBigInt64LE(BigInt(value), i);
 	} else {
-		data.writeUInt32BE(l, i + 4);
-		data.writeUInt32BE(h, i);
+		data.writeBigInt64BE(BigInt(value), i);
 	}
 }
 

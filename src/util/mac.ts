@@ -523,15 +523,15 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 
 	// Shift closing segment down.
 	if (lp) {
-		setU64(linkedit, 24, le, vmaddr + segSize);
-		setU64(linkedit, 40, le, fileoff + segSize);
+		setU64(linkedit, 24, le, BigInt(vmaddr) + BigInt(segSize));
+		setU64(linkedit, 40, le, BigInt(fileoff) + BigInt(segSize));
 	} else {
-		setU32(linkedit, 24, le, vmaddr + segSize);
-		setU32(linkedit, 32, le, fileoff + segSize);
+		setU32(linkedit, 24, le, Number(vmaddr) + Number(segSize));
+		setU32(linkedit, 32, le, Number(fileoff) + Number(segSize));
 	}
 
 	// Shift any offsets that could reference closing segment.
-	const slide = slider(segSize, fileoff, filesize);
+	const slide = slider(segSize, Number(fileoff), Number(filesize));
 	for (const command of commands) {
 		switch (getU32(command, 0, le)) {
 			case LC_DYLD_INFO:
@@ -585,11 +585,11 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 		...commands,
 		data.subarray(
 			commands.reduce((v, c) => v + c.length, header.length),
-			fileoff
+			Number(fileoff)
 		),
 		secdata,
 		Buffer.alloc(segSize - secdata.length),
-		data.subarray(fileoff)
+		data.subarray(Number(fileoff))
 	]);
 
 	// Find the text section.
@@ -633,7 +633,7 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 		: getU32(textSection, 40, le);
 	const textSectionData = macho.subarray(
 		textSectionOffset,
-		textSectionOffset + textSectionSize
+		textSectionOffset + Number(textSectionSize)
 	);
 
 	// Patch the text section to reference the title.
@@ -643,8 +643,8 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	for (const Patcher of patchers) {
 		const patcher = new Patcher(
 			textSectionData,
-			textSectionAddress,
-			vmaddr
+			Number(textSectionAddress),
+			Number(vmaddr)
 		);
 		if (patcher.check()) {
 			if (found) {
