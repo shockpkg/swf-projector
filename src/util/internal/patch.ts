@@ -92,6 +92,19 @@ export function align(i: number, align: number) {
 }
 
 /**
+ * Align a big integer.
+ *
+ * @param i Integer value.
+ * @param align Alignment amount.
+ * @returns Aligned integer.
+ */
+export function alignBig(i: bigint, align: number | bigint) {
+	const a = BigInt(align);
+	const o = i % a;
+	return o ? a - o + i : i;
+}
+
+/**
  * Align Buffer.
  *
  * @param buffer Buffer instance.
@@ -115,6 +128,59 @@ export function bufferToArrayBuffer(buffer: Readonly<Buffer>) {
 }
 
 /**
+ * Get DataView from Buffer.
+ *
+ * @param buffer Buffer instance.
+ * @returns The DataView.
+ */
+export function bufferToDataView(buffer: Readonly<Buffer>) {
+	const {byteOffset, byteLength} = buffer;
+	return new DataView(
+		buffer.buffer,
+		byteOffset,
+		byteLength
+	) as Readonly<DataView>;
+}
+
+/**
+ * Get buffer.
+ *
+ * @param data Data view.
+ * @param offset The offset.
+ * @param size The size.
+ * @returns ArrayBuffer slice.
+ */
+export function getBuffer(data: Readonly<DataView>, offset: number, size = -1) {
+	const {byteOffset, byteLength} = data;
+	const l = byteLength - byteOffset;
+	if (size > l) {
+		throw new Error(`Size out of bounds`);
+	}
+	return data.buffer.slice(offset, offset + (size < 0 ? l : size));
+}
+
+/**
+ * Set buffer.
+ *
+ * @param data Data view.
+ * @param offset The offset.
+ * @param buffer The ArrayBuffer.
+ * @param size The size.
+ */
+export function setBuffer(
+	data: Readonly<DataView>,
+	offset: number,
+	buffer: Readonly<ArrayBuffer>,
+	size = -1
+) {
+	const {byteOffset, byteLength} = data;
+	const o = byteOffset + offset;
+	const s = new Uint8Array(buffer, 0, size < 0 ? buffer.byteLength : size);
+	const d = new Uint8Array(data.buffer, o, byteLength - o);
+	d.set(s);
+}
+
+/**
  * Find exact matches in data.
  *
  * @param data Data to search.
@@ -128,7 +194,7 @@ export function* findExact(
 	from = 0
 ) {
 	for (let index = from - 1; ; ) {
-		index = data.indexOf(find as unknown as Buffer, index + 1);
+		index = data.indexOf(find, index + 1);
 		if (index < 0) {
 			break;
 		}
@@ -142,15 +208,21 @@ export function* findExact(
  * @param data Data to search.
  * @param find Search for.
  * @param from Search from.
+ * @param until Search until.
+ * @param backward Search backwards.
  * @yields Index.
  */
 export function* findFuzzy(
 	data: Readonly<Buffer>,
 	find: (number | null)[],
-	from = 0
+	from = 0,
+	until = -1,
+	backward = false
 ) {
-	const end = data.length - find.length;
-	for (let i = from; i <= end; i++) {
+	const end = (until < 0 ? data.length : until) - find.length;
+	const add = backward ? -1 : 1;
+	const stop = backward ? 0 : end;
+	for (let i = backward ? end : from; i !== stop; i += add) {
 		let found = true;
 		for (let j = 0; j < find.length; j++) {
 			const b = find[j];
@@ -204,37 +276,6 @@ export function writeFuzzy(
 			data[offset + i] = b;
 		}
 	}
-}
-
-/**
- * Read a C string from buffer at offset.
- * Returns slice of the buffer.
- *
- * @param data The buffer.
- * @param offset Offset of the string.
- * @param includeNull Optionally include null byte.
- * @param includeAlign Optionally include allignment bytes.
- * @returns Buffer slice.
- */
-export function getCstr(
-	data: Readonly<Buffer>,
-	offset: number,
-	includeNull = false,
-	includeAlign = false
-) {
-	let end = offset;
-	while (data.readUInt8(end)) {
-		end++;
-	}
-	if (includeNull) {
-		end++;
-		if (includeAlign) {
-			while (!data.readUInt8(end)) {
-				end++;
-			}
-		}
-	}
-	return data.subarray(offset, end);
 }
 
 /**

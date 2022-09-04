@@ -27,6 +27,9 @@ export function listSamples() {
 		}));
 }
 
+export const customWindowTitle =
+	'Custom Window Title (Longer Than The Original Window Title Was)';
+
 describe('projector/linux/32', () => {
 	describe('ProjectorLinux32', () => {
 		it('instanceof ProjectorLinux', () => {
@@ -69,7 +72,7 @@ describe('projector/linux/32', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux32(dest);
-					p.patchWindowTitle = 'Custom Title';
+					p.patchWindowTitle = customWindowTitle;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf3.swf')
