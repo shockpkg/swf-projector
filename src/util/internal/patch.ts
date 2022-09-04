@@ -341,6 +341,7 @@ export function patchGroupOffsets(
  *
  * @param data Data to be patched.
  * @param patches Patches list.
+ * @param type Patch type.
  */
 export function patchOnce(
 	data: Buffer,
@@ -348,7 +349,8 @@ export function patchOnce(
 		count: number;
 		find: (number | null)[];
 		replace: (number | null)[];
-	}[][]
+	}[][],
+	type: string
 ) {
 	// Search the buffer for patch candidates.
 	let foundOffsets = null;
@@ -359,13 +361,13 @@ export function patchOnce(
 			continue;
 		}
 		if (foundOffsets) {
-			throw new Error('Multiple patch candidates found');
+			throw new Error(`Multiple patch candidates for: ${type}`);
 		}
 		foundOffsets = offsets;
 		foundGroup = group;
 	}
 	if (!foundGroup || !foundOffsets) {
-		throw new Error('No patch candidates found');
+		throw new Error(`No patch candidates for: ${type}`);
 	}
 
 	// Apply the patches to the buffer.

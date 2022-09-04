@@ -98,7 +98,11 @@ export function windowsProjectorPatch(
 		// Narrow the search to just the code section and patch.
 		const code = exeCodeSection(exe);
 		const data = Buffer.from(code.data);
-		patchOnce(data, exe.newHeader.is32bit() ? ood32() : ood64());
+		patchOnce(
+			data,
+			exe.newHeader.is32bit() ? ood32() : ood64(),
+			'Out Of Date Disable'
+		);
 		code.data = bufferToArrayBuffer(data);
 	}
 

@@ -47,7 +47,7 @@ function add(a: number | bigint, b: number | bigint) {
  * @returns Patched data, can be same buffer, but modified.
  */
 export function linux64PatchProjectorOffsetData(data: Buffer) {
-	patchOnce(data, offsetPatches64());
+	patchOnce(data, offsetPatches64(), 'Projector Offset');
 	return data;
 }
 
