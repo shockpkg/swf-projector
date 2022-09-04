@@ -28,9 +28,32 @@ jobs:
             NO_FORMATTED: 1
             NO_LINT: 1
             PKG:
+              # Version 35.0.0.204:
+              - flash-player-35.0.0.204-windows-i386-sa-2022-07-04
+              - flash-player-35.0.0.204-windows-x86_64-sa-2022-08-13
+              - flash-player-35.0.0.204-windows-x86_64-sa-debug-2022-08-13
+              # Version 35.0.0.1:
+              - flash-player-35.0.0.1-windows-i386-sa-2022-03-08
+              - flash-player-35.0.0.1-windows-x86_64-sa-2022-03-16
+              - flash-player-35.0.0.1-windows-x86_64-sa-debug-2022-03-16
               # Latest pre-EOL:
               - flash-player-32.0.0.465-windows-sa
               - flash-player-32.0.0.465-windows-sa-debug
+              # Latest 32 also available for x86_64:
+              - flash-player-32.0.0.414-windows-sa
+              - flash-player-32.0.0.414-windows-sa-debug
+              - flash-player-32.0.0.414-windows-x86_64-sa-2020-10-02
+              - flash-player-32.0.0.414-windows-x86_64-sa-debug-2020-10-02
+              # First OOD:
+              - flash-player-30.0.0.113-windows-sa
+              - flash-player-30.0.0.113-windows-sa-debug
+              - flash-player-30.0.0.134-windows-x86_64-sa-2018-09-19
+              - flash-player-30.0.0.134-windows-x86_64-sa-debug-2018-09-19
+              # First version also available for x86_64:
+              - flash-player-26.0.0.137-windows-sa
+              - flash-player-26.0.0.137-windows-sa-debug
+              - flash-player-26.0.0.137-windows-x86_64-sa-2017-12-05
+              - flash-player-26.0.0.137-windows-x86_64-sa-debug-2017-12-05
               # First 11.1:
               - flash-player-11.1.102.55-windows-32bit-sa
               # Last 10.3, not code-signed:
@@ -74,6 +97,12 @@ jobs:
             NO_FORMATTED: 1
             NO_LINT: 1
             PKG:
+              # Version 35.0.0.204:
+              - flash-player-35.0.0.204-mac-x86_64-sa-2022-07-04
+              - flash-player-35.0.0.204-mac-x86_64-sa-debug-2022-07-04
+              # Version 35.0.0.1:
+              - flash-player-35.0.0.1-mac-x86_64-sa-2022-03-08
+              - flash-player-35.0.0.1-mac-x86_64-sa-debug-2022-03-08
               # Latest pre-EOL:
               - flash-player-32.0.0.465-mac-sa-zip
               - flash-player-32.0.0.465-mac-sa-debug-zip
