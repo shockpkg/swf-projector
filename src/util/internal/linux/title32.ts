@@ -9,7 +9,7 @@ import {PatchTitle, titleMatchM, titleMatchA} from './title';
 export abstract class PatchTitle32 extends PatchTitle<Elf32> {}
 
 /**
- * Patch object.
+ * Patch objects.
  */
 export const title32 = [
 	/**

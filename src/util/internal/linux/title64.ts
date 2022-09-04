@@ -9,7 +9,7 @@ import {PatchTitle, titleMatchA} from './title';
 export abstract class PatchTitle64 extends PatchTitle<Elf64> {}
 
 /**
- * Patch object.
+ * Patch objects.
  */
 export const title64 = [
 	/**
