@@ -67,28 +67,18 @@ describe('projector/linux/32', () => {
 					await p.withFile(await getPlayer(), simple);
 				});
 
-				it('title', async () => {
-					const dir = await getDir('title');
-					const dest = pathJoin(dir, 'application');
-
-					const p = new ProjectorLinux32(dest);
-					p.patchWindowTitle = customWindowTitle;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf3.swf')
-					);
-				});
-
 				if (pkg.version[0] < 6) {
 					return;
 				}
 
-				it('loadmovie', async () => {
-					const dir = await getDir('loadmovie');
+				it('complex', async () => {
+					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux32(dest);
 					p.patchProjectorPath = pkg.patchProjectorPath;
+					p.patchWindowTitle = customWindowTitle;
+					p.patchMenuRemove = true;
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-loadmovie.swf')
@@ -108,24 +98,6 @@ describe('projector/linux/32', () => {
 					await p.withFile(
 						await getPlayer(),
 						fixtureFile('swf6-showmenu-false.swf')
-					);
-				});
-
-				it('nomenu', async () => {
-					const dir = await getDir('nomenu');
-					const dest = pathJoin(dir, 'application');
-
-					const p = new ProjectorLinux32(dest);
-					p.patchProjectorPath = pkg.patchProjectorPath;
-					p.patchMenuRemove = true;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf6-loadmovie.swf')
-					);
-
-					await copyFile(
-						fixtureFile('image.jpg'),
-						pathJoin(dir, 'image.jpg')
 					);
 				});
 			});
