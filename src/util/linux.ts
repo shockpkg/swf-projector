@@ -4,10 +4,8 @@ import {
 	align,
 	bufferAlign,
 	bufferToArrayBuffer,
-	bufferToDataView,
-	patchOnce
+	bufferToDataView
 } from './internal/patch';
-import {offsetPatches64} from './internal/linux/offset64';
 import {
 	decode,
 	Elf32,
@@ -27,6 +25,7 @@ import {menu64} from './internal/linux/menu64';
 import {menu32} from './internal/linux/menu32';
 import {path64} from './internal/linux/path64';
 import {path32} from './internal/linux/path32';
+import {offset64} from './internal/linux/offset64';
 
 /**
  * Add two numbers of bigints assuming same type.
@@ -37,18 +36,6 @@ import {path32} from './internal/linux/path32';
  */
 function add(a: number | bigint, b: number | bigint) {
 	return ((a as number) + (b as number)) as number | bigint;
-}
-
-/**
- * Attempt to patch Linux 64-bit projector offset code.
- * Replaces old 32-bit ELF header reading logic with 64-bit logic.
- *
- * @param data Projector data, maybe modified.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function linux64PatchProjectorOffsetData(data: Buffer) {
-	patchOnce(data, offsetPatches64(), 'Projector Offset');
-	return data;
 }
 
 /**
@@ -291,6 +278,13 @@ export interface ILinuxProjectorPatch {
 	 * @default false
 	 */
 	patchProjectorPath?: boolean;
+
+	/**
+	 * Attempt to patch the projector offset reading code.
+	 *
+	 * @default false
+	 */
+	patchProjectorOffset?: boolean;
 }
 
 /**
@@ -304,7 +298,12 @@ export function linuxProjectorPatch(
 	elf: Readonly<Buffer>,
 	options: Readonly<ILinuxProjectorPatch>
 ) {
-	const {patchWindowTitle, patchMenuRemove, patchProjectorPath} = options;
+	const {
+		patchWindowTitle,
+		patchMenuRemove,
+		patchProjectorPath,
+		patchProjectorOffset
+	} = options;
 
 	const e = decode(bufferToDataView(elf));
 
@@ -336,6 +335,15 @@ export function linuxProjectorPatch(
 				? path64.map(Patch => new Patch(e))
 				: path32.map(Patch => new Patch(e));
 		patchers.push(['Projector Path', patches]);
+	}
+
+	if (patchProjectorOffset) {
+		if (e.bits === 64) {
+			const patches = offset64.map(Patch => new Patch(e));
+			patchers.push(['Projector Offset', patches]);
+		} else {
+			throw new Error('Invalid configuration');
+		}
 	}
 
 	for (const [type, patches] of patchers) {

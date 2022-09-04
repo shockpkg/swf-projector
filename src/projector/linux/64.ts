@@ -1,9 +1,6 @@
 import {readFile, writeFile} from 'fs/promises';
 
-import {
-	linux64PatchProjectorOffsetData,
-	linuxProjectorPatch
-} from '../../util/linux';
+import {linuxProjectorPatch} from '../../util/linux';
 import {ProjectorLinux} from '../linux';
 
 /**
@@ -79,18 +76,15 @@ export class ProjectorLinux64 extends ProjectorLinux {
 		}
 
 		const {path} = this;
-		let data = linuxProjectorPatch(await readFile(path), {
-			patchWindowTitle,
-			patchMenuRemove,
-			patchProjectorPath
-		});
-
-		// TODO: Integrate into patch function.
-		if (patchProjectorOffset) {
-			data = linux64PatchProjectorOffsetData(data);
-		}
-
-		await writeFile(path, data);
+		await writeFile(
+			path,
+			linuxProjectorPatch(await readFile(path), {
+				patchWindowTitle,
+				patchMenuRemove,
+				patchProjectorPath,
+				patchProjectorOffset
+			})
+		);
 	}
 
 	/**
