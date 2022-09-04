@@ -106,33 +106,27 @@ describe('projector/windows/32', () => {
 					p.removeCodeSignature = true;
 					p.patchWindowTitle = customWindowTitle;
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf3.swf')
-					);
+
+					if (pkg.version[0] < 6) {
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf3.swf')
+						);
+					} else {
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf6-loadmovie.swf')
+						);
+						await copyFile(
+							fixtureFile('image.jpg'),
+							pathJoin(dir, 'image.jpg')
+						);
+					}
 				});
 
 				if (pkg.version[0] < 6) {
 					return;
 				}
-
-				it('loadmovie', async () => {
-					const dir = await getDir('loadmovie');
-					const dest = pathJoin(dir, 'application.exe');
-
-					const p = new ProjectorWindows32(dest);
-					p.removeCodeSignature = true;
-					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf6-loadmovie.swf')
-					);
-
-					await copyFile(
-						fixtureFile('image.jpg'),
-						pathJoin(dir, 'image.jpg')
-					);
-				});
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');

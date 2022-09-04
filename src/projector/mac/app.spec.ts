@@ -117,31 +117,26 @@ describe('projector/mac/app', () => {
 					if (pkg.version[0] >= 11) {
 						p.patchWindowTitle = customWindowTitle;
 					}
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf3.swf')
-					);
+					if (pkg.version[0] < 6) {
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf3.swf')
+						);
+					} else {
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf6-loadmovie.swf')
+						);
+						await copyFile(
+							fixtureFile('image.jpg'),
+							pathJoin(dir, 'image.jpg')
+						);
+					}
 				});
 
 				if (pkg.version[0] < 6) {
 					return;
 				}
-
-				it('loadmovie', async () => {
-					const dir = await getDir('loadmovie');
-					const dest = pathJoin(dir, 'application.app');
-
-					const p = new ProjectorMacApp(dest);
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf6-loadmovie.swf')
-					);
-
-					await copyFile(
-						fixtureFile('image.jpg'),
-						pathJoin(dir, 'image.jpg')
-					);
-				});
 
 				it('showmenu-false', async () => {
 					const dir = await getDir('showmenu-false');
