@@ -9,8 +9,6 @@ import {
 	findFuzzy,
 	patchOnce
 } from './internal/patch';
-import {menuRemovePatches32} from './internal/linux/menu32';
-import {menuRemovePatches64} from './internal/linux/menu64';
 import {offsetPatches64} from './internal/linux/offset64';
 import {pathPatches32} from './internal/linux/path32';
 import {pathPatches64} from './internal/linux/path64';
@@ -26,9 +24,11 @@ import {
 	SHT_PROGBITS,
 	SHT_STRTAB
 } from './internal/linux/elf';
+import {Patch} from './internal/linux/patch';
 import {title64} from './internal/linux/title64';
 import {title32} from './internal/linux/title32';
-import {Patch} from './internal/linux/patch';
+import {menu64} from './internal/linux/menu64';
+import {menu32} from './internal/linux/menu32';
 
 /**
  * Add two numbers of bigints assuming same type.
@@ -39,32 +39,6 @@ import {Patch} from './internal/linux/patch';
  */
 function add(a: number | bigint, b: number | bigint) {
 	return ((a as number) + (b as number)) as number | bigint;
-}
-
-/**
- * Attempt to patch Linux 32-bit menu showing code.
- * NOP over the gtk_widget_show for gtk_menu_bar_new.
- * Also NOP over the calls to gtk_menu_shell_insert when present.
- *
- * @param data Projector data, maybe modified.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function linux32PatchMenuRemoveData(data: Buffer) {
-	patchOnce(data, menuRemovePatches32());
-	return data;
-}
-
-/**
- * Attempt to patch Linux 64-bit menu showing code.
- * NOP over the gtk_widget_show for gtk_menu_bar_new.
- * Also NOP over the calls to gtk_menu_shell_insert.
- *
- * @param data Projector data, maybe modified.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function linux64PatchMenuRemoveData(data: Buffer) {
-	patchOnce(data, menuRemovePatches64());
-	return data;
 }
 
 /**
@@ -408,6 +382,13 @@ export interface ILinuxProjectorPatch {
 	 * @default null
 	 */
 	patchWindowTitle?: string | null;
+
+	/**
+	 * Attempt to patch out application menu.
+	 *
+	 * @default false
+	 */
+	patchMenuRemove?: boolean;
 }
 
 /**
@@ -421,7 +402,7 @@ export function linuxProjectorPatch(
 	elf: Readonly<Buffer>,
 	options: Readonly<ILinuxProjectorPatch>
 ) {
-	const {patchWindowTitle} = options;
+	const {patchWindowTitle, patchMenuRemove} = options;
 
 	const e = decode(bufferToDataView(elf));
 
@@ -437,6 +418,14 @@ export function linuxProjectorPatch(
 				? title64.map(Patch => new Patch(e, titleA as bigint, titleL))
 				: title32.map(Patch => new Patch(e, titleA as number, titleL));
 		patchers.push(['Window Title', patches]);
+	}
+
+	if (patchMenuRemove) {
+		const patches =
+			e.bits === 64
+				? menu64.map(Patch => new Patch(e))
+				: menu32.map(Patch => new Patch(e));
+		patchers.push(['Menu Remove', patches]);
 	}
 
 	for (const [type, patches] of patchers) {

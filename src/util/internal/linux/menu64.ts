@@ -1,25 +1,36 @@
-import {once} from '../../../util';
-import {patchHexToBytes} from '../patch';
+/* eslint-disable max-classes-per-file */
 
-// Essentially these NOP over the gtk_widget_show for gtk_menu_bar_new.
-// Also NOP over the calls to gtk_menu_shell_insert.
-export const menuRemovePatches64 = once(() => [
-	// 24.0.0.186
-	[
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+import {Elf64} from './elf';
+import {PatchMenu} from './menu';
+
+/**
+ * PatchMenu64 object.
+ */
+export abstract class PatchMenu64 extends PatchMenu<Elf64> {}
+
+/**
+ * Patch objects.
+ */
+export const menu64 = [
+	/**
+	 * 24.0.0.186 x86_64.
+	 */
+	class extends PatchMenu64 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     rdi, QWORD PTR [r12+0x90]
 					'49 8B BC 24 90 00 00 00',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     rdi, QWORD PTR [r12+0x90]
@@ -27,12 +38,10 @@ export const menuRemovePatches64 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, r13d
@@ -43,10 +52,8 @@ export const menuRemovePatches64 = once(() => [
 					'48 89 C7',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, r13d
@@ -58,25 +65,29 @@ export const menuRemovePatches64 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	],
-	// 32.0.0.293
-	[
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			}
+		];
+	},
+
+	/**
+	 * 64.0.0.293 x86_64.
+	 */
+	class extends PatchMenu64 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     rdi, QWORD PTR [r12+0x90]
 					'49 8B BC 24 90 00 00 00',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     rdi, QWORD PTR [r12+0x90]
@@ -84,12 +95,10 @@ export const menuRemovePatches64 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// mov     rdi, rax
 					'48 89 C7',
 					// call    ...
@@ -102,10 +111,8 @@ export const menuRemovePatches64 = once(() => [
 					'48 89 C7',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// mov     rdi, rax
 					'48 89 C7',
 					// call    ...
@@ -119,7 +126,7 @@ export const menuRemovePatches64 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	]
-]);
+			}
+		];
+	}
+] as (new (elf: Elf64) => PatchMenu64)[];

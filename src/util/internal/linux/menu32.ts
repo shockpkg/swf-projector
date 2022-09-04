@@ -1,15 +1,28 @@
-import {once} from '../../../util';
-import {patchHexToBytes} from '../patch';
+/* eslint-disable max-classes-per-file */
 
-// Essentially these NOP over the gtk_widget_show for gtk_menu_bar_new.
-// Also NOP over the calls to gtk_menu_shell_insert when present.
-export const menuRemovePatches32 = once(() => [
-	// 6.0.79.0
-	[
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+import {Elf32} from './elf';
+import {PatchMenu} from './menu';
+
+/**
+ * PatchMenu32 object.
+ */
+export abstract class PatchMenu32 extends PatchMenu<Elf32> {}
+
+/**
+ * Patch objects.
+ */
+export const menu32 = [
+	/**
+	 * 6.0.79.0 i386.
+	 */
+	class extends PatchMenu32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     DWORD PTR [ebx+0x108], eax
@@ -18,10 +31,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     DWORD PTR [ebx+0x108], eax
@@ -31,15 +42,21 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	],
-	// 9.0.115.0
-	[
-		{
-			count: 2,
-			find: patchHexToBytes(
-				[
+			}
+		];
+	},
+
+	/**
+	 * 9.0.115.0 i386.
+	 */
+	class extends PatchMenu32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 2,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     DWORD PTR [edi+...], eax
@@ -48,10 +65,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     DWORD PTR [edi+...], eax
@@ -61,12 +76,10 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 2,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 2,
+				find: [
 					// mov     DWORD PTR [esp], eax
 					'89 04 24',
 					// call    ...
@@ -81,10 +94,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// mov     DWORD PTR [esp], eax
 					'89 04 24',
 					// call    ...
@@ -100,15 +111,21 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	],
-	// 10.0.12.36
-	[
-		{
-			count: 2,
-			find: patchHexToBytes(
-				[
+			}
+		];
+	},
+
+	/**
+	 * 10.0.12.36 i386.
+	 */
+	class extends PatchMenu32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 2,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     DWORD PTR [esi+...], eax
@@ -117,10 +134,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     DWORD PTR [esi+...], eax
@@ -130,12 +145,10 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// mov     DWORD PTR [esp], eax
 					'89 04 24',
 					// call    ...
@@ -148,10 +161,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// mov     DWORD PTR [esp], eax
 					'89 04 24',
 					// call    ...
@@ -165,12 +176,10 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// mov     eax, DWORD PTR [ebp+0xC]
 					'8B 45 0C',
 					// mov     DWORD PTR [esp], eax
@@ -185,10 +194,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// mov     eax, DWORD PTR [ebp+0xC]
 					'8B 45 0C',
 					// mov     DWORD PTR [esp], eax
@@ -204,15 +211,21 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	],
-	// 10.1.53.64
-	[
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			}
+		];
+	},
+
+	/**
+	 * 10.1.53.64 i386.
+	 */
+	class extends PatchMenu32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp-0x24]
@@ -223,10 +236,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp-0x24]
@@ -238,12 +249,10 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x10]
@@ -258,10 +267,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x10]
@@ -277,15 +284,21 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	],
-	// 11.0.1.152
-	[
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			}
+		];
+	},
+
+	/**
+	 * 11.0.1.152 i386.
+	 */
+	class extends PatchMenu32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp-0x2C]
@@ -296,10 +309,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp-0x2C]
@@ -311,12 +322,10 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x14]
@@ -329,10 +338,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x14]
@@ -346,15 +353,21 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	],
-	// 11.2.202.228
-	[
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			}
+		];
+	},
+
+	/**
+	 * 11.2.202.228 i386.
+	 */
+	class extends PatchMenu32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected _spec = [
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x8]
@@ -365,10 +378,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_widget_show
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x8]
@@ -380,12 +391,10 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		},
-		{
-			count: 1,
-			find: patchHexToBytes(
-				[
+			},
+			{
+				count: 1,
+				find: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x14]
@@ -398,10 +407,8 @@ export const menuRemovePatches32 = once(() => [
 					'89 04 24',
 					// call    _gtk_menu_shell_insert
 					'E8 -- -- -- --'
-				].join(' ')
-			),
-			replace: patchHexToBytes(
-				[
+				].join(' '),
+				replace: [
 					// call    ...
 					'E8 -- -- -- --',
 					// mov     edx, DWORD PTR [ebp+0x14]
@@ -415,7 +422,7 @@ export const menuRemovePatches32 = once(() => [
 					// nop     x5
 					'90 90 90 90 90'
 				].join(' ')
-			)
-		}
-	]
-]);
+			}
+		];
+	}
+] as (new (elf: Elf32) => PatchMenu32)[];

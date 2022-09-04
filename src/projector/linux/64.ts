@@ -1,7 +1,6 @@
 import {readFile, writeFile} from 'fs/promises';
 
 import {
-	linux64PatchMenuRemoveData,
 	linux64PatchProjectorOffsetData,
 	linux64PatchProjectorPathData,
 	linuxProjectorPatch
@@ -86,13 +85,11 @@ export class ProjectorLinux64 extends ProjectorLinux {
 
 		// Attempt to patch the projector data.
 		data = linuxProjectorPatch(data, {
-			patchWindowTitle
+			patchWindowTitle,
+			patchMenuRemove
 		});
 
 		// TODO: Integrate into patch function.
-		if (patchMenuRemove) {
-			data = linux64PatchMenuRemoveData(data);
-		}
 		if (patchProjectorPath) {
 			data = linux64PatchProjectorPathData(data);
 		}
