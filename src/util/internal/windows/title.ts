@@ -103,8 +103,7 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 					sizeOfRawData,
 					virtualAddress,
 					virtualSize
-				},
-				data
+				}
 			}) => {
 				if (
 					!sizeOfRawData ||
