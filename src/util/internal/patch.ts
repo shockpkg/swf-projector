@@ -287,15 +287,13 @@ export function writeFuzzy(
  * @returns ASCII string.
  */
 export function getCstrN(data: Readonly<Buffer>, i: number, l: number) {
-	const codes = [];
-	for (let c = 0; c < l; c++) {
-		const code = data.readUint8(i + c);
-		if (!code) {
+	let c = 0;
+	for (; c < l; c++) {
+		if (!data[i + c]) {
 			break;
 		}
-		codes.push(code);
 	}
-	return String.fromCharCode(...codes);
+	return data.toString('ascii', i, i + c);
 }
 
 /**
@@ -309,7 +307,7 @@ export function patchHexToBytes(str: string) {
 		if (s.length !== 2) {
 			throw new Error('Internal error');
 		}
-		return /[0-9A-F]{2}/i.test(s) ? parseInt(s, 16) : null;
+		return /^[0-9A-F]{2}$/i.test(s) ? parseInt(s, 16) : null;
 	});
 }
 
@@ -409,11 +407,7 @@ export function* dataStrings(
 		if (reg && !reg.test(string)) {
 			continue;
 		}
-		yield {
-			index,
-			data: stringData,
-			string
-		};
+		yield [index, stringData, string] as [number, Buffer, string];
 	}
 }
 

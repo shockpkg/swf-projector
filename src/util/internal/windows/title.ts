@@ -145,7 +145,7 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 		}
 		const d = Buffer.from(data);
 		for (const [pre, reg] of titles) {
-			for (const {index} of dataStrings(d, pre, 'utf16le', reg)) {
+			for (const [index] of dataStrings(d, pre, 'utf16le', reg)) {
 				// Only one match expected.
 				if (oldAddress) {
 					throw new Error('Multiple window titles found');
