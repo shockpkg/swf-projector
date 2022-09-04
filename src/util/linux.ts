@@ -28,6 +28,7 @@ import {
 } from './internal/linux/elf';
 import {title64} from './internal/linux/title64';
 import {title32} from './internal/linux/title32';
+import {Patch} from './internal/linux/patch';
 
 /**
  * Add two numbers of bigints assuming same type.
@@ -424,6 +425,7 @@ export function linuxProjectorPatch(
 
 	const e = decode(bufferToDataView(elf));
 
+	const patchers = [] as [string, Patch<Elf32 | Elf64>[]][];
 	if (typeof patchWindowTitle === 'string') {
 		const titleData = Buffer.from(`${patchWindowTitle}\0`, 'utf8');
 		const shdr = linuxProjectorAddSection(e, titleData);
@@ -434,20 +436,21 @@ export function linuxProjectorPatch(
 			e.bits === 64
 				? title64.map(Patch => new Patch(e, titleA as bigint, titleL))
 				: title32.map(Patch => new Patch(e, titleA as number, titleL));
+		patchers.push(['Window Title', patches]);
+	}
 
+	for (const [type, patches] of patchers) {
 		let found = null;
 		for (const patch of patches) {
 			if (patch.check()) {
 				if (found) {
-					throw new Error(
-						'Multiple window title patch candidates found'
-					);
+					throw new Error(`Multiple patch candidates for: ${type}`);
 				}
 				found = patch;
 			}
 		}
 		if (!found) {
-			throw new Error('No window title patch candidates found');
+			throw new Error(`No patch candidates for: ${type}`);
 		}
 		found.patch();
 	}
