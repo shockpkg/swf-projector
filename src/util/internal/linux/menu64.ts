@@ -70,7 +70,7 @@ export const menu64 = [
 	},
 
 	/**
-	 * 64.0.0.293 x86_64.
+	 * 32.0.0.293 x86_64.
 	 */
 	class extends PatchMenu64 {
 		/**
