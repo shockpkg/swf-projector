@@ -47,7 +47,6 @@ export function setU32(
 
 /**
  * Get UINT64 from data.
- * Returns inexact value where larger than max safe int value.
  *
  * @param data Data buffer.
  * @param i Integer offset.

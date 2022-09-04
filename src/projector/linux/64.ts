@@ -15,7 +15,6 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	/**
 	 * Attempt to patch the window title with a custom title.
 	 * Set to a string to automatically patch the binary if possible.
-	 * Size limit depends on the size of the string being replaced.
 	 */
 	public patchWindowTitle: string | null = null;
 
