@@ -209,8 +209,9 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 			}
 
 			// Only FP6 uses this older library.
+			const d = Buffer.from(shdr.data);
 			allowBssAfterLoadData =
-				Buffer.from(shdr.data).indexOf('libgtk-1.2.so.0') >= 0;
+				d.indexOf('libgtk-1.2.so.0', 0, 'ascii') >= 0;
 		}
 	}
 
