@@ -1,76 +1,101 @@
-import {once} from '../../../util';
-import {patchHexToBytes} from '../patch';
+/* eslint-disable max-classes-per-file */
 
-/**
- * Common absolute string reference replace code.
- *
- * @param at Where in the match the offset integer is.
- * @returns Function that preforms patching testing and optionally applying.
- */
-function pathPatcherAbs(at: number) {
-	return (
-		data: Buffer,
-		off: number,
-		src: number[],
-		dst: number,
-		mod: boolean
-	) => {
-		const valueAt = off + at;
-		const base = data.readInt32LE(0x7c);
-		const rel = data.readInt32LE(valueAt);
-		const abs = rel - base;
-		if (!src.includes(abs)) {
-			return false;
-		}
-		if (!mod) {
-			return true;
-		}
-		const diff = dst - abs;
-		const relFixed = rel + diff;
-		data.writeInt32LE(relFixed, valueAt);
-		return true;
-	};
+import {Elf32} from './elf';
+import {PatchPath} from './path';
+
+export interface IPatchPathSpec32 {
+	//
+	/**
+	 * Fuzzy find.
+	 */
+	find: string;
+
+	/**
+	 * Address offset.
+	 */
+	offset: number;
+
+	/**
+	 * Relative offset.
+	 */
+	relative: boolean;
 }
 
 /**
- * Common relative string reference replace code.
- *
- * @param atBase Where in the match the base is calculated.
- * @param atValue Where in the match the offset integer is.
- * @returns Function that preforms patching testing and optionally applying.
+ * PatchPath32 object.
  */
-function pathPatcherRel(atBase: number, atValue: number) {
-	return (
-		data: Buffer,
-		off: number,
-		src: number[],
-		dst: number,
-		mod: boolean
-	) => {
-		const valueAt = off + atValue;
-		const ebx = off + atBase + 5 + data.readInt32LE(off + 7);
-		const rel = data.readInt32LE(valueAt);
-		const abs = ebx + rel;
-		if (!src.includes(abs)) {
-			return false;
+export abstract class PatchPath32 extends PatchPath<Elf32> {
+	/**
+	 * Patch spec.
+	 */
+	protected abstract readonly _spec: IPatchPathSpec32;
+
+	private _addr_ = 0;
+
+	private _remap_ = 0;
+
+	private _ebx_ = 0;
+
+	/**
+	 * @inheritDoc
+	 */
+	public check() {
+		const {find, offset, relative} = this._spec;
+		for (const [shdr, i, d] of this._findFuzzyCode(find)) {
+			const addr = shdr.shAddr + i;
+			const ebx = relative ? this._findEbx(addr) : null;
+			if (relative && ebx === null) {
+				continue;
+			}
+			const ptr = relative
+				? (ebx as number) + d.readInt32LE(i + offset)
+				: d.readUint32LE(i + offset);
+			const remap = this._getRemap(ptr);
+			if (!remap) {
+				continue;
+			}
+			if (this._addr_) {
+				return false;
+			}
+			this._addr_ = addr;
+			this._remap_ = remap;
+			if (relative) {
+				this._ebx_ = ebx as number;
+			}
 		}
-		if (!mod) {
-			return true;
+		return !!this._addr_;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public patch() {
+		const {offset, relative} = this._spec;
+		const addr = this._addr_;
+		const shdr = this._theShdrForAddress(addr);
+		const d = Buffer.from(shdr.data);
+		const i = addr - shdr.shAddr;
+		if (relative) {
+			d.writeInt32LE(this._remap_ - this._ebx_, i + offset);
+		} else {
+			d.writeUint32LE(this._remap_, i + offset);
 		}
-		const diff = dst - abs;
-		const relFixed = rel + diff;
-		data.writeInt32LE(relFixed, valueAt);
-		return true;
-	};
+	}
 }
 
-// Essentially search for the reference to "file:" that we need to replace.
-// Checking the offset in the bytes actually points there is also necessary.
-export const pathPatches32 = once(() => [
-	// 9.0.115.0
-	{
-		find: patchHexToBytes(
-			[
+/**
+ * Patch objects.
+ */
+export const path32 = [
+	/**
+	 * 9.0.115.0 i386.
+	 */
+	class extends PatchPath32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected readonly _spec = {
+			find: [
 				// je      ...
 				'0F 84 -- -- -- --',
 				// lea     ebx, [ebp-0x18]
@@ -83,14 +108,21 @@ export const pathPatches32 = once(() => [
 				'89 1C 24',
 				// call    ...
 				'E8 -- -- -- --'
-			].join(' ')
-		),
-		patch: pathPatcherAbs(10)
+			].join(' '),
+			offset: 10,
+			relative: false
+		};
 	},
-	// 10.0.12.36
-	{
-		find: patchHexToBytes(
-			[
+
+	/**
+	 * 10.0.12.36 i386.
+	 */
+	class extends PatchPath32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected readonly _spec = {
+			find: [
 				// je      ...
 				'0F 84 -- -- -- --',
 				// lea     ebx, [ebp-0x1020]
@@ -101,14 +133,21 @@ export const pathPatches32 = once(() => [
 				'89 1C 24',
 				// call    ...
 				'E8 -- -- -- --'
-			].join(' ')
-		),
-		patch: pathPatcherAbs(16)
+			].join(' '),
+			offset: 16,
+			relative: false
+		};
 	},
-	// 10.1.53.64
-	{
-		find: patchHexToBytes(
-			[
+
+	/**
+	 * 10.1.53.64 i386.
+	 */
+	class extends PatchPath32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected readonly _spec = {
+			find: [
 				// je      ...
 				'0F 84 -- -- -- --',
 				// lea     eax, [ebp-0x1C]
@@ -121,14 +160,21 @@ export const pathPatches32 = once(() => [
 				'E8 -- -- -- --',
 				// mov     edx, DWORD PTR [ebp+0x8]
 				'8B 55 08'
-			].join(' ')
-		),
-		patch: pathPatcherAbs(16)
+			].join(' '),
+			offset: 16,
+			relative: false
+		};
 	},
-	// 11.0.1.152
-	{
-		find: patchHexToBytes(
-			[
+
+	/**
+	 * 11.0.1.152 i386.
+	 */
+	class extends PatchPath32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected readonly _spec = {
+			find: [
 				// je      ...
 				'0F 84 -- -- -- --',
 				// lea     eax, [ebp-0x1C]
@@ -141,30 +187,30 @@ export const pathPatches32 = once(() => [
 				'C7 44 24 04 -- -- -- --',
 				// call    ...
 				'E8 -- -- -- --'
-			].join(' ')
-		),
-		patch: pathPatcherAbs(18)
+			].join(' '),
+			offset: 18,
+			relative: false
+		};
 	},
-	// 11.2.202.228
-	{
-		find: patchHexToBytes(
-			[
-				// call    ...
-				'E8 -- -- -- --',
-				// add     ebx, 0x0
-				'81 C3 -- -- -- --',
-				// test    ..., ...
-				'85 --',
-				// je      ...
-				'0F 84 -- -- -- --',
-				// lea     eax, [ebx+0x0]
+
+	/**
+	 * 11.2.202.228 i386.
+	 */
+	class extends PatchPath32 {
+		/**
+		 * @inheritDoc
+		 */
+		protected readonly _spec = {
+			find: [
+				// lea     eax, [ebx+...]
 				'8D 83 -- -- -- --',
 				// xor     esi, esi
 				'31 F6',
 				// mov     DWORD PTR [esp+0x4], eax
 				'89 44 24 04'
-			].join(' ')
-		),
-		patch: pathPatcherRel(0, 21)
+			].join(' '),
+			offset: 2,
+			relative: true
+		};
 	}
-]);
+] as (new (elf: Elf32) => PatchPath32)[];

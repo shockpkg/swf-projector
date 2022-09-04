@@ -5,13 +5,9 @@ import {
 	bufferAlign,
 	bufferToArrayBuffer,
 	bufferToDataView,
-	findExact,
-	findFuzzy,
 	patchOnce
 } from './internal/patch';
 import {offsetPatches64} from './internal/linux/offset64';
-import {pathPatches32} from './internal/linux/path32';
-import {pathPatches64} from './internal/linux/path64';
 import {
 	decode,
 	Elf32,
@@ -29,6 +25,8 @@ import {title64} from './internal/linux/title64';
 import {title32} from './internal/linux/title32';
 import {menu64} from './internal/linux/menu64';
 import {menu32} from './internal/linux/menu32';
+import {path64} from './internal/linux/path64';
+import {path32} from './internal/linux/path32';
 
 /**
  * Add two numbers of bigints assuming same type.
@@ -50,110 +48,6 @@ function add(a: number | bigint, b: number | bigint) {
  */
 export function linux64PatchProjectorOffsetData(data: Buffer) {
 	patchOnce(data, offsetPatches64());
-	return data;
-}
-
-/**
- * Attempt to patch Linux 32-bit projector path code.
- * Replaces bad "file:" prefix with "file://" for projector self URL.
- *
- * @param data Projector data, maybe modified.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function linux32PatchProjectorPathData(data: Buffer) {
-	// Find candidates for the string to replace the reference to.
-	const fileNoSlashes = [...findExact(data, '\0file:\0')].map(i => i + 1);
-	if (!fileNoSlashes.length) {
-		throw new Error('No projector path patch "file:" strings');
-	}
-
-	// Find the replacement string.
-	const fileSlashes = data.indexOf('\0file://\0') + 1;
-	if (!fileSlashes) {
-		throw new Error('No projector path patch "file://" strings');
-	}
-
-	// Search the buffer for patch candidates, testing patches for relevance.
-	let patchFound = null;
-	let patchOffset = -1;
-	for (const patch of pathPatches32()) {
-		for (const offset of findFuzzy(data, patch.find)) {
-			// Test patch without applying.
-			if (!patch.patch(data, offset, fileNoSlashes, fileSlashes, false)) {
-				continue;
-			}
-			if (patchFound) {
-				throw new Error(
-					'Multiple projector path patch candidates found'
-				);
-			}
-			patchFound = patch;
-			patchOffset = offset;
-		}
-	}
-	if (!patchFound) {
-		throw new Error('No projector path patch candidates found');
-	}
-
-	// Apply patch, this should not fail.
-	if (
-		!patchFound.patch(data, patchOffset, fileNoSlashes, fileSlashes, true)
-	) {
-		throw new Error('Internal error');
-	}
-
-	return data;
-}
-
-/**
- * Attempt to patch Linux 64-bit projector path code.
- * Replaces bad "file:" prefix with "file://" for projector self URL.
- *
- * @param data Projector data, maybe modified.
- * @returns Patched data, can be same buffer, but modified.
- */
-export function linux64PatchProjectorPathData(data: Buffer) {
-	// Find candidates for the string to replace the reference to.
-	const fileNoSlashes = [...findExact(data, '\0file:\0')].map(i => i + 1);
-	if (!fileNoSlashes.length) {
-		throw new Error('No projector path patch "file:" strings');
-	}
-
-	// Find the replacement string.
-	const fileSlashes = data.indexOf('\0file://\0') + 1;
-	if (!fileSlashes) {
-		throw new Error('No projector path patch "file://" strings');
-	}
-
-	// Search the buffer for patch candidates, check if they point at string.
-	let patchFound = null;
-	let patchOffset = -1;
-	for (const patch of pathPatches64()) {
-		for (const offset of findFuzzy(data, patch.find)) {
-			const offsetRel = offset + patch.offset;
-			const relative = data.readInt32LE(offsetRel);
-			const offsetAfter = offsetRel + 4;
-			const offsetTarget = offsetAfter + relative;
-			if (fileNoSlashes.includes(offsetTarget)) {
-				if (patchFound) {
-					throw new Error(
-						'Multiple projector path patch candidates found'
-					);
-				}
-				patchFound = patch;
-				patchOffset = offset;
-			}
-		}
-	}
-	if (!patchFound) {
-		throw new Error('No projector path patch candidates found');
-	}
-
-	// Write the replacement offset.
-	const offsetRel = patchOffset + patchFound.offset;
-	const offsetAfter = offsetRel + 4;
-	const relative = fileSlashes - offsetAfter;
-	data.writeInt32LE(relative, offsetRel);
 	return data;
 }
 
@@ -390,6 +284,13 @@ export interface ILinuxProjectorPatch {
 	 * @default false
 	 */
 	patchMenuRemove?: boolean;
+
+	/**
+	 * Attempt to patch the projector path reading code.
+	 *
+	 * @default false
+	 */
+	patchProjectorPath?: boolean;
 }
 
 /**
@@ -403,7 +304,7 @@ export function linuxProjectorPatch(
 	elf: Readonly<Buffer>,
 	options: Readonly<ILinuxProjectorPatch>
 ) {
-	const {patchWindowTitle, patchMenuRemove} = options;
+	const {patchWindowTitle, patchMenuRemove, patchProjectorPath} = options;
 
 	const e = decode(bufferToDataView(elf));
 
@@ -427,6 +328,14 @@ export function linuxProjectorPatch(
 				? menu64.map(Patch => new Patch(e))
 				: menu32.map(Patch => new Patch(e));
 		patchers.push(['Menu Remove', patches]);
+	}
+
+	if (patchProjectorPath) {
+		const patches =
+			e.bits === 64
+				? path64.map(Patch => new Patch(e))
+				: path32.map(Patch => new Patch(e));
+		patchers.push(['Projector Path', patches]);
 	}
 
 	for (const [type, patches] of patchers) {
