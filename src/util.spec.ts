@@ -16,6 +16,9 @@ export function shouldTest(name: string) {
 	);
 }
 
+// eslint-disable-next-line no-process-env
+export const testShowMenu = process.env.SWF_PROJECTOR_SHOWMENU === '1';
+
 export const specFixturesPath = pathJoin('spec', 'fixtures');
 
 export function fixtureFile(name: string) {

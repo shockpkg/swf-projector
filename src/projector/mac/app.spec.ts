@@ -8,7 +8,8 @@ import {
 	platformIsMac,
 	shouldTest,
 	getInstalledPackagesInfoSync,
-	simpleSwf
+	simpleSwf,
+	testShowMenu
 } from '../../util.spec';
 import {ProjectorMac} from '../mac';
 
@@ -134,20 +135,18 @@ describe('projector/mac/app', () => {
 					}
 				});
 
-				if (pkg.version[0] < 6) {
-					return;
+				if (pkg.version[0] >= 6 && testShowMenu) {
+					it('showmenu-false', async () => {
+						const dir = await getDir('showmenu-false');
+						const dest = pathJoin(dir, 'application.app');
+
+						const p = new ProjectorMacApp(dest);
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf6-showmenu-false.swf')
+						);
+					});
 				}
-
-				it('showmenu-false', async () => {
-					const dir = await getDir('showmenu-false');
-					const dest = pathJoin(dir, 'application.app');
-
-					const p = new ProjectorMacApp(dest);
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf6-showmenu-false.swf')
-					);
-				});
 			});
 		}
 	});

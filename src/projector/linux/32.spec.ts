@@ -7,7 +7,8 @@ import {
 	getPackageFile,
 	shouldTest,
 	getInstalledPackagesInfoSync,
-	simpleSwf
+	simpleSwf,
+	testShowMenu
 } from '../../util.spec';
 import {ProjectorLinux} from '../linux';
 
@@ -93,20 +94,18 @@ describe('projector/linux/32', () => {
 					}
 				});
 
-				if (pkg.version[0] < 6) {
-					return;
+				if (pkg.version[0] >= 6 && testShowMenu) {
+					it('showmenu-false', async () => {
+						const dir = await getDir('showmenu-false');
+						const dest = pathJoin(dir, 'application');
+
+						const p = new ProjectorLinux32(dest);
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf6-showmenu-false.swf')
+						);
+					});
 				}
-
-				it('showmenu-false', async () => {
-					const dir = await getDir('showmenu-false');
-					const dest = pathJoin(dir, 'application');
-
-					const p = new ProjectorLinux32(dest);
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf6-showmenu-false.swf')
-					);
-				});
 			});
 		}
 	});

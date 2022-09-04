@@ -7,7 +7,8 @@ import {
 	getPackageFile,
 	shouldTest,
 	getInstalledPackagesInfoSync,
-	simpleSwf
+	simpleSwf,
+	testShowMenu
 } from '../../util.spec';
 import {ProjectorWindows} from '../windows';
 
@@ -124,22 +125,20 @@ describe('projector/windows/32', () => {
 					}
 				});
 
-				if (pkg.version[0] < 6) {
-					return;
+				if (pkg.version[0] >= 6 && testShowMenu) {
+					it('showmenu-false', async () => {
+						const dir = await getDir('showmenu-false');
+						const dest = pathJoin(dir, 'application.exe');
+
+						const p = new ProjectorWindows32(dest);
+						p.removeCodeSignature = true;
+						p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
+						await p.withFile(
+							await getPlayer(),
+							fixtureFile('swf6-showmenu-false.swf')
+						);
+					});
 				}
-
-				it('showmenu-false', async () => {
-					const dir = await getDir('showmenu-false');
-					const dest = pathJoin(dir, 'application.exe');
-
-					const p = new ProjectorWindows32(dest);
-					p.removeCodeSignature = true;
-					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf6-showmenu-false.swf')
-					);
-				});
 			});
 		}
 	});
