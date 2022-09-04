@@ -71,7 +71,7 @@ export abstract class PatchPath64 extends PatchPath<Elf64> {
  */
 export const path64 = [
 	/**
-	 * All versions.
+	 * 24.0.0.186 x86_64.
 	 */
 	class extends PatchPath64 {
 		/**

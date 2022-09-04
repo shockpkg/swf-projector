@@ -13,7 +13,7 @@ export abstract class PatchTitle64 extends PatchTitle<Elf64> {}
  */
 export const title64 = [
 	/**
-	 * All versions.
+	 * 24.0.0.186 x86_64.
 	 */
 	class extends PatchTitle64 {
 		private _addr_ = 0n;
