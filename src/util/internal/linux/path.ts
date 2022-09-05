@@ -20,7 +20,7 @@ export abstract class PatchPath<T extends Elf32 | Elf64> extends Patch<T> {
 		}
 		const shdr = this._theShdrForAddress(ptr);
 		const data = Buffer.from(shdr.data);
-		const fileI = data.indexOf('\0file:///\0', 0, 'ascii') + 1;
+		const fileI = data.indexOf('\0file://\0', 0, 'ascii') + 1;
 		if (!fileI) {
 			return null;
 		}
