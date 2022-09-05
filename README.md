@@ -230,23 +230,23 @@ const swfData = loader(8, 600, 400, 30, 0xff0000, 'other.swf', 30 / 2);
 
 ### Option: `patchWindowTitle`
 
-An option to replace the window title stored in the binary. Size cannot be larger than the title being replaced in the binary.
+An option to replace the window title stored in the binary (no length limit since library version 3).
 
 ## Mac App
 
 ### Option: `patchWindowTitle`
 
-An option to set a custom window title in the binary. Size cannot be larger than the string being replaced in the binary.
+An option to set a custom window title in the binary (no length limit since library version 3).
 
 ## Linux
 
 ### Option: `patchWindowTitle`
 
-An option to replace the window title stored in the binary. Size cannot be larger than the title being replaced in the binary.
+An option to replace the window title stored in the binary (no length limit since library version 3).
 
 ### Option: `patchMenuRemove`
 
-An option to completely disable the menu for the projector. Avoids layout calculation issues when the menu is in the window.
+An option to completely disable the menu for the projector.
 
 ### Option: `patchProjectorPath`
 
