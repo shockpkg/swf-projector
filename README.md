@@ -289,6 +289,10 @@ const swfData = loader(8, 600, 400, 30, 0xff0000, 'other.swf', 30 / 2);
 
 An option to replace the window title stored in the binary (no length limit since library version 3).
 
+### Option: `patchOutOfDateDisable`
+
+An option to disable the out-of-date check present since version 30 and active (with 90 and 180 day defaults) since version 35.
+
 ## Mac App
 
 ### Option: `patchWindowTitle`
