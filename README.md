@@ -36,8 +36,8 @@ projector.iconFile = 'icon.ico';
 
 // Optional custom PE resource strings.
 projector.versionStrings = {
-	FileVersion: '3.1.4',
-	ProductVersion: '3.1.4',
+	FileVersion: '1.2.3.4',
+	ProductVersion: '1.2.3.4',
 	CompanyName: 'Custom Company Name',
 	FileDescription: 'Custom File Description',
 	LegalCopyright: 'Custom Legal Copyright',
@@ -72,8 +72,8 @@ projector.iconFile = 'icon.ico';
 
 // Optional custom PE resource strings.
 projector.versionStrings = {
-	FileVersion: '3.1.4',
-	ProductVersion: '3.1.4',
+	FileVersion: '1.2.3.4',
+	ProductVersion: '1.2.3.4',
 	CompanyName: 'Custom Company Name',
 	FileDescription: 'Custom File Description',
 	LegalCopyright: 'Custom Legal Copyright',
