@@ -34,6 +34,8 @@ describe('bundle/windows/32', () => {
 
 					const b = new BundleWindows32(dest);
 					b.projector.removeCodeSignature = true;
+					b.projector.patchOutOfDateDisable =
+						pkg.patchOutOfDateDisable;
 					await b.withFile(await getPlayer(), simple);
 				});
 
@@ -56,6 +58,8 @@ describe('bundle/windows/32', () => {
 					b.projector.versionStrings = versionStrings;
 					b.projector.patchWindowTitle = customWindowTitle;
 					b.projector.removeCodeSignature = true;
+					b.projector.patchOutOfDateDisable =
+						pkg.patchOutOfDateDisable;
 					await b.withData(
 						await getPlayer(),
 						loader(swfv, 600, 400, 30, 0xffffff, 'main.swf'),
