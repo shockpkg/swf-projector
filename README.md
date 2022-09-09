@@ -24,7 +24,7 @@ Reading DMG projector packages is only supported on macOS.
 
 ## Projector
 
-### Windows
+### Windows 32-bit
 
 ```js
 import {ProjectorWindows32} from '@shockpkg/swf-projector';
@@ -53,6 +53,45 @@ projector.patchWindowTitle = 'Custom Title';
 
 // Optionally remove now-broken signature.
 projector.removeCodeSignature = true;
+
+// Optionally remove out-of-date check.
+projector.patchOutOfDateDisable = true;
+
+await projector.withFile('player.exe', 'movie.swf');
+```
+
+### Windows 64-bit
+
+```js
+import {ProjectorWindows64} from '@shockpkg/swf-projector';
+
+const projector = new ProjectorWindows64('projector-windows64/application.exe');
+
+// Optional custom icon.
+projector.iconFile = 'icon.ico';
+
+// Optional custom PE resource strings.
+projector.versionStrings = {
+	FileVersion: '3.1.4',
+	ProductVersion: '3.1.4',
+	CompanyName: 'Custom Company Name',
+	FileDescription: 'Custom File Description',
+	LegalCopyright: 'Custom Legal Copyright',
+	ProductName: 'Custom Product Name',
+	LegalTrademarks: 'Custom Legal Trademarks',
+	OriginalFilename: 'CustomOriginalFilename.exe',
+	InternalName: 'CustomInternalName',
+	Comments: 'Custom Comments'
+};
+
+// Optionally patch window title.
+projector.patchWindowTitle = 'Custom Title';
+
+// Optionally remove now-broken signature.
+projector.removeCodeSignature = true;
+
+// Optionally remove out-of-date check.
+projector.patchOutOfDateDisable = true;
 
 await projector.withFile('player.exe', 'movie.swf');
 ```
@@ -137,7 +176,7 @@ await projector.withFile('player.tar.gz', 'movie.swf');
 
 ## Bundle
 
-### Windows
+### Windows 32-bit
 
 ```js
 import {BundleWindows32} from '@shockpkg/swf-projector';
@@ -146,6 +185,24 @@ const bundle = new BundleWindows32('bundle-windows32/application.exe');
 
 // Use projector property to set options.
 bundle.projector.removeCodeSignature = true;
+bundle.projector.patchOutOfDateDisable = true;
+
+await bundle.withFile('player.exe', 'movie.swf', async b => {
+	// Add resources in callback.
+	await b.copyResource('other.swf', 'other.swf');
+});
+```
+
+### Windows 64-bit
+
+```js
+import {BundleWindows64} from '@shockpkg/swf-projector';
+
+const bundle = new BundleWindows64('bundle-windows64/application.exe');
+
+// Use projector property to set options.
+bundle.projector.removeCodeSignature = true;
+bundle.projector.patchOutOfDateDisable = true;
 
 await bundle.withFile('player.exe', 'movie.swf', async b => {
 	// Add resources in callback.
