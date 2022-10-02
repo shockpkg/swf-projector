@@ -9,7 +9,7 @@ import {ProjectorWindows} from '../projector/windows';
 /**
  * BundleWindows object.
  */
-export abstract class BundleWindows extends Bundle {
+export class BundleWindows extends Bundle {
 	/**
 	 * ProjectorWindows instance.
 	 */

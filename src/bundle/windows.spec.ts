@@ -4,25 +4,23 @@ import {
 	listSamples,
 	customWindowTitle,
 	versionStrings
-} from '../../projector/windows/32.spec';
-import {cleanBundlesDir} from '../../bundle.spec';
-import {fixtureFile, getPackageFile, simpleSwf} from '../../util.spec';
-import {loader} from '../../loader';
-import {BundleWindows} from '../windows';
+} from '../projector/windows.spec';
+import {cleanBundlesDir} from '../bundle.spec';
+import {fixtureFile, getPackageFile, simpleSwf} from '../util.spec';
+import {loader} from '../loader';
+import {Bundle} from '../bundle';
 
-import {BundleWindows32} from './32';
+import {BundleWindows} from './windows';
 
-describe('bundle/windows/32', () => {
-	describe('BundleWindows32', () => {
-		it('instanceof BundleWindows', () => {
-			expect(
-				BundleWindows32.prototype instanceof BundleWindows
-			).toBeTrue();
+describe('bundle/windows', () => {
+	describe('BundleWindows', () => {
+		it('instanceof Bundle', () => {
+			expect(BundleWindows.prototype instanceof Bundle).toBeTrue();
 		});
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanBundlesDir('windows32', pkg.name, d);
+				cleanBundlesDir('windows', pkg.type, pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -32,7 +30,7 @@ describe('bundle/windows/32', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const b = new BundleWindows32(dest);
+					const b = new BundleWindows(dest);
 					b.projector.removeCodeSignature = true;
 					b.projector.patchOutOfDateDisable =
 						pkg.patchOutOfDateDisable;
@@ -53,7 +51,7 @@ describe('bundle/windows/32', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const b = new BundleWindows32(dest);
+					const b = new BundleWindows(dest);
 					b.projector.iconFile = fixtureFile('icon.ico');
 					b.projector.versionStrings = versionStrings;
 					b.projector.patchWindowTitle = customWindowTitle;

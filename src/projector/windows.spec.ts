@@ -1,7 +1,7 @@
 import {copyFile} from 'fs/promises';
 import {join as pathJoin} from 'path';
 
-import {cleanProjectorDir} from '../../projector.spec';
+import {cleanProjectorDir} from '../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile,
@@ -9,18 +9,28 @@ import {
 	getInstalledPackagesInfoSync,
 	simpleSwf,
 	testShowMenu
-} from '../../util.spec';
-import {ProjectorWindows} from '../windows';
+} from '../util.spec';
+import {Projector} from '../projector';
 
-import {ProjectorWindows64} from './64';
+import {ProjectorWindows} from './windows';
 
 export function listSamples() {
-	if (!shouldTest('windows64')) {
-		return [];
+	const platforms = new Set();
+	if (shouldTest('windows32')) {
+		platforms.add('windows');
+		platforms.add('windows-32bit');
+		platforms.add('windows-i386');
+	}
+	if (shouldTest('windows64')) {
+		platforms.add('windows-x86_64');
 	}
 	return getInstalledPackagesInfoSync()
-		.filter(o => o.platform === 'windows-x86_64')
-		.map(o => ({...o, patchOutOfDateDisable: o.version[0] >= 30}));
+		.filter(o => platforms.has(o.platform))
+		.map(o => ({
+			...o,
+			type: o.platform === 'windows-x86_64' ? 'x86_64' : 'i386',
+			patchOutOfDateDisable: o.version[0] >= 30
+		}));
 }
 
 export const customWindowTitle =
@@ -39,23 +49,21 @@ export const versionStrings = {
 	Comments: 'Custom Comments'
 };
 
-describe('projector/windows/64', () => {
-	describe('ProjectorWindows64', () => {
-		it('instanceof ProjectorWindows', () => {
-			expect(
-				ProjectorWindows64.prototype instanceof ProjectorWindows
-			).toBeTrue();
+describe('projector/windows', () => {
+	describe('ProjectorWindows', () => {
+		it('instanceof Projector', () => {
+			expect(ProjectorWindows.prototype instanceof Projector).toBeTrue();
 		});
 
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('windows64', 'dummy', d);
+				cleanProjectorDir('windows', 'dummy', d);
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
 				const dest = pathJoin(dir, 'application.exe');
 
-				const p = new ProjectorWindows64(dest);
+				const p = new ProjectorWindows(dest);
 				await p.withFile(
 					fixtureFile('dummy.exe'),
 					fixtureFile('swf3.swf')
@@ -66,7 +74,7 @@ describe('projector/windows/64', () => {
 				const dir = await getDir('archived');
 				const dest = pathJoin(dir, 'application.exe');
 
-				const p = new ProjectorWindows64(dest);
+				const p = new ProjectorWindows(dest);
 				await p.withFile(
 					fixtureFile('dummy.exe.zip'),
 					fixtureFile('swf3.swf')
@@ -76,7 +84,7 @@ describe('projector/windows/64', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('windows64', pkg.name, d);
+				cleanProjectorDir('windows', pkg.type, pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -86,7 +94,7 @@ describe('projector/windows/64', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows64(dest);
+					const p = new ProjectorWindows(dest);
 					p.removeCodeSignature = true;
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					await p.withFile(await getPlayer(), simple);
@@ -96,7 +104,7 @@ describe('projector/windows/64', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows64(dest);
+					const p = new ProjectorWindows(dest);
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
@@ -125,7 +133,7 @@ describe('projector/windows/64', () => {
 						const dir = await getDir('showmenu-false');
 						const dest = pathJoin(dir, 'application.exe');
 
-						const p = new ProjectorWindows64(dest);
+						const p = new ProjectorWindows(dest);
 						p.removeCodeSignature = true;
 						p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 						await p.withFile(
