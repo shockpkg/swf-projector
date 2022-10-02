@@ -190,7 +190,6 @@ export abstract class Projector {
 				}
 			}
 		}
-
 		return Buffer.concat(buffers);
 	}
 
