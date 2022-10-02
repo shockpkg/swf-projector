@@ -44,15 +44,6 @@ export class ProjectorLinux64 extends ProjectorLinux {
 	}
 
 	/**
-	 * The movie appended marker.
-	 *
-	 * @returns Hex string.
-	 */
-	public get movieAppendMarker() {
-		return `${super.movieAppendMarker}FFFFFFFF`;
-	}
-
-	/**
 	 * Modify the projector player.
 	 */
 	protected async _modifyPlayer() {
@@ -97,6 +88,6 @@ export class ProjectorLinux64 extends ProjectorLinux {
 			return;
 		}
 
-		await this._appendMovieData(this.path, movieData, 'lmd');
+		await this._appendMovieData(this.path, movieData, 'lid');
 	}
 }

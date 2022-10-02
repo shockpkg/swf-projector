@@ -34,10 +34,10 @@ export abstract class Projector {
 	/**
 	 * The movie appended marker.
 	 *
-	 * @returns Hex string.
+	 * @returns Marker integer.
 	 */
 	public get movieAppendMarker() {
-		return '563412FA';
+		return 0xfa123456;
 	}
 
 	/**
@@ -107,7 +107,10 @@ export abstract class Projector {
 	 * Append movie data to a file.
 	 * Format string characters:
 	 * - d: Movie data.
-	 * - m: Marker bytes.
+	 * - m: Marker, 32LE.
+	 * - M: Marker, 32BE.
+	 * - i: Marker, 64LE.
+	 * - I: Marker, 64BE.
 	 * - s: Size, 32LE.
 	 * - S: Size, 32BE.
 	 * - l: Size, 64LE.
@@ -130,7 +133,29 @@ export abstract class Projector {
 					break;
 				}
 				case 'm': {
-					buffers.push(Buffer.from(this.movieAppendMarker, 'hex'));
+					const b = Buffer.alloc(4);
+					b.writeUInt32LE(this.movieAppendMarker, 0);
+					buffers.push(b);
+					break;
+				}
+				case 'M': {
+					const b = Buffer.alloc(4);
+					b.writeUInt32BE(this.movieAppendMarker, 0);
+					buffers.push(b);
+					break;
+				}
+				case 'i': {
+					const b = Buffer.alloc(8);
+					b.writeUInt32LE(this.movieAppendMarker, 0);
+					b.writeUInt32LE(0xffffffff, 4);
+					buffers.push(b);
+					break;
+				}
+				case 'I': {
+					const b = Buffer.alloc(8);
+					b.writeUInt32BE(this.movieAppendMarker, 4);
+					b.writeUInt32BE(0xffffffff, 0);
+					buffers.push(b);
 					break;
 				}
 				case 's': {
