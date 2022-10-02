@@ -1,4 +1,4 @@
-import {copyFile, mkdir, stat, readFile} from 'fs/promises';
+import {copyFile, mkdir, stat, readFile, writeFile} from 'fs/promises';
 import {dirname} from 'path';
 
 import {
@@ -9,11 +9,12 @@ import {
 } from '@shockpkg/archive-files';
 
 import {Projector} from '../projector';
+import {windowsProjectorPatch} from '../util/windows';
 
 /**
  * ProjectorWindows object.
  */
-export abstract class ProjectorWindows extends Projector {
+export class ProjectorWindows extends Projector {
 	/**
 	 * Icon file.
 	 */
@@ -33,6 +34,18 @@ export abstract class ProjectorWindows extends Projector {
 	 * Remove the code signature.
 	 */
 	public removeCodeSignature = false;
+
+	/**
+	 * Attempt to patch the window title with a custom title.
+	 * Set to string to automatically patch the binary if possible.
+	 */
+	public patchWindowTitle: string | null = null;
+
+	/**
+	 * Disable the out-of-date check introduced in version 30.
+	 * Important since version 35 where there are 90 and 180 day defaults.
+	 */
+	public patchOutOfDateDisable = false;
 
 	/**
 	 * ProjectorWindows constructor.
@@ -128,6 +141,51 @@ export abstract class ProjectorWindows extends Projector {
 
 		if (!playerPath) {
 			throw new Error(`Failed to locate player in archive: ${player}`);
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
+		const {
+			path,
+			versionStrings,
+			removeCodeSignature,
+			patchWindowTitle,
+			patchOutOfDateDisable
+		} = this;
+		const iconData = await this.getIconData();
+
+		let data = null;
+
+		if (
+			iconData ||
+			versionStrings ||
+			removeCodeSignature ||
+			patchWindowTitle !== null ||
+			patchOutOfDateDisable
+		) {
+			data = data || (await readFile(path));
+			data = windowsProjectorPatch(data, {
+				iconData,
+				versionStrings,
+				removeCodeSignature,
+				patchWindowTitle,
+				patchOutOfDateDisable
+			});
+		}
+
+		if (movieData) {
+			data = data || (await readFile(path));
+			data = Buffer.concat([
+				data,
+				this._encodeMovieData(movieData, 'dms')
+			]);
+		}
+
+		if (data) {
+			await writeFile(path, data);
 		}
 	}
 }

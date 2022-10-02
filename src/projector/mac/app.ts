@@ -387,9 +387,9 @@ export class ProjectorMacApp extends ProjectorMac {
 	}
 
 	/**
-	 * Modify the projector player.
+	 * @inheritDoc
 	 */
-	protected async _modifyPlayer() {
+	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
 		await this._fixPlayer();
 		await this._patchProjector();
 		await this._replaceIcon();

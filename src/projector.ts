@@ -1,4 +1,4 @@
-import {open, readFile, stat} from 'fs/promises';
+import {readFile, stat} from 'fs/promises';
 
 import {
 	Archive,
@@ -90,8 +90,7 @@ export abstract class Projector {
 	public async withData(player: string, movieData: Readonly<Buffer> | null) {
 		await this._checkOutput();
 		await this._writePlayer(player);
-		await this._modifyPlayer();
-		await this._writeMovie(movieData);
+		await this._modifyPlayer(movieData);
 	}
 
 	/**
@@ -104,7 +103,7 @@ export abstract class Projector {
 	}
 
 	/**
-	 * Append movie data to a file.
+	 * Encode movie data for the projector.
 	 * Format string characters:
 	 * - d: Movie data.
 	 * - m: Marker, 32LE.
@@ -116,15 +115,11 @@ export abstract class Projector {
 	 * - l: Size, 64LE.
 	 * - L: Size, 64BE.
 	 *
-	 * @param file File to append to.
 	 * @param data Movie data.
 	 * @param format Format string.
+	 * @returns Encoded data.
 	 */
-	protected async _appendMovieData(
-		file: string,
-		data: Readonly<Buffer>,
-		format: string
-	) {
+	protected _encodeMovieData(data: Readonly<Buffer>, format: string) {
 		const buffers: Readonly<Buffer>[] = [];
 		for (const c of format) {
 			switch (c) {
@@ -196,20 +191,7 @@ export abstract class Projector {
 			}
 		}
 
-		const st = await stat(file);
-		if (!st.isFile()) {
-			throw new Error(`Path not a file: ${file}`);
-		}
-
-		const f = await open(file, 'a');
-		try {
-			for (const b of buffers) {
-				// eslint-disable-next-line no-await-in-loop
-				await f.appendFile(b);
-			}
-		} finally {
-			await f.close();
-		}
+		return Buffer.concat(buffers);
 	}
 
 	/**
@@ -228,15 +210,10 @@ export abstract class Projector {
 
 	/**
 	 * Modify the projector player.
-	 */
-	protected abstract _modifyPlayer(): Promise<void>;
-
-	/**
-	 * Write out the projector movie file.
 	 *
 	 * @param movieData Movie data or null.
 	 */
-	protected abstract _writeMovie(
+	protected abstract _modifyPlayer(
 		movieData: Readonly<Buffer> | null
 	): Promise<void>;
 }

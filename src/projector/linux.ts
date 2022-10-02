@@ -1,4 +1,4 @@
-import {copyFile, mkdir, stat} from 'fs/promises';
+import {copyFile, mkdir, readFile, stat, writeFile} from 'fs/promises';
 import {dirname} from 'path';
 
 import {
@@ -9,11 +9,40 @@ import {
 } from '@shockpkg/archive-files';
 
 import {Projector} from '../projector';
+import {linuxProjectorPatch} from '../util/linux';
+import {EM_X86_64} from '../util/internal/linux/elf';
 
 /**
  * ProjectorLinux object.
  */
-export abstract class ProjectorLinux extends Projector {
+export class ProjectorLinux extends Projector {
+	/**
+	 * Attempt to patch the window title with a custom title.
+	 * Set to a string to automatically patch the binary if possible.
+	 */
+	public patchWindowTitle: string | null = null;
+
+	/**
+	 * Attempt to patch out application menu.
+	 * Set to true to automatically patch the code if possible.
+	 */
+	public patchMenuRemove = false;
+
+	/**
+	 * Attempt to patch the projector path reading code.
+	 * Necessary to work around broken projector path resolving code.
+	 * Set to true to automatically patch the code if possible.
+	 * Supports projector versions 9+ (unnecessary for version 6).
+	 */
+	public patchProjectorPath = false;
+
+	/**
+	 * Attempt to patch the broken 64-bit projector offset reading code.
+	 * Necessary to work around broken projector logic in standalone players.
+	 * Set to true to automatically patch the code if possible.
+	 */
+	public patchProjectorOffset = false;
+
 	/**
 	 * ProjectorLinux constructor.
 	 *
@@ -128,6 +157,51 @@ export abstract class ProjectorLinux extends Projector {
 
 		if (!playerPath) {
 			throw new Error(`Failed to locate player in archive: ${player}`);
+		}
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
+		const {
+			path,
+			patchWindowTitle,
+			patchMenuRemove,
+			patchProjectorPath,
+			patchProjectorOffset
+		} = this;
+
+		let data = null;
+
+		if (
+			patchWindowTitle !== null ||
+			patchMenuRemove ||
+			patchProjectorPath ||
+			patchProjectorOffset
+		) {
+			data = data || (await readFile(path));
+			data = linuxProjectorPatch(data, {
+				patchWindowTitle,
+				patchMenuRemove,
+				patchProjectorPath,
+				patchProjectorOffset
+			});
+		}
+
+		if (movieData) {
+			data = data || (await readFile(path));
+			data = Buffer.concat([
+				data,
+				this._encodeMovieData(
+					movieData,
+					data.readUint16LE(18) === EM_X86_64 ? 'lid' : 'smd'
+				)
+			]);
+		}
+
+		if (data) {
+			await writeFile(path, data);
 		}
 	}
 }

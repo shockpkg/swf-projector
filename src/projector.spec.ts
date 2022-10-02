@@ -1,4 +1,4 @@
-import {rm, mkdir, copyFile} from 'fs/promises';
+import {rm, mkdir, copyFile, readFile, writeFile} from 'fs/promises';
 import {join as pathJoin, dirname} from 'path';
 
 import {fixtureFile} from './util.spec';
@@ -29,16 +29,16 @@ export class ProjectorDummy extends Projector {
 		await copyFile(player, this.path);
 	}
 
-	protected async _modifyPlayer() {
-		// Do nothing.
-	}
-
-	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
-		if (!movieData) {
-			return;
+	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
+		if (movieData) {
+			await writeFile(
+				this.path,
+				Buffer.concat([
+					await readFile(this.path),
+					this._encodeMovieData(movieData, 'dms')
+				])
+			);
 		}
-
-		await this._appendMovieData(this.path, movieData, 'dms');
 	}
 }
 
