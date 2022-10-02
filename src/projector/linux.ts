@@ -1,4 +1,4 @@
-import {copyFile, mkdir, readFile, stat, writeFile} from 'fs/promises';
+import {copyFile, mkdir, open, readFile, stat, writeFile} from 'fs/promises';
 import {dirname} from 'path';
 
 import {
@@ -76,21 +76,23 @@ export class ProjectorLinux extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayer(player: string) {
-		// Try reading as archive, else assume Linux binary if not a directory.
-		try {
-			await this._writePlayerArchive(player);
-		} catch (err) {
-			if (
-				!(await stat(player)).isDirectory() &&
-				err &&
-				`${(err as {message: string}).message}`.startsWith(
-					'Unrecognized archive format: '
-				)
-			) {
-				await this._writePlayerFile(player);
-			} else {
-				throw err;
+		const isDir = (await stat(player)).isDirectory();
+		let isElf = false;
+		if (!isDir) {
+			const d = Buffer.alloc(4);
+			const f = await open(player, 'r');
+			try {
+				await f.read(d, 0, 4, 0);
+			} finally {
+				await f.close();
 			}
+			isElf = d.readUInt32BE() === 0x7f454c46;
+		}
+
+		if (isElf) {
+			await this._writePlayerFile(player);
+		} else {
+			await this._writePlayerArchive(player);
 		}
 	}
 

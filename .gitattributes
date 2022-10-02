@@ -1,2 +1,4 @@
 * text=auto eol=lf
 *.bin binary
+spec/fixtures/dummy binary
+spec/fixtures/dummy.exe binary
