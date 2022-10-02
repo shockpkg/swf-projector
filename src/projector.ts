@@ -32,11 +32,11 @@ export abstract class Projector {
 	}
 
 	/**
-	 * The movie appended marker.
+	 * The movie appended magic.
 	 *
-	 * @returns Marker integer.
+	 * @returns Magic integer.
 	 */
-	public get movieAppendMarker() {
+	public get movieMagic() {
 		return 0xfa123456;
 	}
 
@@ -106,10 +106,10 @@ export abstract class Projector {
 	 * Encode movie data for the projector.
 	 * Format string characters:
 	 * - d: Movie data.
-	 * - m: Marker, 32LE.
-	 * - M: Marker, 32BE.
-	 * - i: Marker, 64LE.
-	 * - I: Marker, 64BE.
+	 * - m: Magic, 32LE.
+	 * - M: Magic, 32BE.
+	 * - i: Magic, 64LE.
+	 * - I: Magic, 64BE.
 	 * - s: Size, 32LE.
 	 * - S: Size, 32BE.
 	 * - l: Size, 64LE.
@@ -129,19 +129,19 @@ export abstract class Projector {
 				}
 				case 'm': {
 					const b = Buffer.alloc(4);
-					b.writeUInt32LE(this.movieAppendMarker, 0);
+					b.writeUInt32LE(this.movieMagic, 0);
 					buffers.push(b);
 					break;
 				}
 				case 'M': {
 					const b = Buffer.alloc(4);
-					b.writeUInt32BE(this.movieAppendMarker, 0);
+					b.writeUInt32BE(this.movieMagic, 0);
 					buffers.push(b);
 					break;
 				}
 				case 'i': {
 					const b = Buffer.alloc(8);
-					const {movieAppendMarker} = this;
+					const {movieMagic: movieAppendMarker} = this;
 					// eslint-disable-next-line no-bitwise
 					b.writeInt32LE(movieAppendMarker >> 0, 0);
 					// eslint-disable-next-line no-bitwise
@@ -151,7 +151,7 @@ export abstract class Projector {
 				}
 				case 'I': {
 					const b = Buffer.alloc(8);
-					const {movieAppendMarker} = this;
+					const {movieMagic: movieAppendMarker} = this;
 					// eslint-disable-next-line no-bitwise
 					b.writeInt32BE(movieAppendMarker >> 0, 4);
 					// eslint-disable-next-line no-bitwise
