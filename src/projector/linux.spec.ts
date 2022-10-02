@@ -77,7 +77,7 @@ describe('projector/linux', () => {
 
 					const p = new ProjectorLinux(dest);
 					p.patchProjectorOffset = pkg.type === 'x86_64';
-					p.patchProjectorPath = true;
+					p.patchProjectorPath = pkg.patchProjectorPath;
 					p.patchWindowTitle = customWindowTitle;
 					p.patchMenuRemove = true;
 
