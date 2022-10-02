@@ -18,13 +18,4 @@ export abstract class BundleMac extends Bundle {
 	constructor(path: string) {
 		super(path);
 	}
-
-	/**
-	 * Main application file extension.
-	 *
-	 * @returns File extension.
-	 */
-	public get extension() {
-		return '.app';
-	}
 }

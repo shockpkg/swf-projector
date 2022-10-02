@@ -36,6 +36,15 @@ export class BundleMacApp extends BundleMac {
 	}
 
 	/**
+	 * Main application file extension.
+	 *
+	 * @returns File extension.
+	 */
+	public get extension() {
+		return '.app';
+	}
+
+	/**
 	 * Get the launcher name.
 	 *
 	 * @returns Launcher name.
