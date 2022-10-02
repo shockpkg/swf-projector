@@ -15,7 +15,7 @@ import {ProjectorMac} from '../mac';
 import {ProjectorMacApp} from './app';
 
 export function listSamples() {
-	if (shouldTest('mac-app')) {
+	if (!shouldTest('mac-app')) {
 		return [];
 	}
 	const fixBrokenIconPathsSet = new Set([

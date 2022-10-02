@@ -396,6 +396,7 @@ export class ProjectorMacApp extends ProjectorMac {
 		await this._replacePkgInfo();
 		await this._updateContentPaths();
 		await this._updateInfoPlist();
+		await this._writeMovie(movieData);
 	}
 
 	/**
