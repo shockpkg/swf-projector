@@ -76,9 +76,9 @@ export class ProjectorLinux extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayer(player: string) {
-		const isDir = (await stat(player)).isDirectory();
+		const st = await stat(player);
 		let isElf = false;
-		if (!isDir) {
+		if (!st.isDirectory() && st.size >= 4) {
 			const d = Buffer.alloc(4);
 			const f = await open(player, 'r');
 			try {
