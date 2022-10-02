@@ -146,15 +146,21 @@ export abstract class Projector {
 				}
 				case 'i': {
 					const b = Buffer.alloc(8);
-					b.writeUInt32LE(this.movieAppendMarker, 0);
-					b.writeUInt32LE(0xffffffff, 4);
+					const {movieAppendMarker} = this;
+					// eslint-disable-next-line no-bitwise
+					b.writeInt32LE(movieAppendMarker >> 0, 0);
+					// eslint-disable-next-line no-bitwise
+					b.writeInt32LE(movieAppendMarker >> 31, 4);
 					buffers.push(b);
 					break;
 				}
 				case 'I': {
 					const b = Buffer.alloc(8);
-					b.writeUInt32BE(this.movieAppendMarker, 4);
-					b.writeUInt32BE(0xffffffff, 0);
+					const {movieAppendMarker} = this;
+					// eslint-disable-next-line no-bitwise
+					b.writeInt32BE(movieAppendMarker >> 0, 4);
+					// eslint-disable-next-line no-bitwise
+					b.writeInt32BE(movieAppendMarker >> 31, 0);
 					buffers.push(b);
 					break;
 				}
