@@ -4,8 +4,6 @@ import {Manager} from '@shockpkg/core';
 
 import {pathRelativeBase, trimExtension, once} from './util';
 
-export const platformIsMac = process.platform === 'darwin';
-
 // eslint-disable-next-line no-process-env
 const envTest = process.env.SWF_PROJECTOR_TEST || null;
 
