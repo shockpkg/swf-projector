@@ -220,7 +220,7 @@ export function* findFuzzy(
 ) {
 	const end = (until < 0 ? data.length : until) - find.length;
 	const add = backward ? -1 : 1;
-	const stop = backward ? 0 : end;
+	const stop = backward ? -1 : end + 1;
 	for (let i = backward ? end : from; i !== stop; i += add) {
 		let found = true;
 		for (let j = 0; j < find.length; j++) {
