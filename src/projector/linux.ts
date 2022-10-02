@@ -126,7 +126,7 @@ export class ProjectorLinux extends Projector {
 			projectorArchiveNames.add(n.toLowerCase());
 		}
 
-		const archive = await this.openAsArchive(player);
+		const archive = await this._openArchive(player);
 		await archive.read(async entry => {
 			// Only looking for regular files, no resource forks.
 			if (entry.type !== PathType.FILE) {

@@ -119,7 +119,7 @@ export class ProjectorWindows extends Projector {
 		let playerPath = '';
 		const playerOut = this.path;
 
-		const archive = await this.openAsArchive(player);
+		const archive = await this._openArchive(player);
 		await archive.read(async entry => {
 			// Only looking for regular files, no resource forks.
 			if (entry.type !== PathType.FILE) {

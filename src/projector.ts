@@ -40,36 +40,6 @@ export abstract class Projector {
 	}
 
 	/**
-	 * Get the player file or directory as an Archive instance.
-	 *
-	 * @param path File path.
-	 * @returns Archive instance.
-	 */
-	public async openAsArchive(path: string) {
-		const st = await stat(path);
-		if (st.isDirectory()) {
-			return new ArchiveDir(path);
-		}
-		if (!st.isFile()) {
-			throw new Error(`Archive path not file or directory: ${path}`);
-		}
-
-		const r = createArchiveByFileExtension(path);
-		if (!r) {
-			throw new Error(`Archive file type unknown: ${path}`);
-		}
-
-		if (r instanceof ArchiveHdi) {
-			const {hdiutil} = this;
-			if (hdiutil) {
-				r.mounterMac.hdiutil = hdiutil;
-			}
-			r.nobrowse = true;
-		}
-		return r;
-	}
-
-	/**
 	 * Write out projector with player and file.
 	 *
 	 * @param player Player path.
@@ -99,6 +69,36 @@ export abstract class Projector {
 		if (await fsLstatExists(this.path)) {
 			throw new Error(`Output path already exists: ${this.path}`);
 		}
+	}
+
+	/**
+	 * Open path as archive.
+	 *
+	 * @param path Archive path.
+	 * @returns Archive instance.
+	 */
+	protected async _openArchive(path: string) {
+		const st = await stat(path);
+		if (st.isDirectory()) {
+			return new ArchiveDir(path);
+		}
+		if (!st.isFile()) {
+			throw new Error(`Archive path not file or directory: ${path}`);
+		}
+
+		const r = createArchiveByFileExtension(path);
+		if (!r) {
+			throw new Error(`Archive file type unknown: ${path}`);
+		}
+
+		if (r instanceof ArchiveHdi) {
+			const {hdiutil} = this;
+			if (hdiutil) {
+				r.mounterMac.hdiutil = hdiutil;
+			}
+			r.nobrowse = true;
+		}
+		return r;
 	}
 
 	/**

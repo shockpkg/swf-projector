@@ -339,7 +339,7 @@ export class ProjectorMacApp extends ProjectorMac {
 		const infoPlistStrings =
 			/^Contents\/Resources\/[^/]+\.lproj\/InfoPlist\.strings$/i;
 
-		const archive = await this.openAsArchive(player);
+		const archive = await this._openArchive(player);
 		await archive.read(async entry => {
 			// No resource forks expected.
 			if (entry.type === PathType.RESOURCE_FORK) {
