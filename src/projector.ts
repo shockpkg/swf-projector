@@ -46,7 +46,7 @@ export abstract class Projector {
 	 * @param path File path.
 	 * @returns Archive instance.
 	 */
-	public async openAsArchive(path: string): Promise<Archive> {
+	public async openAsArchive(path: string) {
 		const st = await stat(path);
 		if (st.isDirectory()) {
 			return new ArchiveDir(path);
