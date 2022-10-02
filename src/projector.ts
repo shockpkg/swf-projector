@@ -1,7 +1,6 @@
 import {readFile, stat} from 'fs/promises';
 
 import {
-	Archive,
 	ArchiveDir,
 	ArchiveHdi,
 	createArchiveByFileExtension,
