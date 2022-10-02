@@ -1,22 +1,22 @@
 import {join as pathJoin} from 'path';
 
-import {listSamples} from '../../projector/linux/64.spec';
-import {cleanBundlesDir} from '../../bundle.spec';
-import {fixtureFile, getPackageFile, simpleSwf} from '../../util.spec';
-import {loader} from '../../loader';
-import {BundleLinux} from '../linux';
+import {listSamples} from '../projector/linux.spec';
+import {cleanBundlesDir} from '../bundle.spec';
+import {fixtureFile, getPackageFile, simpleSwf} from '../util.spec';
+import {loader} from '../loader';
+import {Bundle} from '../bundle';
 
-import {BundleLinux64} from './64';
+import {BundleLinux} from './linux';
 
-describe('bundle/linux/64', () => {
-	describe('BundleLinux64', () => {
+describe('bundle/linux', () => {
+	describe('BundleLinux', () => {
 		it('instanceof BundleLinux', () => {
-			expect(BundleLinux64.prototype instanceof BundleLinux).toBeTrue();
+			expect(BundleLinux.prototype instanceof Bundle).toBeTrue();
 		});
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanBundlesDir('linux64', pkg.name, d);
+				cleanBundlesDir('linux', pkg.type, pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -26,8 +26,8 @@ describe('bundle/linux/64', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application');
 
-					const b = new BundleLinux64(dest);
-					b.projector.patchProjectorOffset = true;
+					const b = new BundleLinux(dest);
+					b.projector.patchProjectorOffset = pkg.type === 'x86_64';
 					await b.withFile(await getPlayer(), simple);
 				});
 
@@ -39,8 +39,8 @@ describe('bundle/linux/64', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application');
 
-					const b = new BundleLinux64(dest);
-					b.projector.patchProjectorOffset = true;
+					const b = new BundleLinux(dest);
+					b.projector.patchProjectorOffset = pkg.type === 'x86_64';
 					b.projector.patchProjectorPath = true;
 					await b.withData(
 						await getPlayer(),

@@ -9,7 +9,7 @@ import {EM_386, EM_X86_64} from '../util/internal/linux/elf';
 /**
  * BundleLinux object.
  */
-export abstract class BundleLinux extends Bundle {
+export class BundleLinux extends Bundle {
 	/**
 	 * ProjectorLinux instance.
 	 */
