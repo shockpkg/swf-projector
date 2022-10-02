@@ -27,8 +27,7 @@ describe('bundle/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const b = new BundleLinux(dest);
-					b.projector.patchProjectorOffset =
-						pkg.type === 'x86_64' && pkg.version[0] > 6;
+					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					await b.withFile(await getPlayer(), simple);
 				});
 
@@ -41,7 +40,7 @@ describe('bundle/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const b = new BundleLinux(dest);
-					b.projector.patchProjectorOffset = pkg.type === 'x86_64';
+					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					b.projector.patchProjectorPath = pkg.patchProjectorPath;
 					await b.withData(
 						await getPlayer(),

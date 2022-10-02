@@ -28,6 +28,7 @@ export function listSamples() {
 		.map(o => ({
 			...o,
 			type: o.platform === 'linux-x86_64' ? 'x86_64' : 'i386',
+			patchProjectorOffset: o.platform === 'linux-x86_64',
 			patchProjectorPath: o.version[0] > 6
 		}));
 }
@@ -67,7 +68,7 @@ describe('projector/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.patchProjectorOffset = pkg.type === 'x86_64';
+					p.patchProjectorOffset = pkg.patchProjectorOffset;
 					await p.withFile(await getPlayer(), simple);
 				});
 
@@ -76,7 +77,7 @@ describe('projector/linux', () => {
 					const dest = pathJoin(dir, 'application');
 
 					const p = new ProjectorLinux(dest);
-					p.patchProjectorOffset = pkg.type === 'x86_64';
+					p.patchProjectorOffset = pkg.patchProjectorOffset;
 					p.patchProjectorPath = pkg.patchProjectorPath;
 					p.patchWindowTitle = customWindowTitle;
 					p.patchMenuRemove = true;
@@ -104,7 +105,7 @@ describe('projector/linux', () => {
 						const dest = pathJoin(dir, 'application');
 
 						const p = new ProjectorLinux(dest);
-						p.patchProjectorOffset = pkg.type === 'x86_64';
+						p.patchProjectorOffset = pkg.patchProjectorOffset;
 						await p.withFile(
 							await getPlayer(),
 							fixtureFile('swf6-showmenu-false.swf')
