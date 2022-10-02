@@ -12,11 +12,6 @@ import {
  */
 export abstract class Projector {
 	/**
-	 * Path to hdiutil binary.
-	 */
-	public hdiutil: string | null = null;
-
-	/**
 	 * Output path.
 	 */
 	public readonly path: string;
@@ -82,23 +77,14 @@ export abstract class Projector {
 		if (st.isDirectory()) {
 			return new ArchiveDir(path);
 		}
-		if (!st.isFile()) {
-			throw new Error(`Archive path not file or directory: ${path}`);
+		const archive = createArchiveByFileExtension(path);
+		if (!archive) {
+			throw new Error(`Unrecognized archive format: ${path}`);
 		}
-
-		const r = createArchiveByFileExtension(path);
-		if (!r) {
-			throw new Error(`Archive file type unknown: ${path}`);
+		if (archive instanceof ArchiveHdi) {
+			archive.nobrowse = true;
 		}
-
-		if (r instanceof ArchiveHdi) {
-			const {hdiutil} = this;
-			if (hdiutil) {
-				r.mounterMac.hdiutil = hdiutil;
-			}
-			r.nobrowse = true;
-		}
-		return r;
+		return archive;
 	}
 
 	/**
