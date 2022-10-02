@@ -84,7 +84,7 @@ export class ProjectorLinux extends Projector {
 				!(await stat(player)).isDirectory() &&
 				err &&
 				`${(err as {message: string}).message}`.startsWith(
-					'Archive file type unknown: '
+					'Unrecognized archive format: '
 				)
 			) {
 				await this._writePlayerFile(player);
