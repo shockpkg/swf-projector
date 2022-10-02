@@ -16,12 +16,12 @@ import {ProjectorWindows} from './windows';
 
 export function listSamples() {
 	const platforms = new Set();
-	if (shouldTest('windows32')) {
+	if (shouldTest('windows-i386')) {
 		platforms.add('windows');
 		platforms.add('windows-32bit');
 		platforms.add('windows-i386');
 	}
-	if (shouldTest('windows64')) {
+	if (shouldTest('windows-x86_64')) {
 		platforms.add('windows-x86_64');
 	}
 	return getInstalledPackagesInfoSync()

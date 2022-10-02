@@ -16,7 +16,7 @@ describe('bundle/mac/app', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanBundlesDir('macapp', pkg.name, d);
+				cleanBundlesDir('mac', 'app', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 

@@ -16,11 +16,11 @@ import {ProjectorLinux} from './linux';
 
 export function listSamples() {
 	const platforms = new Set();
-	if (shouldTest('linux32')) {
+	if (shouldTest('linux-i386')) {
 		platforms.add('linux');
 		platforms.add('linux-i386');
 	}
-	if (shouldTest('linux64')) {
+	if (shouldTest('linux-x86_64')) {
 		platforms.add('linux-x86_64');
 	}
 	return getInstalledPackagesInfoSync()

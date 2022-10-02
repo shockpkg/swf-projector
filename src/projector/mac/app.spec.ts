@@ -5,7 +5,6 @@ import {cleanProjectorDir} from '../../projector.spec';
 import {
 	fixtureFile,
 	getPackageFile,
-	platformIsMac,
 	shouldTest,
 	getInstalledPackagesInfoSync,
 	simpleSwf,
@@ -16,7 +15,7 @@ import {ProjectorMac} from '../mac';
 import {ProjectorMacApp} from './app';
 
 export function listSamples() {
-	if (!(platformIsMac && shouldTest('macapp'))) {
+	if (shouldTest('mac-app')) {
 		return [];
 	}
 	const fixBrokenIconPathsSet = new Set([
@@ -44,7 +43,7 @@ describe('projector/mac/app', () => {
 
 		describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('macapp', 'dummy', d);
+				cleanProjectorDir('mac', 'app', 'dummy', d);
 
 			it('simple', async () => {
 				const dir = await getDir('simple');
@@ -60,7 +59,7 @@ describe('projector/mac/app', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('macapp', pkg.name, d);
+				cleanProjectorDir('mac', 'app', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
