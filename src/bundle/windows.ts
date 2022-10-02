@@ -56,7 +56,7 @@ export class BundleWindows extends Bundle {
 		const {path, projector} = this;
 
 		const data = Buffer.alloc(4);
-		const f = await open(projector.path);
+		const f = await open(projector.path, 'r');
 		try {
 			await f.read(data, 0, 4, 60);
 			await f.read(data, 0, 2, data.readUInt32LE() + 4);

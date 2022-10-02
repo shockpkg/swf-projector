@@ -53,7 +53,7 @@ export class BundleLinux extends Bundle {
 
 		let stat = null;
 		const machineD = Buffer.alloc(2);
-		const f = await open(projector.path);
+		const f = await open(projector.path, 'r');
 		try {
 			stat = await f.stat();
 			await f.read(machineD, 0, 2, 18);
