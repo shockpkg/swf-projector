@@ -384,7 +384,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @inheritDoc
 	 */
 	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
-		await this._fixPlayer();
+		await this._fixPlayerIconPath();
 		await this._removeInfoPlistStrings();
 		await this._patchProjector();
 		await this._replaceIcon();
@@ -444,13 +444,6 @@ export class ProjectorMacApp extends ProjectorMac {
 		}
 
 		await writeFile(this.moviePath, movieData);
-	}
-
-	/**
-	 * Fix partially broken players.
-	 */
-	protected async _fixPlayer() {
-		await this._fixPlayerIconPath();
 	}
 
 	/**
