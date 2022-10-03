@@ -5,6 +5,7 @@ import {
 	ArchiveDir,
 	fsChmod,
 	fsUtimes,
+	fsWalk,
 	modePermissionBits,
 	PathType
 } from '@shockpkg/archive-files';
@@ -335,9 +336,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	protected async _writePlayerArchive(player: string) {
 		const extensionLower = this.extension.toLowerCase();
 		let playerName = '';
-		const {path, removeInfoPlistStrings} = this;
-		const infoPlistStrings =
-			/^Contents\/Resources\/[^/]+\.lproj\/InfoPlist\.strings$/i;
+		const {path} = this;
 
 		const archive = await this._openArchive(player);
 		await archive.read(async entry => {
@@ -372,11 +371,6 @@ export class ProjectorMacApp extends ProjectorMac {
 				throw new Error('Internal error');
 			}
 
-			// Skip if InfoPlist.strings and excluding those.
-			if (removeInfoPlistStrings && infoPlistStrings.test(rel)) {
-				return;
-			}
-
 			const extractPath = pathJoin(path, rel);
 			await entry.extract(extractPath);
 		});
@@ -391,6 +385,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	 */
 	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
 		await this._fixPlayer();
+		await this._removeInfoPlistStrings();
 		await this._patchProjector();
 		await this._replaceIcon();
 		await this._replacePkgInfo();
@@ -477,6 +472,26 @@ export class ProjectorMacApp extends ProjectorMac {
 		infoPlistBundleIconFileSet(plist, `${iconFile}.icns`);
 
 		await this._writeInfoPlist(plist);
+	}
+
+	/**
+	 * Remove InfoPlist.strings localization files if present.
+	 */
+	protected async _removeInfoPlistStrings() {
+		const {path, removeInfoPlistStrings} = this;
+		if (!removeInfoPlistStrings) {
+			return;
+		}
+
+		await fsWalk(this.path, async (p, s) => {
+			if (
+				s.isFile() &&
+				dirname(p).endsWith('.lproj') &&
+				/^InfoPlist\.strings$/i.test(basename(p))
+			) {
+				await rm(pathJoin(path, p));
+			}
+		});
 	}
 
 	/**
