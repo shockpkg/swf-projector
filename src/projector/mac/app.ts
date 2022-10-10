@@ -1,17 +1,10 @@
 import {mkdir, readFile, rename, rm, stat, writeFile} from 'fs/promises';
 import {join as pathJoin, basename, dirname} from 'path';
 
-import {
-	ArchiveDir,
-	fsChmod,
-	fsUtimes,
-	fsWalk,
-	modePermissionBits,
-	PathType
-} from '@shockpkg/archive-files';
+import {ArchiveDir, fsWalk, PathType} from '@shockpkg/archive-files';
 import {Plist} from '@shockpkg/plist-dom';
 
-import {pathRelativeBase, trimExtension} from '../../util';
+import {trimExtension} from '../../util';
 import {
 	plistRead,
 	plistParse,
@@ -289,93 +282,63 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * @param player Player path.
 	 */
 	protected async _writePlayer(player: string) {
+		const {path, extension} = this;
+		const extLower = extension.toLowerCase();
+		let archive;
+		let isPlayer: (path: string) => boolean;
 		if (
-			player.toLowerCase().endsWith(this.extension.toLowerCase()) &&
+			player.toLowerCase().endsWith(extLower) &&
 			(await stat(player)).isDirectory()
 		) {
-			await this._writePlayerFile(player);
+			const name = basename(player);
+			archive = await this._openArchive(dirname(player));
+			(archive as ArchiveDir).subpaths = [name];
+			// eslint-disable-next-line jsdoc/require-jsdoc
+			isPlayer = (path: string) => path === name;
 		} else {
-			await this._writePlayerArchive(player);
-		}
-	}
-
-	/**
-	 * Write the projector player, from file.
-	 *
-	 * @param player Player path.
-	 */
-	protected async _writePlayerFile(player: string) {
-		const st = await stat(player);
-		if (!st.isDirectory()) {
-			throw new Error(`Path is not directory: ${player}`);
+			archive = await this._openArchive(player);
+			// eslint-disable-next-line jsdoc/require-jsdoc
+			isPlayer = (path: string) => path.toLowerCase().endsWith(extLower);
 		}
 
-		const playerOut = this.path;
-		await mkdir(playerOut, {recursive: true});
-
-		// Open directory as archive, for copying.
-		const archive = new ArchiveDir(player);
+		let playerPath = '';
 		await archive.read(async entry => {
 			// No resource forks expected.
 			if (entry.type === PathType.RESOURCE_FORK) {
-				return;
-			}
-
-			await entry.extract(pathJoin(playerOut, entry.volumePath));
-		});
-
-		await fsChmod(playerOut, modePermissionBits(st.mode));
-		await fsUtimes(playerOut, st.atime, st.mtime);
-	}
-
-	/**
-	 * Write the projector player, from archive.
-	 *
-	 * @param player Player path.
-	 */
-	protected async _writePlayerArchive(player: string) {
-		const extensionLower = this.extension.toLowerCase();
-		let playerName = '';
-		const {path} = this;
-
-		const archive = await this._openArchive(player);
-		await archive.read(async entry => {
-			// No resource forks expected.
-			if (entry.type === PathType.RESOURCE_FORK) {
-				return;
+				return true;
 			}
 
 			const {volumePath} = entry;
 
-			const slashIndex = volumePath.indexOf('/');
-			const base =
-				slashIndex > -1
-					? volumePath.substring(0, slashIndex)
-					: volumePath;
-			const baseLower = base.toLowerCase();
-
-			if (baseLower.startsWith('.')) {
-				return;
-			}
-			if (!baseLower.endsWith(extensionLower)) {
-				return;
+			// Ignore any dot files and directories and all their children.
+			if (volumePath.startsWith('.') || volumePath.includes('/.')) {
+				return null;
 			}
 
-			if (playerName && playerName !== base) {
-				throw new Error(`Found multiple players in archive: ${player}`);
+			// Look for the player.
+			if (isPlayer(volumePath)) {
+				if (playerPath) {
+					throw new Error(
+						`Found multiple players in archive: ${player}`
+					);
+				}
+				playerPath = volumePath;
 			}
-			playerName = base;
 
-			const rel = pathRelativeBase(volumePath, base);
-			if (rel === null) {
-				throw new Error('Internal error');
+			// Check if this is the player.
+			if (
+				volumePath !== playerPath &&
+				!volumePath.startsWith(`${playerPath}/`)
+			) {
+				return true;
 			}
 
-			const extractPath = pathJoin(path, rel);
-			await entry.extract(extractPath);
+			const dest = path + volumePath.substring(playerPath.length);
+			await entry.extract(dest);
+			return true;
 		});
 
-		if (!playerName) {
+		if (!playerPath) {
 			throw new Error(`Failed to locate player in archive: ${player}`);
 		}
 	}
