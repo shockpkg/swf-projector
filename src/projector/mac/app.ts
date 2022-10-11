@@ -310,11 +310,6 @@ export class ProjectorMacApp extends ProjectorMac {
 				return true;
 			}
 
-			// Ignore any dot files and directories and all their children.
-			if (volumePath.startsWith('.') || volumePath.includes('/.')) {
-				return null;
-			}
-
 			// Look for the player.
 			if (isPlayer(volumePath)) {
 				if (playerPath) {

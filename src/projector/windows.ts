@@ -100,11 +100,6 @@ export class ProjectorWindows extends Projector {
 		await archive.read(async entry => {
 			const {volumePath, type} = entry;
 
-			// Ignore any dot files and directories and all their children.
-			if (volumePath.startsWith('.') || volumePath.includes('/.')) {
-				return null;
-			}
-
 			// Only looking for regular files, no resource forks.
 			if (type !== PathType.FILE) {
 				return true;
