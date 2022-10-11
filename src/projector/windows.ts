@@ -1,12 +1,7 @@
-import {copyFile, mkdir, stat, readFile, writeFile} from 'fs/promises';
-import {dirname} from 'path';
+import {stat, readFile, writeFile} from 'fs/promises';
+import {basename, dirname} from 'path';
 
-import {
-	fsChmod,
-	fsUtimes,
-	modePermissionBits,
-	PathType
-} from '@shockpkg/archive-files';
+import {ArchiveDir, PathType} from '@shockpkg/archive-files';
 
 import {Projector} from '../projector';
 import {windowsProjectorPatch} from '../util/windows';
@@ -81,66 +76,56 @@ export class ProjectorWindows extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayer(player: string) {
+		const {path, extension} = this;
+		const extLower = extension.toLowerCase();
+
+		let archive;
+		let isPlayer: (path: string) => boolean;
 		if (
-			player.toLowerCase().endsWith(this.extension.toLowerCase()) &&
+			player.toLowerCase().endsWith(extLower) &&
 			(await stat(player)).isFile()
 		) {
-			await this._writePlayerFile(player);
+			const name = basename(player);
+			archive = await this._openArchive(dirname(player));
+			(archive as ArchiveDir).subpaths = [name];
+			// eslint-disable-next-line jsdoc/require-jsdoc
+			isPlayer = (path: string) => path === name;
 		} else {
-			await this._writePlayerArchive(player);
-		}
-	}
-
-	/**
-	 * Write the projector player, from file.
-	 *
-	 * @param player Player path.
-	 */
-	protected async _writePlayerFile(player: string) {
-		const st = await stat(player);
-		if (!st.isFile()) {
-			throw new Error(`Path not a file: ${player}`);
+			archive = await this._openArchive(player);
+			// eslint-disable-next-line jsdoc/require-jsdoc
+			isPlayer = (path: string) => path.toLowerCase().endsWith(extLower);
 		}
 
-		const {path} = this;
-		await mkdir(dirname(path), {recursive: true});
-		await copyFile(player, path);
-		await fsChmod(path, modePermissionBits(st.mode));
-		await fsUtimes(path, st.atime, st.mtime);
-	}
-
-	/**
-	 * Write the projector player, from archive.
-	 *
-	 * @param player Player path.
-	 */
-	protected async _writePlayerArchive(player: string) {
-		const extensionLower = this.extension.toLowerCase();
 		let playerPath = '';
-		const playerOut = this.path;
-
-		const archive = await this._openArchive(player);
 		await archive.read(async entry => {
-			// Only looking for regular files, no resource forks.
-			if (entry.type !== PathType.FILE) {
-				return;
-			}
-			const {path} = entry;
+			const {volumePath, type} = entry;
 
-			if (!path.toLowerCase().endsWith(extensionLower)) {
-				return;
+			// Ignore any dot files and directories and all their children.
+			if (volumePath.startsWith('.') || volumePath.includes('/.')) {
+				return null;
+			}
+
+			// Only looking for regular files, no resource forks.
+			if (type !== PathType.FILE) {
+				return true;
+			}
+
+			// Ignore files that are not the player file.
+			if (!isPlayer(volumePath)) {
+				return true;
 			}
 
 			if (playerPath) {
-				throw new Error(`Found multiple players in archive: ${player}`);
+				throw new Error(`Found multiple players in: ${player}`);
 			}
-			playerPath = path;
+			playerPath = volumePath;
 
-			await entry.extract(playerOut);
+			await entry.extract(path);
+			return true;
 		});
 
 		if (!playerPath) {
-			throw new Error(`Failed to locate player in archive: ${player}`);
+			throw new Error(`Failed to locate player in: ${player}`);
 		}
 	}
 
