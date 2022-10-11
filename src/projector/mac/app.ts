@@ -318,9 +318,7 @@ export class ProjectorMacApp extends ProjectorMac {
 			// Look for the player.
 			if (isPlayer(volumePath)) {
 				if (playerPath) {
-					throw new Error(
-						`Found multiple players in archive: ${player}`
-					);
+					throw new Error(`Found multiple players in: ${player}`);
 				}
 				playerPath = volumePath;
 			}
@@ -339,7 +337,7 @@ export class ProjectorMacApp extends ProjectorMac {
 		});
 
 		if (!playerPath) {
-			throw new Error(`Failed to locate player in archive: ${player}`);
+			throw new Error(`Failed to locate player in: ${player}`);
 		}
 	}
 
