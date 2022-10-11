@@ -1,12 +1,7 @@
-import {copyFile, mkdir, open, readFile, stat, writeFile} from 'fs/promises';
-import {dirname} from 'path';
+import {open, readFile, stat, writeFile} from 'fs/promises';
+import {basename, dirname} from 'path';
 
-import {
-	fsChmod,
-	fsUtimes,
-	modePermissionBits,
-	PathType
-} from '@shockpkg/archive-files';
+import {ArchiveDir, PathType} from '@shockpkg/archive-files';
 
 import {Projector} from '../projector';
 import {linuxProjectorPatch} from '../util/linux';
@@ -76,8 +71,9 @@ export class ProjectorLinux extends Projector {
 	 * @param player Player path.
 	 */
 	protected async _writePlayer(player: string) {
-		const st = await stat(player);
+		const {path} = this;
 		let isElf = false;
+		const st = await stat(player);
 		if (!st.isDirectory() && st.size >= 4) {
 			const d = Buffer.alloc(4);
 			const f = await open(player, 'r');
@@ -89,76 +85,60 @@ export class ProjectorLinux extends Projector {
 			isElf = d.readUInt32BE() === 0x7f454c46;
 		}
 
+		let archive;
+		let isPlayer: (path: string, mode: number | null) => boolean;
 		if (isElf) {
-			await this._writePlayerFile(player);
+			const name = basename(player);
+			archive = await this._openArchive(dirname(player));
+			(archive as ArchiveDir).subpaths = [name];
+			// eslint-disable-next-line jsdoc/require-jsdoc
+			isPlayer = (path: string, mode: number | null) => path === name;
 		} else {
-			await this._writePlayerArchive(player);
+			archive = await this._openArchive(player);
+			const names = new Set<string>();
+			for (const n of this.getProjectorArchiveNames()) {
+				names.add(n.toLowerCase());
+			}
+			// eslint-disable-next-line jsdoc/require-jsdoc
+			isPlayer = (path: string, mode: number | null) =>
+				// The file should be user executable, if mode is available.
+				// eslint-disable-next-line no-bitwise
+				(mode === null || !!(mode & 0b001000000)) &&
+				names.has(
+					path.substring(path.lastIndexOf('/') + 1).toLowerCase()
+				);
 		}
-	}
 
-	/**
-	 * Write the projector player, from file.
-	 *
-	 * @param player Player path.
-	 */
-	protected async _writePlayerFile(player: string) {
-		const st = await stat(player);
-		if (!st.isFile()) {
-			throw new Error(`Path not a file: ${player}`);
-		}
-
-		const {path} = this;
-		await mkdir(dirname(path), {recursive: true});
-		await copyFile(player, path);
-		await fsChmod(path, modePermissionBits(st.mode));
-		await fsUtimes(path, st.atime, st.mtime);
-	}
-
-	/**
-	 * Write the projector player, from archive.
-	 *
-	 * @param player Player path.
-	 */
-	protected async _writePlayerArchive(player: string) {
 		let playerPath = '';
-		const playerOut = this.path;
-
-		const projectorArchiveNames = new Set<string>();
-		for (const n of this.getProjectorArchiveNames()) {
-			projectorArchiveNames.add(n.toLowerCase());
-		}
-
-		const archive = await this._openArchive(player);
 		await archive.read(async entry => {
+			const {volumePath, type, mode} = entry;
+
+			// Ignore any dot files and directories and all their children.
+			if (volumePath.startsWith('.') || volumePath.includes('/.')) {
+				return null;
+			}
+
 			// Only looking for regular files, no resource forks.
-			if (entry.type !== PathType.FILE) {
-				return;
+			if (type !== PathType.FILE) {
+				return true;
 			}
-			const {mode, path} = entry;
 
-			// The file should be user executable, assuming mode is available.
-			// eslint-disable-next-line no-bitwise
-			const userExec = mode === null ? null : !!(mode & 0b001000000);
-			if (userExec === false) {
-				return;
-			}
-			const name = path.substring(path.lastIndexOf('/') + 1);
-			const nameLower = name.toLowerCase();
-
-			if (!projectorArchiveNames.has(nameLower)) {
-				return;
+			// Ignore files that are not the player file.
+			if (!isPlayer(volumePath, mode)) {
+				return true;
 			}
 
 			if (playerPath) {
-				throw new Error(`Found multiple players in archive: ${player}`);
+				throw new Error(`Found multiple players in: ${player}`);
 			}
-			playerPath = path;
+			playerPath = volumePath;
 
-			await entry.extract(playerOut);
+			await entry.extract(path);
+			return true;
 		});
 
 		if (!playerPath) {
-			throw new Error(`Failed to locate player in archive: ${player}`);
+			throw new Error(`Failed to locate player in: ${player}`);
 		}
 	}
 
