@@ -303,12 +303,12 @@ export class ProjectorMacApp extends ProjectorMac {
 
 		let playerPath = '';
 		await archive.read(async entry => {
+			const {volumePath, type} = entry;
+
 			// No resource forks expected.
-			if (entry.type === PathType.RESOURCE_FORK) {
+			if (type === PathType.RESOURCE_FORK) {
 				return true;
 			}
-
-			const {volumePath} = entry;
 
 			// Ignore any dot files and directories and all their children.
 			if (volumePath.startsWith('.') || volumePath.includes('/.')) {
