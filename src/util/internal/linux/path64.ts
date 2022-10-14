@@ -11,7 +11,7 @@ export abstract class PatchPath64 extends PatchPath<Elf64> {}
 /**
  * PatchPath64File object.
  */
-export abstract class PatchPath64File extends PatchPath64 {
+abstract class PatchPath64File extends PatchPath64 {
 	/**
 	 * Fuzzy find.
 	 */

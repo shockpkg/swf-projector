@@ -11,7 +11,7 @@ export abstract class PatchPath32 extends PatchPath<Elf32> {}
 /**
  * PatchPath32Dir object.
  */
-export abstract class PatchPath32Dir extends PatchPath32 {
+abstract class PatchPath32Dir extends PatchPath32 {
 	private _addr_ = 0;
 
 	/**
@@ -144,7 +144,7 @@ export abstract class PatchPath32Dir extends PatchPath32 {
 /**
  * PatchPath32File object.
  */
-export abstract class PatchPath32File extends PatchPath32 {
+abstract class PatchPath32File extends PatchPath32 {
 	/**
 	 * Relative offset.
 	 */
@@ -216,7 +216,7 @@ export abstract class PatchPath32File extends PatchPath32 {
 /**
  * PatchPath32FileAbs object.
  */
-export abstract class PatchPath32FileAbs extends PatchPath32File {
+abstract class PatchPath32FileAbs extends PatchPath32File {
 	/**
 	 * @inheritDoc
 	 */
@@ -226,7 +226,7 @@ export abstract class PatchPath32FileAbs extends PatchPath32File {
 /**
  * PatchPath32FileRel object.
  */
-export abstract class PatchPath32FileRel extends PatchPath32File {
+abstract class PatchPath32FileRel extends PatchPath32File {
 	/**
 	 * @inheritDoc
 	 */
