@@ -27,7 +27,6 @@ export class ProjectorLinux extends Projector {
 	 * Attempt to patch the projector path reading code.
 	 * Necessary to work around broken projector path resolving code.
 	 * Set to true to automatically patch the code if possible.
-	 * Supports projector versions 9+ (unnecessary for version 6).
 	 */
 	public patchProjectorPath = false;
 
