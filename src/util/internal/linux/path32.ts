@@ -9,6 +9,139 @@ import {PatchPath} from './path';
 export abstract class PatchPath32 extends PatchPath<Elf32> {}
 
 /**
+ * PatchPath32Dir object.
+ */
+export abstract class PatchPath32Dir extends PatchPath32 {
+	private _addr_ = 0;
+
+	/**
+	 * @inheritDoc
+	 */
+	public check() {
+		for (const [shdr, i] of this._findFuzzyCode(
+			[
+				// push    ebp
+				'55',
+				// push    edi
+				'57',
+				// push    esi
+				'56',
+				// push    ebx
+				'53',
+				// sub     esp, 0x24
+				'83 EC 24',
+				// mov     ebx, 0x1000
+				'BB 00 10 00 00',
+				// mov     ebp, DWORD PTR [esp+0x40]
+				'8B 6C 24 40',
+				// push    ebx
+				'53',
+				// push    ...
+				'68 -- -- -- --',
+				// mov     BYTE PTR ds:..., 0x0
+				'C6 05 -- -- -- -- 00',
+				// call    ...
+				'E8 -- -- -- --',
+				// mov     edi, eax
+				'89 C7',
+				// add     esp, 0x10
+				'83 C4 10',
+				// test    edi, edi
+				'85 FF',
+				// je      ...
+				'0F 84 -- -- -- --',
+				// test    ebp, ebp
+				'85 ED',
+				// je      ...
+				'0F 84 -- -- -- --',
+				// sub     esp, 0x8
+				'83 EC 08',
+				// push    ebx
+				'53',
+				// push    edi
+				'57',
+				// call    ...
+				'E8 -- -- -- --',
+				// add     esp, 0x10
+				'83 C4 10',
+				// test    al, al
+				'84 C0',
+				// je      ...
+				'0F 84 -- -- -- --',
+				// sub     esp, 0x8
+				'83 EC 08',
+				// push    ...
+				'68 -- -- -- --',
+				// lea     ebx, [esp+0xC]
+				'8D 5C 24 0C',
+				// push    ebx
+				'53',
+				// call    ...
+				'E8 -- -- -- --',
+				// pop     edx
+				'5A',
+				// pop     ecx
+				'59',
+				// push    edi
+				'57',
+				// push    ebx
+				'53',
+				// call    ...
+				'E8 -- -- -- --',
+				// mov     DWORD PTR [esp], ebp
+				'89 2C 24',
+				// call    ...
+				'E8 -- -- -- --',
+				// add     esp, 0x10
+				'83 C4 10',
+				// cmp     eax, 0x5
+				'83 F8 05',
+				// jle     ...
+				'7E --',
+				// sub     esp, 0xC
+				'83 EC 0C',
+				// push    edi
+				'57'
+			].join(' ')
+		)) {
+			if (this._addr_) {
+				return false;
+			}
+			this._addr_ = shdr.shAddr + i;
+		}
+		return !!this._addr_;
+	}
+
+	/**
+	 * @inheritDoc
+	 */
+	public patch() {
+		const {_addr_: addr} = this;
+		const shdr = this._theShdrForAddress(addr);
+		const d = Buffer.from(shdr.data);
+		const i = addr - shdr.shAddr;
+
+		// sIsProjector -> sExecutableName
+		const ptr = d.readUInt32LE(i + 24) + 4;
+
+		// nop 2x
+		d.writeUInt8(0x90, i + 68);
+		d.writeUInt8(0x90, i + 69);
+
+		// mov     esi, DWORD PTR ds:...
+		d.writeUInt8(0x8b, i + 70);
+		d.writeUInt8(0x35, i + 71);
+		d.writeUInt32LE(ptr, i + 72);
+
+		// push     esi
+		d.writeUInt8(0x56, i + 96);
+
+		// push     esi
+		d.writeUInt8(0x56, i + 122);
+	}
+}
+
+/**
  * PatchPath32File object.
  */
 export abstract class PatchPath32File extends PatchPath32 {
@@ -104,6 +237,11 @@ export abstract class PatchPath32FileRel extends PatchPath32File {
  * Patch objects.
  */
 export const path32 = [
+	/**
+	 * 6.0.79.0 i386.
+	 */
+	class extends PatchPath32Dir {},
+
 	/**
 	 * 9.0.115.0 i386.
 	 */

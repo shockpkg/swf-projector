@@ -41,7 +41,7 @@ describe('bundle/linux', () => {
 
 					const b = new BundleLinux(dest);
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
-					b.projector.patchProjectorPath = pkg.patchProjectorPath;
+					b.projector.patchProjectorPath = true;
 					await b.withData(
 						await getPlayer(),
 						loader(6, 600, 400, 30, 0xffffff, 'main.swf', 30 / 2),

@@ -28,8 +28,7 @@ export function listSamples() {
 		.map(o => ({
 			...o,
 			type: o.platform === 'linux-x86_64' ? 'x86_64' : 'i386',
-			patchProjectorOffset: o.platform === 'linux-x86_64',
-			patchProjectorPath: o.version[0] > 6
+			patchProjectorOffset: o.platform === 'linux-x86_64'
 		}));
 }
 
@@ -78,7 +77,7 @@ describe('projector/linux', () => {
 
 					const p = new ProjectorLinux(dest);
 					p.patchProjectorOffset = pkg.patchProjectorOffset;
-					p.patchProjectorPath = pkg.patchProjectorPath;
+					p.patchProjectorPath = true;
 					p.patchWindowTitle = customWindowTitle;
 					p.patchMenuRemove = true;
 
