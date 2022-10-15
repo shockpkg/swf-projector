@@ -24,48 +24,12 @@ Reading DMG projector packages is only supported on macOS.
 
 ## Projector
 
-### Windows 32-bit
+### Windows
 
 ```js
-import {ProjectorWindows32} from '@shockpkg/swf-projector';
+import {ProjectorWindows} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorWindows32('projector-windows32/application.exe');
-
-// Optional custom icon.
-projector.iconFile = 'icon.ico';
-
-// Optional custom PE resource strings.
-projector.versionStrings = {
-	FileVersion: '1.2.3.4',
-	ProductVersion: '1.2.3.4',
-	CompanyName: 'Custom Company Name',
-	FileDescription: 'Custom File Description',
-	LegalCopyright: 'Custom Legal Copyright',
-	ProductName: 'Custom Product Name',
-	LegalTrademarks: 'Custom Legal Trademarks',
-	OriginalFilename: 'CustomOriginalFilename.exe',
-	InternalName: 'CustomInternalName',
-	Comments: 'Custom Comments'
-};
-
-// Optionally patch window title.
-projector.patchWindowTitle = 'Custom Title';
-
-// Optionally remove now-broken signature.
-projector.removeCodeSignature = true;
-
-// Optionally remove out-of-date check.
-projector.patchOutOfDateDisable = true;
-
-await projector.withFile('player.exe', 'movie.swf');
-```
-
-### Windows 64-bit
-
-```js
-import {ProjectorWindows64} from '@shockpkg/swf-projector';
-
-const projector = new ProjectorWindows64('projector-windows64/application.exe');
+const projector = new ProjectorWindows('projector-windows/application.exe');
 
 // Optional custom icon.
 projector.iconFile = 'icon.ico';
@@ -133,12 +97,12 @@ projector.removeCodeSignature = true;
 await projector.withFile('player.dmg', 'movie.swf');
 ```
 
-### Linux 32-bit
+### Linux
 
 ```js
-import {ProjectorLinux32} from '@shockpkg/swf-projector';
+import {ProjectorLinux} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorLinux32('projector-linux32/application');
+const projector = new ProjectorLinux('projector-linux/application');
 
 // Optionally patch window title.
 projector.patchWindowTitle = 'Custom Title';
@@ -149,26 +113,7 @@ projector.patchWindowTitle = 'Custom Title';
 // Necessary to load from relative paths.
 projector.patchProjectorPath = true;
 
-await projector.withFile('player.tar.gz', 'movie.swf');
-```
-
-### Linux 64-bit
-
-```js
-import {ProjectorLinux64} from '@shockpkg/swf-projector';
-
-const projector = new ProjectorLinux64('projector-linux64/application');
-
-// Optionally patch window title.
-projector.patchWindowTitle = 'Custom Title';
-
-// Optionally disable menu entirely.
-// projector.patchMenuRemove = true;
-
-// Necessary to load from relative paths.
-projector.patchProjectorPath = true;
-
-// Necessary unless the binaries get fixed.
+// Only for 64-bit Linux, where this is necessary.
 projector.patchProjectorOffset = true;
 
 await projector.withFile('player.tar.gz', 'movie.swf');
@@ -176,29 +121,12 @@ await projector.withFile('player.tar.gz', 'movie.swf');
 
 ## Bundle
 
-### Windows 32-bit
+### Windows
 
 ```js
-import {BundleWindows32} from '@shockpkg/swf-projector';
+import {BundleWindows} from '@shockpkg/swf-projector';
 
-const bundle = new BundleWindows32('bundle-windows32/application.exe');
-
-// Use projector property to set options.
-bundle.projector.removeCodeSignature = true;
-bundle.projector.patchOutOfDateDisable = true;
-
-await bundle.withFile('player.exe', 'movie.swf', async b => {
-	// Add resources in callback.
-	await b.copyResource('other.swf', 'other.swf');
-});
-```
-
-### Windows 64-bit
-
-```js
-import {BundleWindows64} from '@shockpkg/swf-projector';
-
-const bundle = new BundleWindows64('bundle-windows64/application.exe');
+const bundle = new BundleWindows('bundle-windows/application.exe');
 
 // Use projector property to set options.
 bundle.projector.removeCodeSignature = true;
@@ -226,28 +154,12 @@ await bundle.withFile('player.dmg', 'movie.swf', async b => {
 });
 ```
 
-### Linux 32-bit
+### Linux
 
 ```js
-import {BundleLinux32} from '@shockpkg/swf-projector';
+import {BundleLinux} from '@shockpkg/swf-projector';
 
-const bundle = new BundleLinux32('bundle-linux32/application');
-
-// Use projector property to set options.
-bundle.projector.patchProjectorPath = true;
-
-await bundle.withFile('player.tar.gz', 'movie.swf', async b => {
-	// Add resources in callback.
-	await b.copyResource('other.swf', 'other.swf');
-});
-```
-
-### Linux 64-bit
-
-```js
-import {BundleLinux64} from '@shockpkg/swf-projector';
-
-const bundle = new BundleLinux64('bundle-linux64/application');
+const bundle = new BundleLinux('bundle-linux/application');
 
 // Use projector property to set options.
 bundle.projector.patchProjectorPath = true;
@@ -311,13 +223,11 @@ An option to completely disable the menu for the projector.
 
 ### Option: `patchProjectorPath`
 
-Compatible with Flash Player 9+ (version 6 was correct).
+Required in Flash Player 6 and Flash Player 10.1+ to load relative paths (other versions would try the relative path first, before trying resolved path).
 
-Required since Flash Player 10.1+ to load relative paths (earlier versions would try the relative path first, before trying resolved path).
+Projectors version 9+ create the main URL with: `"file:" + argv[0]` resolving to a bad URL like `file://file|%2Fpath%2Fto%2Fapplication` causing relative paths to load from the root of the drive. For such projectors this patch replaces the string reference to use `"file://" + argv[0]` instead, which resolves to `file:///path/to/application` when run by an absolute path.
 
-Projectors create the main URL with: `"file:" + argv[0]` resolving to a bad URL like `file://file|%2Fpath%2Fto%2Fapplication` causing relative paths to load from the root of the drive.
-
-This patch replaces the string reference to use `"file://" + argv[0]` instead, which resolves to `file:///path/to/application` when run by an absolute path.
+Projector version 6 would use the current working directory for the main URL, causing relative paths to start in the directory above the. For such projectors this patch replaces the directory string reference to use `argv[0]` instead.
 
 Not a perfect patch because it does not resolve the full path first, if run from relative path would get path like `file://./application`, but an improvement. Recommended to use a shell script or binary that resolves itself and runs projector from an absolute path. Using a Bundle does this automatically.
 
