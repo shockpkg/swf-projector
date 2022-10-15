@@ -17,14 +17,14 @@ jobs:
             NO_LINT: 1
             PKG: ''
 
-          - node-version: '16.16.0' # LTS (current)
+          - node-version: '16.18.0' # LTS (current)
             PKG: ''
 
-          - node-version: '18.6.0' # Latest
+          - node-version: '18.11.0' # Latest
             PKG: ''
 
           # Notable Windows versions
-          - node-version: '16.16.0' # LTS (current)
+          - node-version: '16.18.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
             PKG:
@@ -93,7 +93,7 @@ jobs:
               - flash-player-3.0.8.0-windows-32bit-sa
 
           # Notable Mac versions
-          - node-version: '16.16.0' # LTS (current)
+          - node-version: '16.18.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
             PKG:
@@ -147,7 +147,7 @@ jobs:
               - flash-player-9.0.28.0-mac-sa-debug-zip
 
           # Notable Linux x86_64 versions
-          - node-version: '16.16.0' # LTS (current)
+          - node-version: '16.18.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
             PKG:
@@ -169,7 +169,7 @@ jobs:
               - flash-player-24.0.0.186-linux-x86_64-sa-debug
 
           # Notable Linux i386 versions
-          - node-version: '16.16.0' # LTS (current)
+          - node-version: '16.18.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
             PKG:
@@ -252,7 +252,7 @@ jobs:
       - name: Node
         uses: actions/setup-node@v3
         with:
-          node-version: '16.16.0'
+          node-version: '16.18.0'
           registry-url: https://registry.npmjs.org/
 
       - name: Dependencies
