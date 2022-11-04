@@ -10,23 +10,27 @@ jobs:
           - node-version: '14.15.0' # LTS
             NO_FORMATTED: 1
             NO_LINT: 1
+            PKGSET: ''
             PKG: ''
 
           - node-version: '16.13.0' # LTS
             NO_FORMATTED: 1
             NO_LINT: 1
+            PKGSET: ''
             PKG: ''
 
           - node-version: '18.12.0' # LTS (current)
+            PKGSET: ''
             PKG: ''
 
           - node-version: '19.0.0' # Latest
+            PKGSET: ''
             PKG: ''
 
-          # Notable Windows versions
           - node-version: '18.12.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
+            PKGSET: 'Notable-Windows-versions'
             PKG:
               # Version 35.0.0.204:
               - flash-player-35.0.0.204-windows-i386-sa-2022-07-04
@@ -92,10 +96,10 @@ jobs:
               # Only 3.0 32-bit:
               - flash-player-3.0.8.0-windows-32bit-sa
 
-          # Notable Mac versions
           - node-version: '18.12.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
+            PKGSET: 'Notable-Mac-versions'
             PKG:
               # Version 35.0.0.204:
               - flash-player-35.0.0.204-mac-x86_64-sa-2022-07-04
@@ -146,10 +150,10 @@ jobs:
               # First Mac APP bundle, broken icon, DMG:
               - flash-player-9.0.28.0-mac-sa-debug-zip
 
-          # Notable Linux x86_64 versions
           - node-version: '18.12.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
+            PKGSET: 'Notable-Linux-x86_64-versions'
             PKG:
               # Last version:
               - flash-player-32.0.0.465-linux-x86_64-sa
@@ -168,10 +172,10 @@ jobs:
               - flash-player-24.0.0.186-linux-x86_64-sa
               - flash-player-24.0.0.186-linux-x86_64-sa-debug
 
-          # Notable Linux i386 versions
           - node-version: '18.12.0' # LTS (current)
             NO_FORMATTED: 1
             NO_LINT: 1
+            PKGSET: 'Notable-Linux-i386-versions'
             PKG:
               # Version 11.2, last version:
               - flash-player-11.2.202.644-linux-i386-sa
@@ -214,6 +218,13 @@ jobs:
 
       - name: Dependencies
         run: npm ci
+
+      - name: shockpkg Cache
+        uses: actions/cache@v3
+        if: matrix.config.PKGSET != ''
+        with:
+          key: shockpkg-${{ matrix.config.PKGSET }}
+          path: shockpkg
 
       - name: shockpkg Update
         run: npm run shockpkg -- update --summary
