@@ -124,7 +124,7 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 		const e = d.length;
 		for (let i = s; i < e; i++) {
 			if (!d[i]) {
-				return d.toString('ascii', s, i);
+				return String.fromCharCode(...d.subarray(s, i));
 			}
 		}
 		return null;

@@ -58,7 +58,7 @@ export class Swf extends Data {
 	 */
 	public encoder(data: Buffer) {
 		let i = 0;
-		data.write('FWS', i, 'ascii');
+		data.write('FWS', i);
 		i += 3;
 
 		data.writeUInt8(this.version, i++);

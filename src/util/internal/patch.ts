@@ -310,7 +310,7 @@ export function getCstrN(data: Readonly<Buffer>, i: number, l: number) {
 			break;
 		}
 	}
-	return data.toString('ascii', i, i + c);
+	return String.fromCharCode(...data.subarray(i, i + c));
 }
 
 /**

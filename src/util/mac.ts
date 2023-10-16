@@ -475,9 +475,9 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	setU32(secdata, 0, le, title.length);
 	const seg = Buffer.alloc(lp ? 72 + 80 : 56 + 68);
 	const sec = seg.subarray(lp ? 72 : 56);
-	sec.write(secname, 0, 16, 'ascii');
-	sec.write(segname, 16, 16, 'ascii');
-	sec.write(segname, 16, 16, 'ascii');
+	sec.write(secname, 0, 16);
+	sec.write(segname, 16, 16);
+	sec.write(segname, 16, 16);
 	if (lp) {
 		setU64(sec, 32, le, vmaddr);
 		setU64(sec, 40, le, secdata.length);
@@ -491,7 +491,7 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	}
 	setU32(seg, 0, le, SEGMENT);
 	setU32(seg, 4, le, seg.length);
-	seg.write(segname, 8, 16, 'ascii');
+	seg.write(segname, 8, 16);
 	const segSize = alignVmsize(secdata.length);
 	if (lp) {
 		setU64(seg, 24, le, vmaddr);

@@ -264,7 +264,7 @@ export class ProjectorMacApp extends ProjectorMac {
 	public async getPkgInfoData() {
 		const {pkgInfoData, pkgInfoFile} = this;
 		if (typeof pkgInfoData === 'string') {
-			return Buffer.from(pkgInfoData, 'ascii');
+			return Buffer.from(pkgInfoData);
 		}
 		return pkgInfoData || (pkgInfoFile ? readFile(pkgInfoFile) : null);
 	}

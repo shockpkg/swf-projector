@@ -48,10 +48,10 @@ function add(a: number | bigint, b: number | bigint) {
 function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 	const aligned = 64;
 	const secnameData = '.shockpkg.data';
-	const secnameDataD = Buffer.from(`${secnameData}\0`, 'ascii');
+	const secnameDataD = Buffer.from(`${secnameData}\0`);
 	const secnameDataS = secnameDataD.length;
 	const secnameEof = '.shockpkg.eof';
-	const secnameEofD = Buffer.from(`${secnameEof}\0`, 'ascii');
+	const secnameEofD = Buffer.from(`${secnameEof}\0`);
 	const secnameEofS = secnameEofD.length;
 	const secdata = bufferAlign(data, aligned);
 
@@ -91,8 +91,7 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 
 			// Only FP6 uses this older library.
 			const d = Buffer.from(shdr.data);
-			allowBssAfterLoadData =
-				d.indexOf('libgtk-1.2.so.0', 0, 'ascii') >= 0;
+			allowBssAfterLoadData = d.indexOf('libgtk-1.2.so.0', 0) >= 0;
 		}
 	}
 
