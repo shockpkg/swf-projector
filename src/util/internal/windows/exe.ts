@@ -24,7 +24,7 @@ export function exeSectionByAddress(exe: NtExecutable, address: number) {
 			address < virtualAddress + virtualSize
 		) {
 			return {
-				info,
+				info: info as {virtualAddress: number},
 				data
 			};
 		}

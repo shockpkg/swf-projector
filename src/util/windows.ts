@@ -143,7 +143,8 @@ export function windowsProjectorPatch(
 		if (sd) {
 			// PE library lacks a way to add an arbitrary section.
 			// Using the reserved index temporarily, then clearing it.
-			exe.setSectionByEntry(IDD_RESERVED, {
+			const entry = IDD_RESERVED as number;
+			exe.setSectionByEntry(entry, {
 				info: {
 					name: '.shockd',
 					virtualSize: sd.length,
@@ -160,8 +161,8 @@ export function windowsProjectorPatch(
 				},
 				data: bufferToArrayBuffer(sd)
 			});
-			const s = exe.getSectionByEntry(IDD_RESERVED);
-			exe.newHeader.optionalHeaderDataDirectory.set(IDD_RESERVED, {
+			const s = exe.getSectionByEntry(entry);
+			exe.newHeader.optionalHeaderDataDirectory.set(entry, {
 				virtualAddress: 0,
 				size: 0
 			});
