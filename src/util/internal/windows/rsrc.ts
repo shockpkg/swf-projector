@@ -1,7 +1,5 @@
 import {NtExecutableResource, Resource, Data} from '@shockpkg/resedit';
 
-import {bufferToArrayBuffer} from '../patch';
-
 /**
  * Parse PE version string to integers (MS then LS bits) or null.
  *
@@ -38,7 +36,9 @@ export function rsrcPatchIcon(
 	rsrc: NtExecutableResource,
 	iconData: Readonly<Buffer>
 ) {
-	const ico = Data.IconFile.from(bufferToArrayBuffer(iconData));
+	const ico = Data.IconFile.from(
+		iconData.buffer.slice(iconData.byteOffset, iconData.byteLength)
+	);
 	for (const iconGroup of Resource.IconGroupEntry.fromEntries(rsrc.entries)) {
 		Resource.IconGroupEntry.replaceIconsForResource(
 			rsrc.entries,

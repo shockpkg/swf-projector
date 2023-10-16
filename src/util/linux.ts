@@ -128,17 +128,23 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 	for (const d = new Uint8Array(shtrndx.data); d[secnameI++]; );
 
 	// Insert new section names.
-	shtrndx.data = bufferToArrayBuffer(
-		Buffer.concat(
-			[
-				Buffer.from(shtrndx.data, 0, secnameI),
-				secnameDataD,
-				secnameEofD,
-				Buffer.from(shtrndx.data, secnameI)
-			],
-			shtrndx.data.byteLength + secnameDataS + secnameEofS
-		)
+	const newData = new ArrayBuffer(
+		shtrndx.data.byteLength + secnameDataS + secnameEofS
 	);
+	{
+		const data = new Uint8Array(newData);
+		let i = 0;
+		for (const a of [
+			new Uint8Array(shtrndx.data, 0, secnameI),
+			secnameDataD,
+			secnameEofD,
+			new Uint8Array(shtrndx.data, secnameI)
+		]) {
+			data.set(a, i);
+			i += a.length;
+		}
+	}
+	shtrndx.data = newData;
 	shtrndx.shSize =
 		elf.bits === 64
 			? BigInt(shtrndx.data.byteLength)
