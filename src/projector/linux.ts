@@ -1,7 +1,11 @@
 import {open, readFile, stat, writeFile} from 'node:fs/promises';
 import {basename, dirname} from 'node:path';
 
-import {ArchiveDir, PathType} from '@shockpkg/archive-files';
+import {
+	ArchiveDir,
+	PathType,
+	createArchiveByFileExtensionOrThrow
+} from '@shockpkg/archive-files';
 
 import {Projector} from '../projector';
 import {linuxProjectorPatch} from '../util/linux';
@@ -73,7 +77,8 @@ export class ProjectorLinux extends Projector {
 		const {path} = this;
 		let isElf = false;
 		const st = await stat(player);
-		if (!st.isDirectory() && st.size >= 4) {
+		const isDir = st.isDirectory();
+		if (!isDir && st.size >= 4) {
 			const d = Buffer.alloc(4);
 			const f = await open(player, 'r');
 			try {
@@ -88,12 +93,16 @@ export class ProjectorLinux extends Projector {
 		let isPlayer: (path: string, mode: number | null) => boolean;
 		if (isElf) {
 			const name = basename(player);
-			archive = await this._openArchive(dirname(player));
-			(archive as ArchiveDir).subpaths = [name];
+			archive = new ArchiveDir(dirname(player));
+			archive.subpaths = [name];
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			isPlayer = (path: string, mode: number | null) => path === name;
 		} else {
-			archive = await this._openArchive(player);
+			archive = isDir
+				? new ArchiveDir(player)
+				: createArchiveByFileExtensionOrThrow(player, {
+						nobrowse: this.nobrowse
+				  });
 			const names = new Set<string>();
 			for (const n of this.getProjectorArchiveNames()) {
 				names.add(n.toLowerCase());

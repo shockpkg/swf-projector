@@ -1,7 +1,12 @@
 import {mkdir, readFile, rename, rm, stat, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
-import {ArchiveDir, fsWalk, PathType} from '@shockpkg/archive-files';
+import {
+	ArchiveDir,
+	createArchiveByFileExtensionOrThrow,
+	fsWalk,
+	PathType
+} from '@shockpkg/archive-files';
 import {Plist} from '@shockpkg/plist-dom';
 
 import {trimExtension} from '../../util';
@@ -286,17 +291,22 @@ export class ProjectorMacApp extends ProjectorMac {
 		const extLower = extension.toLowerCase();
 		let archive;
 		let isPlayer: (path: string) => boolean;
-		if (
-			player.toLowerCase().endsWith(extLower) &&
-			(await stat(player)).isDirectory()
-		) {
+		let st = player.toLowerCase().endsWith(extLower)
+			? await stat(player)
+			: null;
+		if (st?.isDirectory()) {
 			const name = basename(player);
-			archive = await this._openArchive(dirname(player));
-			(archive as ArchiveDir).subpaths = [name];
+			archive = new ArchiveDir(dirname(player));
+			archive.subpaths = [name];
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			isPlayer = (path: string) => path === name;
 		} else {
-			archive = await this._openArchive(player);
+			st ??= await stat(player);
+			archive = st.isDirectory()
+				? new ArchiveDir(player)
+				: createArchiveByFileExtensionOrThrow(player, {
+						nobrowse: this.nobrowse
+				  });
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			isPlayer = (path: string) => path.toLowerCase().endsWith(extLower);
 		}

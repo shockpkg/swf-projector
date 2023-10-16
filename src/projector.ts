@@ -1,16 +1,16 @@
-import {readFile, stat} from 'node:fs/promises';
+import {readFile} from 'node:fs/promises';
 
-import {
-	ArchiveDir,
-	ArchiveHdi,
-	createArchiveByFileExtension,
-	fsLstatExists
-} from '@shockpkg/archive-files';
+import {fsLstatExists} from '@shockpkg/archive-files';
 
 /**
  * Projector object.
  */
 export abstract class Projector {
+	/**
+	 * Set the nobrowse option on mounted disk images.
+	 */
+	public nobrowse = false;
+
 	/**
 	 * Output path.
 	 */
@@ -64,27 +64,6 @@ export abstract class Projector {
 		if (await fsLstatExists(this.path)) {
 			throw new Error(`Output path already exists: ${this.path}`);
 		}
-	}
-
-	/**
-	 * Open path as archive.
-	 *
-	 * @param path Archive path.
-	 * @returns Archive instance.
-	 */
-	protected async _openArchive(path: string) {
-		const st = await stat(path);
-		if (st.isDirectory()) {
-			return new ArchiveDir(path);
-		}
-		const archive = createArchiveByFileExtension(path);
-		if (!archive) {
-			throw new Error(`Unrecognized archive format: ${path}`);
-		}
-		if (archive instanceof ArchiveHdi) {
-			archive.nobrowse = true;
-		}
-		return archive;
 	}
 
 	/**

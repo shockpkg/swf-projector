@@ -1,7 +1,11 @@
 import {stat, readFile, writeFile} from 'node:fs/promises';
 import {basename, dirname} from 'node:path';
 
-import {ArchiveDir, PathType} from '@shockpkg/archive-files';
+import {
+	ArchiveDir,
+	PathType,
+	createArchiveByFileExtensionOrThrow
+} from '@shockpkg/archive-files';
 
 import {Projector} from '../projector';
 import {windowsProjectorPatch} from '../util/windows';
@@ -81,17 +85,22 @@ export class ProjectorWindows extends Projector {
 
 		let archive;
 		let isPlayer: (path: string) => boolean;
-		if (
-			player.toLowerCase().endsWith(extLower) &&
-			(await stat(player)).isFile()
-		) {
+		let st = player.toLowerCase().endsWith(extLower)
+			? await stat(player)
+			: null;
+		if (st?.isFile()) {
 			const name = basename(player);
-			archive = await this._openArchive(dirname(player));
-			(archive as ArchiveDir).subpaths = [name];
+			archive = new ArchiveDir(dirname(player));
+			archive.subpaths = [name];
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			isPlayer = (path: string) => path === name;
 		} else {
-			archive = await this._openArchive(player);
+			st ??= await stat(player);
+			archive = st.isDirectory()
+				? new ArchiveDir(player)
+				: createArchiveByFileExtensionOrThrow(player, {
+						nobrowse: this.nobrowse
+				  });
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			isPlayer = (path: string) => path.toLowerCase().endsWith(extLower);
 		}
