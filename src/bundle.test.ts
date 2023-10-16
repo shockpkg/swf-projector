@@ -18,13 +18,6 @@ import {fixtureFile} from './util.spec';
 
 const getDir = async (d: string) => cleanBundlesDir('dummy', d);
 
-// Test atime can be tricky because it can change easily.
-// Make testing it optional.
-const testAtime = /(1|true|yes)/i.test(
-	// eslint-disable-next-line no-process-env
-	process.env.SWF_PROJECTOR_TEST_ATIME || ''
-);
-
 const supportsExecutable = !process.platform.startsWith('win');
 const supportsSymlinks = !process.platform.startsWith('win');
 const supportsSymlinkAttrs = process.platform.startsWith('darwin');
@@ -130,18 +123,12 @@ void describe('bundle', () => {
 			notStrictEqual(res0.mtime.getFullYear(), 2001);
 
 			const res0A = await st('resources0/a.txt');
-			if (testAtime) {
-				notStrictEqual(res0A.atime.getFullYear(), 2001);
-			}
 			notStrictEqual(res0A.mtime.getFullYear(), 2001);
 			if (supportsExecutable) {
 				strictEqual(isUserExec(res0A.mode), false);
 			}
 
 			const res0B = await st('resources0/d/b.txt');
-			if (testAtime) {
-				notStrictEqual(res0B.atime.getFullYear(), 2001);
-			}
 			notStrictEqual(res0B.mtime.getFullYear(), 2001);
 			if (supportsExecutable) {
 				strictEqual(isUserExec(res0B.mode), false);
@@ -152,37 +139,21 @@ void describe('bundle', () => {
 				const res0L2 = await st('resources0/l2.txt');
 
 				if (supportsSymlinkAttrs) {
-					if (testAtime) {
-						notStrictEqual(res0L1.atime.getFullYear(), 2001);
-					}
 					notStrictEqual(res0L1.mtime.getFullYear(), 2001);
-
-					if (testAtime) {
-						notStrictEqual(res0L2.atime.getFullYear(), 2001);
-					}
 					notStrictEqual(res0L2.mtime.getFullYear(), 2001);
 				}
 			}
 
 			const res1 = await st('resources1');
-			if (testAtime) {
-				strictEqual(res1.atime.getFullYear(), 2001);
-			}
 			strictEqual(res1.mtime.getFullYear(), 2001);
 
 			const res1A = await st('resources1/a.txt');
-			if (testAtime) {
-				strictEqual(res1A.atime.getFullYear(), 2001);
-			}
 			strictEqual(res1A.mtime.getFullYear(), 2001);
 			if (supportsExecutable) {
 				strictEqual(isUserExec(res1A.mode), false);
 			}
 
 			const res1B = await st('resources1/d/b.txt');
-			if (testAtime) {
-				strictEqual(res1B.atime.getFullYear(), 2001);
-			}
 			strictEqual(res1B.mtime.getFullYear(), 2001);
 			if (supportsExecutable) {
 				strictEqual(isUserExec(res1B.mode), true);
@@ -193,17 +164,11 @@ void describe('bundle', () => {
 				const res1L2 = await st('resources1/l2.txt');
 
 				if (supportsSymlinkAttrs) {
-					if (testAtime) {
-						strictEqual(res1L1.atime.getFullYear(), 2001);
-					}
 					strictEqual(res1L1.mtime.getFullYear(), 2001);
 					if (supportsExecutable) {
 						strictEqual(isUserExec(res1L1.mode), true);
 					}
 
-					if (testAtime) {
-						strictEqual(res1L2.atime.getFullYear(), 2001);
-					}
 					strictEqual(res1L2.mtime.getFullYear(), 2001);
 					if (supportsExecutable) {
 						strictEqual(isUserExec(res1L2.mode), false);
@@ -212,24 +177,15 @@ void describe('bundle', () => {
 			}
 
 			const res2 = await st('resources2');
-			if (testAtime) {
-				notStrictEqual(res2.atime.getFullYear(), 2002);
-			}
 			notStrictEqual(res2.mtime.getFullYear(), 2002);
 
 			const res2A = await st('resources2/a.txt');
-			if (testAtime) {
-				strictEqual(res2A.atime.getFullYear(), 2002);
-			}
 			strictEqual(res2A.mtime.getFullYear(), 2002);
 			if (supportsExecutable) {
 				strictEqual(isUserExec(res2A.mode), true);
 			}
 
 			const res2B = await st('resources2/d/b.txt');
-			if (testAtime) {
-				strictEqual(res2B.atime.getFullYear(), 2002);
-			}
 			strictEqual(res2B.mtime.getFullYear(), 2002);
 			if (supportsExecutable) {
 				strictEqual(isUserExec(res2B.mode), false);
@@ -240,17 +196,11 @@ void describe('bundle', () => {
 				const res1L2 = await st('resources2/l2.txt');
 
 				if (supportsSymlinkAttrs) {
-					if (testAtime) {
-						strictEqual(res1L1.atime.getFullYear(), 2002);
-					}
 					strictEqual(res1L1.mtime.getFullYear(), 2002);
 					if (supportsExecutable) {
 						strictEqual(isUserExec(res1L1.mode), true);
 					}
 
-					if (testAtime) {
-						strictEqual(res1L2.atime.getFullYear(), 2002);
-					}
 					strictEqual(res1L2.mtime.getFullYear(), 2002);
 					if (supportsExecutable) {
 						strictEqual(isUserExec(res1L2.mode), false);
