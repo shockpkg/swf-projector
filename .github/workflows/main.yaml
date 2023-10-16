@@ -7,29 +7,20 @@ jobs:
     strategy:
       matrix:
         config:
-          - node-version: '14.15.0' # LTS
-            NO_FORMATTED: 1
-            NO_LINT: 1
+          - node-version: '18.12.0' # LTS
             PKGSET: ''
             PKG: ''
 
-          - node-version: '16.13.0' # LTS
-            NO_FORMATTED: 1
-            NO_LINT: 1
+          - node-version: '18.18.0' # LTS (current)
+            CODE_CHECK: 1
             PKGSET: ''
             PKG: ''
 
-          - node-version: '18.12.0' # LTS (current)
+          - node-version: '20.8.0' # Latest
             PKGSET: ''
             PKG: ''
 
-          - node-version: '19.0.0' # Latest
-            PKGSET: ''
-            PKG: ''
-
-          - node-version: '18.12.0' # LTS (current)
-            NO_FORMATTED: 1
-            NO_LINT: 1
+          - node-version: '18.18.0' # LTS (current)
             PKGSET: 'Notable-Windows-versions'
             PKG:
               # Version 35.0.0.204:
@@ -96,9 +87,7 @@ jobs:
               # Only 3.0 32-bit:
               - flash-player-3.0.8.0-windows-32bit-sa
 
-          - node-version: '18.12.0' # LTS (current)
-            NO_FORMATTED: 1
-            NO_LINT: 1
+          - node-version: '18.18.0' # LTS (current)
             PKGSET: 'Notable-Mac-versions'
             PKG:
               # Version 35.0.0.204:
@@ -150,9 +139,7 @@ jobs:
               # First Mac APP bundle, broken icon, DMG:
               - flash-player-9.0.28.0-mac-sa-debug-zip
 
-          - node-version: '18.12.0' # LTS (current)
-            NO_FORMATTED: 1
-            NO_LINT: 1
+          - node-version: '18.18.0' # LTS (current)
             PKGSET: 'Notable-Linux-x86_64-versions'
             PKG:
               # Last version:
@@ -172,9 +159,7 @@ jobs:
               - flash-player-24.0.0.186-linux-x86_64-sa
               - flash-player-24.0.0.186-linux-x86_64-sa-debug
 
-          - node-version: '18.12.0' # LTS (current)
-            NO_FORMATTED: 1
-            NO_LINT: 1
+          - node-version: '18.18.0' # LTS (current)
             PKGSET: 'Notable-Linux-i386-versions'
             PKG:
               # Version 11.2, last version:
@@ -205,7 +190,7 @@ jobs:
               - flash-player-9.0.115.0-linux-sa-debug
               - flash-player-6.0.79.0-linux-sa
 
-    runs-on: 'ubuntu-20.04'
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -233,6 +218,9 @@ jobs:
         run: npm run shockpkg -- install ${{ join(matrix.config.PKG, ' ') }}
         if: matrix.config.PKG != ''
 
+      - name: Launchers
+        run: npm run launchers
+
       - name: Build
         run: npm run build
 
@@ -244,17 +232,17 @@ jobs:
 
       - name: Lint
         run: npm run lint
-        if: matrix.config.NO_LINT != 1
+        if: matrix.config.CODE_CHECK == 1
 
       - name: Formatted
         run: npm run formatted
-        if: matrix.config.NO_FORMATTED != 1
+        if: matrix.config.CODE_CHECK == 1
 
   publish:
     if: startsWith(github.ref, 'refs/tags/')
     needs: build
 
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -263,7 +251,7 @@ jobs:
       - name: Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18.12.0'
+          node-version: '18.18.0'
           registry-url: https://registry.npmjs.org/
 
       - name: Dependencies

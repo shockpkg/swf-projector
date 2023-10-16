@@ -25,8 +25,8 @@
 		"declaration": true,
 		"emitDeclarationOnly": true,
 
-		"types": ["node", "jasmine"],
-		"outDir": "lib"
+		"types": ["node"],
+		"outDir": "dts"
 	},
-	"include": ["src/**/*.ts"]
+	"include": ["src/**/*.ts", "src/**/*.tsx"]
 }

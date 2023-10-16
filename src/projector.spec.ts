@@ -1,7 +1,6 @@
-import {rm, mkdir, copyFile, readFile, writeFile} from 'fs/promises';
-import {join as pathJoin, dirname} from 'path';
+import {rm, mkdir, copyFile, readFile, writeFile} from 'node:fs/promises';
+import {join as pathJoin, dirname} from 'node:path';
 
-import {fixtureFile} from './util.spec';
 import {Projector} from './projector';
 
 export const specProjectorsPath = pathJoin('spec', 'projectors');
@@ -12,8 +11,6 @@ export async function cleanProjectorDir(...path: string[]) {
 	await mkdir(dir, {recursive: true});
 	return dir;
 }
-
-const getDir = async (d: string) => cleanProjectorDir('dummy', d);
 
 export class ProjectorDummy extends Projector {
 	constructor(path: string) {
@@ -41,15 +38,3 @@ export class ProjectorDummy extends Projector {
 		}
 	}
 }
-
-describe('projector', () => {
-	describe('ProjectorDummy', () => {
-		it('simple', async () => {
-			const dir = await getDir('simple');
-			const dest = pathJoin(dir, 'application.exe');
-
-			const p = new ProjectorDummy(dest);
-			await p.withFile(fixtureFile('dummy.exe'), fixtureFile('swf3.swf'));
-		});
-	});
-});

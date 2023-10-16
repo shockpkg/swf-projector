@@ -1,3 +1,6 @@
+import {describe, it} from 'node:test';
+import {strictEqual} from 'node:assert';
+
 import {loader} from './loader';
 
 function bufferHex(buffer: Buffer) {
@@ -108,23 +111,26 @@ const swf5Complex = [
 describe('loader', () => {
 	describe('loader', () => {
 		it('swfv: 4', () => {
-			expect(
-				bufferHex(loader(4, 600, 400, 30, 0x336699, 'other.swf'))
-			).toBe(swf4);
+			strictEqual(
+				bufferHex(loader(4, 600, 400, 30, 0x336699, 'other.swf')),
+				swf4
+			);
 		});
 
 		it('swfv: 5', () => {
-			expect(
-				bufferHex(loader(5, 600, 400, 30, 0x336699, 'other.swf'))
-			).toBe(swf5);
+			strictEqual(
+				bufferHex(loader(5, 600, 400, 30, 0x336699, 'other.swf')),
+				swf5
+			);
 		});
 
 		it('swfv: 5 complex', () => {
-			expect(
+			strictEqual(
 				bufferHex(
 					loader(5, 600.5, 400.5, 30.5, 0x336699, 'other.swf', 2)
-				)
-			).toBe(swf5Complex);
+				),
+				swf5Complex
+			);
 		});
 	});
 });

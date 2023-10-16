@@ -1,4 +1,6 @@
-import {createHash} from 'crypto';
+import {describe, it} from 'node:test';
+import {deepStrictEqual, strictEqual} from 'node:assert';
+import {createHash} from 'node:crypto';
 
 import {machoAppLauncher, machoTypesData} from './mac';
 
@@ -88,7 +90,7 @@ describe('util/mac', () => {
 		for (const {name, data, format} of machoTypes) {
 			// eslint-disable-next-line no-loop-func
 			it(name, () => {
-				expect(machoTypesData(data)).toEqual(format);
+				deepStrictEqual(machoTypesData(data), format);
 			});
 		}
 	});
@@ -98,8 +100,8 @@ describe('util/mac', () => {
 			// eslint-disable-next-line no-loop-func
 			it(name, async () => {
 				const data = await machoAppLauncher(format);
-				expect(machoTypesData(data)).toEqual(format);
-				expect(sha256(data)).toBe(launcher);
+				deepStrictEqual(machoTypesData(data), format);
+				strictEqual(sha256(data), launcher);
 			});
 		}
 	});

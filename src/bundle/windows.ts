@@ -1,5 +1,5 @@
-import {mkdir, open, writeFile} from 'fs/promises';
-import {join as pathJoin, basename, dirname} from 'path';
+import {mkdir, open, writeFile} from 'node:fs/promises';
+import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {trimExtension} from '../util';
 import {windowsLauncher} from '../util/windows';

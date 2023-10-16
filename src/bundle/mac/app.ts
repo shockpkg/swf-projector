@@ -1,5 +1,5 @@
-import {copyFile, mkdir, stat, writeFile} from 'fs/promises';
-import {join as pathJoin, basename, dirname} from 'path';
+import {copyFile, mkdir, stat, writeFile} from 'node:fs/promises';
+import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {fsLstatExists} from '@shockpkg/archive-files';
 

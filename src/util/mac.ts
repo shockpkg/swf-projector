@@ -1,4 +1,4 @@
-import {readFile} from 'fs/promises';
+import {readFile} from 'node:fs/promises';
 
 import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
 import {unsign} from 'macho-unsign';

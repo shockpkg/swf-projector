@@ -1,4 +1,4 @@
-import {createReadStream, createWriteStream} from 'fs';
+import {createReadStream, createWriteStream} from 'node:fs';
 import {
 	chmod,
 	lstat,
@@ -8,10 +8,10 @@ import {
 	stat,
 	symlink,
 	utimes
-} from 'fs/promises';
-import {Readable, pipeline} from 'stream';
-import {join as pathJoin, dirname, basename, resolve} from 'path';
-import {promisify} from 'util';
+} from 'node:fs/promises';
+import {Readable, pipeline} from 'node:stream';
+import {join as pathJoin, dirname, basename, resolve} from 'node:path';
+import {promisify} from 'node:util';
 
 import {
 	fsLchmodSupported,

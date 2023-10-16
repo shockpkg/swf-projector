@@ -1,5 +1,5 @@
-import {mkdir, open, writeFile} from 'fs/promises';
-import {join as pathJoin, basename, dirname} from 'path';
+import {mkdir, open, writeFile} from 'node:fs/promises';
+import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {ProjectorLinux} from '../projector/linux';
 import {Bundle} from '../bundle';

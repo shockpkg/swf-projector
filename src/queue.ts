@@ -7,7 +7,7 @@ export class Queue {
 	 */
 	private _queue_: {
 		priority: number;
-		handler: () => Promise<any>;
+		handler: () => Promise<unknown>;
 	}[] = [];
 
 	/**
@@ -37,7 +37,7 @@ export class Queue {
 	 * @param handler Callback function.
 	 * @param priority Callback priority.
 	 */
-	public push(handler: () => Promise<any>, priority = 0) {
+	public push(handler: () => Promise<unknown>, priority = 0) {
 		const queue = this._queue_;
 		let index = 0;
 		for (let i = queue.length; i--; ) {

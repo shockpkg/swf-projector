@@ -1,4 +1,6 @@
-import {join as pathJoin} from 'path';
+import {describe, it} from 'node:test';
+import {strictEqual} from 'node:assert';
+import {join as pathJoin} from 'node:path';
 
 import {listSamples, customWindowTitle} from '../../projector/mac/app.spec';
 import {cleanBundlesDir} from '../../bundle.spec';
@@ -11,7 +13,7 @@ import {BundleMacApp} from './app';
 describe('bundle/mac/app', () => {
 	describe('BundleMacApp', () => {
 		it('instanceof BundleMac', () => {
-			expect(BundleMacApp.prototype instanceof BundleMac).toBeTrue();
+			strictEqual(BundleMacApp.prototype instanceof BundleMac, true);
 		});
 
 		for (const pkg of listSamples()) {

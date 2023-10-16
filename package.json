@@ -4,62 +4,67 @@
 	"version": "4.0.1",
 	"keywords": [
 		"shockpkg",
-		"package",
-		"manager",
 		"flash",
+		"animate",
 		"swf",
 		"projector"
 	],
-	"main": "lib/index",
+	"main": "cjs/index",
 	"exports": {
-		"./module.mjs": "./module.mjs",
 		".": [
 			{
-				"import": "./lib/index.mjs",
-				"require": "./lib/index.js",
-				"default": "./lib/index.js"
+				"import": "./esm/index.mjs",
+				"require": "./cjs/index.js",
+				"default": "./cjs/index.js"
 			},
-			"./lib/index.js"
+			"./cjs/index.js"
 		]
 	},
-	"types": "lib/index.d.ts",
-	"module": "module.mjs",
+	"types": "dts/index.d.ts",
+	"module": "esm/index.mjs",
 	"sideEffects": false,
 	"engines": {
-		"node": ">=14.15.0"
+		"node": ">=18.12.0"
 	},
 	"scripts": {
 		"shockpkg": "shockpkg",
-		"clean": "gulp clean",
-		"lint": "gulp lint",
-		"format": "gulp format",
-		"formatted": "gulp formatted",
-		"build:cjs": "gulp build:cjs",
-		"build:esm": "gulp build:esm",
-		"build": "gulp build",
-		"test:cjs": "gulp test:cjs",
-		"test:esm": "gulp test:esm",
-		"test": "gulp test",
-		"all:cjs": "gulp all:cjs",
-		"all:esm": "gulp all:esm",
-		"all": "gulp all",
-		"watch:cjs": "gulp watch:cjs",
-		"watch:esm": "gulp watch:esm",
-		"watch": "gulp watch",
-		"prepack": "gulp prepack"
+		"launchers": "node launchers/download.mjs",
+		"clean": "rimraf *.log* dts esm cjs spec/bundles spec/projectors",
+		"lint": "eslint .",
+		"format": "prettier -w .",
+		"formatted": "prettier -c .",
+		"build:dts": "tsc",
+		"build:esm": "babel --env-name esm -x .ts -s true -d esm --out-file-extension .mjs src",
+		"build:cjs": "babel --env-name cjs -x .ts -s true -d cjs --out-file-extension .js src",
+		"build": "npm run build:dts && npm run build:esm && npm run build:cjs",
+		"test:esm": "node -r source-map-support/register --test esm",
+		"test:cjs": "node -r source-map-support/register --test cjs",
+		"test": "npm run test:esm && npm run test:cjs",
+		"all:esm": "npm run clean && npm run build:esm && npm run test:esm && npm run lint && npm run formatted",
+		"all:cjs": "npm run clean && npm run build:cjs && npm run test:cjs && npm run lint && npm run formatted",
+		"all": "npm run clean && npm run build && npm run test && npm run lint && npm run formatted",
+		"prepack": "npm run launchers && npm run clean && npm run build"
 	},
 	"repository": "https://github.com/shockpkg/swf-projector.git",
 	"bugs": "https://github.com/shockpkg/swf-projector/issues",
 	"author": "JrMasterModelBuilder",
-	"copyright": "Copyright (c) 2019-2022 JrMasterModelBuilder",
+	"copyright": "Copyright (c) 2019-2023 JrMasterModelBuilder",
 	"license": "MPL-2.0",
+	"dependencies": {
+		"@shockpkg/archive-files": "^2.1.2",
+		"@shockpkg/plist-dom": "^3.0.2",
+		"macho-unsign": "^1.1.1",
+		"portable-executable-signature": "^1.1.1",
+		"resedit": "^1.6.0"
+	},
 	"devDependencies": {
+		"@babel/cli": "^7.23.0",
 		"@babel/core": "^7.19.6",
 		"@babel/preset-env": "^7.19.4",
 		"@babel/preset-typescript": "^7.18.6",
 		"@babel/register": "^7.18.9",
-		"@shockpkg/cli": "^2.0.3",
-		"@shockpkg/core": "^2.0.2",
+		"@shockpkg/cli": "^3.0.5",
+		"@shockpkg/core": "^3.0.4",
 		"@types/gulp": "^4.0.9",
 		"@types/gulp-babel": "^6.1.30",
 		"@types/gulp-filter": "^3.0.34",
@@ -72,6 +77,7 @@
 		"@typescript-eslint/eslint-plugin": "^5.42.0",
 		"@typescript-eslint/parser": "^5.42.0",
 		"babel-plugin-esm-resolver": "^2.3.0",
+		"babel-plugin-search-and-replace": "^1.1.1",
 		"eslint": "^8.26.0",
 		"eslint-config-prettier": "^8.5.0",
 		"eslint-plugin-import": "^2.26.0",
@@ -88,14 +94,8 @@
 		"jasmine-spec-reporter": "^7.0.0",
 		"node-fetch": "^3.2.10",
 		"prettier": "^2.7.1",
+		"rimraf": "^5.0.5",
 		"source-map-support": "^0.5.21",
 		"typescript": "^4.8.4"
-	},
-	"dependencies": {
-		"@shockpkg/archive-files": "^2.1.2",
-		"@shockpkg/plist-dom": "^3.0.2",
-		"macho-unsign": "^1.1.1",
-		"portable-executable-signature": "^1.1.1",
-		"resedit": "^1.6.0"
 	}
 }

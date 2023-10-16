@@ -1,8 +1,7 @@
-import {join as pathJoin} from 'path';
+import {join as pathJoin} from 'node:path';
+import {readdirSync, statSync} from 'node:fs';
 
 import {Manager} from '@shockpkg/core';
-
-import {pathRelativeBase, trimExtension, once} from './util';
 
 // eslint-disable-next-line no-process-env
 const envTest = process.env.SWF_PROJECTOR_TEST || null;
@@ -24,18 +23,28 @@ export function fixtureFile(name: string) {
 }
 
 export async function getPackageFile(pkg: string) {
-	return new Manager().with(async manager => manager.packageInstallFile(pkg));
+	return new Manager().file(pkg);
 }
 
 let getInstalledPackagesCache: string[] | null = null;
 export function getInstalledPackagesSync() {
 	if (!getInstalledPackagesCache) {
-		// eslint-disable-next-line no-process-env
-		const installed = process.env.SWF_PROJECTOR_INSTALLED || null;
-		if (installed) {
-			getInstalledPackagesCache = installed.split(',');
-		} else {
-			getInstalledPackagesCache = [];
+		getInstalledPackagesCache = [];
+		try {
+			const dir = 'shockpkg';
+			for (const d of readdirSync(dir, {withFileTypes: true})) {
+				if (d.name.startsWith('.') || !d.isDirectory()) {
+					continue;
+				}
+				const st = statSync(`${dir}/${d.name}/.shockpkg/package.json`);
+				if (st.isFile()) {
+					getInstalledPackagesCache.push(d.name);
+				}
+			}
+		} catch (err) {
+			if (!(err && (err as {code: string}).code === 'ENOENT')) {
+				throw err;
+			}
 		}
 	}
 	return getInstalledPackagesCache;
@@ -94,54 +103,3 @@ export function getInstalledPackagesInfoSync() {
 
 	return r;
 }
-
-describe('util', () => {
-	describe('pathRelativeBase', () => {
-		it('file', () => {
-			expect(pathRelativeBase('test', 'test')).toBe('');
-			expect(pathRelativeBase('test/', 'test')).toBe('');
-			expect(pathRelativeBase('test', 'Test')).toBe(null);
-		});
-
-		it('file nocase', () => {
-			expect(pathRelativeBase('test', 'Test', true)).toBe('');
-		});
-
-		it('dir', () => {
-			expect(pathRelativeBase('test/123', 'test')).toBe('123');
-			expect(pathRelativeBase('test/123', 'Test')).toBe(null);
-		});
-
-		it('dir nocase', () => {
-			expect(pathRelativeBase('test/123', 'Test', true)).toBe('123');
-		});
-	});
-
-	describe('trimExtension', () => {
-		it('case', () => {
-			expect(trimExtension('test.txt', '.txt')).toBe('test');
-			expect(trimExtension('test.bin', '.txt')).toBe('test.bin');
-			expect(trimExtension('test.TXT', '.txt')).toBe('test.TXT');
-			expect(trimExtension('test.txt', '.TXT')).toBe('test.txt');
-		});
-
-		it('nocase', () => {
-			expect(trimExtension('test.txt', '.TXT', true)).toBe('test');
-			expect(trimExtension('test.TXT', '.txt', true)).toBe('test');
-		});
-	});
-
-	describe('once', () => {
-		it('called once', () => {
-			let count = 0;
-			const obj = {};
-			const onced = once(() => {
-				count++;
-				return obj;
-			});
-			expect(count).toBe(0);
-			expect(onced()).toBe(onced());
-			expect(count).toBe(1);
-		});
-	});
-});

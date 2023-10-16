@@ -1,5 +1,5 @@
-import {mkdir, readFile, rename, rm, stat, writeFile} from 'fs/promises';
-import {join as pathJoin, basename, dirname} from 'path';
+import {mkdir, readFile, rename, rm, stat, writeFile} from 'node:fs/promises';
+import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {ArchiveDir, fsWalk, PathType} from '@shockpkg/archive-files';
 import {Plist} from '@shockpkg/plist-dom';

@@ -1,5 +1,5 @@
-import {stat, readFile, writeFile} from 'fs/promises';
-import {basename, dirname} from 'path';
+import {stat, readFile, writeFile} from 'node:fs/promises';
+import {basename, dirname} from 'node:path';
 
 import {ArchiveDir, PathType} from '@shockpkg/archive-files';
 

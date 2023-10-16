@@ -21,10 +21,12 @@ yarn.lock
 .vscode
 
 # Launcher binaries
-/launchers
+/launchers/data
 
 # Build files
-/lib
+/dts
+/esm
+/cjs
 
 # Test files
 /shockpkg

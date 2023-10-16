@@ -1,6 +1,6 @@
-import {inflateRaw} from 'zlib';
+import {inflateRaw} from 'node:zlib';
 
-import {launchers} from './launchers';
+import {LAUNCHERS} from './launchers';
 
 /**
  * Create return value once.
@@ -87,7 +87,7 @@ export function trimExtension(path: string, ext: string, nocase = false) {
  * @returns Launcher data.
  */
 export async function launcher(id: string) {
-	const b64 = launchers()[id];
+	const b64 = LAUNCHERS[id];
 	if (typeof b64 !== 'string') {
 		throw new Error(`Invalid launcher id: ${id}`);
 	}
