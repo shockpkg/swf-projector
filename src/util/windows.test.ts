@@ -22,7 +22,6 @@ const launcherTypes: ['i686' | 'x86_64', string][] = [
 void describe('util/windows', () => {
 	void describe('windowsLauncher', () => {
 		for (const [type, hash] of launcherTypes) {
-			// eslint-disable-next-line no-loop-func
 			void it(type, async () => {
 				const data = await windowsLauncher(type);
 				strictEqual(sha256(data), hash);

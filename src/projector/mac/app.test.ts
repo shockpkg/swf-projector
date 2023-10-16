@@ -46,7 +46,6 @@ void describe('projector/mac/app', () => {
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
-			// eslint-disable-next-line no-loop-func
 			void describe(pkg.name, () => {
 				void it('simple', async () => {
 					const dir = await getDir('simple');
