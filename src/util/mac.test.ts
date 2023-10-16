@@ -85,20 +85,20 @@ const machoTypes = [
 	}
 ];
 
-describe('util/mac', () => {
-	describe('machoTypesData', () => {
+void describe('util/mac', () => {
+	void describe('machoTypesData', () => {
 		for (const {name, data, format} of machoTypes) {
 			// eslint-disable-next-line no-loop-func
-			it(name, () => {
+			void it(name, () => {
 				deepStrictEqual(machoTypesData(data), format);
 			});
 		}
 	});
 
-	describe('machoAppLauncher', () => {
+	void describe('machoAppLauncher', () => {
 		for (const {name, format, launcher} of machoTypes) {
 			// eslint-disable-next-line no-loop-func
-			it(name, async () => {
+			void it(name, async () => {
 				const data = await machoAppLauncher(format);
 				deepStrictEqual(machoTypesData(data), format);
 				strictEqual(sha256(data), launcher);

@@ -6,9 +6,9 @@ import {fixtureFile} from './util.spec';
 
 const getDir = async (d: string) => cleanProjectorDir('dummy', d);
 
-describe('projector', () => {
-	describe('ProjectorDummy', () => {
-		it('simple', async () => {
+void describe('projector', () => {
+	void describe('ProjectorDummy', () => {
+		void it('simple', async () => {
 			const dir = await getDir('simple');
 			const dest = pathJoin(dir, 'application.exe');
 

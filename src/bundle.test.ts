@@ -32,9 +32,9 @@ const supportsSymlinkAttrs = process.platform.startsWith('darwin');
 // eslint-disable-next-line no-bitwise
 const isUserExec = (mode: number) => !!(mode & 0b001000000);
 
-describe('bundle', () => {
-	describe('BundleDummy', () => {
-		it('simple', async () => {
+void describe('bundle', () => {
+	void describe('BundleDummy', () => {
+		void it('simple', async () => {
 			const dir = await getDir('simple');
 			const dest = pathJoin(dir, 'application.exe');
 
@@ -42,7 +42,7 @@ describe('bundle', () => {
 			await p.withFile(fixtureFile('dummy.exe'), fixtureFile('swf3.swf'));
 		});
 
-		it('resources', async () => {
+		void it('resources', async () => {
 			const dir = await getDir('resources');
 			const dest = pathJoin(dir, 'application.exe');
 
@@ -259,7 +259,7 @@ describe('bundle', () => {
 			}
 		});
 
-		it('merge', async () => {
+		void it('merge', async () => {
 			const dir = await getDir('merge');
 			const dest = pathJoin(dir, 'application.exe');
 

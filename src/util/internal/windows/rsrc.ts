@@ -1,4 +1,4 @@
-import {NtExecutableResource, Resource, Data} from 'resedit';
+import {NtExecutableResource, Resource, Data} from '@shockpkg/resedit';
 
 import {bufferToArrayBuffer} from '../patch';
 

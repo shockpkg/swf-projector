@@ -1,4 +1,4 @@
-import {NtExecutable} from 'resedit';
+import {NtExecutable} from '@shockpkg/resedit';
 
 import {align} from '../patch';
 

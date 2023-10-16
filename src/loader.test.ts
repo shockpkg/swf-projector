@@ -108,23 +108,23 @@ const swf5Complex = [
 	'00 00'
 ].join(' ');
 
-describe('loader', () => {
-	describe('loader', () => {
-		it('swfv: 4', () => {
+void describe('loader', () => {
+	void describe('loader', () => {
+		void it('swfv: 4', () => {
 			strictEqual(
 				bufferHex(loader(4, 600, 400, 30, 0x336699, 'other.swf')),
 				swf4
 			);
 		});
 
-		it('swfv: 5', () => {
+		void it('swfv: 5', () => {
 			strictEqual(
 				bufferHex(loader(5, 600, 400, 30, 0x336699, 'other.swf')),
 				swf5
 			);
 		});
 
-		it('swfv: 5 complex', () => {
+		void it('swfv: 5 complex', () => {
 			strictEqual(
 				bufferHex(
 					loader(5, 600.5, 400.5, 30.5, 0x336699, 'other.swf', 2)

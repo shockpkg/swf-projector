@@ -1,4 +1,4 @@
-import {NtExecutable, NtExecutableResource, Resource} from 'resedit';
+import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
 import {dataStrings, findFuzzy} from '../patch';
 

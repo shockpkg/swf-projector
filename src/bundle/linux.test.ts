@@ -10,9 +10,9 @@ import {Bundle} from '../bundle';
 
 import {BundleLinux} from './linux';
 
-describe('bundle/linux', () => {
-	describe('BundleLinux', () => {
-		it('instanceof BundleLinux', () => {
+void describe('bundle/linux', () => {
+	void describe('BundleLinux', () => {
+		void it('instanceof BundleLinux', () => {
 			strictEqual(BundleLinux.prototype instanceof Bundle, true);
 		});
 
@@ -23,8 +23,8 @@ describe('bundle/linux', () => {
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
 			// eslint-disable-next-line no-loop-func
-			describe(pkg.name, () => {
-				it('simple', async () => {
+			void describe(pkg.name, () => {
+				void it('simple', async () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application');
 
@@ -37,7 +37,7 @@ describe('bundle/linux', () => {
 					return;
 				}
 
-				it('complex', async () => {
+				void it('complex', async () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application');
 

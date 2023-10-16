@@ -39,8 +39,8 @@ void describe('util', () => {
 		});
 	});
 
-	describe('once', () => {
-		it('called once', () => {
+	void describe('once', () => {
+		void it('called once', () => {
 			let count = 0;
 			const obj = {};
 			const onced = once(() => {

@@ -1,7 +1,7 @@
 import {readFile} from 'node:fs/promises';
 
 import {signatureGet, signatureSet} from 'portable-executable-signature';
-import {NtExecutable, NtExecutableResource, Resource} from 'resedit';
+import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
 import {launcher} from '../util';
 

@@ -15,20 +15,20 @@ import {ProjectorMac} from '../mac';
 import {ProjectorMacApp} from './app';
 import {customWindowTitle, listSamples} from './app.spec';
 
-describe('projector/mac/app', () => {
-	describe('ProjectorMacApp', () => {
-		it('instanceof ProjectorMac', () => {
+void describe('projector/mac/app', () => {
+	void describe('ProjectorMacApp', () => {
+		void it('instanceof ProjectorMac', () => {
 			strictEqual(
 				ProjectorMacApp.prototype instanceof ProjectorMac,
 				true
 			);
 		});
 
-		describe('dummy', () => {
+		void describe('dummy', () => {
 			const getDir = async (d: string) =>
 				cleanProjectorDir('mac', 'app', 'dummy', d);
 
-			it('simple', async () => {
+			void it('simple', async () => {
 				const dir = await getDir('simple');
 				const dest = pathJoin(dir, 'application.app');
 
@@ -47,8 +47,8 @@ describe('projector/mac/app', () => {
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
 			// eslint-disable-next-line no-loop-func
-			describe(pkg.name, () => {
-				it('simple', async () => {
+			void describe(pkg.name, () => {
+				void it('simple', async () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.app');
 
@@ -58,7 +58,7 @@ describe('projector/mac/app', () => {
 				});
 
 				if (pkg.fixBrokenIconPaths) {
-					it('fixBrokenIconPaths', async () => {
+					void it('fixBrokenIconPaths', async () => {
 						const dir = await getDir('fixBrokenIconPaths');
 						const dest = pathJoin(dir, 'application.app');
 
@@ -72,7 +72,7 @@ describe('projector/mac/app', () => {
 					});
 				}
 
-				it('removeFileAssociations', async () => {
+				void it('removeFileAssociations', async () => {
 					const dir = await getDir('removeFileAssociations');
 					const dest = pathJoin(dir, 'application.app');
 
@@ -85,7 +85,7 @@ describe('projector/mac/app', () => {
 					);
 				});
 
-				it('complex', async () => {
+				void it('complex', async () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.app');
 
@@ -118,7 +118,7 @@ describe('projector/mac/app', () => {
 				});
 
 				if (pkg.version[0] >= 6 && testShowMenu) {
-					it('showmenu-false', async () => {
+					void it('showmenu-false', async () => {
 						const dir = await getDir('showmenu-false');
 						const dest = pathJoin(dir, 'application.app');
 
