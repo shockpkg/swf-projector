@@ -3,24 +3,6 @@ import {inflateRaw} from 'node:zlib';
 import {LAUNCHERS} from './launchers';
 
 /**
- * Create return value once.
- *
- * @param create Create function.
- * @returns Returned value.
- */
-export function once<T>(create: () => T): () => T {
-	let called = false;
-	let value: T;
-	return () => {
-		if (!called) {
-			value = create();
-			called = true;
-		}
-		return value;
-	};
-}
-
-/**
  * Trim dot slash from head of path.
  *
  * @param path Path string.

@@ -1,7 +1,7 @@
 import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 
-import {once, pathRelativeBase, trimExtension} from './util';
+import {pathRelativeBase, trimExtension} from './util';
 
 void describe('util', () => {
 	void describe('pathRelativeBase', () => {
@@ -36,20 +36,6 @@ void describe('util', () => {
 		void it('nocase', () => {
 			strictEqual(trimExtension('test.txt', '.TXT', true), 'test');
 			strictEqual(trimExtension('test.TXT', '.txt', true), 'test');
-		});
-	});
-
-	void describe('once', () => {
-		void it('called once', () => {
-			let count = 0;
-			const obj = {};
-			const onced = once(() => {
-				count++;
-				return obj;
-			});
-			strictEqual(count, 0);
-			strictEqual(onced(), onced());
-			strictEqual(count, 1);
 		});
 	});
 });

@@ -22,7 +22,6 @@ import {
 	fsLstatExists
 } from '@shockpkg/archive-files';
 
-import {once} from './util';
 import {Queue} from './queue';
 import {Projector} from './projector';
 
@@ -508,15 +507,18 @@ export abstract class Bundle {
 		}>
 	) {
 		const r = {...options} as IBundleResourceOptions;
-		const st = once(stat);
+		let st;
 		if (!r.atime && r.atimeCopy) {
-			r.atime = (await st()).atime;
+			st = await stat();
+			r.atime = st.atime;
 		}
 		if (!r.mtime && r.mtimeCopy) {
-			r.mtime = (await st()).mtime;
+			st ??= await stat();
+			r.mtime = st.mtime;
 		}
 		if (typeof r.executable !== 'boolean' && r.executableCopy) {
-			r.executable = this._getResourceModeExecutable((await st()).mode);
+			st ??= await stat();
+			r.executable = this._getResourceModeExecutable(st.mode);
 		}
 		return r;
 	}
