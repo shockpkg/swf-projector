@@ -9,9 +9,9 @@ import {
 	symlink,
 	utimes
 } from 'node:fs/promises';
-import {Readable, pipeline} from 'node:stream';
+import {Readable} from 'node:stream';
+import {pipeline} from 'node:stream/promises';
 import {join as pathJoin, dirname, basename, resolve} from 'node:path';
-import {promisify} from 'node:util';
 
 import {
 	fsLchmodSupported,
@@ -24,8 +24,6 @@ import {
 
 import {Queue} from './queue';
 import {Projector} from './projector';
-
-const pipelineP = promisify(pipeline);
 
 const userExec = 0b001000000;
 
@@ -472,7 +470,7 @@ export abstract class Bundle {
 
 		const dest = await this._assertNotResourceExists(destination);
 		await mkdir(dirname(dest), {recursive: true});
-		await pipelineP(data, createWriteStream(dest));
+		await pipeline(data, createWriteStream(dest));
 
 		if (options) {
 			await this._setResourceAttributes(dest, options);
