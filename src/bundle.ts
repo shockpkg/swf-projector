@@ -82,7 +82,7 @@ export abstract class Bundle {
 	/**
 	 * File and directory names to exclude when adding a directory.
 	 */
-	public excludes = [/^\./, /^ehthumbs\.db$/, /^Thumbs\.db$/];
+	public excludes = [/^\./, /^ehthumbs\.db$/i, /^Thumbs\.db$/i];
 
 	/**
 	 * Bundle main executable path.
