@@ -12,7 +12,7 @@ import {BundleLinux} from './linux';
 
 void describe('bundle/linux', () => {
 	void describe('BundleLinux', () => {
-		void it('instanceof BundleLinux', () => {
+		void it('instanceof', () => {
 			strictEqual(BundleLinux.prototype instanceof Bundle, true);
 		});
 

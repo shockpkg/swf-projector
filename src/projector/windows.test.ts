@@ -17,7 +17,7 @@ import {customWindowTitle, listSamples, versionStrings} from './windows.spec';
 
 void describe('projector/windows', () => {
 	void describe('ProjectorWindows', () => {
-		void it('instanceof Projector', () => {
+		void it('instanceof', () => {
 			strictEqual(ProjectorWindows.prototype instanceof Projector, true);
 		});
 

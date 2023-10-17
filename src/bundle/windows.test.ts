@@ -16,7 +16,7 @@ import {BundleWindows} from './windows';
 
 void describe('bundle/windows', () => {
 	void describe('BundleWindows', () => {
-		void it('instanceof Bundle', () => {
+		void it('instanceof', () => {
 			strictEqual(BundleWindows.prototype instanceof Bundle, true);
 		});
 

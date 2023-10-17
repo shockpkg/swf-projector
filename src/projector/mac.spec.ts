@@ -1,7 +1,7 @@
-import {shouldTest, getInstalledPackagesInfoSync} from '../../util.spec';
+import {shouldTest, getInstalledPackagesInfoSync} from '../util.spec';
 
 export function listSamples() {
-	if (!shouldTest('mac-app')) {
+	if (!shouldTest('mac')) {
 		return [];
 	}
 	const fixBrokenIconPathsSet = new Set([

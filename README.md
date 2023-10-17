@@ -66,12 +66,12 @@ projector.patchOutOfDateDisable = true;
 await projector.write();
 ```
 
-### Mac App
+### Mac
 
 ```js
-import {ProjectorMacApp} from '@shockpkg/swf-projector';
+import {ProjectorMac} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorMacApp('projector-macapp/application.app');
+const projector = new ProjectorMac('projector-mac/application.app');
 
 // Required player.
 projector.player = 'player.zip';
@@ -158,12 +158,12 @@ await bundle.write(async b => {
 });
 ```
 
-### Mac App
+### Mac
 
 ```js
-import {BundleMacApp} from '@shockpkg/swf-projector';
+import {BundleMac} from '@shockpkg/swf-projector';
 
-const bundle = new BundleMacApp('bundle-macapp/application.app');
+const bundle = new BundleMac('bundle-mac/application.app');
 
 // Use projector property to set options.
 bundle.projector.player = 'player.zip';
@@ -229,7 +229,7 @@ An option to replace the window title stored in the binary (no length limit sinc
 
 An option to disable the out-of-date check present since version 30 and active (with 90 and 180 day defaults) since version 35.
 
-## Mac App
+## Mac
 
 ### Option: `patchWindowTitle`
 

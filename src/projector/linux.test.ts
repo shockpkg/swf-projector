@@ -17,7 +17,7 @@ import {customWindowTitle, listSamples} from './linux.spec';
 
 void describe('projector/linux', () => {
 	void describe('ProjectorLinux', () => {
-		void it('instanceof Projector', () => {
+		void it('instanceof', () => {
 			strictEqual(ProjectorLinux.prototype instanceof Projector, true);
 		});
 
