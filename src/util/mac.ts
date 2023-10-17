@@ -1,4 +1,4 @@
-import {readFile} from 'node:fs/promises';
+import {open} from 'node:fs/promises';
 
 import {unsign} from 'macho-unsign';
 
@@ -78,19 +78,9 @@ function alignVmsize(size: number) {
  * @param data Mach-O data.
  * @returns Mach-O types.
  */
-export function machoTypesData(data: Readonly<Buffer>) {
+export function machoTypesData(data: Readonly<Uint8Array>) {
 	let le = false;
-
-	/**
-	 * Read UINT32 at offset.
-	 *
-	 * @param offset File offset.
-	 * @returns UINT32 value.
-	 */
-	// eslint-disable-next-line arrow-body-style
-	const uint32 = (offset: number) => {
-		return le ? data.readUInt32LE(offset) : data.readUInt32BE(offset);
-	};
+	const dv = new DataView(data.buffer, data.byteOffset, data.byteLength);
 
 	/**
 	 * Read type at offset.
@@ -99,15 +89,15 @@ export function machoTypesData(data: Readonly<Buffer>) {
 	 * @returns Type object.
 	 */
 	const type = (offset: number): IMachoType => ({
-		cpuType: uint32(offset),
-		cpuSubtype: uint32(offset + 4)
+		cpuType: dv.getUint32(offset, le),
+		cpuSubtype: dv.getUint32(offset + 4, le)
 	});
 
-	const magic = uint32(0);
+	const magic = dv.getUint32(0, le);
 	switch (magic) {
 		case FAT_MAGIC: {
 			const r = [];
-			const count = uint32(4);
+			const count = dv.getUint32(4, le);
 			let offset = 8;
 			for (let i = 0; i < count; i++) {
 				r.push(type(offset));
@@ -125,7 +115,7 @@ export function machoTypesData(data: Readonly<Buffer>) {
 			return type(4);
 		}
 		default: {
-			throw new Error(`Unknown header magic: 0x${hex4(magic)}`);
+			throw new Error(`Unknown header magic: 0x${magic.toString(16)}`);
 		}
 	}
 }
@@ -137,7 +127,29 @@ export function machoTypesData(data: Readonly<Buffer>) {
  * @returns Mach-O types.
  */
 export async function machoTypesFile(path: string) {
-	return machoTypesData(await readFile(path));
+	let data;
+	const f = await open(path, 'r');
+	try {
+		const m = 8;
+		const h = new Uint8Array(m);
+		const {bytesRead} = await f.read(h, 0, m, 0);
+		if (bytesRead < m) {
+			data = h.subarray(0, bytesRead);
+		} else {
+			const v = new DataView(h.buffer, h.byteOffset, h.byteLength);
+			const n =
+				v.getUint32(0, false) === FAT_MAGIC
+					? v.getUint32(4, false) * 20
+					: 4;
+			const d = new Uint8Array(m + n);
+			d.set(h);
+			const {bytesRead} = await f.read(d, m, n, m);
+			data = d.subarray(0, m + bytesRead);
+		}
+	} finally {
+		await f.close();
+	}
+	return machoTypesData(data);
 }
 
 /**
