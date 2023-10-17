@@ -376,18 +376,19 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	const aligned = 16;
 	const segname = '__SHOCKPKG_DATA';
 	const secname = segname.toLowerCase();
+	const te = new TextEncoder();
 	const secdata = new ArrayBuffer(align(6 + title.length * 2, aligned));
 	const secview = new DataView(secdata);
 	secview.setUint32(0, title.length, le);
 	for (let i = 0; i < title.length; i++) {
 		secview.setUint16(4 + i * 2, title.charCodeAt(i), le);
 	}
-	const seg = Buffer.alloc(lp ? 72 + 80 : 56 + 68);
+	const seg = new Uint8Array(lp ? 72 + 80 : 56 + 68);
 	const segV = new DataView(seg.buffer, seg.byteOffset, seg.byteLength);
 	const sec = seg.subarray(lp ? 72 : 56);
 	const secV = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
-	sec.write(secname, 0, 16);
-	sec.write(segname, 16, 16);
+	sec.subarray(0, 16).set(te.encode(secname));
+	sec.subarray(16, 32).set(te.encode(segname));
 	if (lp) {
 		secV.setBigUint64(32, BigInt(vmaddr), le);
 		secV.setBigUint64(40, BigInt(secdata.byteLength), le);
@@ -401,7 +402,7 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	}
 	segV.setUint32(0, SEGMENT, le);
 	segV.setUint32(4, seg.length, le);
-	seg.write(segname, 8, 16);
+	seg.subarray(8, 24).set(te.encode(segname));
 	const segSize = alignVmsize(secdata.byteLength);
 	if (lp) {
 		segV.setBigUint64(24, BigInt(vmaddr), le);
