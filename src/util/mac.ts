@@ -383,7 +383,7 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	for (let i = 0; i < title.length; i++) {
 		secview.setUint16(4 + i * 2, title.charCodeAt(i), le);
 	}
-	const seg = new Uint8Array(lp ? 72 + 80 : 56 + 68);
+	const seg = new Uint8Array(lp ? 152 : 124);
 	const segV = new DataView(seg.buffer, seg.byteOffset, seg.byteLength);
 	const sec = seg.subarray(lp ? 72 : 56);
 	const secV = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
