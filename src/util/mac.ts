@@ -1,6 +1,5 @@
 import {readFile} from 'node:fs/promises';
 
-import {Plist, Value, ValueDict, ValueString} from '@shockpkg/plist-dom';
 import {unsign} from 'macho-unsign';
 
 import {launcher} from '../util';
@@ -71,115 +70,6 @@ export interface IMachoType {
  */
 function alignVmsize(size: number) {
 	return align(Math.max(size, 0x4000), 0x1000);
-}
-
-/**
- * Get Info.plist dictionary or throw.
- *
- * @param plist Plist document.
- * @returns Dictionary object.
- */
-export function infoPlistDict(plist: Plist) {
-	return plist.getValue().castAs(ValueDict);
-}
-
-/**
- * Get Info.plist dictionary value or throw.
- *
- * @param plist Plist document.
- * @param key Dictionary key.
- * @returns Value object.
- */
-export function infoPlistDictGetValue(plist: Plist, key: string) {
-	return infoPlistDict(plist).getValue(key);
-}
-
-/**
- * Set Info.plist dictionary value or throw.
- *
- * @param plist Plist document.
- * @param key Dictionary key.
- * @param value Value object.
- */
-export function infoPlistDictSet(
-	plist: Plist,
-	key: string,
-	value: Value | null
-) {
-	const dict = infoPlistDict(plist);
-	if (value) {
-		dict.set(key, value);
-	} else {
-		dict.delete(key);
-	}
-}
-
-/**
- * Get Info.plist bundle executable.
- *
- * @param plist Plist document.
- * @returns Executable name.
- */
-export function infoPlistBundleExecutableGet(plist: Plist) {
-	return infoPlistDictGetValue(plist, 'CFBundleExecutable').castAs(
-		ValueString
-	).value;
-}
-
-/**
- * Set Info.plist bundle executable.
- *
- * @param plist Plist document.
- * @param value Executable name.
- */
-export function infoPlistBundleExecutableSet(
-	plist: Plist,
-	value: string | null
-) {
-	const v = value === null ? null : new ValueString(value);
-	infoPlistDictSet(plist, 'CFBundleExecutable', v);
-}
-
-/**
- * Get Info.plist bundle icon.
- *
- * @param plist Plist document.
- * @returns Icon name.
- */
-export function infoPlistBundleIconFileGet(plist: Plist) {
-	return infoPlistDictGetValue(plist, 'CFBundleIconFile').castAs(ValueString)
-		.value;
-}
-
-/**
- * Set Info.plist bundle icon.
- *
- * @param plist Plist document.
- * @param value Icon name.
- */
-export function infoPlistBundleIconFileSet(plist: Plist, value: string | null) {
-	const v = value === null ? null : new ValueString(value);
-	infoPlistDictSet(plist, 'CFBundleIconFile', v);
-}
-
-/**
- * Set Info.plist bundle name.
- *
- * @param plist Plist document.
- * @param value Icon name.
- */
-export function infoPlistBundleNameSet(plist: Plist, value: string | null) {
-	const v = value === null ? null : new ValueString(value);
-	infoPlistDictSet(plist, 'CFBundleName', v);
-}
-
-/**
- * Delete Info.plist bundle name.
- *
- * @param plist Plist document.
- */
-export function infoPlistBundleDocumentTypesDelete(plist: Plist) {
-	infoPlistDictSet(plist, 'CFBundleDocumentTypes', null);
 }
 
 /**

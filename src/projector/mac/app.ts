@@ -7,18 +7,10 @@ import {
 	fsWalk,
 	PathType
 } from '@shockpkg/archive-files';
-import {Plist} from '@shockpkg/plist-dom';
+import {Plist, ValueDict, ValueString} from '@shockpkg/plist-dom';
 
 import {trimExtension} from '../../util';
-import {
-	infoPlistBundleExecutableGet,
-	infoPlistBundleExecutableSet,
-	infoPlistBundleIconFileGet,
-	infoPlistBundleIconFileSet,
-	infoPlistBundleNameSet,
-	infoPlistBundleDocumentTypesDelete,
-	macProjectorMachoPatch
-} from '../../util/mac';
+import {macProjectorMachoPatch} from '../../util/mac';
 import {ProjectorMac} from '../mac';
 
 /**
@@ -371,7 +363,11 @@ export class ProjectorMacApp extends ProjectorMac {
 		// Patch the projector binary.
 		const plist = new Plist();
 		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
-		const executableName = infoPlistBundleExecutableGet(plist);
+		const dict = plist.getValue().castAs(ValueDict);
+
+		const executableName = dict
+			.getValue('CFBundleExecutable')
+			.castAs(ValueString).value;
 		const binaryPath = this.getBinaryPath(executableName);
 		await writeFile(
 			binaryPath,
@@ -421,13 +417,16 @@ export class ProjectorMacApp extends ProjectorMac {
 
 		const plist = new Plist();
 		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
+		const dict = plist.getValue().castAs(ValueDict);
 
 		// Add the icon extension or skip if present.
-		const iconFile = infoPlistBundleIconFileGet(plist);
+		const iconFile = dict
+			.getValue('CFBundleIconFile')
+			.castAs(ValueString).value;
 		if (iconFile.includes('.')) {
 			return;
 		}
-		infoPlistBundleIconFileSet(plist, `${iconFile}.icns`);
+		dict.set('CFBundleIconFile', new ValueString(`${iconFile}.icns`));
 
 		const path = this.infoPlistPath;
 		const xml = plist.toXml();
@@ -471,9 +470,11 @@ export class ProjectorMacApp extends ProjectorMac {
 
 		const plist = new Plist();
 		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
-		const iconName = infoPlistBundleIconFileGet(plist);
+		const dict = plist.getValue().castAs(ValueDict);
 
-		const path = this.getIconPath(iconName);
+		const path = this.getIconPath(
+			dict.getValue('CFBundleIconFile').castAs(ValueString).value
+		);
 		await rm(path, {force: true});
 		await mkdir(dirname(path), {recursive: true});
 		await writeFile(path, data);
@@ -505,9 +506,12 @@ export class ProjectorMacApp extends ProjectorMac {
 
 		const plist = new Plist();
 		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
+		const dict = plist.getValue().castAs(ValueDict);
 
 		if (binaryName) {
-			const executableName = infoPlistBundleExecutableGet(plist);
+			const executableName = dict
+				.getValue('CFBundleExecutable')
+				.castAs(ValueString).value;
 			const rsrcPathOld = this.getRsrcPath(executableName, true);
 			if (!appRsrcName) {
 				throw new Error('Internal error');
@@ -529,7 +533,9 @@ export class ProjectorMacApp extends ProjectorMac {
 		}
 
 		if (appIconName) {
-			const iconName = infoPlistBundleIconFileGet(plist);
+			const iconName = dict
+				.getValue('CFBundleIconFile')
+				.castAs(ValueString).value;
 
 			const iconPathOld = this.getIconPath(iconName);
 			const iconPathNew = this.getIconPath(appIconName);
@@ -579,18 +585,24 @@ export class ProjectorMacApp extends ProjectorMac {
 
 		const plist = new Plist();
 		plist.fromXml(xml);
+		const dict = plist.getValue().castAs(ValueDict);
 
 		if (appIconName) {
-			infoPlistBundleIconFileSet(plist, appIconName);
+			dict.set('CFBundleIconFile', new ValueString(appIconName));
 		}
 		if (binaryName) {
-			infoPlistBundleExecutableSet(plist, binaryName);
+			dict.set('CFBundleExecutable', new ValueString(binaryName));
 		}
 		if (bundleName !== false) {
-			infoPlistBundleNameSet(plist, bundleName);
+			const key = 'CFBundleName';
+			if (bundleName === null) {
+				dict.delete(key);
+			} else {
+				dict.set(key, new ValueString(bundleName));
+			}
 		}
 		if (removeFileAssociations) {
-			infoPlistBundleDocumentTypesDelete(plist);
+			dict.delete('CFBundleDocumentTypes');
 		}
 
 		return plist.toXml();

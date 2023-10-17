@@ -2,16 +2,10 @@ import {copyFile, mkdir, readFile, stat, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {fsLstatExists} from '@shockpkg/archive-files';
-import {Plist} from '@shockpkg/plist-dom';
+import {Plist, ValueDict, ValueString} from '@shockpkg/plist-dom';
 
 import {trimExtension} from '../../util';
-import {
-	infoPlistBundleExecutableGet,
-	infoPlistBundleExecutableSet,
-	infoPlistBundleIconFileGet,
-	machoTypesFile,
-	machoAppLauncher
-} from '../../util/mac';
+import {machoTypesFile, machoAppLauncher} from '../../util/mac';
 import {ProjectorMacApp} from '../../projector/mac/app';
 import {BundleMac} from '../mac';
 
@@ -80,14 +74,19 @@ export class BundleMacApp extends BundleMac {
 		// Read the projector Info.plist.
 		const plist = new Plist();
 		plist.fromXml(await readFile(projector.infoPlistPath, 'utf8'));
+		const dict = plist.getValue().castAs(ValueDict);
 
 		// Get the binary path and read the types.
-		const projBinaryName = infoPlistBundleExecutableGet(plist);
+		const projBinaryName = dict
+			.getValue('CFBundleExecutable')
+			.castAs(ValueString).value;
 		const projBinaryPath = projector.getBinaryPath(projBinaryName);
 		const projBinaryTypes = await machoTypesFile(projBinaryPath);
 
 		// Get the icon path.
-		const projIconName = infoPlistBundleIconFileGet(plist);
+		const projIconName = dict
+			.getValue('CFBundleIconFile')
+			.castAs(ValueString).value;
 		const projIconPath = projector.getIconPath(projIconName);
 
 		// Get the PkgInfo path.
@@ -113,7 +112,7 @@ export class BundleMacApp extends BundleMac {
 		}
 
 		// Update the executable name in the plist for the launcher.
-		infoPlistBundleExecutableSet(plist, launcherName);
+		dict.set('CFBundleExecutable', new ValueString(launcherName));
 
 		// Write the updated Info.plist.
 		await mkdir(dirname(appInfoPlist), {recursive: true});
