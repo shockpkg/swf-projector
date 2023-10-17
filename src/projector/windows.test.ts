@@ -30,10 +30,8 @@ void describe('projector/windows', () => {
 				const dest = pathJoin(dir, 'application.exe');
 
 				const p = new ProjectorWindows(dest);
-				await p.withFile(
-					fixtureFile('dummy.exe'),
-					fixtureFile('swf3.swf')
-				);
+				p.player = fixtureFile('dummy.exe');
+				await p.withFile(fixtureFile('swf3.swf'));
 			});
 
 			void it('archived', async () => {
@@ -41,10 +39,8 @@ void describe('projector/windows', () => {
 				const dest = pathJoin(dir, 'application.exe');
 
 				const p = new ProjectorWindows(dest);
-				await p.withFile(
-					fixtureFile('dummy.exe.zip'),
-					fixtureFile('swf3.swf')
-				);
+				p.player = fixtureFile('dummy.exe.zip');
+				await p.withFile(fixtureFile('swf3.swf'));
 			});
 		});
 
@@ -62,7 +58,8 @@ void describe('projector/windows', () => {
 					const p = new ProjectorWindows(dest);
 					p.removeCodeSignature = true;
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
-					await p.withFile(await getPlayer(), simple);
+					p.player = await getPlayer();
+					await p.withFile(simple);
 				});
 
 				void it('complex', async () => {
@@ -75,17 +72,12 @@ void describe('projector/windows', () => {
 					p.removeCodeSignature = true;
 					p.patchWindowTitle = customWindowTitle;
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
+					p.player = await getPlayer();
 
 					if (pkg.version[0] < 6) {
-						await p.withFile(
-							await getPlayer(),
-							fixtureFile('swf3.swf')
-						);
+						await p.withFile(fixtureFile('swf3.swf'));
 					} else {
-						await p.withFile(
-							await getPlayer(),
-							fixtureFile('swf6-loadmovie.swf')
-						);
+						await p.withFile(fixtureFile('swf6-loadmovie.swf'));
 						await copyFile(
 							fixtureFile('image.jpg'),
 							pathJoin(dir, 'image.jpg')
@@ -101,8 +93,8 @@ void describe('projector/windows', () => {
 						const p = new ProjectorWindows(dest);
 						p.removeCodeSignature = true;
 						p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
+						p.player = await getPlayer();
 						await p.withFile(
-							await getPlayer(),
 							fixtureFile('swf6-showmenu-false.swf')
 						);
 					});

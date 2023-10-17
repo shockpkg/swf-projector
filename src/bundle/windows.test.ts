@@ -35,7 +35,8 @@ void describe('bundle/windows', () => {
 					b.projector.removeCodeSignature = true;
 					b.projector.patchOutOfDateDisable =
 						pkg.patchOutOfDateDisable;
-					await b.withFile(await getPlayer(), simple);
+					b.projector.player = await getPlayer();
+					await b.withFile(simple);
 				});
 
 				if (pkg.version[0] < 4) {
@@ -59,8 +60,8 @@ void describe('bundle/windows', () => {
 					b.projector.removeCodeSignature = true;
 					b.projector.patchOutOfDateDisable =
 						pkg.patchOutOfDateDisable;
+					b.projector.player = await getPlayer();
 					await b.withData(
-						await getPlayer(),
 						loader(swfv, 600, 400, 30, 0xffffff, 'main.swf'),
 						async b => {
 							await b.copyResource(

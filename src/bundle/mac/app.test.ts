@@ -29,7 +29,8 @@ void describe('bundle/mac/app', () => {
 
 					const b = new BundleMacApp(dest);
 					b.projector.removeCodeSignature = true;
-					await b.withFile(await getPlayer(), simple);
+					b.projector.player = await getPlayer();
+					await b.withFile(simple);
 				});
 
 				if (pkg.version[0] < 6) {
@@ -51,8 +52,8 @@ void describe('bundle/mac/app', () => {
 					if (pkg.version[0] >= 11) {
 						b.projector.patchWindowTitle = customWindowTitle;
 					}
+					b.projector.player = await getPlayer();
 					await b.withData(
-						await getPlayer(),
 						loader(6, 600, 400, 30, 0xffffff, 'main.swf'),
 						async b => {
 							await b.copyResource(

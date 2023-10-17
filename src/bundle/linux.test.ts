@@ -29,7 +29,8 @@ void describe('bundle/linux', () => {
 
 					const b = new BundleLinux(dest);
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
-					await b.withFile(await getPlayer(), simple);
+					b.projector.player = await getPlayer();
+					await b.withFile(simple);
 				});
 
 				if (pkg.version[0] < 6) {
@@ -43,8 +44,8 @@ void describe('bundle/linux', () => {
 					const b = new BundleLinux(dest);
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					b.projector.patchProjectorPath = true;
+					b.projector.player = await getPlayer();
 					await b.withData(
-						await getPlayer(),
 						loader(6, 600, 400, 30, 0xffffff, 'main.swf', 30 / 2),
 						async b => {
 							await b.copyResource(

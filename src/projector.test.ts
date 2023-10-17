@@ -13,7 +13,8 @@ void describe('projector', () => {
 			const dest = pathJoin(dir, 'application.exe');
 
 			const p = new ProjectorDummy(dest);
-			await p.withFile(fixtureFile('dummy.exe'), fixtureFile('swf3.swf'));
+			p.player = fixtureFile('dummy.exe');
+			await p.withFile(fixtureFile('swf3.swf'));
 		});
 	});
 });

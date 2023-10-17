@@ -33,10 +33,8 @@ void describe('projector/mac/app', () => {
 				const dest = pathJoin(dir, 'application.app');
 
 				const p = new ProjectorMacApp(dest);
-				await p.withFile(
-					fixtureFile('dummy.app'),
-					fixtureFile('swf3.swf')
-				);
+				p.player = fixtureFile('dummy.app');
+				await p.withFile(fixtureFile('swf3.swf'));
 			});
 		});
 
@@ -53,7 +51,8 @@ void describe('projector/mac/app', () => {
 
 					const p = new ProjectorMacApp(dest);
 					p.removeCodeSignature = true;
-					await p.withFile(await getPlayer(), simple);
+					p.player = await getPlayer();
+					await p.withFile(simple);
 				});
 
 				if (pkg.fixBrokenIconPaths) {
@@ -64,10 +63,8 @@ void describe('projector/mac/app', () => {
 						const p = new ProjectorMacApp(dest);
 						p.fixBrokenIconPaths = true;
 						p.removeCodeSignature = true;
-						await p.withFile(
-							await getPlayer(),
-							fixtureFile('swf3.swf')
-						);
+						p.player = await getPlayer();
+						await p.withFile(fixtureFile('swf3.swf'));
 					});
 				}
 
@@ -78,10 +75,8 @@ void describe('projector/mac/app', () => {
 					const p = new ProjectorMacApp(dest);
 					p.removeFileAssociations = true;
 					p.removeCodeSignature = true;
-					await p.withFile(
-						await getPlayer(),
-						fixtureFile('swf3.swf')
-					);
+					p.player = await getPlayer();
+					await p.withFile(fixtureFile('swf3.swf'));
 				});
 
 				void it('complex', async () => {
@@ -99,16 +94,11 @@ void describe('projector/mac/app', () => {
 					if (pkg.version[0] >= 11) {
 						p.patchWindowTitle = customWindowTitle;
 					}
+					p.player = await getPlayer();
 					if (pkg.version[0] < 6) {
-						await p.withFile(
-							await getPlayer(),
-							fixtureFile('swf3.swf')
-						);
+						await p.withFile(fixtureFile('swf3.swf'));
 					} else {
-						await p.withFile(
-							await getPlayer(),
-							fixtureFile('swf6-loadmovie.swf')
-						);
+						await p.withFile(fixtureFile('swf6-loadmovie.swf'));
 						await copyFile(
 							fixtureFile('image.jpg'),
 							pathJoin(dir, 'image.jpg')
@@ -122,8 +112,8 @@ void describe('projector/mac/app', () => {
 						const dest = pathJoin(dir, 'application.app');
 
 						const p = new ProjectorMacApp(dest);
+						p.player = await getPlayer();
 						await p.withFile(
-							await getPlayer(),
 							fixtureFile('swf6-showmenu-false.swf')
 						);
 					});

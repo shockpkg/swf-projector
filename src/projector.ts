@@ -12,6 +12,11 @@ export abstract class Projector {
 	public nobrowse = false;
 
 	/**
+	 * Projector Player.
+	 */
+	public player: string | null = null;
+
+	/**
 	 * Output path.
 	 */
 	public readonly path: string;
@@ -35,23 +40,26 @@ export abstract class Projector {
 	}
 
 	/**
-	 * Write out projector with player and file.
+	 * Write out projector with file.
 	 *
-	 * @param player Player path.
 	 * @param movieFile Movie file.
 	 */
-	public async withFile(player: string, movieFile: string | null) {
+	public async withFile(movieFile: string | null) {
 		const movieData = movieFile ? await readFile(movieFile) : null;
-		await this.withData(player, movieData);
+		await this.withData(movieData);
 	}
 
 	/**
-	 * Write out projector with player and data.
+	 * Write out projector with data.
 	 *
-	 * @param player Player path.
 	 * @param movieData Movie data.
 	 */
-	public async withData(player: string, movieData: Readonly<Buffer> | null) {
+	public async withData(movieData: Readonly<Buffer> | null) {
+		const {player} = this;
+		if (!player) {
+			throw new Error('No projector player configured');
+		}
+
 		await this._checkOutput();
 		await this._writePlayer(player);
 		await this._modifyPlayer(movieData);
