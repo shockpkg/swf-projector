@@ -278,7 +278,7 @@ export interface IMacProjectorMachoPatch {
  * @param title Window title.
  * @returns Patched binary.
  */
-function macProjectorMachoPatchEach(data: Buffer, title: string) {
+function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	const dataV = new DataView(data.buffer, data.byteOffset, data.byteLength);
 	let le = false;
 	let lp = false;
@@ -499,7 +499,7 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	]);
 
 	// Find the text section.
-	let textSegment: Buffer | null = null;
+	let textSegment: Uint8Array | null = null;
 	for (const command of commands) {
 		const commandV = new DataView(
 			command.buffer,
@@ -525,7 +525,7 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 		textSegment.byteLength
 	);
 	const textSectionCount = textSegmentV.getUint32(lp ? 64 : 48, le);
-	let textSection: Buffer | null = null;
+	let textSection: Uint8Array | null = null;
 	for (let i = 0; i < textSectionCount; i++) {
 		const o = lp ? 72 + 80 * i : 56 + 68 * i;
 		if (getCstrN(textSegment, o, 16) === SECT_TEXT) {
@@ -598,11 +598,12 @@ export function macProjectorMachoPatch(
 
 	// Remove signature, make copy.
 	let data;
-	if (removeCodeSignature) {
-		const unsigned = unsign(macho);
-		data = unsigned ? Buffer.from(unsigned) : Buffer.concat([macho]);
+	const unsigned = removeCodeSignature ? unsign(macho) : null;
+	if (unsigned) {
+		data = new Uint8Array(unsigned);
 	} else {
-		data = Buffer.concat([macho]);
+		data = new Uint8Array(macho.length);
+		data.set(macho);
 	}
 
 	if (typeof patchWindowTitle !== 'string') {
