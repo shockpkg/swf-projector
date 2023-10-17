@@ -1,6 +1,6 @@
 import {launcher} from '../util';
 
-import {align, bufferAlign, bufferToArrayBuffer} from './internal/patch';
+import {align} from './internal/patch';
 import {
 	decode,
 	Elf32,
@@ -40,7 +40,10 @@ function add(a: number | bigint, b: number | bigint) {
  * @param data New data.
  * @returns Inserted section.
  */
-function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
+function linuxProjectorAddSection(
+	elf: Elf32 | Elf64,
+	data: Readonly<Uint8Array>
+) {
 	const aligned = 64;
 	const secnameData = '.shockpkg.data';
 	const secnameDataD = Buffer.from(`${secnameData}\0`);
@@ -48,7 +51,8 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 	const secnameEof = '.shockpkg.eof';
 	const secnameEofD = Buffer.from(`${secnameEof}\0`);
 	const secnameEofS = secnameEofD.length;
-	const secdata = bufferAlign(data, aligned);
+	const secdata = new ArrayBuffer(align(data.length, aligned));
+	new Uint8Array(secdata).set(data);
 
 	// Get the highest PT_LOAD program header, sanity checked.
 	let phdrLoadLast = null;
@@ -162,12 +166,12 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 		dataS.shFlags = BigInt(SHF_ALLOC);
 		dataS.shAddr = BigInt(phdrLoadLast.pVaddr) + BigInt(sectionAddrOffset);
 		dataS.shOffset = BigInt(sectionOffset);
-		dataS.shSize = BigInt(secdata.length);
+		dataS.shSize = BigInt(secdata.byteLength);
 		dataS.shLink = 0;
 		dataS.shInfo = 0;
 		dataS.shAddralign = BigInt(aligned);
 		dataS.shEntsize = 0n;
-		dataS.data = bufferToArrayBuffer(secdata);
+		dataS.data = secdata;
 		elf.sectionHeaders.splice(insertI, 0, dataS);
 		dataSection = dataS;
 
@@ -191,12 +195,12 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 		dataS.shFlags = SHF_ALLOC;
 		dataS.shAddr = Number(phdrLoadLast.pVaddr) + sectionAddrOffset;
 		dataS.shOffset = sectionOffset;
-		dataS.shSize = secdata.length;
+		dataS.shSize = secdata.byteLength;
 		dataS.shLink = 0;
 		dataS.shInfo = 0;
 		dataS.shAddralign = aligned;
 		dataS.shEntsize = 0;
-		dataS.data = bufferToArrayBuffer(secdata);
+		dataS.data = secdata;
 		elf.sectionHeaders.splice(insertI, 0, dataS);
 		dataSection = dataS;
 
@@ -217,7 +221,7 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 	if (insertI <= elf.elfHeader.eShtrndx) {
 		elf.elfHeader.eShtrndx += 2;
 	}
-	sectionOffset += secdata.length;
+	sectionOffset += secdata.byteLength;
 
 	// Extend load header to cover the new section.
 	phdrLoadLast.pFilesz = phdrLoadLast.pMemsz =
