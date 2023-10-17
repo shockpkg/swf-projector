@@ -7,14 +7,14 @@ import {
 	createArchiveByFileExtensionOrThrow
 } from '@shockpkg/archive-files';
 
-import {Projector} from '../projector';
-import {linuxProjectorPatch} from '../util/linux';
-import {EM_X86_64} from '../util/internal/linux/elf';
+import {linuxProjectorPatch} from '../../util/linux';
+import {EM_X86_64} from '../../util/internal/linux/elf';
+import {ProjectorSa} from '../sa';
 
 /**
- * ProjectorLinux object.
+ * ProjectorSaLinux object.
  */
-export class ProjectorLinux extends Projector {
+export class ProjectorSaLinux extends ProjectorSa {
 	/**
 	 * Attempt to patch the window title with a custom title.
 	 * Set to a string to automatically patch the binary if possible.
@@ -42,7 +42,7 @@ export class ProjectorLinux extends Projector {
 	public patchProjectorOffset = false;
 
 	/**
-	 * ProjectorLinux constructor.
+	 * ProjectorSaLinux constructor.
 	 *
 	 * @param path Output path.
 	 */

@@ -1,5 +1,5 @@
 import {describe, it} from 'node:test';
-import {notStrictEqual, strictEqual} from 'node:assert';
+import {notStrictEqual, ok, strictEqual} from 'node:assert';
 import {
 	chmod,
 	lstat,
@@ -13,10 +13,12 @@ import {join as pathJoin, dirname} from 'node:path';
 
 import {fsLchmod, fsLutimes} from '@shockpkg/archive-files';
 
-import {BundleDummy, cleanBundlesDir} from './bundle.spec';
-import {fixtureFile} from './util.spec';
+import {cleanBundlesDir, fixtureFile} from '../util.spec';
 
-const getDir = async (d: string) => cleanBundlesDir('dummy', d);
+import {BundleSaDummy} from './sa.spec';
+import {BundleSa} from './sa';
+
+const getDir = async (d: string) => cleanBundlesDir('sa', 'dummy', d);
 
 const supportsExecutable = !process.platform.startsWith('win');
 const supportsSymlinks = !process.platform.startsWith('win');
@@ -26,12 +28,16 @@ const supportsSymlinkAttrs = process.platform.startsWith('darwin');
 const isUserExec = (mode: number) => !!(mode & 0b001000000);
 
 void describe('bundle', () => {
-	void describe('BundleDummy', () => {
+	void describe('BundleSaDummy', () => {
+		void it('instanceof', () => {
+			ok(BundleSaDummy.prototype instanceof BundleSa);
+		});
+
 		void it('simple', async () => {
 			const dir = await getDir('simple');
 			const dest = pathJoin(dir, 'application.exe');
 
-			const b = new BundleDummy(dest);
+			const b = new BundleSaDummy(dest);
 			b.projector.player = fixtureFile('dummy.exe');
 			b.projector.movieFile = fixtureFile('swf3.swf');
 			await b.write();
@@ -77,7 +83,7 @@ void describe('bundle', () => {
 
 			await utimes(resources, dateA, dateA);
 
-			const b = new BundleDummy(dest);
+			const b = new BundleSaDummy(dest);
 			b.projector.player = fixtureFile('dummy.exe');
 			b.projector.movieFile = fixtureFile('swf3.swf');
 			await b.write(async p => {
@@ -221,7 +227,7 @@ void describe('bundle', () => {
 			await mkdir(dirname(resourcesA), {recursive: true});
 			await writeFile(resourcesA, 'alpha');
 
-			const b = new BundleDummy(dest);
+			const b = new BundleSaDummy(dest);
 			b.projector.player = fixtureFile('dummy.exe');
 			b.projector.movieFile = fixtureFile('swf3.swf');
 			await b.write(async p => {

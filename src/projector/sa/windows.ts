@@ -7,13 +7,13 @@ import {
 	createArchiveByFileExtensionOrThrow
 } from '@shockpkg/archive-files';
 
-import {Projector} from '../projector';
-import {windowsProjectorPatch} from '../util/windows';
+import {windowsProjectorPatch} from '../../util/windows';
+import {ProjectorSa} from '../sa';
 
 /**
- * ProjectorWindows object.
+ * ProjectorSaWindows object.
  */
-export class ProjectorWindows extends Projector {
+export class ProjectorSaWindows extends ProjectorSa {
 	/**
 	 * Icon file.
 	 */
@@ -47,7 +47,7 @@ export class ProjectorWindows extends Projector {
 	public patchOutOfDateDisable = false;
 
 	/**
-	 * ProjectorWindows constructor.
+	 * ProjectorSaWindows constructor.
 	 *
 	 * @param path Output path.
 	 */

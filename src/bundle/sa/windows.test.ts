@@ -6,23 +6,27 @@ import {
 	listSamples,
 	customWindowTitle,
 	versionStrings
-} from '../projector/windows.spec';
-import {cleanBundlesDir} from '../bundle.spec';
-import {fixtureFile, getPackageFile, simpleSwf} from '../util.spec';
-import {loader} from '../loader';
-import {Bundle} from '../bundle';
+} from '../../projector/sa/windows.spec';
+import {
+	cleanBundlesDir,
+	fixtureFile,
+	getPackageFile,
+	simpleSwf
+} from '../../util.spec';
+import {loader} from '../../loader';
+import {BundleSa} from '../sa';
 
-import {BundleWindows} from './windows';
+import {BundleSaWindows} from './windows';
 
-void describe('bundle/windows', () => {
-	void describe('BundleWindows', () => {
+void describe('bundle/sa/windows', () => {
+	void describe('BundleSaWindows', () => {
 		void it('instanceof', () => {
-			strictEqual(BundleWindows.prototype instanceof Bundle, true);
+			strictEqual(BundleSaWindows.prototype instanceof BundleSa, true);
 		});
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanBundlesDir('windows', pkg.type, pkg.name, d);
+				cleanBundlesDir('sa', 'windows', pkg.type, pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -31,7 +35,7 @@ void describe('bundle/windows', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const b = new BundleWindows(dest);
+					const b = new BundleSaWindows(dest);
 					b.projector.removeCodeSignature = true;
 					b.projector.patchOutOfDateDisable =
 						pkg.patchOutOfDateDisable;
@@ -54,7 +58,7 @@ void describe('bundle/windows', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const b = new BundleWindows(dest);
+					const b = new BundleSaWindows(dest);
 					b.projector.iconFile = fixtureFile('icon.ico');
 					b.projector.versionStrings = versionStrings;
 					b.projector.patchWindowTitle = customWindowTitle;

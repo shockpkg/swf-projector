@@ -3,33 +3,36 @@ import {strictEqual} from 'node:assert';
 import {copyFile} from 'node:fs/promises';
 import {join as pathJoin} from 'node:path';
 
-import {cleanProjectorDir} from '../projector.spec';
 import {
+	cleanProjectorDir,
 	fixtureFile,
 	getPackageFile,
 	simpleSwf,
 	testShowMenu
-} from '../util.spec';
-import {Projector} from '../projector';
+} from '../../util.spec';
+import {ProjectorSa} from '../sa';
 
-import {ProjectorWindows} from './windows';
+import {ProjectorSaWindows} from './windows';
 import {customWindowTitle, listSamples, versionStrings} from './windows.spec';
 
-void describe('projector/windows', () => {
-	void describe('ProjectorWindows', () => {
+void describe('projector/sa/windows', () => {
+	void describe('ProjectorSaWindows', () => {
 		void it('instanceof', () => {
-			strictEqual(ProjectorWindows.prototype instanceof Projector, true);
+			strictEqual(
+				ProjectorSaWindows.prototype instanceof ProjectorSa,
+				true
+			);
 		});
 
 		void describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('windows', 'dummy', d);
+				cleanProjectorDir('sa', 'windows', 'dummy', d);
 
 			void it('simple', async () => {
 				const dir = await getDir('simple');
 				const dest = pathJoin(dir, 'application.exe');
 
-				const p = new ProjectorWindows(dest);
+				const p = new ProjectorSaWindows(dest);
 				p.player = fixtureFile('dummy.exe');
 				p.movieFile = fixtureFile('swf3.swf');
 				await p.write();
@@ -39,7 +42,7 @@ void describe('projector/windows', () => {
 				const dir = await getDir('archived');
 				const dest = pathJoin(dir, 'application.exe');
 
-				const p = new ProjectorWindows(dest);
+				const p = new ProjectorSaWindows(dest);
 				p.player = fixtureFile('dummy.exe.zip');
 				p.movieFile = fixtureFile('swf3.swf');
 				await p.write();
@@ -48,7 +51,7 @@ void describe('projector/windows', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('windows', pkg.type, pkg.name, d);
+				cleanProjectorDir('sa', 'windows', pkg.type, pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -57,7 +60,7 @@ void describe('projector/windows', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows(dest);
+					const p = new ProjectorSaWindows(dest);
 					p.removeCodeSignature = true;
 					p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 					p.player = await getPlayer();
@@ -69,7 +72,7 @@ void describe('projector/windows', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.exe');
 
-					const p = new ProjectorWindows(dest);
+					const p = new ProjectorSaWindows(dest);
 					p.iconFile = fixtureFile('icon.ico');
 					p.versionStrings = versionStrings;
 					p.removeCodeSignature = true;
@@ -95,7 +98,7 @@ void describe('projector/windows', () => {
 						const dir = await getDir('showmenu-false');
 						const dest = pathJoin(dir, 'application.exe');
 
-						const p = new ProjectorWindows(dest);
+						const p = new ProjectorSaWindows(dest);
 						p.removeCodeSignature = true;
 						p.patchOutOfDateDisable = pkg.patchOutOfDateDisable;
 						p.player = await getPlayer();

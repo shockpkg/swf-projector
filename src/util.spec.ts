@@ -1,4 +1,5 @@
 import {join as pathJoin} from 'node:path';
+import {mkdir, rm} from 'node:fs/promises';
 import {readdirSync, statSync} from 'node:fs';
 
 import {Manager} from '@shockpkg/core';
@@ -17,6 +18,8 @@ export function shouldTest(name: string) {
 export const testShowMenu = process.env.SWF_PROJECTOR_SHOWMENU === '1';
 
 export const specFixturesPath = pathJoin('spec', 'fixtures');
+export const specProjectorsPath = pathJoin('spec', 'projectors');
+export const specBundlesPath = pathJoin('spec', 'bundles');
 
 export function fixtureFile(name: string) {
 	return pathJoin(specFixturesPath, name);
@@ -24,6 +27,20 @@ export function fixtureFile(name: string) {
 
 export async function getPackageFile(pkg: string) {
 	return new Manager().file(pkg);
+}
+
+export async function cleanProjectorDir(...path: string[]) {
+	const dir = pathJoin(specProjectorsPath, ...path);
+	await rm(dir, {recursive: true, force: true});
+	await mkdir(dir, {recursive: true});
+	return dir;
+}
+
+export async function cleanBundlesDir(...path: string[]) {
+	const dir = pathJoin(specBundlesPath, ...path);
+	await rm(dir, {recursive: true, force: true});
+	await mkdir(dir, {recursive: true});
+	return dir;
 }
 
 let getInstalledPackagesCache: string[] | null = null;

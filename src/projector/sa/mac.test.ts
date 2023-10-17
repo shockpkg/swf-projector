@@ -3,33 +3,33 @@ import {strictEqual} from 'node:assert';
 import {copyFile} from 'node:fs/promises';
 import {join as pathJoin} from 'node:path';
 
-import {cleanProjectorDir} from '../projector.spec';
 import {
+	cleanProjectorDir,
 	fixtureFile,
 	getPackageFile,
 	simpleSwf,
 	testShowMenu
-} from '../util.spec';
-import {Projector} from '../projector';
+} from '../../util.spec';
+import {ProjectorSa} from '../sa';
 
-import {ProjectorMac} from './mac';
+import {ProjectorSaMac} from './mac';
 import {customWindowTitle, listSamples} from './mac.spec';
 
-void describe('projector/mac/app', () => {
-	void describe('ProjectorMac', () => {
+void describe('projector/sa/mac', () => {
+	void describe('ProjectorSaMac', () => {
 		void it('instanceof', () => {
-			strictEqual(ProjectorMac.prototype instanceof Projector, true);
+			strictEqual(ProjectorSaMac.prototype instanceof ProjectorSa, true);
 		});
 
 		void describe('dummy', () => {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('mac', 'dummy', d);
+				cleanProjectorDir('sa', 'mac', 'dummy', d);
 
 			void it('simple', async () => {
 				const dir = await getDir('simple');
 				const dest = pathJoin(dir, 'application.app');
 
-				const p = new ProjectorMac(dest);
+				const p = new ProjectorSaMac(dest);
 				p.player = fixtureFile('dummy.app');
 				p.movieFile = fixtureFile('swf3.swf');
 				await p.write();
@@ -38,7 +38,7 @@ void describe('projector/mac/app', () => {
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanProjectorDir('mac', pkg.name, d);
+				cleanProjectorDir('sa', 'mac', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -47,7 +47,7 @@ void describe('projector/mac/app', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.app');
 
-					const p = new ProjectorMac(dest);
+					const p = new ProjectorSaMac(dest);
 					p.removeCodeSignature = true;
 					p.player = await getPlayer();
 					p.movieFile = simple;
@@ -59,7 +59,7 @@ void describe('projector/mac/app', () => {
 						const dir = await getDir('fixBrokenIconPaths');
 						const dest = pathJoin(dir, 'application.app');
 
-						const p = new ProjectorMac(dest);
+						const p = new ProjectorSaMac(dest);
 						p.fixBrokenIconPaths = true;
 						p.removeCodeSignature = true;
 						p.player = await getPlayer();
@@ -72,7 +72,7 @@ void describe('projector/mac/app', () => {
 					const dir = await getDir('removeFileAssociations');
 					const dest = pathJoin(dir, 'application.app');
 
-					const p = new ProjectorMac(dest);
+					const p = new ProjectorSaMac(dest);
 					p.removeFileAssociations = true;
 					p.removeCodeSignature = true;
 					p.player = await getPlayer();
@@ -84,7 +84,7 @@ void describe('projector/mac/app', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.app');
 
-					const p = new ProjectorMac(dest);
+					const p = new ProjectorSaMac(dest);
 					p.iconFile = fixtureFile('icon.icns');
 					p.infoPlistFile = fixtureFile('Info.plist');
 					p.pkgInfoFile = fixtureFile('PkgInfo');
@@ -114,7 +114,7 @@ void describe('projector/mac/app', () => {
 						const dir = await getDir('showmenu-false');
 						const dest = pathJoin(dir, 'application.app');
 
-						const p = new ProjectorMac(dest);
+						const p = new ProjectorSaMac(dest);
 						p.player = await getPlayer();
 						p.movieFile = fixtureFile('swf6-showmenu-false.swf');
 						await p.write();

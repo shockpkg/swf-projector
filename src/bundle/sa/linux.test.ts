@@ -2,23 +2,27 @@ import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
-import {listSamples} from '../projector/linux.spec';
-import {cleanBundlesDir} from '../bundle.spec';
-import {fixtureFile, getPackageFile, simpleSwf} from '../util.spec';
-import {loader} from '../loader';
-import {Bundle} from '../bundle';
+import {listSamples} from '../../projector/sa/linux.spec';
+import {
+	cleanBundlesDir,
+	fixtureFile,
+	getPackageFile,
+	simpleSwf
+} from '../../util.spec';
+import {loader} from '../../loader';
+import {BundleSa} from '../sa';
 
-import {BundleLinux} from './linux';
+import {BundleSaLinux} from './linux';
 
-void describe('bundle/linux', () => {
-	void describe('BundleLinux', () => {
+void describe('bundle/sa/linux', () => {
+	void describe('BundleSaLinux', () => {
 		void it('instanceof', () => {
-			strictEqual(BundleLinux.prototype instanceof Bundle, true);
+			strictEqual(BundleSaLinux.prototype instanceof BundleSa, true);
 		});
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanBundlesDir('linux', pkg.type, pkg.name, d);
+				cleanBundlesDir('sa', 'linux', pkg.type, pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -27,7 +31,7 @@ void describe('bundle/linux', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application');
 
-					const b = new BundleLinux(dest);
+					const b = new BundleSaLinux(dest);
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					b.projector.player = await getPlayer();
 					b.projector.movieFile = simple;
@@ -42,7 +46,7 @@ void describe('bundle/linux', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application');
 
-					const b = new BundleLinux(dest);
+					const b = new BundleSaLinux(dest);
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					b.projector.patchProjectorPath = true;
 					b.projector.player = await getPlayer();

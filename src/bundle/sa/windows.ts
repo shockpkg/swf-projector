@@ -1,22 +1,22 @@
 import {mkdir, open, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
-import {trimExtension} from '../util';
-import {windowsLauncher} from '../util/windows';
-import {Bundle} from '../bundle';
-import {ProjectorWindows} from '../projector/windows';
+import {trimExtension} from '../../util';
+import {windowsLauncher} from '../../util/windows';
+import {ProjectorSaWindows} from '../../projector/sa/windows';
+import {BundleSa} from '../sa';
 
 /**
- * BundleWindows object.
+ * BundleSaWindows object.
  */
-export class BundleWindows extends Bundle {
+export class BundleSaWindows extends BundleSa {
 	/**
-	 * ProjectorWindows instance.
+	 * ProjectorSaWindows instance.
 	 */
-	public readonly projector: ProjectorWindows;
+	public readonly projector: ProjectorSaWindows;
 
 	/**
-	 * BundleWindows constructor.
+	 * BundleSaWindows constructor.
 	 *
 	 * @param path Output path for the main application.
 	 */
@@ -46,7 +46,7 @@ export class BundleWindows extends Bundle {
 		if (directory === path) {
 			throw new Error(`Output path must end with: ${extension}`);
 		}
-		return new ProjectorWindows(pathJoin(directory, basename(path)));
+		return new ProjectorSaWindows(pathJoin(directory, basename(path)));
 	}
 
 	/**

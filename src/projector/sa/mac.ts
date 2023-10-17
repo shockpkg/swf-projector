@@ -9,14 +9,14 @@ import {
 } from '@shockpkg/archive-files';
 import {Plist, ValueDict, ValueString} from '@shockpkg/plist-dom';
 
-import {trimExtension} from '../util';
-import {macProjectorMachoPatch} from '../util/mac';
-import {Projector} from '../projector';
+import {trimExtension} from '../../util';
+import {macProjectorMachoPatch} from '../../util/mac';
+import {ProjectorSa} from '../sa';
 
 /**
- * ProjectorMac object.
+ * ProjectorSaMac object.
  */
-export class ProjectorMac extends Projector {
+export class ProjectorSaMac extends ProjectorSa {
 	/**
 	 * Binary name, also renames rsrc and icns.
 	 */
@@ -93,7 +93,7 @@ export class ProjectorMac extends Projector {
 	public patchWindowTitle: string | null = null;
 
 	/**
-	 * ProjectorMac constructor.
+	 * ProjectorSaMac constructor.
 	 *
 	 * @param path Output path.
 	 */

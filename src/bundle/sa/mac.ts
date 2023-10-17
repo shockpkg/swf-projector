@@ -4,22 +4,22 @@ import {join as pathJoin, basename, dirname} from 'node:path';
 import {fsLstatExists} from '@shockpkg/archive-files';
 import {Plist, ValueDict, ValueString} from '@shockpkg/plist-dom';
 
-import {trimExtension} from '../util';
-import {machoTypesFile, machoAppLauncher} from '../util/mac';
-import {ProjectorMac} from '../projector/mac';
-import {Bundle} from '../bundle';
+import {trimExtension} from '../../util';
+import {machoTypesFile, machoAppLauncher} from '../../util/mac';
+import {ProjectorSaMac} from '../../projector/sa/mac';
+import {BundleSa} from '../sa';
 
 /**
- * BundleMac object.
+ * BundleSaMac object.
  */
-export class BundleMac extends Bundle {
+export class BundleSaMac extends BundleSa {
 	/**
-	 * ProjectorMac instance.
+	 * ProjectorSaMac instance.
 	 */
-	public readonly projector: ProjectorMac;
+	public readonly projector: ProjectorSaMac;
 
 	/**
-	 * BundleMac constructor.
+	 * BundleSaMac constructor.
 	 *
 	 * @param path Output path for the main application.
 	 */
@@ -55,7 +55,7 @@ export class BundleMac extends Bundle {
 	protected _createProjector() {
 		const projName = `${this._getLauncherName()}${this.extension}`;
 		const projPath = pathJoin(this.path, 'Contents', 'Resources', projName);
-		return new ProjectorMac(projPath);
+		return new ProjectorSaMac(projPath);
 	}
 
 	/**

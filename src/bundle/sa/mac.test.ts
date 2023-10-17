@@ -2,23 +2,27 @@ import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
-import {listSamples, customWindowTitle} from '../projector/mac.spec';
-import {cleanBundlesDir} from '../bundle.spec';
-import {fixtureFile, getPackageFile, simpleSwf} from '../util.spec';
-import {loader} from '../loader';
-import {Bundle} from '../bundle';
+import {listSamples, customWindowTitle} from '../../projector/sa/mac.spec';
+import {
+	cleanBundlesDir,
+	fixtureFile,
+	getPackageFile,
+	simpleSwf
+} from '../../util.spec';
+import {loader} from '../../loader';
+import {BundleSa} from '../sa';
 
-import {BundleMac} from './mac';
+import {BundleSaMac} from './mac';
 
-void describe('bundle/mac/app', () => {
-	void describe('BundleMac', () => {
+void describe('bundle/sa/mac', () => {
+	void describe('BundleSaMac', () => {
 		void it('instanceof', () => {
-			strictEqual(BundleMac.prototype instanceof Bundle, true);
+			strictEqual(BundleSaMac.prototype instanceof BundleSa, true);
 		});
 
 		for (const pkg of listSamples()) {
 			const getDir = async (d: string) =>
-				cleanBundlesDir('mac', pkg.name, d);
+				cleanBundlesDir('sa', 'mac', pkg.name, d);
 			const getPlayer = async () => getPackageFile(pkg.name);
 			const simple = fixtureFile(simpleSwf(pkg.zlib, pkg.lzma));
 
@@ -27,7 +31,7 @@ void describe('bundle/mac/app', () => {
 					const dir = await getDir('simple');
 					const dest = pathJoin(dir, 'application.app');
 
-					const b = new BundleMac(dest);
+					const b = new BundleSaMac(dest);
 					b.projector.removeCodeSignature = true;
 					b.projector.player = await getPlayer();
 					b.projector.movieFile = simple;
@@ -42,7 +46,7 @@ void describe('bundle/mac/app', () => {
 					const dir = await getDir('complex');
 					const dest = pathJoin(dir, 'application.app');
 
-					const b = new BundleMac(dest);
+					const b = new BundleSaMac(dest);
 					b.projector.removeCodeSignature = true;
 					b.projector.iconFile = fixtureFile('icon.icns');
 					b.projector.infoPlistFile = fixtureFile('Info.plist');

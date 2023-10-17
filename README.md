@@ -24,12 +24,14 @@ Reading DMG projector packages is only supported on macOS.
 
 ## Projector
 
-### Windows
+### Sa
+
+#### Windows
 
 ```js
-import {ProjectorWindows} from '@shockpkg/swf-projector';
+import {ProjectorSaWindows} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorWindows('projector-windows/application.exe');
+const projector = new ProjectorSaWindows('projector-windows/application.exe');
 
 // Required player.
 projector.player = 'player.exe';
@@ -66,12 +68,12 @@ projector.patchOutOfDateDisable = true;
 await projector.write();
 ```
 
-### Mac
+#### Mac
 
 ```js
-import {ProjectorMac} from '@shockpkg/swf-projector';
+import {ProjectorSaMac} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorMac('projector-mac/application.app');
+const projector = new ProjectorSaMac('projector-mac/application.app');
 
 // Required player.
 projector.player = 'player.zip';
@@ -109,12 +111,12 @@ projector.removeCodeSignature = true;
 await projector.write();
 ```
 
-### Linux
+#### Linux
 
 ```js
-import {ProjectorLinux} from '@shockpkg/swf-projector';
+import {ProjectorSaLinux} from '@shockpkg/swf-projector';
 
-const projector = new ProjectorLinux('projector-linux/application');
+const projector = new ProjectorSaLinux('projector-linux/application');
 
 // Required player.
 projector.player = 'player.tar.gz';
@@ -139,12 +141,14 @@ await projector.write();
 
 ## Bundle
 
-### Windows
+### Sa
+
+#### Windows
 
 ```js
-import {BundleWindows} from '@shockpkg/swf-projector';
+import {BundleSaWindows} from '@shockpkg/swf-projector';
 
-const bundle = new BundleWindows('bundle-windows/application.exe');
+const bundle = new BundleSaWindows('bundle-windows/application.exe');
 
 // Use projector property to set options.
 bundle.projector.player = 'player.exe';
@@ -158,12 +162,12 @@ await bundle.write(async b => {
 });
 ```
 
-### Mac
+#### Mac
 
 ```js
-import {BundleMac} from '@shockpkg/swf-projector';
+import {BundleSaMac} from '@shockpkg/swf-projector';
 
-const bundle = new BundleMac('bundle-mac/application.app');
+const bundle = new BundleSaMac('bundle-mac/application.app');
 
 // Use projector property to set options.
 bundle.projector.player = 'player.zip';
@@ -176,12 +180,12 @@ await bundle.write(async b => {
 });
 ```
 
-### Linux
+#### Linux
 
 ```js
-import {BundleLinux} from '@shockpkg/swf-projector';
+import {BundleSaLinux} from '@shockpkg/swf-projector';
 
-const bundle = new BundleLinux('bundle-linux/application');
+const bundle = new BundleSaLinux('bundle-linux/application');
 
 // Use projector property to set options.
 bundle.projector.player = 'player.tar.gz';

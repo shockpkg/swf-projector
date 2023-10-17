@@ -1,4 +1,4 @@
-import {shouldTest, getInstalledPackagesInfoSync} from '../util.spec';
+import {shouldTest, getInstalledPackagesInfoSync} from '../../util.spec';
 
 export function listSamples() {
 	if (!shouldTest('mac')) {

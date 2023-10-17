@@ -1,22 +1,22 @@
 import {mkdir, open, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
-import {ProjectorLinux} from '../projector/linux';
-import {Bundle} from '../bundle';
-import {linuxLauncher} from '../util/linux';
-import {EM_386, EM_X86_64} from '../util/internal/linux/elf';
+import {linuxLauncher} from '../../util/linux';
+import {EM_386, EM_X86_64} from '../../util/internal/linux/elf';
+import {ProjectorSaLinux} from '../../projector/sa/linux';
+import {BundleSa} from '../sa';
 
 /**
- * BundleLinux object.
+ * BundleSaLinux object.
  */
-export class BundleLinux extends Bundle {
+export class BundleSaLinux extends BundleSa {
 	/**
-	 * ProjectorLinux instance.
+	 * ProjectorSaLinux instance.
 	 */
-	public readonly projector: ProjectorLinux;
+	public readonly projector: ProjectorSaLinux;
 
 	/**
-	 * BundleLinux constructor.
+	 * BundleSaLinux constructor.
 	 *
 	 * @param path Output path for the main application.
 	 */
@@ -42,7 +42,7 @@ export class BundleLinux extends Bundle {
 	 */
 	protected _createProjector() {
 		const {path} = this;
-		return new ProjectorLinux(pathJoin(`${path}.data`, basename(path)));
+		return new ProjectorSaLinux(pathJoin(`${path}.data`, basename(path)));
 	}
 
 	/**
