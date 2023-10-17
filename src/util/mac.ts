@@ -4,16 +4,7 @@ import {unsign} from 'macho-unsign';
 
 import {launcher} from '../util';
 
-import {
-	hex4,
-	getU32,
-	setU32,
-	getU64,
-	setU64,
-	getCstrN,
-	slider,
-	align
-} from './internal/patch';
+import {hex4, getCstrN, slider, align} from './internal/patch';
 import {
 	VM_PROT_READ,
 	FAT_MAGIC,
@@ -288,9 +279,10 @@ export interface IMacProjectorMachoPatch {
  * @returns Patched binary.
  */
 function macProjectorMachoPatchEach(data: Buffer, title: string) {
+	const dataV = new DataView(data.buffer, data.byteOffset, data.byteLength);
 	let le = false;
 	let lp = false;
-	const magic = getU32(data, 0, le);
+	const magic = dataV.getUint32(0, le);
 	switch (magic) {
 		case MH_MAGIC: {
 			le = false;
@@ -321,12 +313,21 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	// Read header and commands.
 	const headerSize = lp ? 32 : 28;
 	const header = data.subarray(0, headerSize);
-	const numLoadCommands = getU32(header, 16, le);
-	const sizeOfLoadCommands = getU32(header, 20, le);
+	const headerV = new DataView(
+		header.buffer,
+		header.byteOffset,
+		header.byteLength
+	);
+	const numLoadCommands = headerV.getUint32(16, le);
+	const sizeOfLoadCommands = headerV.getUint32(20, le);
 	const commands = [];
 	let lcd = data.subarray(headerSize, headerSize + sizeOfLoadCommands);
 	for (let c = 0; c < numLoadCommands; c++) {
-		const commandSize = getU32(lcd, 4, le);
+		const commandSize = new DataView(
+			lcd.buffer,
+			lcd.byteOffset,
+			lcd.byteLength
+		).getUint32(4, le);
 		commands.push(lcd.subarray(0, commandSize));
 		lcd = lcd.subarray(commandSize);
 	}
@@ -335,8 +336,13 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	let linkeditI = -1;
 	for (let i = 0; i < commands.length; i++) {
 		const command = commands[i];
+		const commandV = new DataView(
+			command.buffer,
+			command.byteOffset,
+			command.byteLength
+		);
 		if (
-			getU32(command, 0, le) === SEGMENT &&
+			commandV.getUint32(0, le) === SEGMENT &&
 			getCstrN(command, 8, 16) === SEG_LINKEDIT
 		) {
 			if (linkeditI > 0) {
@@ -349,11 +355,22 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 		throw new Error(`Missing ${SEG_LINKEDIT}`);
 	}
 	const linkedit = commands[linkeditI];
+	const linkeditV = new DataView(
+		linkedit.buffer,
+		linkedit.byteOffset,
+		linkedit.byteLength
+	);
 
 	// Remember closing segment position to put one there before it.
-	const vmaddr = lp ? getU64(linkedit, 24, le) : getU32(linkedit, 24, le);
-	const fileoff = lp ? getU64(linkedit, 40, le) : getU32(linkedit, 32, le);
-	const filesize = lp ? getU64(linkedit, 48, le) : getU32(linkedit, 36, le);
+	const vmaddr = lp
+		? linkeditV.getBigUint64(24, le)
+		: linkeditV.getInt32(24, le);
+	const fileoff = lp
+		? linkeditV.getBigUint64(40, le)
+		: linkeditV.getInt32(32, le);
+	const filesize = lp
+		? linkeditV.getBigUint64(48, le)
+		: linkeditV.getInt32(36, le);
 
 	// Create the new section and segment.
 	const aligned = 16;
@@ -366,77 +383,84 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 		secview.setUint16(4 + i * 2, title.charCodeAt(i), le);
 	}
 	const seg = Buffer.alloc(lp ? 72 + 80 : 56 + 68);
+	const segV = new DataView(seg.buffer, seg.byteOffset, seg.byteLength);
 	const sec = seg.subarray(lp ? 72 : 56);
+	const secV = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
 	sec.write(secname, 0, 16);
 	sec.write(segname, 16, 16);
 	sec.write(segname, 16, 16);
 	if (lp) {
-		setU64(sec, 32, le, vmaddr);
-		setU64(sec, 40, le, secdata.byteLength);
-		setU32(sec, 48, le, fileoff);
-		setU32(sec, 52, le, secdata.byteLength < aligned ? 0 : 4);
+		secV.setBigUint64(32, BigInt(vmaddr), le);
+		secV.setBigUint64(40, BigInt(secdata.byteLength), le);
+		secV.setUint32(48, Number(fileoff), le);
+		secV.setUint32(52, secdata.byteLength < aligned ? 0 : 4, le);
 	} else {
-		setU32(sec, 32, le, vmaddr);
-		setU32(sec, 36, le, secdata.byteLength);
-		setU32(sec, 40, le, fileoff);
-		setU32(sec, 44, le, secdata.byteLength < aligned ? 0 : 4);
+		secV.setUint32(32, Number(vmaddr), le);
+		secV.setUint32(36, secdata.byteLength, le);
+		secV.setUint32(40, Number(fileoff), le);
+		secV.setUint32(44, secdata.byteLength < aligned ? 0 : 4, le);
 	}
-	setU32(seg, 0, le, SEGMENT);
-	setU32(seg, 4, le, seg.length);
+	segV.setUint32(0, SEGMENT, le);
+	segV.setUint32(4, seg.length, le);
 	seg.write(segname, 8, 16);
 	const segSize = alignVmsize(secdata.byteLength);
 	if (lp) {
-		setU64(seg, 24, le, vmaddr);
-		setU64(seg, 32, le, segSize);
-		setU64(seg, 40, le, fileoff);
-		setU64(seg, 48, le, segSize);
-		setU32(seg, 56, le, VM_PROT_READ);
-		setU32(seg, 60, le, VM_PROT_READ);
-		setU32(seg, 64, le, 1);
+		segV.setBigUint64(24, BigInt(vmaddr), le);
+		segV.setBigUint64(32, BigInt(segSize), le);
+		segV.setBigUint64(40, BigInt(fileoff), le);
+		segV.setBigUint64(48, BigInt(segSize), le);
+		segV.setUint32(56, VM_PROT_READ, le);
+		segV.setUint32(60, VM_PROT_READ, le);
+		segV.setUint32(64, 1, le);
 	} else {
-		setU32(seg, 24, le, vmaddr);
-		setU32(seg, 28, le, segSize);
-		setU32(seg, 32, le, fileoff);
-		setU32(seg, 36, le, segSize);
-		setU32(seg, 40, le, VM_PROT_READ);
-		setU32(seg, 44, le, VM_PROT_READ);
-		setU32(seg, 48, le, 1);
+		segV.setUint32(24, Number(vmaddr), le);
+		segV.setUint32(28, segSize, le);
+		segV.setUint32(32, Number(fileoff), le);
+		segV.setUint32(36, segSize, le);
+		segV.setUint32(40, VM_PROT_READ, le);
+		segV.setUint32(44, VM_PROT_READ, le);
+		segV.setUint32(48, 1, le);
 	}
 
 	// Shift closing segment down.
 	if (lp) {
-		setU64(linkedit, 24, le, BigInt(vmaddr) + BigInt(segSize));
-		setU64(linkedit, 40, le, BigInt(fileoff) + BigInt(segSize));
+		linkeditV.setBigUint64(24, BigInt(vmaddr) + BigInt(segSize), le);
+		linkeditV.setBigUint64(40, BigInt(fileoff) + BigInt(segSize), le);
 	} else {
-		setU32(linkedit, 24, le, Number(vmaddr) + Number(segSize));
-		setU32(linkedit, 32, le, Number(fileoff) + Number(segSize));
+		linkeditV.setUint32(24, Number(vmaddr) + Number(segSize), le);
+		linkeditV.setUint32(32, Number(fileoff) + Number(segSize), le);
 	}
 
 	// Shift any offsets that could reference closing segment.
 	const slide = slider(segSize, Number(fileoff), Number(filesize));
 	for (const command of commands) {
-		switch (getU32(command, 0, le)) {
+		const commandV = new DataView(
+			command.buffer,
+			command.byteOffset,
+			command.byteLength
+		);
+		switch (commandV.getUint32(0, le)) {
 			case LC_DYLD_INFO:
 			case LC_DYLD_INFO_ONLY: {
-				slide.u32(command, 8, le);
-				slide.u32(command, 16, le);
-				slide.u32(command, 24, le);
-				slide.u32(command, 32, le);
-				slide.u32(command, 40, le);
+				slide.u32(commandV, 8, le);
+				slide.u32(commandV, 16, le);
+				slide.u32(commandV, 24, le);
+				slide.u32(commandV, 32, le);
+				slide.u32(commandV, 40, le);
 				break;
 			}
 			case LC_SYMTAB: {
-				slide.u32(command, 8, le);
-				slide.u32(command, 16, le);
+				slide.u32(commandV, 8, le);
+				slide.u32(commandV, 16, le);
 				break;
 			}
 			case LC_DYSYMTAB: {
-				slide.u32(command, 32, le);
-				slide.u32(command, 40, le);
-				slide.u32(command, 48, le);
-				slide.u32(command, 56, le);
-				slide.u32(command, 64, le);
-				slide.u32(command, 72, le);
+				slide.u32(commandV, 32, le);
+				slide.u32(commandV, 40, le);
+				slide.u32(commandV, 48, le);
+				slide.u32(commandV, 56, le);
+				slide.u32(commandV, 64, le);
+				slide.u32(commandV, 72, le);
 				break;
 			}
 			case LC_CODE_SIGNATURE:
@@ -447,7 +471,7 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 			case LC_LINKER_OPTIMIZATION_HINT:
 			case LC_DYLD_EXPORTS_TRIE:
 			case LC_DYLD_CHAINED_FIXUPS: {
-				slide.u32(command, 8, le);
+				slide.u32(commandV, 8, le);
 				break;
 			}
 			default: {
@@ -457,8 +481,8 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	}
 
 	// Update header and insert the segment.
-	setU32(header, 16, le, numLoadCommands + 1);
-	setU32(header, 20, le, sizeOfLoadCommands + seg.length);
+	headerV.setUint32(16, numLoadCommands + 1, le);
+	headerV.setUint32(20, sizeOfLoadCommands + seg.length, le);
 	commands.splice(linkeditI, 0, seg);
 
 	// Construct the new binary, inserting new section data.
@@ -477,8 +501,13 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	// Find the text section.
 	let textSegment: Buffer | null = null;
 	for (const command of commands) {
+		const commandV = new DataView(
+			command.buffer,
+			command.byteOffset,
+			command.byteLength
+		);
 		if (
-			getU32(command, 0, le) === SEGMENT &&
+			commandV.getUint32(0, le) === SEGMENT &&
 			getCstrN(command, 8, 16) === SEG_TEXT
 		) {
 			if (textSegment) {
@@ -490,7 +519,12 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	if (!textSegment) {
 		throw new Error(`Missing ${SEG_TEXT}`);
 	}
-	const textSectionCount = getU32(textSegment, lp ? 64 : 48, le);
+	const textSegmentV = new DataView(
+		textSegment.buffer,
+		textSegment.byteOffset,
+		textSegment.byteLength
+	);
+	const textSectionCount = textSegmentV.getUint32(lp ? 64 : 48, le);
 	let textSection: Buffer | null = null;
 	for (let i = 0; i < textSectionCount; i++) {
 		const o = lp ? 72 + 80 * i : 56 + 68 * i;
@@ -504,22 +538,27 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	if (!textSection) {
 		throw new Error(`Missing ${SECT_TEXT}`);
 	}
+	const textSectionV = new DataView(
+		textSection.buffer,
+		textSection.byteOffset,
+		textSection.byteLength
+	);
 	const textSectionAddress = lp
-		? getU64(textSection, 32, le)
-		: getU32(textSection, 32, le);
+		? textSectionV.getBigUint64(32, le)
+		: textSectionV.getUint32(32, le);
 	const textSectionSize = lp
-		? getU64(textSection, 40, le)
-		: getU32(textSection, 36, le);
+		? textSectionV.getBigUint64(40, le)
+		: textSectionV.getUint32(36, le);
 	const textSectionOffset = lp
-		? getU32(textSection, 48, le)
-		: getU32(textSection, 40, le);
+		? textSectionV.getUint32(48, le)
+		: textSectionV.getUint32(40, le);
 	const textSectionData = macho.subarray(
 		textSectionOffset,
 		textSectionOffset + Number(textSectionSize)
 	);
 
 	// Patch the text section to reference the title.
-	const cpuType = getU32(header, 4, le);
+	const cpuType = headerV.getUint32(4, le);
 	let found: MacProjectTitlePatch | null = null;
 	const patchers = macProjectTitlePatchesByCpuType().get(cpuType) || [];
 	for (const Patcher of patchers) {

@@ -31,72 +31,6 @@ export function hex4(i: number) {
 }
 
 /**
- * Get UINT32 from data.
- *
- * @param data Data buffer.
- * @param i Integer offset.
- * @param le Little endian if true.
- * @returns UINT32 value.
- */
-export function getU32(data: Readonly<Buffer>, i: number, le: boolean) {
-	return le ? data.readUInt32LE(i) : data.readUInt32BE(i);
-}
-
-/**
- * Set UINT32 in data.
- *
- * @param data Data buffer.
- * @param i Integer offset.
- * @param le Little endian if true.
- * @param value UINT32 value.
- */
-export function setU32(
-	data: Buffer,
-	i: number,
-	le: boolean,
-	value: number | bigint
-) {
-	if (le) {
-		data.writeUInt32LE(Number(value), i);
-	} else {
-		data.writeUInt32BE(Number(value), i);
-	}
-}
-
-/**
- * Get UINT64 from data.
- *
- * @param data Data buffer.
- * @param i Integer offset.
- * @param le Little endian if true.
- * @returns UINT64 value.
- */
-export function getU64(data: Readonly<Buffer>, i: number, le: boolean) {
-	return le ? data.readBigInt64LE(i) : data.readBigInt64BE(i);
-}
-
-/**
- * Set UINT64 in data.
- *
- * @param data Data buffer.
- * @param i Integer offset.
- * @param le Little endian if true.
- * @param value UINT64 value.
- */
-export function setU64(
-	data: Buffer,
-	i: number,
-	le: boolean,
-	value: bigint | number
-) {
-	if (le) {
-		data.writeBigInt64LE(BigInt(value), i);
-	} else {
-		data.writeBigInt64BE(BigInt(value), i);
-	}
-}
-
-/**
  * Align integer.
  *
  * @param i Integer value.
@@ -430,14 +364,14 @@ export function slider(amount: number, offset: number, size: number) {
 		/**
 		 * For UINT32.
 		 *
-		 * @param data Buffer data.
+		 * @param data Data view.
 		 * @param i Integer offset.
 		 * @param le Little endian if true.
 		 */
-		u32: (data: Buffer, i: number, le: boolean) => {
-			const v = getU32(data, i, le);
+		u32: (data: DataView, i: number, le: boolean) => {
+			const v = data.getUint32(i, le);
 			if (v >= offset && v <= end) {
-				setU32(data, i, le, v + amount);
+				data.setUint32(i, v + amount, le);
 			}
 		}
 	};
