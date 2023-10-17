@@ -23,11 +23,7 @@ export function once<T>(create: () => T): () => T {
  * @returns Hex string.
  */
 export function hex4(i: number) {
-	let r = i.toString(16);
-	while (r.length < 8) {
-		r = `0${r}`;
-	}
-	return r;
+	return i.toString(16).padStart(8, '0');
 }
 
 /**
@@ -52,11 +48,12 @@ export function align(i: number, align: number) {
  */
 export function getBuffer(data: Readonly<DataView>, offset: number, size = -1) {
 	const {byteOffset, byteLength} = data;
+	const o = byteOffset + offset;
 	const l = byteLength - byteOffset;
 	if (size > l) {
 		throw new Error(`Size out of bounds`);
 	}
-	return data.buffer.slice(offset, offset + (size < 0 ? l : size));
+	return data.buffer.slice(o, o + (size < 0 ? l : size));
 }
 
 /**
@@ -68,16 +65,16 @@ export function getBuffer(data: Readonly<DataView>, offset: number, size = -1) {
  * @param size The size.
  */
 export function setBuffer(
-	data: Readonly<DataView>,
+	data: DataView,
 	offset: number,
 	buffer: Readonly<ArrayBuffer>,
 	size = -1
 ) {
 	const {byteOffset, byteLength} = data;
 	const o = byteOffset + offset;
-	const s = new Uint8Array(buffer, 0, size < 0 ? buffer.byteLength : size);
-	const d = new Uint8Array(data.buffer, o, byteLength - o);
-	d.set(s);
+	new Uint8Array(data.buffer, o, byteLength - o).set(
+		new Uint8Array(buffer, 0, size < 0 ? buffer.byteLength : size)
+	);
 }
 
 /**
