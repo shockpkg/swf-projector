@@ -198,6 +198,43 @@ export function setBuffer(
 }
 
 /**
+ * Find exact match in data.
+ *
+ * @param data Data to search.
+ * @param find Search for.
+ * @param from Search from.
+ * @returns Index.
+ */
+export function findIndex(
+	data: Readonly<Uint8Array>,
+	find: Readonly<Uint8Array>,
+	from = 0
+) {
+	const l = find.length;
+	if (l) {
+		const e = data.length - l;
+		const [f] = find;
+		for (let i = from; ; i++) {
+			i = data.indexOf(f, i);
+			if (i < 0 || i > e) {
+				break;
+			}
+			let m = true;
+			for (let j = 1; j < l; j++) {
+				if (data[i + j] !== find[j]) {
+					m = false;
+					break;
+				}
+			}
+			if (m) {
+				return i;
+			}
+		}
+	}
+	return -1;
+}
+
+/**
  * Find exact matches in data.
  *
  * @param data Data to search.
@@ -206,12 +243,12 @@ export function setBuffer(
  * @yields Index.
  */
 export function* findExact(
-	data: Readonly<Buffer>,
-	find: Readonly<Buffer> | string | Readonly<Uint8Array>,
+	data: Readonly<Uint8Array>,
+	find: Readonly<Uint8Array>,
 	from = 0
 ) {
 	for (let index = from - 1; ; ) {
-		index = data.indexOf(find, index + 1);
+		index = findIndex(data, find, index + 1);
 		if (index < 0) {
 			break;
 		}
@@ -230,7 +267,7 @@ export function* findExact(
  * @yields Index.
  */
 export function* findFuzzy(
-	data: Readonly<Buffer>,
+	data: Readonly<Uint8Array>,
 	find: (number | null)[],
 	from = 0,
 	until = -1,
@@ -262,7 +299,7 @@ export function* findFuzzy(
  * @returns Index or null.
  */
 export function findFuzzyOnce(
-	data: Readonly<Buffer>,
+	data: Readonly<Uint8Array>,
 	fuzzy: (number | null)[]
 ) {
 	let r = null;
@@ -283,7 +320,7 @@ export function findFuzzyOnce(
  * @param fuzzy The similar data.
  */
 export function writeFuzzy(
-	data: Buffer,
+	data: Uint8Array,
 	offset: number,
 	fuzzy: (number | null)[]
 ) {
@@ -303,7 +340,7 @@ export function writeFuzzy(
  * @param l Max length.
  * @returns ASCII string.
  */
-export function getCstrN(data: Readonly<Buffer>, i: number, l: number) {
+export function getCstrN(data: Readonly<Uint8Array>, i: number, l: number) {
 	let c = 0;
 	for (; c < l; c++) {
 		if (!data[i + c]) {
@@ -336,7 +373,7 @@ export function patchHexToBytes(str: string) {
  * @returns The offsets or null.
  */
 export function patchGroupOffsets(
-	data: Readonly<Buffer>,
+	data: Readonly<Uint8Array>,
 	patches: {
 		count: number;
 		find: (number | null)[];
@@ -362,7 +399,7 @@ export function patchGroupOffsets(
  * @param type Patch type.
  */
 export function patchOnce(
-	data: Buffer,
+	data: Uint8Array,
 	patches: {
 		count: number;
 		find: (number | null)[];
