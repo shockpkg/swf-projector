@@ -1,6 +1,6 @@
 import {launcher} from '../util';
 
-import {align} from './internal/patch';
+import {align, findIndex} from './internal/patch';
 import {
 	decode,
 	Elf32,
@@ -44,12 +44,13 @@ function linuxProjectorAddSection(
 	elf: Elf32 | Elf64,
 	data: Readonly<Uint8Array>
 ) {
+	const te = new TextEncoder();
 	const aligned = 64;
 	const secnameData = '.shockpkg.data';
-	const secnameDataD = Buffer.from(`${secnameData}\0`);
+	const secnameDataD = te.encode(`${secnameData}\0`);
 	const secnameDataS = secnameDataD.length;
 	const secnameEof = '.shockpkg.eof';
-	const secnameEofD = Buffer.from(`${secnameEof}\0`);
+	const secnameEofD = te.encode(`${secnameEof}\0`);
 	const secnameEofS = secnameEofD.length;
 	const secdata = new ArrayBuffer(align(data.length, aligned));
 	new Uint8Array(secdata).set(data);
@@ -89,8 +90,11 @@ function linuxProjectorAddSection(
 			}
 
 			// Only FP6 uses this older library.
-			const d = Buffer.from(shdr.data);
-			allowBssAfterLoadData = d.indexOf('libgtk-1.2.so.0', 0) >= 0;
+			allowBssAfterLoadData =
+				findIndex(
+					new Uint8Array(shdr.data),
+					te.encode('libgtk-1.2.so.0')
+				) >= 0;
 		}
 	}
 
@@ -312,7 +316,7 @@ export function linuxProjectorPatch(
 
 	const patchers = [] as [string, Patch<Elf32 | Elf64>[]][];
 	if (typeof patchWindowTitle === 'string') {
-		const titleData = Buffer.from(`${patchWindowTitle}\0`, 'utf8');
+		const titleData = new TextEncoder().encode(`${patchWindowTitle}\0`);
 		const shdr = linuxProjectorAddSection(e, titleData);
 		const titleA = shdr.shAddr;
 		const titleL = titleData.length - 1;
