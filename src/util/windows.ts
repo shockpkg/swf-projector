@@ -27,7 +27,6 @@ import {
 } from './internal/windows/title';
 
 export interface IWindowsPatchProjector {
-	//
 	/**
 	 * Replace icons if not null.
 	 *

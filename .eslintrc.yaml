@@ -129,12 +129,6 @@ rules:
   line-comment-position:
     - error
     - position: above
-  lines-around-comment:
-    - error
-    - beforeBlockComment: true
-      allowBlockStart: true
-      allowObjectStart: true
-      allowArrayStart: true
   lines-between-class-members:
     - error
     - always
@@ -285,6 +279,16 @@ rules:
   '@typescript-eslint/prefer-function-type': error
   '@typescript-eslint/unified-signatures': error
   '@typescript-eslint/no-confusing-non-null-assertion': error
+  '@typescript-eslint/lines-around-comment':
+    - error
+    - beforeBlockComment: true
+      allowBlockStart: true
+      allowObjectStart: true
+      allowArrayStart: true
+      allowEnumStart: true
+      allowInterfaceStart: true
+      allowModuleStart: true
+      allowTypeStart: true
 
   # TypeScript Project:
   '@typescript-eslint/no-unnecessary-qualifier': error

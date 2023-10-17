@@ -6,7 +6,6 @@ import {Elf64} from './elf';
 import {Patch} from './patch';
 
 export interface IPatchOffset64Spec {
-	//
 	/**
 	 * Fuzzy find.
 	 */

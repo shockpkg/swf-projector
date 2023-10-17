@@ -31,7 +31,6 @@ const userExec = 0b001000000;
  * Options for adding resources.
  */
 export interface IBundleResourceOptions {
-	//
 	/**
 	 * Access time.
 	 */

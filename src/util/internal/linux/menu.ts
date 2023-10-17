@@ -4,7 +4,6 @@ import {Elf32, Elf64} from './elf';
 import {Patch} from './patch';
 
 export interface IPatchMenuSpec {
-	//
 	/**
 	 * Expected number of replacements.
 	 */

@@ -50,7 +50,6 @@ import {
 } from './internal/mac/title';
 
 export interface IMachoType {
-	//
 	/**
 	 * CPU type.
 	 */
@@ -250,7 +249,6 @@ export function machoThins<T extends Readonly<Buffer>>(data: T) {
 }
 
 export interface IMacProjectorMachoPatch {
-	//
 	/**
 	 * Remove signature if present and true.
 	 *

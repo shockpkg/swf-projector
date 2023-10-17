@@ -262,7 +262,6 @@ function linuxProjectorAddSection(elf: Elf32 | Elf64, data: Readonly<Buffer>) {
 }
 
 export interface ILinuxProjectorPatch {
-	//
 	/**
 	 * Attempt to replace the window title if not null.
 	 *
