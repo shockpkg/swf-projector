@@ -1,5 +1,5 @@
 import {describe, it} from 'node:test';
-import {strictEqual} from 'node:assert';
+import {ok} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
 import {listSamples, customWindowTitle} from '../../projector/sa/mac.spec';
@@ -17,7 +17,7 @@ import {BundleSaMac} from './mac';
 void describe('bundle/sa/mac', () => {
 	void describe('BundleSaMac', () => {
 		void it('instanceof', () => {
-			strictEqual(BundleSaMac.prototype instanceof BundleSa, true);
+			ok(BundleSaMac.prototype instanceof BundleSa);
 		});
 
 		for (const pkg of listSamples()) {

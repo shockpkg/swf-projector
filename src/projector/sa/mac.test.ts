@@ -1,5 +1,5 @@
 import {describe, it} from 'node:test';
-import {strictEqual} from 'node:assert';
+import {ok} from 'node:assert';
 import {copyFile} from 'node:fs/promises';
 import {join as pathJoin} from 'node:path';
 
@@ -18,7 +18,7 @@ import {customWindowTitle, listSamples} from './mac.spec';
 void describe('projector/sa/mac', () => {
 	void describe('ProjectorSaMac', () => {
 		void it('instanceof', () => {
-			strictEqual(ProjectorSaMac.prototype instanceof ProjectorSa, true);
+			ok(ProjectorSaMac.prototype instanceof ProjectorSa);
 		});
 
 		void describe('dummy', () => {

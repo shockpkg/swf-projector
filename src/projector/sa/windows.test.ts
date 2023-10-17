@@ -1,5 +1,5 @@
 import {describe, it} from 'node:test';
-import {strictEqual} from 'node:assert';
+import {ok} from 'node:assert';
 import {copyFile} from 'node:fs/promises';
 import {join as pathJoin} from 'node:path';
 
@@ -18,10 +18,7 @@ import {customWindowTitle, listSamples, versionStrings} from './windows.spec';
 void describe('projector/sa/windows', () => {
 	void describe('ProjectorSaWindows', () => {
 		void it('instanceof', () => {
-			strictEqual(
-				ProjectorSaWindows.prototype instanceof ProjectorSa,
-				true
-			);
+			ok(ProjectorSaWindows.prototype instanceof ProjectorSa);
 		});
 
 		void describe('dummy', () => {

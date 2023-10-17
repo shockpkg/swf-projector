@@ -1,5 +1,5 @@
 import {describe, it} from 'node:test';
-import {strictEqual} from 'node:assert';
+import {ok} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
 import {
@@ -21,7 +21,7 @@ import {BundleSaWindows} from './windows';
 void describe('bundle/sa/windows', () => {
 	void describe('BundleSaWindows', () => {
 		void it('instanceof', () => {
-			strictEqual(BundleSaWindows.prototype instanceof BundleSa, true);
+			ok(BundleSaWindows.prototype instanceof BundleSa);
 		});
 
 		for (const pkg of listSamples()) {

@@ -1,5 +1,5 @@
 import {describe, it} from 'node:test';
-import {strictEqual} from 'node:assert';
+import {ok} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
 import {listSamples} from '../../projector/sa/linux.spec';
@@ -17,7 +17,7 @@ import {BundleSaLinux} from './linux';
 void describe('bundle/sa/linux', () => {
 	void describe('BundleSaLinux', () => {
 		void it('instanceof', () => {
-			strictEqual(BundleSaLinux.prototype instanceof BundleSa, true);
+			ok(BundleSaLinux.prototype instanceof BundleSa);
 		});
 
 		for (const pkg of listSamples()) {
