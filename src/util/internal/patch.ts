@@ -109,19 +109,6 @@ export function align(i: number, align: number) {
 }
 
 /**
- * Align a big integer.
- *
- * @param i Integer value.
- * @param align Alignment amount.
- * @returns Aligned integer.
- */
-export function alignBig(i: bigint, align: number | bigint) {
-	const a = BigInt(align);
-	const o = i % a;
-	return o ? a - o + i : i;
-}
-
-/**
  * Align Buffer.
  *
  * @param buffer Buffer instance.
