@@ -3,7 +3,6 @@ import {
 	chmod,
 	lstat,
 	mkdir,
-	readFile,
 	readlink,
 	stat,
 	symlink,
@@ -135,28 +134,16 @@ export abstract class Bundle {
 	}
 
 	/**
-	 * Open output with file.
-	 *
-	 * @param movieFile Movie file.
+	 * Open output.
 	 */
-	public async openFile(movieFile: string | null) {
-		const movieData = movieFile ? await readFile(movieFile) : null;
-		await this.openData(movieData);
-	}
-
-	/**
-	 * Open output with data.
-	 *
-	 * @param movieData Movie data.
-	 */
-	public async openData(movieData: Readonly<Buffer> | null) {
+	public async open() {
 		if (this._isOpen) {
 			throw new Error('Already open');
 		}
 		await this._checkOutput();
 
 		this._closeQueue.clear();
-		await this._openData(movieData);
+		await this._openData();
 
 		this._isOpen = true;
 	}
@@ -177,34 +164,14 @@ export abstract class Bundle {
 	}
 
 	/**
-	 * Write out projector with file.
+	 * Write out the bundle.
 	 * Has a callback to write out the resources.
 	 *
-	 * @param movieFile Movie file.
 	 * @param func Async function.
 	 * @returns Return value of the async function.
 	 */
-	public async withFile<T>(
-		movieFile: string | null,
-		func: ((self: this) => Promise<T>) | null = null
-	) {
-		const movieData = movieFile ? await readFile(movieFile) : null;
-		return this.withData(movieData, func);
-	}
-
-	/**
-	 * Write out projector with data.
-	 * Has a callback to write out the resources.
-	 *
-	 * @param movieData Movie data.
-	 * @param func Async function.
-	 * @returns Return value of the async function.
-	 */
-	public async withData<T>(
-		movieData: Readonly<Buffer> | null,
-		func: ((self: this) => Promise<T>) | null = null
-	) {
-		await this.openData(movieData);
+	public async write<T>(func: ((self: this) => Promise<T>) | null = null) {
+		await this.open();
 		try {
 			return func ? await func.call(this, this) : null;
 		} finally {
@@ -582,11 +549,9 @@ export abstract class Bundle {
 
 	/**
 	 * Open output with data.
-	 *
-	 * @param movieData Movie data.
 	 */
-	protected async _openData(movieData: Readonly<Buffer> | null) {
-		await this.projector.withData(movieData);
+	protected async _openData() {
+		await this.projector.write();
 	}
 
 	/**

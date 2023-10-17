@@ -33,7 +33,8 @@ void describe('bundle', () => {
 
 			const b = new BundleDummy(dest);
 			b.projector.player = fixtureFile('dummy.exe');
-			await b.withFile(fixtureFile('swf3.swf'));
+			b.projector.movieFile = fixtureFile('swf3.swf');
+			await b.write();
 		});
 
 		void it('resources', async () => {
@@ -78,7 +79,8 @@ void describe('bundle', () => {
 
 			const b = new BundleDummy(dest);
 			b.projector.player = fixtureFile('dummy.exe');
-			await b.withFile(fixtureFile('swf3.swf'), async p => {
+			b.projector.movieFile = fixtureFile('swf3.swf');
+			await b.write(async p => {
 				await p.copyResource('resources0', resources);
 
 				await p.copyResource('resources1', resources, {
@@ -221,7 +223,8 @@ void describe('bundle', () => {
 
 			const b = new BundleDummy(dest);
 			b.projector.player = fixtureFile('dummy.exe');
-			await b.withFile(fixtureFile('swf3.swf'), async p => {
+			b.projector.movieFile = fixtureFile('swf3.swf');
+			await b.write(async p => {
 				await p.createResourceFile('d/b.txt', 'beta');
 
 				// Merge contents at root of resources.

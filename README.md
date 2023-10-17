@@ -31,6 +31,12 @@ import {ProjectorWindows} from '@shockpkg/swf-projector';
 
 const projector = new ProjectorWindows('projector-windows/application.exe');
 
+// Required player.
+projector.player = 'player.exe';
+
+// The movie.
+projector.movieFile = 'movie.swf';
+
 // Optional custom icon.
 projector.iconFile = 'icon.ico';
 
@@ -57,7 +63,7 @@ projector.removeCodeSignature = true;
 // Optionally remove out-of-date check.
 projector.patchOutOfDateDisable = true;
 
-await projector.withFile('player.exe', 'movie.swf');
+await projector.write();
 ```
 
 ### Mac App
@@ -66,6 +72,12 @@ await projector.withFile('player.exe', 'movie.swf');
 import {ProjectorMacApp} from '@shockpkg/swf-projector';
 
 const projector = new ProjectorMacApp('projector-macapp/application.app');
+
+// Required player.
+projector.player = 'player.zip';
+
+// The movie.
+projector.movieFile = 'movie.swf';
 
 // Optional custom icon.
 projector.iconFile = 'icon.icns';
@@ -94,7 +106,7 @@ projector.removeInfoPlistStrings = true;
 // Optionally remove now-broken signature.
 projector.removeCodeSignature = true;
 
-await projector.withFile('player.dmg', 'movie.swf');
+await projector.write();
 ```
 
 ### Linux
@@ -103,6 +115,12 @@ await projector.withFile('player.dmg', 'movie.swf');
 import {ProjectorLinux} from '@shockpkg/swf-projector';
 
 const projector = new ProjectorLinux('projector-linux/application');
+
+// Required player.
+projector.player = 'player.tar.gz';
+
+// The movie.
+projector.movieFile = 'movie.swf';
 
 // Optionally patch window title.
 projector.patchWindowTitle = 'Custom Title';
@@ -116,7 +134,7 @@ projector.patchProjectorPath = true;
 // Only for 64-bit Linux, where this is necessary.
 projector.patchProjectorOffset = true;
 
-await projector.withFile('player.tar.gz', 'movie.swf');
+await projector.write();
 ```
 
 ## Bundle
@@ -129,10 +147,12 @@ import {BundleWindows} from '@shockpkg/swf-projector';
 const bundle = new BundleWindows('bundle-windows/application.exe');
 
 // Use projector property to set options.
+bundle.projector.player = 'player.exe';
+bundle.projector.movie = 'movie.swf';
 bundle.projector.removeCodeSignature = true;
 bundle.projector.patchOutOfDateDisable = true;
 
-await bundle.withFile('player.exe', 'movie.swf', async b => {
+await bundle.write(async b => {
 	// Add resources in callback.
 	await b.copyResource('other.swf', 'other.swf');
 });
@@ -146,9 +166,11 @@ import {BundleMacApp} from '@shockpkg/swf-projector';
 const bundle = new BundleMacApp('bundle-macapp/application.app');
 
 // Use projector property to set options.
+bundle.projector.player = 'player.zip';
+bundle.projector.movie = 'movie.swf';
 bundle.projector.removeCodeSignature = true;
 
-await bundle.withFile('player.dmg', 'movie.swf', async b => {
+await bundle.write(async b => {
 	// Add resources in callback.
 	await b.copyResource('other.swf', 'other.swf');
 });
@@ -162,10 +184,12 @@ import {BundleLinux} from '@shockpkg/swf-projector';
 const bundle = new BundleLinux('bundle-linux/application');
 
 // Use projector property to set options.
+bundle.projector.player = 'player.tar.gz';
+bundle.projector.movie = 'movie.swf';
 bundle.projector.patchProjectorPath = true;
 bundle.projector.patchProjectorOffset = true;
 
-await bundle.withFile('player.tar.gz', 'movie.swf', async b => {
+await bundle.write(async b => {
 	// Add resources in callback.
 	await b.copyResource('other.swf', 'other.swf');
 });

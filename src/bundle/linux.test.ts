@@ -30,7 +30,8 @@ void describe('bundle/linux', () => {
 					const b = new BundleLinux(dest);
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					b.projector.player = await getPlayer();
-					await b.withFile(simple);
+					b.projector.movieFile = simple;
+					await b.write();
 				});
 
 				if (pkg.version[0] < 6) {
@@ -45,19 +46,25 @@ void describe('bundle/linux', () => {
 					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
 					b.projector.patchProjectorPath = true;
 					b.projector.player = await getPlayer();
-					await b.withData(
-						loader(6, 600, 400, 30, 0xffffff, 'main.swf', 30 / 2),
-						async b => {
-							await b.copyResource(
-								'main.swf',
-								fixtureFile('swf6-loadmovie.swf')
-							);
-							await b.copyResource(
-								'image.jpg',
-								fixtureFile('image.jpg')
-							);
-						}
+					b.projector.movieData = loader(
+						6,
+						600,
+						400,
+						30,
+						0xffffff,
+						'main.swf',
+						30 / 2
 					);
+					await b.write(async b => {
+						await b.copyResource(
+							'main.swf',
+							fixtureFile('swf6-loadmovie.swf')
+						);
+						await b.copyResource(
+							'image.jpg',
+							fixtureFile('image.jpg')
+						);
+					});
 				});
 			});
 		}

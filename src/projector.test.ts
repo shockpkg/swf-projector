@@ -14,7 +14,8 @@ void describe('projector', () => {
 
 			const p = new ProjectorDummy(dest);
 			p.player = fixtureFile('dummy.exe');
-			await p.withFile(fixtureFile('swf3.swf'));
+			p.movieFile = fixtureFile('swf3.swf');
+			await p.write();
 		});
 	});
 });

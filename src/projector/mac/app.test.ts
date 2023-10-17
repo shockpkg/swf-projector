@@ -34,7 +34,8 @@ void describe('projector/mac/app', () => {
 
 				const p = new ProjectorMacApp(dest);
 				p.player = fixtureFile('dummy.app');
-				await p.withFile(fixtureFile('swf3.swf'));
+				p.movieFile = fixtureFile('swf3.swf');
+				await p.write();
 			});
 		});
 
@@ -52,7 +53,8 @@ void describe('projector/mac/app', () => {
 					const p = new ProjectorMacApp(dest);
 					p.removeCodeSignature = true;
 					p.player = await getPlayer();
-					await p.withFile(simple);
+					p.movieFile = simple;
+					await p.write();
 				});
 
 				if (pkg.fixBrokenIconPaths) {
@@ -64,7 +66,8 @@ void describe('projector/mac/app', () => {
 						p.fixBrokenIconPaths = true;
 						p.removeCodeSignature = true;
 						p.player = await getPlayer();
-						await p.withFile(fixtureFile('swf3.swf'));
+						p.movieFile = fixtureFile('swf3.swf');
+						await p.write();
 					});
 				}
 
@@ -76,7 +79,8 @@ void describe('projector/mac/app', () => {
 					p.removeFileAssociations = true;
 					p.removeCodeSignature = true;
 					p.player = await getPlayer();
-					await p.withFile(fixtureFile('swf3.swf'));
+					p.movieFile = fixtureFile('swf3.swf');
+					await p.write();
 				});
 
 				void it('complex', async () => {
@@ -96,9 +100,11 @@ void describe('projector/mac/app', () => {
 					}
 					p.player = await getPlayer();
 					if (pkg.version[0] < 6) {
-						await p.withFile(fixtureFile('swf3.swf'));
+						p.movieFile = fixtureFile('swf3.swf');
+						await p.write();
 					} else {
-						await p.withFile(fixtureFile('swf6-loadmovie.swf'));
+						p.movieFile = fixtureFile('swf6-loadmovie.swf');
+						await p.write();
 						await copyFile(
 							fixtureFile('image.jpg'),
 							pathJoin(dir, 'image.jpg')
@@ -113,9 +119,8 @@ void describe('projector/mac/app', () => {
 
 						const p = new ProjectorMacApp(dest);
 						p.player = await getPlayer();
-						await p.withFile(
-							fixtureFile('swf6-showmenu-false.swf')
-						);
+						p.movieFile = fixtureFile('swf6-showmenu-false.swf');
+						await p.write();
 					});
 				}
 			});

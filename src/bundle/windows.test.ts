@@ -36,7 +36,8 @@ void describe('bundle/windows', () => {
 					b.projector.patchOutOfDateDisable =
 						pkg.patchOutOfDateDisable;
 					b.projector.player = await getPlayer();
-					await b.withFile(simple);
+					b.projector.movieFile = simple;
+					await b.write();
 				});
 
 				if (pkg.version[0] < 4) {
@@ -61,19 +62,21 @@ void describe('bundle/windows', () => {
 					b.projector.patchOutOfDateDisable =
 						pkg.patchOutOfDateDisable;
 					b.projector.player = await getPlayer();
-					await b.withData(
-						loader(swfv, 600, 400, 30, 0xffffff, 'main.swf'),
-						async b => {
-							await b.copyResource(
-								'main.swf',
-								fixtureFile(movies[0])
-							);
-							await b.copyResource(
-								movies[1],
-								fixtureFile(movies[1])
-							);
-						}
+					b.projector.movieData = loader(
+						swfv,
+						600,
+						400,
+						30,
+						0xffffff,
+						'main.swf'
 					);
+					await b.write(async b => {
+						await b.copyResource(
+							'main.swf',
+							fixtureFile(movies[0])
+						);
+						await b.copyResource(movies[1], fixtureFile(movies[1]));
+					});
 				});
 			});
 		}
