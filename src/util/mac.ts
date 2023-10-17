@@ -12,8 +12,7 @@ import {
 	setU64,
 	getCstrN,
 	slider,
-	align,
-	bufferAlign
+	align
 } from './internal/patch';
 import {
 	VM_PROT_READ,
@@ -360,11 +359,12 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	const aligned = 16;
 	const segname = '__SHOCKPKG_DATA';
 	const secname = segname.toLowerCase();
-	const secdata = bufferAlign(
-		Buffer.concat([Buffer.alloc(4), Buffer.from(`${title}\0`, 'utf16le')]),
-		aligned
-	);
-	setU32(secdata, 0, le, title.length);
+	const secdata = new ArrayBuffer(align(6 + title.length * 2, aligned));
+	const secview = new DataView(secdata);
+	secview.setUint32(0, title.length, le);
+	for (let i = 0; i < title.length; i++) {
+		secview.setUint16(4 + i * 2, title.charCodeAt(i), le);
+	}
 	const seg = Buffer.alloc(lp ? 72 + 80 : 56 + 68);
 	const sec = seg.subarray(lp ? 72 : 56);
 	sec.write(secname, 0, 16);
@@ -372,19 +372,19 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 	sec.write(segname, 16, 16);
 	if (lp) {
 		setU64(sec, 32, le, vmaddr);
-		setU64(sec, 40, le, secdata.length);
+		setU64(sec, 40, le, secdata.byteLength);
 		setU32(sec, 48, le, fileoff);
-		setU32(sec, 52, le, secdata.length < aligned ? 0 : 4);
+		setU32(sec, 52, le, secdata.byteLength < aligned ? 0 : 4);
 	} else {
 		setU32(sec, 32, le, vmaddr);
-		setU32(sec, 36, le, secdata.length);
+		setU32(sec, 36, le, secdata.byteLength);
 		setU32(sec, 40, le, fileoff);
-		setU32(sec, 44, le, secdata.length < aligned ? 0 : 4);
+		setU32(sec, 44, le, secdata.byteLength < aligned ? 0 : 4);
 	}
 	setU32(seg, 0, le, SEGMENT);
 	setU32(seg, 4, le, seg.length);
 	seg.write(segname, 8, 16);
-	const segSize = alignVmsize(secdata.length);
+	const segSize = alignVmsize(secdata.byteLength);
 	if (lp) {
 		setU64(seg, 24, le, vmaddr);
 		setU64(seg, 32, le, segSize);
@@ -469,8 +469,8 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
 			commands.reduce((v, c) => v + c.length, header.length),
 			Number(fileoff)
 		),
-		secdata,
-		Buffer.alloc(segSize - secdata.length),
+		new Uint8Array(secdata),
+		new Uint8Array(segSize - secdata.byteLength),
 		data.subarray(Number(fileoff))
 	]);
 

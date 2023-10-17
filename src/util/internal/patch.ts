@@ -109,18 +109,6 @@ export function align(i: number, align: number) {
 }
 
 /**
- * Align Buffer.
- *
- * @param buffer Buffer instance.
- * @param align Align amount.
- * @returns Aligned buffer, or same buffer if already aligned.
- */
-export function bufferAlign(buffer: Readonly<Buffer>, align: number) {
-	const o = buffer.length % align;
-	return o ? Buffer.concat([buffer, Buffer.alloc(align - o)]) : buffer;
-}
-
-/**
  * Get buffer.
  *
  * @param data Data view.
