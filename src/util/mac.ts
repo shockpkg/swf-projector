@@ -388,7 +388,6 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	const secV = new DataView(sec.buffer, sec.byteOffset, sec.byteLength);
 	sec.write(secname, 0, 16);
 	sec.write(segname, 16, 16);
-	sec.write(segname, 16, 16);
 	if (lp) {
 		secV.setBigUint64(32, BigInt(vmaddr), le);
 		secV.setBigUint64(40, BigInt(secdata.byteLength), le);
