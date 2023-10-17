@@ -145,21 +145,6 @@ export function bufferToArrayBuffer(buffer: Readonly<Buffer>) {
 }
 
 /**
- * Get DataView from Buffer.
- *
- * @param buffer Buffer instance.
- * @returns The DataView.
- */
-export function bufferToDataView(buffer: Readonly<Buffer>) {
-	const {byteOffset, byteLength} = buffer;
-	return new DataView(
-		buffer.buffer,
-		byteOffset,
-		byteLength
-	) as Readonly<DataView>;
-}
-
-/**
  * Get buffer.
  *
  * @param data Data view.

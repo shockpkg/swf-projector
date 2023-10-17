@@ -1,11 +1,6 @@
 import {launcher} from '../util';
 
-import {
-	align,
-	bufferAlign,
-	bufferToArrayBuffer,
-	bufferToDataView
-} from './internal/patch';
+import {align, bufferAlign, bufferToArrayBuffer} from './internal/patch';
 import {
 	decode,
 	Elf32,
@@ -299,7 +294,7 @@ export interface ILinuxProjectorPatch {
  * @returns Patched projector.
  */
 export function linuxProjectorPatch(
-	elf: Readonly<Buffer>,
+	elf: Readonly<Uint8Array>,
 	options: Readonly<ILinuxProjectorPatch>
 ) {
 	const {
@@ -309,7 +304,7 @@ export function linuxProjectorPatch(
 		patchProjectorOffset
 	} = options;
 
-	const e = decode(bufferToDataView(elf));
+	const e = decode(new DataView(elf.buffer, elf.byteOffset, elf.byteLength));
 
 	const patchers = [] as [string, Patch<Elf32 | Elf64>[]][];
 	if (typeof patchWindowTitle === 'string') {
@@ -366,7 +361,7 @@ export function linuxProjectorPatch(
 		found.patch();
 	}
 
-	return Buffer.from(e.encoded());
+	return new Uint8Array(e.encoded());
 }
 
 /**

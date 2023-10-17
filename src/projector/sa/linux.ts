@@ -157,7 +157,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 			patchProjectorOffset
 		} = this;
 
-		let data = null;
+		let data: Uint8Array | null = null;
 
 		if (
 			patchWindowTitle !== null ||
@@ -176,13 +176,19 @@ export class ProjectorSaLinux extends ProjectorSa {
 
 		if (movieData) {
 			data = data || (await readFile(path));
-			data = Buffer.concat([
-				data,
-				this._encodeMovieData(
-					movieData,
-					data.readUint16LE(18) === EM_X86_64 ? 'lid' : 'smd'
-				)
-			]);
+			const v = new DataView(
+				data.buffer,
+				data.byteOffset,
+				data.byteLength
+			);
+			const e = this._encodeMovieData(
+				movieData,
+				v.getUint16(18, true) === EM_X86_64 ? 'lid' : 'smd'
+			);
+			const d = new Uint8Array(data.length + e.length);
+			d.set(data);
+			d.set(e, data.length);
+			data = d;
 		}
 
 		if (data) {
