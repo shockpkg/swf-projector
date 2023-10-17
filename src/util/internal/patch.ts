@@ -39,6 +39,26 @@ export function align(i: number, align: number) {
 }
 
 /**
+ * Concat data chunks together.
+ *
+ * @param pieces The pieces to merge.
+ * @returns Merged data.
+ */
+export function concat(pieces: Readonly<Readonly<Uint8Array>[]>) {
+	let l = 0;
+	for (const piece of pieces) {
+		l += piece.length;
+	}
+	const r = new Uint8Array(l);
+	l = 0;
+	for (const piece of pieces) {
+		r.set(piece, l);
+		l += piece.length;
+	}
+	return r;
+}
+
+/**
  * Get buffer.
  *
  * @param data Data view.

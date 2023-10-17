@@ -4,7 +4,7 @@ import {unsign} from 'macho-unsign';
 
 import {launcher} from '../util';
 
-import {hex4, getCstrN, slider, align} from './internal/patch';
+import {hex4, getCstrN, slider, align, concat} from './internal/patch';
 import {
 	VM_PROT_READ,
 	FAT_MAGIC,
@@ -486,7 +486,7 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	commands.splice(linkeditI, 0, seg);
 
 	// Construct the new binary, inserting new section data.
-	const macho = Buffer.concat([
+	const macho = concat([
 		header,
 		...commands,
 		data.subarray(
@@ -563,7 +563,11 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	const patchers = macProjectTitlePatchesByCpuType().get(cpuType) || [];
 	for (const Patcher of patchers) {
 		const patcher = new Patcher(
-			textSectionData,
+			Buffer.from(
+				textSectionData.buffer,
+				textSectionData.byteOffset,
+				textSectionData.byteLength
+			),
 			Number(textSectionAddress),
 			Number(vmaddr)
 		);
