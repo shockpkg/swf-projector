@@ -6,7 +6,7 @@ import {machoAppLauncher, machoTypesData} from './mac';
 
 const unhex = (hex: string) => Buffer.from(hex.replace(/\s/g, ''), 'hex');
 
-function sha256(data: Buffer) {
+function sha256(data: Uint8Array) {
 	return createHash('sha256').update(data).digest('hex');
 }
 

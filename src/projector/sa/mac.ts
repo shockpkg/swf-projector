@@ -23,14 +23,29 @@ export class ProjectorSaMac extends ProjectorSa {
 	public binaryName: string | null = null;
 
 	/**
+	 * Icon data.
+	 */
+	public iconData:
+		| Readonly<Uint8Array>
+		| (() => Readonly<Uint8Array>)
+		| (() => Promise<Readonly<Uint8Array>>)
+		| null = null;
+
+	/**
 	 * Icon file.
 	 */
 	public iconFile: string | null = null;
 
 	/**
-	 * Icon data.
+	 * Info.plist data.
+	 * Currently only supports XML plist.
 	 */
-	public iconData: Readonly<Buffer> | null = null;
+	public infoPlistData:
+		| string
+		| Readonly<Uint8Array>
+		| (() => string | Readonly<Uint8Array>)
+		| (() => Promise<string | Readonly<Uint8Array>>)
+		| null = null;
 
 	/**
 	 * Info.plist file.
@@ -39,20 +54,19 @@ export class ProjectorSaMac extends ProjectorSa {
 	public infoPlistFile: string | null = null;
 
 	/**
-	 * Info.plist data.
-	 * Currently only supports XML plist.
+	 * PkgInfo data.
 	 */
-	public infoPlistData: string | Readonly<Buffer> | null = null;
+	public pkgInfoData:
+		| string
+		| Readonly<Uint8Array>
+		| (() => Readonly<Uint8Array>)
+		| (() => Promise<Readonly<Uint8Array>>)
+		| null = null;
 
 	/**
 	 * PkgInfo file.
 	 */
 	public pkgInfoFile: string | null = null;
-
-	/**
-	 * PkgInfo data.
-	 */
-	public pkgInfoData: string | Readonly<Buffer> | null = null;
 
 	/**
 	 * Update the bundle name in Info.plist.
@@ -223,7 +237,14 @@ export class ProjectorSaMac extends ProjectorSa {
 	 */
 	public async getIconData() {
 		const {iconData, iconFile} = this;
-		return iconData || (iconFile ? readFile(iconFile) : null);
+		if (iconData) {
+			return typeof iconData === 'function' ? iconData() : iconData;
+		}
+		if (iconFile) {
+			const d = await readFile(iconFile);
+			return new Uint8Array(d.buffer, d.byteOffset, d.byteLength);
+		}
+		return null;
 	}
 
 	/**
@@ -234,10 +255,21 @@ export class ProjectorSaMac extends ProjectorSa {
 	public async getInfoPlistData() {
 		const {infoPlistData, infoPlistFile} = this;
 		if (infoPlistData) {
-			if (typeof infoPlistData === 'string') {
-				return infoPlistData;
+			switch (typeof infoPlistData) {
+				case 'function': {
+					const d = await infoPlistData();
+					return typeof d === 'string'
+						? d
+						: new TextDecoder().decode(d);
+				}
+				case 'string': {
+					return infoPlistData;
+				}
+				default: {
+					// Fall through.
+				}
 			}
-			return infoPlistData.toString('utf8');
+			return new TextDecoder().decode(infoPlistData);
 		}
 		if (infoPlistFile) {
 			return readFile(infoPlistFile, 'utf8');
@@ -252,10 +284,25 @@ export class ProjectorSaMac extends ProjectorSa {
 	 */
 	public async getPkgInfoData() {
 		const {pkgInfoData, pkgInfoFile} = this;
-		if (typeof pkgInfoData === 'string') {
-			return Buffer.from(pkgInfoData);
+		if (pkgInfoData) {
+			switch (typeof pkgInfoData) {
+				case 'function': {
+					return pkgInfoData();
+				}
+				case 'string': {
+					return new TextEncoder().encode(pkgInfoData);
+				}
+				default: {
+					// Fall through.
+				}
+			}
+			return pkgInfoData;
 		}
-		return pkgInfoData || (pkgInfoFile ? readFile(pkgInfoFile) : null);
+		if (pkgInfoFile) {
+			const d = await readFile(pkgInfoFile);
+			return new Uint8Array(d.buffer, d.byteOffset, d.byteLength);
+		}
+		return null;
 	}
 
 	/**

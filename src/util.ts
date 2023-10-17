@@ -74,13 +74,15 @@ export async function launcher(id: string) {
 		throw new Error(`Invalid launcher id: ${id}`);
 	}
 
-	return new Promise<Buffer>((resolve, reject) => {
+	return new Promise<Uint8Array>((resolve, reject) => {
 		inflateRaw(Buffer.from(b64, 'base64'), (err, data) => {
 			if (err) {
 				reject(err);
 				return;
 			}
-			resolve(data);
+			resolve(
+				new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
+			);
 		});
 	});
 }

@@ -34,7 +34,7 @@ function peVersionInts(version: string): [number, number] | null {
  */
 export function rsrcPatchIcon(
 	rsrc: NtExecutableResource,
-	iconData: Readonly<Buffer>
+	iconData: Readonly<Uint8Array>
 ) {
 	const ico = Data.IconFile.from(
 		iconData.buffer.slice(iconData.byteOffset, iconData.byteLength)

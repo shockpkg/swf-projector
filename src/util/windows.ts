@@ -32,7 +32,7 @@ export interface IWindowsPatchProjector {
 	 *
 	 * @default null
 	 */
-	iconData?: Readonly<Buffer> | null;
+	iconData?: Readonly<Uint8Array> | null;
 
 	/**
 	 * Replace version strings if not null.
@@ -71,7 +71,7 @@ export interface IWindowsPatchProjector {
  * @returns Patched projector.
  */
 export function windowsProjectorPatch(
-	data: Readonly<Buffer>,
+	data: Readonly<Uint8Array>,
 	options: Readonly<IWindowsPatchProjector>
 ) {
 	const {
@@ -81,11 +81,10 @@ export function windowsProjectorPatch(
 		patchWindowTitle,
 		patchOutOfDateDisable
 	} = options;
-	let d = bufferToArrayBuffer(data);
 
 	// Remove signature, possibly preserved for later.
-	const signature = removeCodeSignature ? null : signatureGet(d);
-	d = signatureSet(d, null, true, true);
+	const signature = removeCodeSignature ? null : signatureGet(data);
+	let d = signatureSet(data, null, true, true);
 
 	// Parse the EXE once, if needed.
 	let exe: NtExecutable | null = null;
@@ -195,7 +194,7 @@ export function windowsProjectorPatch(
 		d = signatureSet(d, signature, true, true);
 	}
 
-	return Buffer.from(d);
+	return new Uint8Array(d);
 }
 
 /**
@@ -293,5 +292,5 @@ export async function windowsLauncher(
 		exeData = signatureSet(exeData, signedData, true, true);
 	}
 
-	return Buffer.from(exeData);
+	return new Uint8Array(exeData);
 }

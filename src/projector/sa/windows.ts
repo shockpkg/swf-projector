@@ -15,14 +15,18 @@ import {ProjectorSa} from '../sa';
  */
 export class ProjectorSaWindows extends ProjectorSa {
 	/**
+	 * Icon data.
+	 */
+	public iconData:
+		| Readonly<Uint8Array>
+		| (() => Readonly<Uint8Array>)
+		| (() => Promise<Readonly<Uint8Array>>)
+		| null = null;
+
+	/**
 	 * Icon file.
 	 */
 	public iconFile: string | null = null;
-
-	/**
-	 * Icon data.
-	 */
-	public iconData: Readonly<Buffer> | null = null;
 
 	/**
 	 * Version strings.
@@ -71,7 +75,14 @@ export class ProjectorSaWindows extends ProjectorSa {
 	 */
 	public async getIconData() {
 		const {iconData, iconFile} = this;
-		return iconData || (iconFile ? readFile(iconFile) : null);
+		if (iconData) {
+			return typeof iconData === 'function' ? iconData() : iconData;
+		}
+		if (iconFile) {
+			const d = await readFile(iconFile);
+			return new Uint8Array(d.buffer, d.byteOffset, d.byteLength);
+		}
+		return null;
 	}
 
 	/**

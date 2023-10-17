@@ -157,26 +157,31 @@ export async function machoTypesFile(path: string) {
  * @param machos Mach-O binary datas.
  * @returns FAT binary.
  */
-export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
+export function machoFat(machos: Readonly<Readonly<Uint8Array>[]>) {
 	// The lipo utility always uses 12/4096 for ppc, ppc64, i386, and x86_64.
 	const align = 12;
 	// eslint-disable-next-line no-bitwise
 	const alignSize = (1 << align) >>> 0;
 
 	// Create the FAT header.
-	const head = Buffer.alloc(8);
-	head.writeUInt32BE(FAT_MAGIC, 0);
+	const headD = new Uint8Array(8);
+	const headV = new DataView(
+		headD.buffer,
+		headD.byteOffset,
+		headD.byteLength
+	);
+	headV.setUint32(0, FAT_MAGIC, false);
 
-	// Start assembling the pieces.
-	const pieces = [head];
-	let total = head.length;
+	// The pieces and their total length.
+	const pieces: Uint8Array[] = [headD];
+	let total = headD.length;
 
 	/**
 	 * Helper to add pieces and update total length.
 	 *
 	 * @param data Data.
 	 */
-	const add = (data: Buffer) => {
+	const add = (data: Uint8Array) => {
 		pieces.push(data);
 		total += data.length;
 	};
@@ -187,7 +192,7 @@ export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
 	const pad = () => {
 		const over = total % alignSize;
 		if (over) {
-			add(Buffer.alloc(alignSize - over));
+			add(new Uint8Array(alignSize - over));
 		}
 	};
 
@@ -198,30 +203,41 @@ export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
 		if (Array.isArray(type)) {
 			throw new Error('Cannot nest FAT binary');
 		}
-		const head = Buffer.alloc(20);
-		head.writeUInt32BE(type.cpuType, 0);
-		head.writeUInt32BE(type.cpuSubtype, 4);
-		head.writeUInt32BE(align, 16);
-		add(head);
+		const headD = new Uint8Array(20);
+		const headV = new DataView(
+			headD.buffer,
+			headD.byteOffset,
+			headD.byteLength
+		);
+		headV.setUint32(0, type.cpuType, false);
+		headV.setUint32(4, type.cpuSubtype, false);
+		headV.setUint32(16, align, false);
 		thins.push({
-			head,
+			headV,
 			body
 		});
+		add(headD);
 	}
 
 	// Set count in header.
-	head.writeUInt32BE(thins.length, 4);
+	headV.setUint32(4, thins.length, false);
 
 	// Add binaries aligned, updating their headers.
-	for (const {head, body} of thins) {
+	for (const {headV, body} of thins) {
 		pad();
-		head.writeUInt32BE(total, 8);
-		head.writeUInt32BE(body.length, 12);
+		headV.setUint32(8, total, false);
+		headV.setUint32(12, body.length, false);
 		add(body);
 	}
 
 	// Merge all the pieces.
-	return Buffer.concat(pieces, total);
+	const r = new Uint8Array(total);
+	let i = 0;
+	for (const piece of pieces) {
+		r.set(piece, i);
+		i += piece.length;
+	}
+	return r;
 }
 
 /**
@@ -232,16 +248,17 @@ export function machoFat(machos: Readonly<Readonly<Buffer>[]>) {
  * @param data Mach-O binary data.
  * @returns Mach-O binary data or datas.
  */
-export function machoThins<T extends Readonly<Buffer>>(data: T) {
-	if (data.readUInt32BE(0) !== FAT_MAGIC) {
+export function machoThins<T extends Readonly<Uint8Array>>(data: T) {
+	const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+	if (v.getUint32(0, false) !== FAT_MAGIC) {
 		return data;
 	}
 	const r = [];
-	const count = data.readUInt32BE(4);
+	const count = v.getUint32(4, false);
 	let offset = 8;
 	for (let i = 0; i < count; i++) {
-		const start = data.readUInt32BE(offset + 8);
-		const end = start + data.readUInt32BE(offset + 12);
+		const start = v.getUint32(offset + 8, false);
+		const end = start + v.getUint32(offset + 12, false);
 		r.push(data.subarray(start, end) as T);
 		offset += 20;
 	}
@@ -535,7 +552,7 @@ function macProjectorMachoPatchEach(data: Buffer, title: string) {
  * @returns Patched Mach-O.
  */
 export function macProjectorMachoPatch(
-	macho: Readonly<Buffer>,
+	macho: Readonly<Uint8Array>,
 	options: Readonly<IMacProjectorMachoPatch>
 ) {
 	const {removeCodeSignature, patchWindowTitle} = options;
