@@ -5,7 +5,7 @@ import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
 import {launcher} from '../util';
 
-import {bufferAlign, bufferToArrayBuffer, patchOnce} from './internal/patch';
+import {align, patchOnce} from './internal/patch';
 import {
 	IDD_RESERVED,
 	IDD_RESOURCE,
@@ -125,29 +125,27 @@ export function windowsProjectorPatch(
 		}
 
 		// If patching title and cannot be done by resource changes.
-		let sdTitle: Buffer | null = null;
+		let sdTitle: ArrayBuffer | null = null;
 		if (
 			typeof patchWindowTitle === 'string' &&
 			!patchWindowTitleRsrc(rsrc, patchWindowTitle)
 		) {
-			sdTitle = bufferAlign(
-				Buffer.from(`${patchWindowTitle}\0`, 'utf16le'),
-				16
-			);
+			const d = Buffer.from(`${patchWindowTitle}\0`, 'utf16le');
+			sdTitle = new ArrayBuffer(align(d.length, 16));
+			new Uint8Array(sdTitle).set(d);
 		}
 
 		// Assemble new data section if any.
-		const sd = sdTitle;
-		if (sd) {
+		if (sdTitle) {
 			// PE library lacks a way to add an arbitrary section.
 			// Using the reserved index temporarily, then clearing it.
 			const entry = IDD_RESERVED as number;
 			exe.setSectionByEntry(entry, {
 				info: {
 					name: '.shockd',
-					virtualSize: sd.length,
+					virtualSize: sdTitle.byteLength,
 					virtualAddress: 0,
-					sizeOfRawData: sd.length,
+					sizeOfRawData: sdTitle.byteLength,
 					pointerToRawData: 0,
 					pointerToRelocations: 0,
 					pointerToLineNumbers: 0,
@@ -157,7 +155,7 @@ export function windowsProjectorPatch(
 						// eslint-disable-next-line no-bitwise
 						IMAGE_SCN_CNT_INITIALIZED_DATA | IMAGE_SCN_MEM_READ
 				},
-				data: bufferToArrayBuffer(sd)
+				data: sdTitle
 			});
 			const s = exe.getSectionByEntry(entry);
 			exe.newHeader.optionalHeaderDataDirectory.set(entry, {
