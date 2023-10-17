@@ -1,11 +1,11 @@
-import {copyFile, mkdir, stat, writeFile} from 'node:fs/promises';
+import {copyFile, mkdir, readFile, stat, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {fsLstatExists} from '@shockpkg/archive-files';
+import {Plist} from '@shockpkg/plist-dom';
 
 import {trimExtension} from '../../util';
 import {
-	plistRead,
 	infoPlistBundleExecutableGet,
 	infoPlistBundleExecutableSet,
 	infoPlistBundleIconFileGet,
@@ -78,7 +78,8 @@ export class BundleMacApp extends BundleMac {
 		const appPkgInfo = pathJoin(appContents, 'PkgInfo');
 
 		// Read the projector Info.plist.
-		const plist = await plistRead(projector.infoPlistPath);
+		const plist = new Plist();
+		plist.fromXml(await readFile(projector.infoPlistPath, 'utf8'));
 
 		// Get the binary path and read the types.
 		const projBinaryName = infoPlistBundleExecutableGet(plist);

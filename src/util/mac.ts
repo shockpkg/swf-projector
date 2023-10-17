@@ -74,31 +74,6 @@ function alignVmsize(size: number) {
 }
 
 /**
- * Parse plist data.
- * Currently only supports XML plist.
- *
- * @param data Plist XML.
- * @returns Plist document.
- */
-// eslint-disable-next-line @typescript-eslint/require-await
-export async function plistParse(data: string) {
-	const plist = new Plist();
-	plist.fromXml(data);
-	return plist;
-}
-
-/**
- * Read plist file.
- * Currently only supports XML plist.
- *
- * @param path Plist file.
- * @returns Plist document.
- */
-export async function plistRead(path: string) {
-	return plistParse(await readFile(path, 'utf8'));
-}
-
-/**
  * Get Info.plist dictionary or throw.
  *
  * @param plist Plist document.

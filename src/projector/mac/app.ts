@@ -11,8 +11,6 @@ import {Plist} from '@shockpkg/plist-dom';
 
 import {trimExtension} from '../../util';
 import {
-	plistRead,
-	plistParse,
 	infoPlistBundleExecutableGet,
 	infoPlistBundleExecutableSet,
 	infoPlistBundleIconFileGet,
@@ -237,23 +235,22 @@ export class ProjectorMacApp extends ProjectorMac {
 	}
 
 	/**
-	 * Get Info.plist data if any specified, document, data, or file.
+	 * Get Info.plist data if any specified, from data or file.
 	 *
 	 * @returns Info.plist data or null.
 	 */
-	public async getInfoPlistDocument() {
+	public async getInfoPlistData() {
 		const {infoPlistData, infoPlistFile} = this;
-		let xml;
-		if (typeof infoPlistData === 'string') {
-			xml = infoPlistData;
-		} else if (infoPlistData) {
-			xml = infoPlistData.toString('utf8');
-		} else if (infoPlistFile) {
-			xml = await readFile(infoPlistFile, 'utf8');
-		} else {
-			return null;
+		if (infoPlistData) {
+			if (typeof infoPlistData === 'string') {
+				return infoPlistData;
+			}
+			return infoPlistData.toString('utf8');
 		}
-		return plistParse(xml);
+		if (infoPlistFile) {
+			return readFile(infoPlistFile, 'utf8');
+		}
+		return null;
 	}
 
 	/**
@@ -372,7 +369,8 @@ export class ProjectorMacApp extends ProjectorMac {
 		}
 
 		// Patch the projector binary.
-		const plist = await this._readInfoPlist();
+		const plist = new Plist();
+		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
 		const executableName = infoPlistBundleExecutableGet(plist);
 		const binaryPath = this.getBinaryPath(executableName);
 		await writeFile(
@@ -421,7 +419,8 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		const plist = await this._readInfoPlist();
+		const plist = new Plist();
+		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
 
 		// Add the icon extension or skip if present.
 		const iconFile = infoPlistBundleIconFileGet(plist);
@@ -430,7 +429,15 @@ export class ProjectorMacApp extends ProjectorMac {
 		}
 		infoPlistBundleIconFileSet(plist, `${iconFile}.icns`);
 
-		await this._writeInfoPlist(plist);
+		const path = this.infoPlistPath;
+		const xml = plist.toXml();
+		if (xml === null) {
+			return;
+		}
+
+		await rm(path, {force: true});
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, xml, 'utf8');
 	}
 
 	/**
@@ -462,7 +469,8 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		const plist = await this._readInfoPlist();
+		const plist = new Plist();
+		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
 		const iconName = infoPlistBundleIconFileGet(plist);
 
 		const path = this.getIconPath(iconName);
@@ -495,7 +503,8 @@ export class ProjectorMacApp extends ProjectorMac {
 			return;
 		}
 
-		const plist = await this._readInfoPlist();
+		const plist = new Plist();
+		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
 
 		if (binaryName) {
 			const executableName = infoPlistBundleExecutableGet(plist);
@@ -533,25 +542,44 @@ export class ProjectorMacApp extends ProjectorMac {
 	 * Update the projector Info.plist if needed.
 	 */
 	protected async _updateInfoPlist() {
-		const customPlist = await this.getInfoPlistDocument();
+		const path = this.infoPlistPath;
+		const xml = await this._generateInfoPlist();
+		if (xml === null) {
+			return;
+		}
+
+		await rm(path, {force: true});
+		await mkdir(dirname(path), {recursive: true});
+		await writeFile(path, xml, 'utf8');
+	}
+
+	/**
+	 * Generate Info.plist XML string, if any.
+	 *
+	 * @returns XML string or null.
+	 */
+	protected async _generateInfoPlist() {
+		const customPlist = await this.getInfoPlistData();
 		const bundleName = this.getBundleName();
 		const {binaryName, appIconName, removeFileAssociations} = this;
 		if (
 			!(
-				customPlist ||
+				customPlist !== null ||
 				appIconName ||
 				binaryName ||
 				bundleName !== false ||
 				removeFileAssociations
 			)
 		) {
-			return;
+			return null;
 		}
 
 		// Use a custom plist or the existing one.
-		const plist = customPlist || (await this._readInfoPlist());
+		const xml = customPlist ?? (await readFile(this.infoPlistPath, 'utf8'));
 
-		// Update values.
+		const plist = new Plist();
+		plist.fromXml(xml);
+
 		if (appIconName) {
 			infoPlistBundleIconFileSet(plist, appIconName);
 		}
@@ -565,28 +593,6 @@ export class ProjectorMacApp extends ProjectorMac {
 			infoPlistBundleDocumentTypesDelete(plist);
 		}
 
-		// Write out the plist.
-		await this._writeInfoPlist(plist);
-	}
-
-	/**
-	 * Read the projector Info.plist file.
-	 *
-	 * @returns Plist document.
-	 */
-	protected async _readInfoPlist() {
-		return plistRead(this.infoPlistPath);
-	}
-
-	/**
-	 * Write the projector Info.plist file.
-	 *
-	 * @param plist Plist document.
-	 */
-	protected async _writeInfoPlist(plist: Plist) {
-		const path = this.infoPlistPath;
-		await rm(path, {force: true});
-		await mkdir(dirname(path), {recursive: true});
-		await writeFile(path, plist.toXml(), 'utf8');
+		return plist.toXml();
 	}
 }
