@@ -95,13 +95,13 @@ export function windowsProjectorPatch(
 
 		// Narrow the search to just the code section and patch.
 		const code = exeCodeSection(exe);
-		const data = Buffer.from(code.data);
+		const {data} = code;
 		patchOnce(
-			data,
+			new Uint8Array(data),
 			exe.newHeader.is32bit() ? ood32() : ood64(),
 			'Out Of Date Disable'
 		);
-		code.data = bufferToArrayBuffer(data);
+		code.data = data;
 	}
 
 	// Do patches that require changing size.
