@@ -1,6 +1,7 @@
 import {stringEncode} from './swf/util';
 import {Tag} from './swf/tag';
 import {Swf} from './swf/swf';
+import {concat} from './util/internal/data';
 
 /**
  * Type string.
@@ -9,7 +10,7 @@ import {Swf} from './swf/swf';
  * @returns Bytecode data.
  */
 function asvm1TypeString(str: string) {
-	return Buffer.concat([Buffer.alloc(1), stringEncode(str)]);
+	return concat([new Uint8Array(1), stringEncode(str)]);
 }
 
 /**
@@ -19,10 +20,11 @@ function asvm1TypeString(str: string) {
  * @returns Bytecode data.
  */
 function asmv1ActionConstantPool(strs: string[]) {
-	const data = Buffer.concat([Buffer.alloc(5), ...strs.map(stringEncode)]);
-	data.writeUInt8(0x88, 0);
-	data.writeUInt16LE(data.length - 3, 1);
-	data.writeUInt16LE(strs.length, 3);
+	const data = concat([new Uint8Array(5), ...strs.map(stringEncode)]);
+	const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+	data[0] = 0x88;
+	v.setUint16(1, data.length - 3, true);
+	v.setUint16(3, strs.length, true);
 	return data;
 }
 
@@ -33,9 +35,9 @@ function asmv1ActionConstantPool(strs: string[]) {
  * @returns Bytecode data.
  */
 function asvm1TypeConstant8(i: number) {
-	const data = Buffer.alloc(2);
-	data.writeUInt8(0x08, 0);
-	data.writeUInt8(i, 1);
+	const data = new Uint8Array(2);
+	data[0] = 0x08;
+	data[1] = i;
 	return data;
 }
 
@@ -45,10 +47,11 @@ function asvm1TypeConstant8(i: number) {
  * @param pushed Pushed data.
  * @returns Bytecode data.
  */
-function asmv1ActionPush(pushed: Buffer[]) {
-	const data = Buffer.concat([Buffer.alloc(3), ...pushed]);
-	data.writeUInt8(0x96, 0);
-	data.writeUInt16LE(data.length - 3, 1);
+function asmv1ActionPush(pushed: Uint8Array[]) {
+	const data = concat([new Uint8Array(3), ...pushed]);
+	const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+	data[0] = 0x96;
+	v.setUint16(1, data.length - 3, true);
 	return data;
 }
 
@@ -59,9 +62,10 @@ function asmv1ActionPush(pushed: Buffer[]) {
  */
 function asvm1ActionLoadMovie() {
 	const data = Buffer.alloc(4);
-	data.writeUInt8(0x9a, 0);
-	data.writeUInt16LE(data.length - 3, 1);
-	data.writeUInt8(0x40, 3);
+	const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+	data[0] = 0x9a;
+	v.setUint16(1, data.length - 3, true);
+	v.setUint8(3, 0x40);
 	return data;
 }
 
@@ -71,7 +75,7 @@ function asvm1ActionLoadMovie() {
  * @returns Bytecode data.
  */
 function asvm1ActionEnd() {
-	return Buffer.alloc(1);
+	return new Uint8Array(1);
 }
 
 /**
@@ -81,7 +85,7 @@ function asvm1ActionEnd() {
  * @returns Bytecode data.
  */
 function bytecodeLoadMovieSwf4(url: string) {
-	return Buffer.concat([
+	return concat([
 		asmv1ActionPush([asvm1TypeString(url)]),
 		asmv1ActionPush([asvm1TypeString('/')]),
 		asvm1ActionLoadMovie(),
@@ -96,7 +100,7 @@ function bytecodeLoadMovieSwf4(url: string) {
  * @returns Bytecode data.
  */
 function bytecodeLoadMovieSwf5(url: string) {
-	return Buffer.concat([
+	return concat([
 		asmv1ActionConstantPool([url, '_level0']),
 		asmv1ActionPush([asvm1TypeConstant8(0), asvm1TypeConstant8(1)]),
 		asvm1ActionLoadMovie(),
