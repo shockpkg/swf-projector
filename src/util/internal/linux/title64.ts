@@ -52,11 +52,11 @@ export const title64 = [
 		public patch() {
 			const addr = this._addr_;
 			const shdr = this._theShdrForAddress(addr);
-			const d = Buffer.from(shdr.data);
+			const v = new DataView(shdr.data);
 			const i = Number(addr - shdr.shAddr);
 			const rip = shdr.shAddr + BigInt(i + 7);
-			d.writeUInt32LE(Number(this._titleA - rip), i + 3);
-			d.writeUInt32LE(this._titleL, i + 8);
+			v.setUint32(i + 3, Number(this._titleA - rip), true);
+			v.setUint32(i + 8, this._titleL, true);
 		}
 	}
 ] as (new (elf: Elf64, titleA: bigint, titleL: number) => PatchTitle64)[];

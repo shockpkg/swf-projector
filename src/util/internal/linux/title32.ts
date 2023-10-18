@@ -40,14 +40,15 @@ export const title32 = [
 					'E8 -- -- -- --'
 				].join(' ')
 			)) {
-				const ptr = d.readUint32LE(i + 9);
+				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
+				const ptr = v.getUint32(i + 9, true);
 				const shdr2 = this._getShdrForAddress(ptr);
 				if (!shdr2) {
 					continue;
 				}
-				const d2 = Buffer.from(shdr2.data);
+				const v2 = new DataView(shdr2.data);
 				const i2 = ptr - shdr2.shAddr;
-				const ptr2 = d2.readUint32LE(i2);
+				const ptr2 = v2.getUint32(i2, true);
 				const str = this._readCstr(ptr2);
 				if (!str || !titleMatchM.test(str)) {
 					continue;
@@ -63,16 +64,15 @@ export const title32 = [
 		public patch() {
 			const addr = this._addr_;
 			const shdr = this._theShdrForAddress(addr);
-			const d = Buffer.from(shdr.data);
+			const v = new DataView(shdr.data);
 			let i = addr - shdr.shAddr + 7;
 
 			// nop
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
 
 			// push     ...
-			d.writeUInt8(0x68, i++);
-			d.writeInt32LE(this._titleA, i);
-			i += 4;
+			v.setUint8(i++, 0x68);
+			v.setUint32(i, this._titleA, true);
 		}
 	},
 
@@ -105,14 +105,15 @@ export const title32 = [
 					'E8 -- -- -- --'
 				].join(' ')
 			)) {
-				const ptr = d.readUint32LE(i + 6);
+				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
+				const ptr = v.getUint32(i + 6, true);
 				const shdr2 = this._getShdrForAddress(ptr);
 				if (!shdr2) {
 					continue;
 				}
-				const d2 = Buffer.from(shdr2.data);
+				const v2 = new DataView(shdr2.data);
 				const i2 = ptr - shdr2.shAddr;
-				const ptr2 = d2.readUint32LE(i2);
+				const ptr2 = v2.getUint32(i2, true);
 				const str = this._readCstr(ptr2);
 				if (!str || !titleMatchA.test(str)) {
 					continue;
@@ -128,13 +129,12 @@ export const title32 = [
 		public patch() {
 			for (const addr of this._addrs_) {
 				const shdr = this._theShdrForAddress(addr);
-				const d = Buffer.from(shdr.data);
+				const v = new DataView(shdr.data);
 				let i = addr - shdr.shAddr + 5;
 
 				// mov     eax, ...
-				d.writeUInt8(0xb8, i++);
-				d.writeInt32LE(this._titleA, i);
-				i += 4;
+				v.setUint8(i++, 0xb8);
+				v.setUint32(i, this._titleA, true);
 			}
 		}
 	},
@@ -161,9 +161,10 @@ export const title32 = [
 					'E8 -- -- -- --'
 				].join(' ')
 			)) {
+				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 				const addr = shdr.shAddr + i;
-				const ptr = d.readInt32LE(i + 12);
-				const len = d.readUInt32LE(i + 4);
+				const ptr = v.getUint32(i + 12, true);
+				const len = v.getUint32(i + 4, true);
 				const str = this._readCstr(ptr);
 				if (!str || str.length !== len || !titleMatchA.test(str)) {
 					continue;
@@ -182,10 +183,10 @@ export const title32 = [
 		public patch() {
 			const addr = this._addr_;
 			const shdr = this._theShdrForAddress(addr);
-			const d = Buffer.from(shdr.data);
+			const v = new DataView(shdr.data);
 			const i = addr - shdr.shAddr;
-			d.writeUint32LE(this._titleA, i + 12);
-			d.writeUint32LE(this._titleL, i + 4);
+			v.setUint32(i + 12, this._titleA, true);
+			v.setUint32(i + 4, this._titleL, true);
 		}
 	},
 
@@ -220,8 +221,9 @@ export const title32 = [
 				if (ebx === null) {
 					continue;
 				}
-				const ptr = ebx + d.readInt32LE(i + 2);
-				const len = d.readUInt32LE(i + 14);
+				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
+				const ptr = ebx + v.getInt32(i + 2, true);
+				const len = v.getUint32(i + 14, true);
 				const str = this._readCstr(ptr);
 				if (!str || str.length !== len || !titleMatchA.test(str)) {
 					continue;
@@ -242,10 +244,10 @@ export const title32 = [
 			const addr = this._addr_;
 			const ebx = this._ebx_;
 			const shdr = this._theShdrForAddress(addr);
-			const d = Buffer.from(shdr.data);
+			const v = new DataView(shdr.data);
 			const i = addr - shdr.shAddr;
-			d.writeInt32LE(this._titleA - ebx, i + 2);
-			d.writeUint32LE(this._titleL, i + 14);
+			v.setInt32(i + 2, this._titleA - ebx, true);
+			v.setUint32(i + 14, this._titleL, true);
 		}
 	}
 ] as (new (elf: Elf32, titleA: number, titleL: number) => PatchTitle32)[];
