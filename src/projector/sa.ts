@@ -2,6 +2,7 @@ import {readFile} from 'node:fs/promises';
 
 import {fsLstatExists} from '@shockpkg/archive-files';
 
+import {concat} from '../util/internal/data';
 import {Projector} from '../projector';
 
 /**
@@ -165,7 +166,7 @@ export abstract class ProjectorSa extends Projector {
 				}
 			}
 		}
-		return Buffer.concat(buffers);
+		return concat(buffers);
 	}
 
 	/**
