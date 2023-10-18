@@ -79,12 +79,12 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 		if (!shdr) {
 			return;
 		}
-		const d = Buffer.from(shdr.data);
+		const d = new Uint8Array(shdr.data);
 		for (const i of findFuzzy(d, patchHexToBytes(hex))) {
 			yield [shdr, i, d] as [
 				Unpacked<T['sectionHeaders']>,
 				number,
-				Buffer
+				Uint8Array
 			];
 		}
 	}
@@ -100,10 +100,11 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 			throw new Error('Unsupported architecture');
 		}
 		const shdr = this._theShdrForAddress(addr) as Elf32Shdr;
-		const d = Buffer.from(shdr.data);
+		const d = new Uint8Array(shdr.data);
+		const v = new DataView(shdr.data);
 		const before = addr - shdr.shAddr;
 		for (const i of findFuzzy(d, ebxFuzzy(), 0, before, true)) {
-			return shdr.shAddr + i + 5 + d.readUint32LE(i + 7);
+			return shdr.shAddr + i + 5 + v.getUint32(i + 7, true);
 		}
 		return null;
 	}
@@ -119,7 +120,7 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 		if (!shdr) {
 			return null;
 		}
-		const d = Buffer.from(shdr.data);
+		const d = new Uint8Array(shdr.data);
 		const s = Number(addr) - Number(shdr.shAddr);
 		const e = d.length;
 		for (let i = s; i < e; i++) {
