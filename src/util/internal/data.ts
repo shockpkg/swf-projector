@@ -151,3 +151,41 @@ export function getCstrN(data: Readonly<Uint8Array>, i: number, l: number) {
 	}
 	return String.fromCharCode(...data.subarray(i, i + c));
 }
+
+/**
+ * Encode string as UTF-16.
+ *
+ * @param str The string to encode.
+ * @param le Little endian.
+ * @returns Encoded data.
+ */
+export function encodeUtf16(str: string, le = false) {
+	const l = str.length;
+	const d = new ArrayBuffer(l * 2);
+	const v = new DataView(d);
+	for (let i = 0; i < l; i++) {
+		v.setUint16(i * 2, str.charCodeAt(i), le);
+	}
+	return new Uint8Array(d);
+}
+
+/**
+ * Get UTF16 string from data buffer.
+ *
+ * @param data Data buffer.
+ * @param i Start index.
+ * @param le Little endian.
+ * @returns Decoded string or null if never null terminated.
+ */
+export function getUtf16(data: Readonly<Uint8Array>, i: number, le = false) {
+	const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+	const e = v.byteLength - 1;
+	for (const a = []; i < e; i += 2) {
+		const c = v.getUint16(i, le);
+		if (!c) {
+			return String.fromCharCode(...a);
+		}
+		a.push(c);
+	}
+	return null;
+}

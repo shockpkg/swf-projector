@@ -1,6 +1,7 @@
 import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
-import {dataStrings, findFuzzy} from '../patch';
+import {encodeUtf16, getUtf16} from '../data';
+import {findExact, findFuzzy} from '../patch';
 
 import {
 	IDD_EXCEPTION,
@@ -142,9 +143,15 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 		if (!data) {
 			continue;
 		}
-		const d = Buffer.from(data);
+		const d = new Uint8Array(data);
 		for (const [pre, reg] of titles) {
-			for (const [index] of dataStrings(d, pre, 'utf16le', reg)) {
+			const pred = encodeUtf16(pre, true);
+			for (const index of findExact(d, pred)) {
+				const s = getUtf16(d, index, true);
+				if (!s || !reg.test(s)) {
+					continue;
+				}
+
 				// Only one match expected.
 				if (oldAddress) {
 					throw new Error('Multiple window titles found');
