@@ -1,3 +1,5 @@
+import {findIndex} from '../patch';
+
 import {Elf32, Elf64} from './elf';
 import {Patch} from './patch';
 
@@ -19,8 +21,9 @@ export abstract class PatchPath<T extends Elf32 | Elf64> extends Patch<T> {
 			return null;
 		}
 		const shdr = this._theShdrForAddress(ptr);
-		const data = Buffer.from(shdr.data);
-		const fileI = data.indexOf('\0file://\0', 0) + 1;
+		const data = new Uint8Array(shdr.data);
+		const strd = new TextEncoder().encode('\0file://\0');
+		const fileI = findIndex(data, strd) + 1;
 		if (!fileI) {
 			return null;
 		}
