@@ -118,26 +118,26 @@ abstract class PatchPath32Dir extends PatchPath32 {
 	public patch() {
 		const {_addr_: addr} = this;
 		const shdr = this._theShdrForAddress(addr);
-		const d = Buffer.from(shdr.data);
+		const v = new DataView(shdr.data);
 		const i = addr - shdr.shAddr;
 
 		// sIsProjector -> sExecutableName
-		const ptr = d.readUInt32LE(i + 24) + 4;
+		const ptr = v.getUint32(i + 24, true) + 4;
 
 		// nop 2x
-		d.writeUInt8(0x90, i + 68);
-		d.writeUInt8(0x90, i + 69);
+		v.setUint8(i + 68, 0x90);
+		v.setUint8(i + 69, 0x90);
 
 		// mov     esi, DWORD PTR ds:...
-		d.writeUInt8(0x8b, i + 70);
-		d.writeUInt8(0x35, i + 71);
-		d.writeUInt32LE(ptr, i + 72);
+		v.setUint8(i + 70, 0x8b);
+		v.setUint8(i + 71, 0x35);
+		v.setUint32(i + 72, ptr, true);
 
 		// push     esi
-		d.writeUInt8(0x56, i + 96);
+		v.setUint8(i + 96, 0x56);
 
 		// push     esi
-		d.writeUInt8(0x56, i + 122);
+		v.setUint8(i + 122, 0x56);
 	}
 }
 
@@ -177,9 +177,10 @@ abstract class PatchPath32File extends PatchPath32 {
 			if (rel && ebx === null) {
 				continue;
 			}
+			const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 			const ptr = rel
-				? (ebx as number) + d.readInt32LE(i + o)
-				: d.readUint32LE(i + o);
+				? (ebx as number) + v.getInt32(i + o, true)
+				: v.getUint32(i + o, true);
 			const remap = this._getRemap(ptr);
 			if (!remap) {
 				continue;
@@ -203,12 +204,12 @@ abstract class PatchPath32File extends PatchPath32 {
 		const {_relative: rel, _offset: o} = this;
 		const addr = this._addr_;
 		const shdr = this._theShdrForAddress(addr);
-		const d = Buffer.from(shdr.data);
+		const v = new DataView(shdr.data);
 		const i = addr - shdr.shAddr;
 		if (rel) {
-			d.writeInt32LE(this._remap_ - this._ebx_, i + o);
+			v.setInt32(i + o, this._remap_ - this._ebx_, true);
 		} else {
-			d.writeUint32LE(this._remap_, i + o);
+			v.setUint32(i + o, this._remap_, true);
 		}
 	}
 }

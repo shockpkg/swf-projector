@@ -32,9 +32,10 @@ abstract class PatchPath64File extends PatchPath64 {
 	public check() {
 		const {_find: find, _offset: o} = this;
 		for (const [shdr, i, d] of this._findFuzzyCode(find)) {
+			const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 			const addr = shdr.shAddr + BigInt(i);
 			const rip = addr + 10n;
-			const ptr = rip + BigInt(d.readUInt32LE(i + o));
+			const ptr = rip + BigInt(v.getUint32(i + o, true));
 			const remap = this._getRemap(ptr);
 			if (!remap) {
 				continue;
@@ -55,10 +56,10 @@ abstract class PatchPath64File extends PatchPath64 {
 		const {_offset: o} = this;
 		const addr = this._addr_;
 		const shdr = this._theShdrForAddress(addr);
-		const d = Buffer.from(shdr.data);
+		const v = new DataView(shdr.data);
 		const i = Number(addr - shdr.shAddr);
 		const rip = shdr.shAddr + BigInt(i + 10);
-		d.writeUInt32LE(Number(this._remap_ - rip), i + o);
+		v.setUint32(i + o, Number(this._remap_ - rip), true);
 	}
 }
 
