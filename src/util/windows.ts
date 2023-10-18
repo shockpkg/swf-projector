@@ -131,9 +131,12 @@ export function windowsProjectorPatch(
 			typeof patchWindowTitle === 'string' &&
 			!patchWindowTitleRsrc(rsrc, patchWindowTitle)
 		) {
-			const d = Buffer.from(`${patchWindowTitle}\0`, 'utf16le');
-			sdTitle = new ArrayBuffer(align(d.length, 16));
-			new Uint8Array(sdTitle).set(d);
+			const l = patchWindowTitle.length;
+			sdTitle = new ArrayBuffer(align((l + 1) * 2, 16));
+			const v = new DataView(sdTitle);
+			for (let i = 0; i < l; i++) {
+				v.setUint16(i * 2, patchWindowTitle.charCodeAt(i), true);
+			}
 		}
 
 		// Assemble new data section if any.
