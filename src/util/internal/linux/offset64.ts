@@ -28,7 +28,7 @@ export abstract class PatchOffset64 extends Patch<Elf64> {
 	 */
 	protected abstract _spec: IPatchOffset64Spec;
 
-	private _replace_ = [] as [Buffer, number, string][];
+	private _replace_ = [] as [Uint8Array, number, string][];
 
 	/**
 	 * @inheritDoc
@@ -36,7 +36,7 @@ export abstract class PatchOffset64 extends Patch<Elf64> {
 	public check() {
 		this._replace_ = [];
 		const {find, replace} = this._spec;
-		const rep = [] as [Buffer, number, string][];
+		const rep = [] as [Uint8Array, number, string][];
 		for (const [, i, d] of this._findFuzzyCode(find)) {
 			if (rep.length) {
 				return false;
