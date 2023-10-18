@@ -30,10 +30,11 @@ export const title64 = [
 					'BA -- -- -- --'
 				].join(' ')
 			)) {
+				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 				const addr = shdr.shAddr + BigInt(i);
 				const rip = addr + 7n;
-				const ptr = rip + BigInt(d.readUInt32LE(i + 3));
-				const len = d.readUInt32LE(i + 8);
+				const ptr = rip + BigInt(v.getUint32(i + 3, true));
+				const len = v.getUint32(i + 8, true);
 				const str = this._readCstr(ptr);
 				if (!str || str.length !== len || !titleMatchA.test(str)) {
 					continue;
