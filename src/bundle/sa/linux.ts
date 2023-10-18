@@ -52,16 +52,17 @@ export class BundleSaLinux extends BundleSa {
 		const {path, projector} = this;
 
 		let stat = null;
-		const machineD = Buffer.alloc(2);
+		const d = new Uint8Array(2);
+		const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 		const f = await open(projector.path, 'r');
 		try {
 			stat = await f.stat();
-			await f.read(machineD, 0, 2, 18);
+			await f.read(d, 0, 2, 18);
 		} finally {
 			await f.close();
 		}
 
-		const machine = machineD.readUInt16LE(0);
+		const machine = v.getUint16(0, true);
 		let launcher = null;
 		switch (machine) {
 			case EM_386: {
