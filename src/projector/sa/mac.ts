@@ -385,7 +385,7 @@ export class ProjectorSaMac extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
+	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
 		await this._fixPlayerIconPath();
 		await this._removeInfoPlistStrings();
 		await this._patchProjector();
@@ -445,7 +445,7 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie(movieData: Readonly<Buffer> | null) {
+	protected async _writeMovie(movieData: Readonly<Uint8Array> | null) {
 		if (!movieData) {
 			return;
 		}

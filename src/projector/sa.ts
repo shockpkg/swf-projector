@@ -18,9 +18,9 @@ export abstract class ProjectorSa extends Projector {
 	 * Movie data.
 	 */
 	public movieData:
-		| Readonly<Buffer>
-		| (() => Readonly<Buffer>)
-		| (() => Promise<Readonly<Buffer>>)
+		| Readonly<Uint8Array>
+		| (() => Readonly<Uint8Array>)
+		| (() => Promise<Readonly<Uint8Array>>)
 		| null = null;
 
 	/**
@@ -189,6 +189,6 @@ export abstract class ProjectorSa extends Projector {
 	 * @param movieData Movie data or null.
 	 */
 	protected abstract _modifyPlayer(
-		movieData: Readonly<Buffer> | null
+		movieData: Readonly<Uint8Array> | null
 	): Promise<void>;
 }

@@ -79,14 +79,14 @@ export class ProjectorSaLinux extends ProjectorSa {
 		const st = await stat(player);
 		const isDir = st.isDirectory();
 		if (!isDir && st.size >= 4) {
-			const d = Buffer.alloc(4);
+			const d = new ArrayBuffer(4);
 			const f = await open(player, 'r');
 			try {
-				await f.read(d, 0, 4, 0);
+				await f.read(new Uint8Array(d), 0, 4, 0);
 			} finally {
 				await f.close();
 			}
-			isElf = d.readUInt32BE() === 0x7f454c46;
+			isElf = new DataView(d).getUint32(0, false) === 0x7f454c46;
 		}
 
 		let archive;
@@ -148,7 +148,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
+	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
 		const {
 			path,
 			patchWindowTitle,

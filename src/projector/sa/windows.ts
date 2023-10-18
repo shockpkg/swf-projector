@@ -9,6 +9,7 @@ import {
 
 import {windowsProjectorPatch} from '../../util/windows';
 import {ProjectorSa} from '../sa';
+import {concat} from '../../util/internal/data';
 
 /**
  * ProjectorSaWindows object.
@@ -147,7 +148,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer(movieData: Readonly<Buffer> | null) {
+	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
 		const {
 			path,
 			versionStrings,
@@ -157,7 +158,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 		} = this;
 		const iconData = await this.getIconData();
 
-		let data = null;
+		let data: Uint8Array | null = null;
 
 		if (
 			iconData ||
@@ -178,10 +179,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 
 		if (movieData) {
 			data = data || (await readFile(path));
-			data = Buffer.concat([
-				data,
-				this._encodeMovieData(movieData, 'dms')
-			]);
+			data = concat([data, this._encodeMovieData(movieData, 'dms')]);
 		}
 
 		if (data) {
