@@ -3,12 +3,10 @@ import {strictEqual} from 'node:assert';
 
 import {loader} from './loader';
 
-function bufferHex(buffer: Buffer) {
-	return buffer
-		.toString('hex')
-		.replace(/(.{2})/g, '$1 ')
-		.replace(/ $/, '')
-		.toUpperCase();
+function hex(buffer: Uint8Array) {
+	return [...buffer]
+		.map(b => b.toString(16).padStart(2, '0').toUpperCase())
+		.join(' ');
 }
 
 const swf4 = [
@@ -112,23 +110,21 @@ void describe('loader', () => {
 	void describe('loader', () => {
 		void it('swfv: 4', () => {
 			strictEqual(
-				bufferHex(loader(4, 600, 400, 30, 0x336699, 'other.swf')),
+				hex(loader(4, 600, 400, 30, 0x336699, 'other.swf')),
 				swf4
 			);
 		});
 
 		void it('swfv: 5', () => {
 			strictEqual(
-				bufferHex(loader(5, 600, 400, 30, 0x336699, 'other.swf')),
+				hex(loader(5, 600, 400, 30, 0x336699, 'other.swf')),
 				swf5
 			);
 		});
 
 		void it('swfv: 5 complex', () => {
 			strictEqual(
-				bufferHex(
-					loader(5, 600.5, 400.5, 30.5, 0x336699, 'other.swf', 2)
-				),
+				hex(loader(5, 600.5, 400.5, 30.5, 0x336699, 'other.swf', 2)),
 				swf5Complex
 			);
 		});
