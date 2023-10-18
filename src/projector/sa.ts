@@ -108,70 +108,56 @@ export abstract class ProjectorSa extends Projector {
 	 * @param format Format string.
 	 * @returns Encoded data.
 	 */
-	protected _encodeMovieData(data: Readonly<Buffer>, format: string) {
-		const buffers: Readonly<Buffer>[] = [];
+	protected _encodeMovieData(data: Readonly<Uint8Array>, format: string) {
+		const buffers: Readonly<Uint8Array>[] = [];
 		for (const c of format) {
 			switch (c) {
 				case 'd': {
 					buffers.push(data);
 					break;
 				}
-				case 'm': {
-					const b = Buffer.alloc(4);
-					b.writeUInt32LE(this.movieMagic, 0);
-					buffers.push(b);
-					break;
-				}
+				case 'm':
 				case 'M': {
-					const b = Buffer.alloc(4);
-					b.writeUInt32BE(this.movieMagic, 0);
-					buffers.push(b);
+					const b = new ArrayBuffer(4);
+					const v = new DataView(b);
+					v.setUint32(0, this.movieMagic, c === 'm');
+					buffers.push(new Uint8Array(b));
 					break;
 				}
-				case 'i': {
-					const b = Buffer.alloc(8);
-					const {movieMagic: movieAppendMarker} = this;
-					// eslint-disable-next-line no-bitwise
-					b.writeInt32LE(movieAppendMarker >> 0, 0);
-					// eslint-disable-next-line no-bitwise
-					b.writeInt32LE(movieAppendMarker >> 31, 4);
-					buffers.push(b);
-					break;
-				}
+				case 'i':
 				case 'I': {
-					const b = Buffer.alloc(8);
-					const {movieMagic: movieAppendMarker} = this;
-					// eslint-disable-next-line no-bitwise
-					b.writeInt32BE(movieAppendMarker >> 0, 4);
-					// eslint-disable-next-line no-bitwise
-					b.writeInt32BE(movieAppendMarker >> 31, 0);
-					buffers.push(b);
+					const b = new ArrayBuffer(8);
+					const v = new DataView(b);
+					const {movieMagic} = this;
+					if (c === 'i') {
+						// eslint-disable-next-line no-bitwise
+						v.setInt32(0, movieMagic >> 0, true);
+						// eslint-disable-next-line no-bitwise
+						v.setInt32(4, movieMagic >> 31, true);
+					} else {
+						// eslint-disable-next-line no-bitwise
+						v.setInt32(4, movieMagic >> 0, false);
+						// eslint-disable-next-line no-bitwise
+						v.setInt32(0, movieMagic >> 31, false);
+					}
+					buffers.push(new Uint8Array(b));
 					break;
 				}
-				case 's': {
-					const b = Buffer.alloc(4);
-					b.writeUInt32LE(data.length, 0);
-					buffers.push(b);
-					break;
-				}
+				case 's':
 				case 'S': {
-					const b = Buffer.alloc(4);
-					b.writeUInt32BE(data.length, 0);
-					buffers.push(b);
+					const b = new ArrayBuffer(4);
+					const v = new DataView(b);
+					v.setUint32(0, data.length, c === 's');
+					buffers.push(new Uint8Array(b));
 					break;
 				}
-				case 'l': {
-					// 64-bit, just write 32-bit, SWF cannot be larger.
-					const b = Buffer.alloc(8, 0);
-					b.writeUInt32LE(data.length, 0);
-					buffers.push(b);
-					break;
-				}
+				case 'l':
 				case 'L': {
 					// 64-bit, just write 32-bit, SWF cannot be larger.
-					const b = Buffer.alloc(8, 0);
-					b.writeUInt32BE(data.length, 4);
-					buffers.push(b);
+					const b = new ArrayBuffer(8);
+					const v = new DataView(b);
+					v.setUint32(0, data.length, c === 'l');
+					buffers.push(new Uint8Array(b));
 					break;
 				}
 				default: {
