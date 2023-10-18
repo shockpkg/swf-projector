@@ -564,11 +564,7 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	const patchers = macProjectTitlePatchesByCpuType().get(cpuType) || [];
 	for (const Patcher of patchers) {
 		const patcher = new Patcher(
-			Buffer.from(
-				textSectionData.buffer,
-				textSectionData.byteOffset,
-				textSectionData.byteLength
-			),
+			textSectionData,
 			Number(textSectionAddress),
 			Number(vmaddr)
 		);
