@@ -22,9 +22,7 @@ export class Fixed8 extends Data {
 	}
 
 	/**
-	 * Encode size.
-	 *
-	 * @returns The size.
+	 * @inheritdoc
 	 */
 	public get size() {
 		return 2;
@@ -55,12 +53,10 @@ export class Fixed8 extends Data {
 	}
 
 	/**
-	 * Encode data into buffer.
-	 *
-	 * @param data Buffer to encode into.
+	 * @inheritdoc
 	 */
-	public encoder(data: Buffer) {
-		data.writeUInt8(this.denominator, 0);
-		data.writeUInt8(this.numerator, 1);
+	public encoder(data: Uint8Array) {
+		data[0] = this.denominator;
+		data[1] = this.numerator;
 	}
 }

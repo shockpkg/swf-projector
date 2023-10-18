@@ -47,20 +47,16 @@ export class Rect extends Data {
 	}
 
 	/**
-	 * Encode size.
-	 *
-	 * @returns The size.
+	 * @inheritdoc
 	 */
 	public get size() {
 		return bitCountToBytes(5 + this.nBits * 4);
 	}
 
 	/**
-	 * Encode data into buffer.
-	 *
-	 * @param data Buffer to encode into.
+	 * @inheritdoc
 	 */
-	public encoder(data: Buffer) {
+	public encoder(data: Uint8Array) {
 		const {nBits} = this;
 		const bW = bitWriter(data, 0);
 		let b = 0;

@@ -12,7 +12,7 @@ export class Tag extends Data {
 	/**
 	 * Tag data.
 	 */
-	public data: Buffer = Buffer.alloc(0);
+	public data: Uint8Array = new Uint8Array(0);
 
 	/**
 	 * Tag constructor.
@@ -31,30 +31,27 @@ export class Tag extends Data {
 	}
 
 	/**
-	 * Encode size.
-	 *
-	 * @returns The size.
+	 * @inheritdoc
 	 */
 	public get size() {
 		return 2 + (this.long ? 4 : 0) + this.data.length;
 	}
 
 	/**
-	 * Encode data into buffer.
-	 *
-	 * @param data Buffer to encode into.
+	 * @inheritdoc
 	 */
-	public encoder(data: Buffer) {
+	public encoder(data: Uint8Array) {
 		let i = 0;
 		const {code, data: d, long} = this;
 		// eslint-disable-next-line no-bitwise
 		const head = (code << 6) | (long ? 0b111111 : d.length);
-		data.writeUInt16LE(head, i);
+		const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+		v.setUint16(i, head, true);
 		i += 2;
 		if (long) {
-			data.writeUInt32LE(d.length, i);
+			v.setUint32(i, d.length, true);
 			i += 4;
 		}
-		d.copy(data, i);
+		data.set(d, i);
 	}
 }

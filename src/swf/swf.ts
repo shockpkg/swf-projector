@@ -40,9 +40,7 @@ export class Swf extends Data {
 	}
 
 	/**
-	 * Encode size.
-	 *
-	 * @returns The size.
+	 * @inheritdoc
 	 */
 	public get size() {
 		return this.tags.reduce(
@@ -52,25 +50,24 @@ export class Swf extends Data {
 	}
 
 	/**
-	 * Encode data into buffer.
-	 *
-	 * @param data Buffer to encode into.
+	 * @inheritdoc
 	 */
-	public encoder(data: Buffer) {
+	public encoder(data: Uint8Array) {
 		let i = 0;
-		data.write('FWS', i);
-		i += 3;
+		data[i++] = 0x46;
+		data[i++] = 0x57;
+		data[i++] = 0x53;
+		data[i++] = this.version;
 
-		data.writeUInt8(this.version, i++);
-
-		data.writeUInt32LE(this.size, i);
+		const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
+		v.setUint32(i, this.size, true);
 		i += 4;
 
 		i += this.frameSize.encode(data, i).length;
 
 		i += this.frameRate.encode(data, i).length;
 
-		data.writeUInt16LE(this.frameCount, i);
+		v.setUint16(i, this.frameCount, true);
 		i += 2;
 
 		for (const tag of this.tags) {

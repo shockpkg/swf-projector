@@ -1,16 +1,16 @@
 /**
  * Set subview of an existing buffer.
  *
- * @param data Buffer to get a subview of.
+ * @param data Data to get a subview of.
  * @param start Start offset.
  * @param size Subview size.
- * @returns Buffer subview.
+ * @returns Data subview.
  */
-export function subview(data: Buffer, start: number, size = -1) {
+export function subview(data: Uint8Array, start: number, size = -1) {
 	size = size < 0 ? data.length - start : size;
 	const r = data.subarray(start, start + size);
 	if (r.length < size) {
-		throw new Error(`Buffer is too small: ${r.length} < ${size}`);
+		throw new Error(`Data is too small: ${r.length} < ${size}`);
 	}
 	return r;
 }
@@ -21,8 +21,8 @@ export function subview(data: Buffer, start: number, size = -1) {
  * @param str String to be encoded.
  * @returns Encoded string.
  */
-export function stringToCStr(str: string) {
-	return Buffer.concat([Buffer.from(str), Buffer.alloc(1)]);
+export function stringEncode(str: string) {
+	return new TextEncoder().encode(`${str}\0`);
 }
 
 /**
