@@ -63,19 +63,20 @@ export function bitCountToBytes(bits: number) {
 }
 
 /**
- * Crate a bit writer function for a buffer at offset.
+ * Create a bit writer function for a buffer at offset.
  *
  * @param data The buffer to write bits into.
  * @param start Start offset.
  * @returns Writter function (value, count, offset).
  */
-export function bitWriter(data: Buffer, start = 0) {
+export function bitWriter(data: Uint8Array, start = 0) {
+	const view = new DataView(data.buffer, data.byteOffset, data.byteLength);
 	return (v: number, c: number, b: number) => {
 		for (let i = 0; i < c; i++) {
 			const bI = b + i;
 			const bitI = bI % 8;
 			const byteI = (bI - bitI) / 8;
-			let byteV = data.readUInt8(start + byteI);
+			let byteV = view.getUint8(start + byteI);
 			// eslint-disable-next-line no-bitwise
 			const flag = 1 << (7 - bitI);
 			// eslint-disable-next-line no-bitwise
@@ -86,7 +87,7 @@ export function bitWriter(data: Buffer, start = 0) {
 				// eslint-disable-next-line no-bitwise
 				byteV &= ~flag;
 			}
-			data.writeUInt8(byteV, start + byteI);
+			view.setUint8(start + byteI, byteV);
 		}
 	};
 }
