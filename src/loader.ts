@@ -61,7 +61,7 @@ function asmv1ActionPush(pushed: Uint8Array[]) {
  * @returns Bytecode data.
  */
 function asvm1ActionLoadMovie() {
-	const data = Buffer.alloc(4);
+	const data = new Uint8Array(4);
 	const v = new DataView(data.buffer, data.byteOffset, data.byteLength);
 	data[0] = 0x9a;
 	v.setUint16(1, data.length - 3, true);
