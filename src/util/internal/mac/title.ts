@@ -10,7 +10,9 @@ import {CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants';
 export abstract class MacProjectTitlePatch {
 	public static readonly CPU_TYPE: number;
 
-	protected _data: Buffer;
+	protected _data: Uint8Array;
+
+	protected _view: DataView;
 
 	protected _vmaddr: number;
 
@@ -23,8 +25,13 @@ export abstract class MacProjectTitlePatch {
 	 * @param vmaddr Code address.
 	 * @param title Title address.
 	 */
-	constructor(data: Buffer, vmaddr: number, title: number) {
+	constructor(data: Uint8Array, vmaddr: number, title: number) {
 		this._data = data;
+		this._view = new DataView(
+			data.buffer,
+			data.byteOffset,
+			data.byteLength
+		);
 		this._vmaddr = vmaddr;
 		this._title = title;
 	}
@@ -58,7 +65,7 @@ export abstract class MacProjectTitlePatchX8664 extends MacProjectTitlePatch {
 
 export const macProjectTitlePatches: {
 	CPU_TYPE: number;
-	new (data: Buffer, vmaddr: number, title: number): MacProjectTitlePatch;
+	new (data: Uint8Array, vmaddr: number, title: number): MacProjectTitlePatch;
 }[] = [
 	/**
 	 * 11.0.1.152 i386.
@@ -123,31 +130,31 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 11;
 
 			// lea ecx, ...
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x0d, i++);
-			d.writeInt32LE(this._title, i);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x0d);
+			v.setUint32(i, this._title, true);
 			i += 4;
 
 			// mov ebx, DWORD PTR [ecx]
-			d.writeUInt8(0x8b, i++);
-			d.writeUInt8(0x19, i++);
+			v.setUint8(i++, 0x8b);
+			v.setUint8(i++, 0x19);
 
 			// add ecx, 0x4
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc1, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc1);
+			v.setUint8(i++, 0x04);
 
 			// nop 6
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	},
 
@@ -199,7 +206,7 @@ export const macProjectTitlePatches: {
 			}
 
 			// Sanity check the jump target instructions.
-			const offsetJump = found + 22 + this._data.readInt8(found + 21);
+			const offsetJump = found + 22 + this._view.getUint8(found + 21);
 			if (
 				findFuzzyOnce(
 					this._data.subarray(offsetJump, offsetJump + 7),
@@ -221,36 +228,36 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 10;
 
 			// lea rsi, [rip+...]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x35);
+			v.setUint32(i, this._title - (this._vmaddr + i + 4), true);
 			i += 4;
 
 			// movsxd rdx, DWORD PTR [rsi]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x63, i++);
-			d.writeUInt8(0x16, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x63);
+			v.setUint8(i++, 0x16);
 
 			// jmp --
-			d.writeUInt8(0xeb, i++);
+			v.setUint8(i++, 0xeb);
 
 			i = this._offsetJump_;
 
 			// add rsi, 0x4
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc6, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc6);
+			v.setUint8(i++, 0x04);
 
 			// nop 3
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	},
 
@@ -320,34 +327,34 @@ export const macProjectTitlePatches: {
 		 */
 		public patch() {
 			const edi = this._vmaddr + this._offset_ + 13;
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 14;
 
 			// lea eax, [edi+...]
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x87, i++);
-			d.writeInt32LE(this._title - edi, i);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x87);
+			v.setUint32(i, this._title - edi, true);
 			i += 4;
 
 			// mov ecx, DWORD PTR [eax]
-			d.writeUInt8(0x8b, i++);
-			d.writeUInt8(0x08, i++);
+			v.setUint8(i++, 0x8b);
+			v.setUint8(i++, 0x08);
 
 			// mov DWORD PTR [esp+0x8], ecx
 			i += 4;
 
 			// add eax, 0x4
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc0, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc0);
+			v.setUint8(i++, 0x04);
 
 			// nop 6
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	},
 
@@ -403,32 +410,32 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 10;
 
 			// lea rsi, [rip+...]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x35);
+			v.setUint32(i, this._title - (this._vmaddr + i + 4), true);
 			i += 4;
 
 			// movsxd rdx, DWORD PTR [rsi]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x63, i++);
-			d.writeUInt8(0x16, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x63);
+			v.setUint8(i++, 0x16);
 
 			// add rsi, 0x4
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc6, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc6);
+			v.setUint8(i++, 0x04);
 
 			// nop 4
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	},
 
@@ -498,28 +505,28 @@ export const macProjectTitlePatches: {
 		 */
 		public patch() {
 			const edi = this._vmaddr + this._offset_ + 13;
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 25;
 
 			// lea eax, [edi+...]
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x87, i++);
-			d.writeInt32LE(this._title - edi, i);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x87);
+			v.setUint32(i, this._title - edi, true);
 			i += 4;
 
 			// mov edx, DWORD PTR [eax]
-			d.writeUInt8(0x8b, i++);
-			d.writeUInt8(0x10, i++);
+			v.setUint8(i++, 0x8b);
+			v.setUint8(i++, 0x10);
 
 			// add eax, 0x4
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc0, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc0);
+			v.setUint8(i++, 0x04);
 
 			// nop 3
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	},
 
@@ -575,32 +582,32 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 20;
 
 			// lea rsi, [rip+...]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x35);
+			v.setUint32(i, this._title - (this._vmaddr + i + 4), true);
 			i += 4;
 
 			// movsxd rdx, DWORD PTR [rsi]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x63, i++);
-			d.writeUInt8(0x16, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x63);
+			v.setUint8(i++, 0x16);
 
 			// add rsi, 0x4
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc6, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc6);
+			v.setUint8(i++, 0x04);
 
 			// nop 4
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	},
 
@@ -658,33 +665,33 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public patch() {
-			const d = this._data;
+			const v = this._view;
 			let i = this._offset_ + 20;
 
 			// lea rsi, [rip+...]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x8d, i++);
-			d.writeUInt8(0x35, i++);
-			d.writeInt32LE(this._title - (this._vmaddr + i + 4), i);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x8d);
+			v.setUint8(i++, 0x35);
+			v.setUint32(i, this._title - (this._vmaddr + i + 4), true);
 			i += 4;
 
 			// movsxd rdx, DWORD PTR [rsi]
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x63, i++);
-			d.writeUInt8(0x16, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x63);
+			v.setUint8(i++, 0x16);
 
 			// add rsi, 0x4
-			d.writeUInt8(0x48, i++);
-			d.writeUInt8(0x83, i++);
-			d.writeUInt8(0xc6, i++);
-			d.writeUInt8(0x04, i++);
+			v.setUint8(i++, 0x48);
+			v.setUint8(i++, 0x83);
+			v.setUint8(i++, 0xc6);
+			v.setUint8(i++, 0x04);
 
 			// nop 5
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
-			d.writeUInt8(0x90, i++);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
+			v.setUint8(i++, 0x90);
 		}
 	}
 ];
