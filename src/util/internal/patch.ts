@@ -99,24 +99,6 @@ export function writeFuzzy(
 }
 
 /**
- * Get C-String with a max length.
- *
- * @param data Data buffer.
- * @param i Integer offset.
- * @param l Max length.
- * @returns ASCII string.
- */
-export function getCstrN(data: Readonly<Uint8Array>, i: number, l: number) {
-	let c = 0;
-	for (; c < l; c++) {
-		if (!data[i + c]) {
-			break;
-		}
-	}
-	return String.fromCharCode(...data.subarray(i, i + c));
-}
-
-/**
  * Converts a hex string into a series of byte values, with unknowns being null.
  *
  * @param str Hex string.
