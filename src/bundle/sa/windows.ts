@@ -59,8 +59,14 @@ export class BundleSaWindows extends BundleSa {
 		const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 		const f = await open(projector.path, 'r');
 		try {
-			await f.read(d, 0, 4, 60);
-			await f.read(d, 0, 2, v.getUint32(0, true) + 4);
+			let r = await f.read(d, 0, 4, 60);
+			if (r.bytesRead < 4) {
+				throw new Error('Unknown format');
+			}
+			r = await f.read(d, 0, 2, v.getUint32(0, true) + 4);
+			if (r.bytesRead < 2) {
+				throw new Error('Unknown format');
+			}
 		} finally {
 			await f.close();
 		}

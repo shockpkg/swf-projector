@@ -57,7 +57,10 @@ export class BundleSaLinux extends BundleSa {
 		const f = await open(projector.path, 'r');
 		try {
 			stat = await f.stat();
-			await f.read(d, 0, 2, 18);
+			const r = await f.read(d, 0, 2, 18);
+			if (r.bytesRead < 2) {
+				throw new Error('Unknown format');
+			}
 		} finally {
 			await f.close();
 		}
