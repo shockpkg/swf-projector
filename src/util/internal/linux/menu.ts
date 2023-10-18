@@ -29,14 +29,14 @@ export abstract class PatchMenu<T extends Elf32 | Elf64> extends Patch<T> {
 	 */
 	protected abstract _spec: IPatchMenuSpec[];
 
-	private _replace_ = [] as [Buffer, number, string][];
+	private _replace_ = [] as [Uint8Array, number, string][];
 
 	/**
 	 * @inheritDoc
 	 */
 	public check() {
 		this._replace_ = [];
-		const rep = [] as [Buffer, number, string][];
+		const rep = [] as [Uint8Array, number, string][];
 		for (const {count, find, replace} of this._spec) {
 			let found = 0;
 			for (const [, i, d] of this._findFuzzyCode(find)) {
