@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
-import {getBuffer, setBuffer} from '../patch';
+import {getBuffer, setBuffer} from '../data';
 
 export const ELFCLASS32 = 1;
 export const ELFCLASS64 = 2;

@@ -5,7 +5,8 @@ import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
 import {launcher} from '../util';
 
-import {align, patchOnce} from './internal/patch';
+import {align} from './internal/data';
+import {patchOnce} from './internal/patch';
 import {
 	IDD_RESERVED,
 	IDD_RESOURCE,

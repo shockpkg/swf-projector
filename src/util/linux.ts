@@ -1,6 +1,6 @@
 import {launcher} from '../util';
 
-import {align, findIndex} from './internal/patch';
+import {align, findIndex} from './internal/data';
 import {
 	decode,
 	Elf32,

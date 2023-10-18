@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
-import {findFuzzy, once, patchHexToBytes} from '../patch';
+import {once} from '../data';
+import {findFuzzy, patchHexToBytes} from '../patch';
 
 import {Elf32, Elf32Shdr, Elf64, EM_386} from './elf';
 

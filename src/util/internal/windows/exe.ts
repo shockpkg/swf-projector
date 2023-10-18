@@ -1,6 +1,6 @@
 import {NtExecutable} from '@shockpkg/resedit';
 
-import {align} from '../patch';
+import {align} from '../data';
 
 import {
 	IDD_BASE_RELOCATION,

@@ -1,4 +1,4 @@
-import {findIndex} from '../patch';
+import {findIndex} from '../data';
 
 import {Elf32, Elf64} from './elf';
 import {Patch} from './patch';

@@ -1,4 +1,5 @@
-import {once, patchHexToBytes} from '../patch';
+import {once} from '../data';
+import {patchHexToBytes} from '../patch';
 
 export const ood64 = once(() => [
 	// 26.0.0.137, 32.0.0.270

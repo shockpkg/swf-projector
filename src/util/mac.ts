@@ -4,7 +4,8 @@ import {unsign} from 'macho-unsign';
 
 import {launcher} from '../util';
 
-import {hex4, getCstrN, slider, align, concat} from './internal/patch';
+import {hex4, align, concat} from './internal/data';
+import {getCstrN, slider} from './internal/patch';
 import {
 	VM_PROT_READ,
 	FAT_MAGIC,

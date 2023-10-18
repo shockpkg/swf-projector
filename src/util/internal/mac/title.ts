@@ -1,6 +1,7 @@
 /* eslint-disable max-classes-per-file */
 
-import {findFuzzyOnce, once, patchHexToBytes} from '../patch';
+import {once} from '../data';
+import {findFuzzyOnce, patchHexToBytes} from '../patch';
 
 import {CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants';
 
