@@ -162,7 +162,8 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 	let references = 0;
 	const code = exeCodeSection(exe);
 	const {virtualAddress} = code.info;
-	const data = Buffer.from(code.data);
+	const data = new Uint8Array(code.data);
+	const view = new DataView(code.data);
 	const {newHeader} = exe;
 	if (newHeader.is32bit()) {
 		const {imageBase} = newHeader.optionalHeader;
@@ -175,11 +176,11 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 		for (const [o, patch] of patches) {
 			for (const i of findFuzzy(data, patch)) {
 				const off = i + o;
-				const a = data.readUint32LE(off);
+				const a = view.getUint32(off, true);
 				if (a !== oldA) {
 					continue;
 				}
-				data.writeUint32LE(imageBase + address, off);
+				view.setUint32(off, imageBase + address, true);
 				references++;
 			}
 		}
@@ -194,11 +195,11 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 			for (const i of findFuzzy(data, patch)) {
 				const rip = virtualAddress + i + l;
 				const off = i + o;
-				const a = rip + data.readUint32LE(off);
+				const a = rip + view.getUint32(off, true);
 				if (a !== oldAddress) {
 					continue;
 				}
-				data.writeUint32LE(address - rip, off);
+				view.setUint32(off, address - rip, true);
 				references++;
 			}
 		}
