@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
+import {TITLE_I386} from './asm';
 import {Elf32} from './elf';
 import {PatchTitle, titleMatchM, titleMatchA} from './title';
 
@@ -22,24 +23,7 @@ export const title32 = [
 		 * @inheritDoc
 		 */
 		public check() {
-			for (const [shdr, i, d] of this._findFuzzyCode(
-				[
-					// call    _gtk_widget_show
-					'E8 -- -- -- --',
-					// pop     edi
-					'5F',
-					// pop     eax
-					'58',
-					// push    DWORD PTR ds:...
-					'FF 35 -- -- -- --',
-					// ...
-					'-- -- --',
-					// ...
-					'-- -- --',
-					// call    _gdk_window_set_title
-					'E8 -- -- -- --'
-				].join(' ')
-			)) {
+			for (const [shdr, i, d] of this._findFuzzyCode(TITLE_I386['6'])) {
 				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 				const ptr = v.getUint32(i + 9, true);
 				const shdr2 = this._getShdrForAddress(ptr);
@@ -87,24 +71,7 @@ export const title32 = [
 		 */
 		public check() {
 			this._addrs_ = [];
-			for (const [shdr, i, d] of this._findFuzzyCode(
-				[
-					// call    _gtk_widget_show
-					'E8 -- -- -- --',
-					// mov     eax, DWORD PTR ds:....
-					'A1 -- -- -- --',
-					// mov     DWORD PTR [esp+0x4], eax
-					'89 44 24 04',
-					// ...
-					'-- -- -- -- -- --',
-					// ...
-					'-- -- --',
-					// mov     DWORD PTR [esp], eax
-					'89 -- 24',
-					// call    _gtk_window_set_title
-					'E8 -- -- -- --'
-				].join(' ')
-			)) {
+			for (const [shdr, i, d] of this._findFuzzyCode(TITLE_I386['9'])) {
 				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 				const ptr = v.getUint32(i + 6, true);
 				const shdr2 = this._getShdrForAddress(ptr);
@@ -150,16 +117,7 @@ export const title32 = [
 		 */
 		public check() {
 			for (const [shdr, i, d] of this._findFuzzyCode(
-				[
-					// mov     DWORD PTR [esp+0x8], ...
-					'C7 44 24 08 -- -- -- --',
-					// mov     DWORD PTR [esp+0x4], ...
-					'C7 44 24 04 -- -- -- --',
-					// mov     DWORD PTR [esp], ...
-					'89 -- 24',
-					// call    ...
-					'E8 -- -- -- --'
-				].join(' ')
+				TITLE_I386['10.1']
 			)) {
 				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 				const addr = shdr.shAddr + i;
@@ -203,18 +161,7 @@ export const title32 = [
 		 */
 		public check() {
 			for (const [shdr, i, d] of this._findFuzzyCode(
-				[
-					// lea     eax, [ebx+...]
-					'8D 83 -- -- -- --',
-					// mov     DWORD PTR [esp+0x4], eax
-					'89 44 24 04',
-					// mov     DWORD PTR [esp+0x8], ...
-					'C7 44 24 08 -- -- -- --',
-					// mov     DWORD PTR [esp], esi
-					'89 34 24',
-					// call    ...
-					'E8 -- -- -- --'
-				].join(' ')
+				TITLE_I386['11.2']
 			)) {
 				const addr = shdr.shAddr + i;
 				const ebx = this._findEbx(addr);

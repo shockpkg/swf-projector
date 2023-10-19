@@ -1,0 +1,3 @@
+E8 -- -- -- --                  call    ...
+49 8B BC 24 90 00 00 00         mov     rdi, QWORD PTR [r12+0x90]
+E8 -- -- -- --                  call    _gtk_widget_show

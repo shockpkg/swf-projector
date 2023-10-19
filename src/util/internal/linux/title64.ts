@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
+import {TITLE_X8664} from './asm';
 import {Elf64} from './elf';
 import {PatchTitle, titleMatchA} from './title';
 
@@ -22,14 +23,7 @@ export const title64 = [
 		 * @inheritDoc
 		 */
 		public check() {
-			for (const [shdr, i, d] of this._findFuzzyCode(
-				[
-					// lea     rsi, [rip+...]
-					'48 8D 35 -- -- -- --',
-					// mov     edx, ...
-					'BA -- -- -- --'
-				].join(' ')
-			)) {
+			for (const [shdr, i, d] of this._findFuzzyCode(TITLE_X8664['24'])) {
 				const v = new DataView(d.buffer, d.byteOffset, d.byteLength);
 				const addr = shdr.shAddr + BigInt(i);
 				const rip = addr + 7n;

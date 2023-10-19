@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
+import {PATH_X8664} from './asm';
 import {Elf64} from './elf';
 import {PatchPath} from './path';
 
@@ -15,7 +16,7 @@ abstract class PatchPath64File extends PatchPath64 {
 	/**
 	 * Fuzzy find.
 	 */
-	protected abstract readonly _find: string;
+	protected abstract readonly _find: number[];
 
 	/**
 	 * Address offset.
@@ -74,12 +75,7 @@ export const path64 = [
 		/**
 		 * @inheritDoc
 		 */
-		protected readonly _find = [
-			// mov     r12, rsi
-			'49 89 F4',
-			// lea     rsi, [rip + -- -- -- --]
-			'48 8D 35 -- -- -- --'
-		].join(' ');
+		protected readonly _find = PATH_X8664[24];
 
 		/**
 		 * @inheritDoc

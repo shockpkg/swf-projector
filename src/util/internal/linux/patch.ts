@@ -1,22 +1,11 @@
 /* eslint-disable max-classes-per-file */
 
-import {once} from '../data';
-import {findFuzzy, patchHexToBytes} from '../patch';
+import {findFuzzy} from '../patch';
 
+import {PATCH_I386} from './asm';
 import {Elf32, Elf32Shdr, Elf64, EM_386} from './elf';
 
 type Unpacked<T> = T extends (infer U)[] ? U : T;
-
-const ebxFuzzy = once(() =>
-	patchHexToBytes(
-		[
-			// call    ...
-			'E8 -- -- -- --',
-			// add     ebx, ...
-			'81 C3 -- -- -- --'
-		].join(' ')
-	)
-);
 
 /**
  * Patch object.
@@ -72,16 +61,16 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 	/**
 	 * Fuzzy find in code.
 	 *
-	 * @param hex A fuzzy hex string.
+	 * @param find Fuzzy find.
 	 * @yields The shdr and index in shdr.
 	 */
-	protected *_findFuzzyCode(hex: string) {
+	protected *_findFuzzyCode(find: number[]) {
 		const shdr = this._getShdrForAddress(this._elf.elfHeader.eEntry);
 		if (!shdr) {
 			return;
 		}
 		const d = new Uint8Array(shdr.data);
-		for (const i of findFuzzy(d, patchHexToBytes(hex))) {
+		for (const i of findFuzzy(d, find)) {
 			yield [shdr, i, d] as [
 				Unpacked<T['sectionHeaders']>,
 				number,
@@ -104,7 +93,7 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 		const d = new Uint8Array(shdr.data);
 		const v = new DataView(shdr.data);
 		const before = addr - shdr.shAddr;
-		for (const i of findFuzzy(d, ebxFuzzy(), 0, before, true)) {
+		for (const i of findFuzzy(d, PATCH_I386['ebx'], 0, before, true)) {
 			return shdr.shAddr + i + 5 + v.getUint32(i + 7, true);
 		}
 		return null;

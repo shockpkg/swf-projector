@@ -1,4 +1,4 @@
-import {patchHexToBytes, writeFuzzy} from '../patch';
+import {writeFuzzy} from '../patch';
 
 import {Elf32, Elf64} from './elf';
 import {Patch} from './patch';
@@ -15,12 +15,12 @@ export interface IPatchMenuSpec {
 	/**
 	 * Fuzzy find.
 	 */
-	find: string;
+	find: number[];
 
 	/**
 	 * Fuzzy replace.
 	 */
-	replace: string;
+	replace: number[];
 }
 
 /**
@@ -32,14 +32,14 @@ export abstract class PatchMenu<T extends Elf32 | Elf64> extends Patch<T> {
 	 */
 	protected abstract _spec: IPatchMenuSpec[];
 
-	private _replace_ = [] as [Uint8Array, number, string][];
+	private _replace_ = [] as [Uint8Array, number, number[]][];
 
 	/**
 	 * @inheritDoc
 	 */
 	public check() {
 		this._replace_ = [];
-		const rep = [] as [Uint8Array, number, string][];
+		const rep = [] as [Uint8Array, number, number[]][];
 		for (const {count, find, replace} of this._spec) {
 			let found = 0;
 			for (const [, i, d] of this._findFuzzyCode(find)) {
@@ -61,8 +61,8 @@ export abstract class PatchMenu<T extends Elf32 | Elf64> extends Patch<T> {
 	 * @inheritDoc
 	 */
 	public patch() {
-		for (const [d, i, h] of this._replace_) {
-			writeFuzzy(d, i, patchHexToBytes(h));
+		for (const [d, i, f] of this._replace_) {
+			writeFuzzy(d, i, f);
 		}
 	}
 }

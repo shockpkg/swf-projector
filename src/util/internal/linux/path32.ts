@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 
+import {PATH_I386} from './asm';
 import {Elf32} from './elf';
 import {PatchPath} from './path';
 
@@ -11,135 +12,7 @@ export abstract class PatchPath32 extends PatchPath<Elf32> {}
 /**
  * PatchPath32Dir object.
  */
-abstract class PatchPath32Dir extends PatchPath32 {
-	private _addr_ = 0;
-
-	/**
-	 * @inheritDoc
-	 */
-	public check() {
-		for (const [shdr, i] of this._findFuzzyCode(
-			[
-				// push    ebp
-				'55',
-				// push    edi
-				'57',
-				// push    esi
-				'56',
-				// push    ebx
-				'53',
-				// sub     esp, 0x24
-				'83 EC 24',
-				// mov     ebx, 0x1000
-				'BB 00 10 00 00',
-				// mov     ebp, DWORD PTR [esp+0x40]
-				'8B 6C 24 40',
-				// push    ebx
-				'53',
-				// push    ...
-				'68 -- -- -- --',
-				// mov     BYTE PTR ds:..., 0x0
-				'C6 05 -- -- -- -- 00',
-				// call    ...
-				'E8 -- -- -- --',
-				// mov     edi, eax
-				'89 C7',
-				// add     esp, 0x10
-				'83 C4 10',
-				// test    edi, edi
-				'85 FF',
-				// je      ...
-				'0F 84 -- -- -- --',
-				// test    ebp, ebp
-				'85 ED',
-				// je      ...
-				'0F 84 -- -- -- --',
-				// sub     esp, 0x8
-				'83 EC 08',
-				// push    ebx
-				'53',
-				// push    edi
-				'57',
-				// call    ...
-				'E8 -- -- -- --',
-				// add     esp, 0x10
-				'83 C4 10',
-				// test    al, al
-				'84 C0',
-				// je      ...
-				'0F 84 -- -- -- --',
-				// sub     esp, 0x8
-				'83 EC 08',
-				// push    ...
-				'68 -- -- -- --',
-				// lea     ebx, [esp+0xC]
-				'8D 5C 24 0C',
-				// push    ebx
-				'53',
-				// call    ...
-				'E8 -- -- -- --',
-				// pop     edx
-				'5A',
-				// pop     ecx
-				'59',
-				// push    edi
-				'57',
-				// push    ebx
-				'53',
-				// call    ...
-				'E8 -- -- -- --',
-				// mov     DWORD PTR [esp], ebp
-				'89 2C 24',
-				// call    ...
-				'E8 -- -- -- --',
-				// add     esp, 0x10
-				'83 C4 10',
-				// cmp     eax, 0x5
-				'83 F8 05',
-				// jle     ...
-				'7E --',
-				// sub     esp, 0xC
-				'83 EC 0C',
-				// push    edi
-				'57'
-			].join(' ')
-		)) {
-			if (this._addr_) {
-				return false;
-			}
-			this._addr_ = shdr.shAddr + i;
-		}
-		return !!this._addr_;
-	}
-
-	/**
-	 * @inheritDoc
-	 */
-	public patch() {
-		const {_addr_: addr} = this;
-		const shdr = this._theShdrForAddress(addr);
-		const v = new DataView(shdr.data);
-		const i = addr - shdr.shAddr;
-
-		// sIsProjector -> sExecutableName
-		const ptr = v.getUint32(i + 24, true) + 4;
-
-		// nop 2x
-		v.setUint8(i + 68, 0x90);
-		v.setUint8(i + 69, 0x90);
-
-		// mov     esi, DWORD PTR ds:...
-		v.setUint8(i + 70, 0x8b);
-		v.setUint8(i + 71, 0x35);
-		v.setUint32(i + 72, ptr, true);
-
-		// push     esi
-		v.setUint8(i + 96, 0x56);
-
-		// push     esi
-		v.setUint8(i + 122, 0x56);
-	}
-}
+abstract class PatchPath32Dir extends PatchPath32 {}
 
 /**
  * PatchPath32File object.
@@ -153,7 +26,7 @@ abstract class PatchPath32File extends PatchPath32 {
 	/**
 	 * Fuzzy find.
 	 */
-	protected abstract readonly _find: string;
+	protected abstract readonly _find: number[];
 
 	/**
 	 * Address offset.
@@ -241,7 +114,50 @@ export const path32 = [
 	/**
 	 * 6.0.79.0 i386.
 	 */
-	class extends PatchPath32Dir {},
+	class extends PatchPath32Dir {
+		private _addr_ = 0;
+
+		/**
+		 * @inheritDoc
+		 */
+		public check() {
+			for (const [shdr, i] of this._findFuzzyCode(PATH_I386['6'])) {
+				if (this._addr_) {
+					return false;
+				}
+				this._addr_ = shdr.shAddr + i;
+			}
+			return !!this._addr_;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public patch() {
+			const {_addr_: addr} = this;
+			const shdr = this._theShdrForAddress(addr);
+			const v = new DataView(shdr.data);
+			const i = addr - shdr.shAddr;
+
+			// sIsProjector -> sExecutableName
+			const ptr = v.getUint32(i + 24, true) + 4;
+
+			// nop 2x
+			v.setUint8(i + 68, 0x90);
+			v.setUint8(i + 69, 0x90);
+
+			// mov     esi, DWORD PTR ds:...
+			v.setUint8(i + 70, 0x8b);
+			v.setUint8(i + 71, 0x35);
+			v.setUint32(i + 72, ptr, true);
+
+			// push     esi
+			v.setUint8(i + 96, 0x56);
+
+			// push     esi
+			v.setUint8(i + 122, 0x56);
+		}
+	},
 
 	/**
 	 * 9.0.115.0 i386.
@@ -250,20 +166,7 @@ export const path32 = [
 		/**
 		 * @inheritDoc
 		 */
-		protected readonly _find = [
-			// je      ...
-			'0F 84 -- -- -- --',
-			// lea     ebx, [ebp-0x18]
-			'8D 5D E8',
-			// mov     esi, ...
-			'BE -- -- -- --',
-			// mov     DWORD PTR [esp+0x4], esi
-			'89 74 24 04',
-			// mov     DWORD PTR [esp], ebx
-			'89 1C 24',
-			// call    ...
-			'E8 -- -- -- --'
-		].join(' ');
+		protected readonly _find = PATH_I386['9'];
 
 		/**
 		 * @inheritDoc
@@ -278,18 +181,7 @@ export const path32 = [
 		/**
 		 * @inheritDoc
 		 */
-		protected readonly _find = [
-			// je      ...
-			'0F 84 -- -- -- --',
-			// lea     ebx, [ebp-0x1020]
-			'8D 9D E0 EF FF FF',
-			// mov     DWORD PTR [esp+0x4], ...
-			'C7 44 24 04 -- -- -- --',
-			// mov     DWORD PTR [esp], ebx
-			'89 1C 24',
-			// call    ...
-			'E8 -- -- -- --'
-		].join(' ');
+		protected readonly _find = PATH_I386['10.0'];
 
 		/**
 		 * @inheritDoc
@@ -304,20 +196,7 @@ export const path32 = [
 		/**
 		 * @inheritDoc
 		 */
-		protected readonly _find = [
-			// je      ...
-			'0F 84 -- -- -- --',
-			// lea     eax, [ebp-0x1C]
-			'8D 45 E4',
-			// mov     DWORD PTR [esp], eax
-			'89 04 24',
-			// mov     DWORD PTR [esp+0x4], ...
-			'C7 44 24 04 -- -- -- --',
-			// call    ...
-			'E8 -- -- -- --',
-			// mov     edx, DWORD PTR [ebp+0x8]
-			'8B 55 08'
-		].join(' ');
+		protected readonly _find = PATH_I386['10.1'];
 
 		/**
 		 * @inheritDoc
@@ -332,20 +211,7 @@ export const path32 = [
 		/**
 		 * @inheritDoc
 		 */
-		protected readonly _find = [
-			// je      ...
-			'0F 84 -- -- -- --',
-			// lea     eax, [ebp-0x1C]
-			'8D 45 E4',
-			// xor     ebx, ebx
-			'31 DB',
-			// mov     DWORD PTR [esp], eax
-			'89 04 24',
-			// mov     DWORD PTR [esp+0x4], ...
-			'C7 44 24 04 -- -- -- --',
-			// call    ...
-			'E8 -- -- -- --'
-		].join(' ');
+		protected readonly _find = PATH_I386['11.0'];
 
 		/**
 		 * @inheritDoc
@@ -360,14 +226,7 @@ export const path32 = [
 		/**
 		 * @inheritDoc
 		 */
-		protected readonly _find = [
-			// lea     eax, [ebx+...]
-			'8D 83 -- -- -- --',
-			// xor     esi, esi
-			'31 F6',
-			// mov     DWORD PTR [esp+0x4], eax
-			'89 44 24 04'
-		].join(' ');
+		protected readonly _find = PATH_I386['11.2'];
 
 		/**
 		 * @inheritDoc

@@ -1,8 +1,9 @@
 /* eslint-disable max-classes-per-file */
 
 import {once} from '../data';
-import {findFuzzyOnce, patchHexToBytes} from '../patch';
+import {findFuzzyOnce} from '../patch';
 
+import {TITLE_I386, TITLE_X8664} from './asm';
 import {CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants';
 
 /**
@@ -78,47 +79,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    ebp
-						'55',
-						// mov     ebp, esp
-						'89 E5',
-						// push    esi
-						'56',
-						// push    ebx
-						'53',
-						// sub     esp, 0x10
-						'83 EC 10',
-						// mov     esi, DWORD PTR [ebp+0x8]
-						'8B 75 08',
-						// mov     eax, DWORD PTR [ebp+0xc]
-						'8B 45 0C',
-						// mov     ebx, DWORD PTR [eax]
-						'8B 18',
-						// mov     ecx, DWORD PTR [eax+0x4]
-						'8B 48 04',
-						// test    ecx, ecx
-						'85 C9',
-						// cmove   ecx, DWORD PTR ds:...
-						'0F 44 0D -- -- -- --',
-						// mov     DWORD PTR [esp+0x8], ebx
-						'89 5C 24 08',
-						// mov     DWORD PTR [esp+0x4], ecx
-						'89 4C 24 04',
-						// mov     edx, DWORD PTR ds:...
-						'8B 15 -- -- -- --',
-						// mov     eax, DWORD PTR [edx]
-						'8B 02',
-						// mov     DWORD PTR [esp], eax
-						'89 04 24',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_I386['11']);
 			if (found === null) {
 				return false;
 			}
@@ -171,37 +132,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    rbp
-						'55',
-						// mov     rbp, rsp
-						'48 89 E5',
-						// push    r12
-						'41 54',
-						// push    rbx
-						'53',
-						// mov     r12, rdi
-						'49 89 FC',
-						// mov     rdx, QWORD PTR [rsi]
-						'48 8B 16',
-						// mov     rsi, QWORD PTR [rsi+0x8]
-						'48 8B 76 08',
-						// test    rsi, rsi
-						'48 85 F6',
-						// je      --
-						'74 --',
-						// mov     rax, QWORD PTR [rip+...]
-						'48 8B 05 -- -- -- --',
-						// mov     rdi, QWORD PTR [rax]
-						'48 8B 38',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_X8664['11-1']);
 			if (found === null) {
 				return false;
 			}
@@ -211,10 +142,7 @@ export const macProjectTitlePatches: {
 			if (
 				findFuzzyOnce(
 					this._data.subarray(offsetJump, offsetJump + 7),
-					patchHexToBytes(
-						// lea     rsi, [rip+...]
-						'48 8D 35 -- -- -- --'
-					)
+					TITLE_X8664['11-2']
 				) !== 0
 			) {
 				return false;
@@ -272,49 +200,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    ebp
-						'55',
-						// mov     ebp, esp
-						'89 E5',
-						// push    edi
-						'57',
-						// push    esi
-						'56',
-						// sub     esp, 0x10
-						'83 EC 10',
-						// call    0xd
-						'E8 00 00 00 00',
-						// pop     edi
-						'5F',
-						// mov     eax, DWORD PTR [ebp+0xc]
-						'8B 45 0C',
-						// mov     ecx, DWORD PTR [eax]
-						'8B 08',
-						// mov     eax, DWORD PTR [eax+0x4]
-						'8B 40 04',
-						// mov     DWORD PTR [esp+0x8], ecx
-						'89 4C 24 08',
-						// test    eax, eax
-						'85 C0',
-						// cmove   eax, DWORD PTR [edi+...]
-						'0F 44 87 -- -- -- --',
-						// mov     DWORD PTR [esp+0x4], eax
-						'89 44 24 04',
-						// mov     eax, DWORD PTR [edi+...]
-						'8B 87 -- -- -- --',
-						// mov     eax, DWORD PTR [eax]
-						'8B 00',
-						// mov     DWORD PTR [esp], eax
-						'89 04 24',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_I386['13']);
 			if (found === null) {
 				return false;
 			}
@@ -369,37 +255,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    rbp
-						'55',
-						// mov     rbp, rsp
-						'48 89 E5',
-						// push    r14
-						'41 56',
-						// push    rbx
-						'53',
-						// mov     r14, rdi
-						'49 89 FE',
-						// mov     rdx, QWORD PTR [rsi]
-						'48 8B 16',
-						// mov     rsi, QWORD PTR [rsi+0x8]
-						'48 8B 76 08',
-						// test    rsi, rsi
-						'48 85 F6',
-						// cmove   rsi, QWORD PTR [rip+...]
-						'48 0F 44 35 -- -- -- --',
-						// mov     rax, QWORD PTR [rip+...]
-						'48 8B 05 -- -- -- --',
-						// mov     rdi, QWORD PTR [rax]
-						'48 8B 38',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_X8664['13']);
 			if (found === null) {
 				return false;
 			}
@@ -450,49 +306,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    ebp
-						'55',
-						// mov     ebp, esp
-						'89 E5',
-						// push    edi
-						'57',
-						// push    esi
-						'56',
-						// sub     esp, 0x10
-						'83 EC 10',
-						// call    0xd
-						'E8 00 00 00 00',
-						// pop     edi
-						'5F',
-						// mov     eax, DWORD PTR [ebp+0xc]
-						'8B 45 0C',
-						// mov     ecx, DWORD PTR [edi+...]
-						'8B 8F -- -- -- --',
-						// mov     ecx, DWORD PTR [ecx]
-						'8B 09',
-						// mov     edx, DWORD PTR [eax]
-						'8B 10',
-						// mov     eax, DWORD PTR [eax+0x4]
-						'8B 40 04',
-						// test    eax, eax
-						'85 C0',
-						// cmove   eax, DWORD PTR [edi+...]
-						'0F 44 87 -- -- -- --',
-						// mov     DWORD PTR [esp+0x8], edx
-						'89 54 24 08',
-						// mov     DWORD PTR [esp+0x4], eax
-						'89 44 24 04',
-						// mov     DWORD PTR [esp], ecx
-						'89 0C 24',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_I386['23']);
 			if (found === null) {
 				return false;
 			}
@@ -541,37 +355,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    rbp
-						'55',
-						// mov     rbp, rsp
-						'48 89 E5',
-						// push    r14
-						'41 56',
-						// push    rbx
-						'53',
-						// mov     r14, rdi
-						'49 89 FE',
-						// mov     rax, QWORD PTR [rip+...]
-						'48 8B 05 -- -- -- --',
-						// mov     rdi, QWORD PTR [rax]
-						'48 8B 38',
-						// mov     rdx, QWORD PTR [rsi]
-						'48 8B 16',
-						// mov     rsi, QWORD PTR [rsi+0x8]
-						'48 8B 76 08',
-						// test    rsi, rsi
-						'48 85 F6',
-						// cmove   rsi, QWORD PTR [rip+...]
-						'48 0F 44 35 -- -- -- --',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_X8664['23']);
 			if (found === null) {
 				return false;
 			}
@@ -622,39 +406,7 @@ export const macProjectTitlePatches: {
 		 * @inheritDoc
 		 */
 		public check() {
-			const found = findFuzzyOnce(
-				this._data,
-				patchHexToBytes(
-					[
-						// push    rbp
-						'55',
-						// mov     rbp, rsp
-						'48 89 E5',
-						// push    r14
-						'41 56',
-						// push    rbx
-						'53',
-						// mov     r14, rdi
-						'49 89 FE',
-						// mov     rax, QWORD PTR [rip+...]
-						'48 8B 05 -- -- -- --',
-						// mov     rdi, QWORD PTR [rax]
-						'48 8B 38',
-						// mov     rdx, QWORD PTR [rsi]
-						'48 8B 16',
-						// mov     rsi, QWORD PTR [rsi+0x8]
-						'48 8B 76 08',
-						// test    rsi, rsi
-						'48 85 F6',
-						// jne     0x1d
-						'75 07',
-						// lea     rsi, [rip+...]
-						'48 8D 35 -- -- -- --',
-						// call    -- -- -- --
-						'E8 -- -- -- --'
-					].join(' ')
-				)
-			);
+			const found = findFuzzyOnce(this._data, TITLE_X8664['35']);
 			if (found === null) {
 				return false;
 			}

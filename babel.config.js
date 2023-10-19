@@ -1,6 +1,6 @@
 'use strict';
 
-const {readFileSync} = require('node:fs');
+const {readFileSync, readdirSync} = require('node:fs');
 const {deflateRawSync} = require('node:zlib');
 
 const {name, version, engines} = require('./package.json');
@@ -23,6 +23,49 @@ const launchers = (manifest => {
 	}
 	return r;
 })(require('./launchers/manifest.json'));
+
+const asms = (dirs => {
+	const parse = s => {
+		const b = [];
+		for (const line of s.split(/[\r\n]+/)) {
+			const [s] = line.trim().split('  ');
+			if (s) {
+				for (const h of s.split(' ')) {
+					b.push(/^[0-9A-F]{2}$/i.test(h) ? parseInt(h, 16) : -1);
+				}
+			}
+		}
+		return b;
+	};
+	const r = [];
+	for (const dir of dirs) {
+		const d = {};
+		for (const f of readdirSync(dir)) {
+			const m = f.match(/^([^.].*)\.asm$/);
+			if (m) {
+				d[m[1]] = parse(readFileSync(`${dir}/${f}`, 'utf8'));
+			}
+		}
+		r.push({
+			search: `#{${dir}}`,
+			replace: d
+		});
+	}
+	return r;
+})([
+	'spec/asm/linux/menu-i386',
+	'spec/asm/linux/menu-x86_64',
+	'spec/asm/linux/offset-x86_64',
+	'spec/asm/linux/patch-i386',
+	'spec/asm/linux/path-i386',
+	'spec/asm/linux/path-x86_64',
+	'spec/asm/linux/title-i386',
+	'spec/asm/linux/title-x86_64',
+	'spec/asm/mac/title-i386',
+	'spec/asm/mac/title-x86_64',
+	'spec/asm/windows/ood-i386',
+	'spec/asm/windows/ood-x86_64'
+]);
 
 module.exports = api => {
 	const env = api.env();
@@ -75,7 +118,8 @@ module.exports = api => {
 				{
 					search: '#{LAUNCHERS}',
 					replace: launchers
-				}
+				},
+				...asms
 			]
 		}
 	]);
