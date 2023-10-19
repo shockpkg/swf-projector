@@ -139,6 +139,55 @@ projector.patchProjectorOffset = true;
 await projector.write();
 ```
 
+### HTML
+
+```js
+import {ProjectorHtml} from '@shockpkg/swf-projector';
+
+const projector = new ProjectorHtml('projector-html/application.html');
+
+// Required properties.
+projector.src = 'movie.swf';
+projector.width = 600;
+projector.height = 400;
+
+// Optionally configure HTML document.
+p.lang = 'en-US';
+p.title = 'A "special" title with <html> characters';
+p.background = '#000000';
+p.color = '#999999';
+
+// Optionally configure object/param/embed elements.
+p.bgcolor = '#000000';
+p.id = 'element-id';
+p.name = 'element-name';
+p.codebase =
+	'https://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=32,0,0,0';
+p.pluginspage = 'https://www.adobe.com/go/getflashplayer';
+p.play = true;
+p.loop = true;
+p.menu = true;
+p.quality = 'high';
+p.scale = 'default';
+p.align = 'l';
+p.salign = 'l';
+p.wmode = 'opaque';
+p.base = '.';
+p.allowFullScreen = true;
+p.allowFullScreenInteractive = true;
+p.allowScriptAccess = 'always';
+p.allowNetworking = 'all';
+p.fullScreenAspectRatio = 'landscape';
+p.flashvars = 'param1=value1&param2=value2';
+p.browserzoom = 'scale';
+p.devicefont = false;
+p.swliveconnect = true;
+p.expressinstall = 'expressinstall.swf';
+p.swfversion = 32;
+
+await projector.write();
+```
+
 ## Bundle
 
 ### Sa
@@ -198,6 +247,26 @@ await bundle.write(async b => {
 	await b.copyResource('other.swf', 'other.swf');
 });
 ```
+
+### HTML
+
+```js
+import {BundleHtml} from '@shockpkg/swf-projector';
+
+const bundle = new BundleHtml('bundle-html/application.html');
+
+// Use projector property to set options.
+bundle.projector.src = 'movie.swf';
+bundle.projector.width = 600;
+bundle.projector.height = 400;
+
+await bundle.write(async b => {
+	// Add resources in callback.
+	await b.copyResource('movie.swf', 'movie.swf');
+});
+```
+
+A bundle can also be made "flat" into an empty directory with nesting the resources or adding a launcher stub by passing true as the second argument to the constructor.
 
 ## Loader Generator
 
