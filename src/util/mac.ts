@@ -37,7 +37,7 @@ import {
 } from './internal/mac/constants';
 import {
 	MacProjectTitlePatch,
-	macProjectTitlePatchesByCpuType
+	macProjectorTitlePatchesByCpuType
 } from './internal/mac/title';
 
 /**
@@ -567,7 +567,7 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	// Patch the text section to reference the title.
 	const cpuType = headerV.getUint32(4, le);
 	let found: MacProjectTitlePatch | null = null;
-	const patchers = macProjectTitlePatchesByCpuType().get(cpuType) || [];
+	const patchers = macProjectorTitlePatchesByCpuType(cpuType);
 	for (const Patcher of patchers) {
 		const patcher = new Patcher(
 			textSectionData,

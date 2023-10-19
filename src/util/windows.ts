@@ -100,7 +100,7 @@ export function windowsProjectorPatch(
 		const {data} = code;
 		patchOnce(
 			new Uint8Array(data),
-			exe.newHeader.is32bit() ? ood32() : ood64(),
+			exe.newHeader.is32bit() ? ood32 : ood64,
 			'Out Of Date Disable'
 		);
 		code.data = data;

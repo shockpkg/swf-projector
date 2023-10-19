@@ -1,22 +1,4 @@
 /**
- * Create return value once.
- *
- * @param create Create function.
- * @returns Returned value.
- */
-export function once<T>(create: () => T): () => T {
-	let called = false;
-	let value: T;
-	return () => {
-		if (!called) {
-			value = create();
-			called = true;
-		}
-		return value;
-	};
-}
-
-/**
  * Encode integer as 4 byte hex.
  *
  * @param i The integer to encode.

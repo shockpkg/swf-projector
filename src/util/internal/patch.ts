@@ -99,21 +99,6 @@ export function writeFuzzy(
 }
 
 /**
- * Converts a hex string into a series of byte values, with unknowns being null.
- *
- * @param str Hex string.
- * @returns Bytes and null values.
- */
-export function patchHexToBytes(str: string) {
-	return (str.replace(/[\s\r\n]/g, '').match(/.{1,2}/g) || []).map(s => {
-		if (s.length !== 2) {
-			throw new Error('Internal error');
-		}
-		return /^[0-9A-F]{2}$/i.test(s) ? parseInt(s, 16) : -1;
-	});
-}
-
-/**
  * Find the offsets for the patches in a group.
  *
  * @param data Data buffer.

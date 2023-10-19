@@ -1,8 +1,6 @@
-import {once} from '../data';
-
 import {OOD_I386} from './asm';
 
-export const ood32 = once(() => [
+export const ood32 = [
 	// 30.0.0.113
 	[
 		{
@@ -19,4 +17,4 @@ export const ood32 = once(() => [
 			replace: OOD_I386['ret4']
 		}
 	]
-]);
+];

@@ -1,6 +1,5 @@
 /* eslint-disable max-classes-per-file */
 
-import {once} from '../data';
 import {findFuzzyOnce} from '../patch';
 
 import {TITLE_I386, TITLE_X8664} from './asm';
@@ -449,13 +448,23 @@ export const macProjectTitlePatches: {
 	}
 ];
 
-export const macProjectTitlePatchesByCpuType = once(() => {
-	const r = new Map<number, (typeof macProjectTitlePatches)[0][]>();
-	for (const Patcher of macProjectTitlePatches) {
-		const {CPU_TYPE} = Patcher;
-		const list = r.get(CPU_TYPE) || [];
-		list.push(Patcher);
-		r.set(CPU_TYPE, list);
+let byCpuType: Map<number, (typeof macProjectTitlePatches)[0][]> | null;
+
+/**
+ * Get the projector patches mapped to CPU type.
+ *
+ * @param cpuType CPU type to get.
+ * @returns Map of type to patcher list.
+ */
+export function macProjectorTitlePatchesByCpuType(cpuType: number) {
+	if (!byCpuType) {
+		byCpuType = new Map();
+		for (const Patcher of macProjectTitlePatches) {
+			const {CPU_TYPE} = Patcher;
+			const list = byCpuType.get(CPU_TYPE) || [];
+			list.push(Patcher);
+			byCpuType.set(CPU_TYPE, list);
+		}
 	}
-	return r;
-});
+	return byCpuType.get(cpuType) || [];
+}

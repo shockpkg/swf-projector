@@ -1,8 +1,6 @@
-import {once} from '../data';
-
 import {OOD_X8664} from './asm';
 
-export const ood64 = once(() => [
+export const ood64 = [
 	// 26.0.0.137, 32.0.0.270
 	[
 		{
@@ -19,4 +17,4 @@ export const ood64 = once(() => [
 			replace: OOD_X8664['ret']
 		}
 	]
-]);
+];
