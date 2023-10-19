@@ -28,7 +28,7 @@ const asms = (dirs => {
 	const parse = s => {
 		const b = [];
 		for (const line of s.split(/[\r\n]+/)) {
-			const [s] = line.trim().split('  ');
+			const [s] = line.split(/[#;]/)[0].trim().split('  ');
 			if (!s) {
 				continue;
 			}
