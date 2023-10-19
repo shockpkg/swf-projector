@@ -71,7 +71,8 @@ export abstract class ProjectorSa extends Projector {
 			return typeof movieData === 'function' ? movieData() : movieData;
 		}
 		if (movieFile) {
-			return readFile(movieFile);
+			const d = await readFile(movieFile);
+			return new Uint8Array(d.buffer, d.byteOffset, d.byteLength);
 		}
 		return null;
 	}
