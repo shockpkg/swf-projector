@@ -40,6 +40,9 @@ import {
 	macProjectTitlePatchesByCpuType
 } from './internal/mac/title';
 
+/**
+ * Mach-O Type.
+ */
 export interface IMachoType {
 	/**
 	 * CPU type.
@@ -256,6 +259,9 @@ export function machoThins<T extends Readonly<Uint8Array>>(data: T) {
 	return r;
 }
 
+/**
+ * Mac projector patch.
+ */
 export interface IMacProjectorMachoPatch {
 	/**
 	 * Remove signature if present and true.

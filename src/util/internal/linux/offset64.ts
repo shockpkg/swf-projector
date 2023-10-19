@@ -5,6 +5,9 @@ import {patchHexToBytes, writeFuzzy} from '../patch';
 import {Elf64} from './elf';
 import {Patch} from './patch';
 
+/**
+ * Patch offset 64-bit spec.
+ */
 export interface IPatchOffset64Spec {
 	/**
 	 * Fuzzy find.

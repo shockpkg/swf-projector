@@ -3,6 +3,9 @@ import {patchHexToBytes, writeFuzzy} from '../patch';
 import {Elf32, Elf64} from './elf';
 import {Patch} from './patch';
 
+/**
+ * Patch menu spec.
+ */
 export interface IPatchMenuSpec {
 	/**
 	 * Expected number of replacements.

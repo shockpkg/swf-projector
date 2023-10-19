@@ -264,6 +264,9 @@ function linuxProjectorAddSection(
 	return dataSection;
 }
 
+/**
+ * Linux projector patch.
+ */
 export interface ILinuxProjectorPatch {
 	/**
 	 * Attempt to replace the window title if not null.

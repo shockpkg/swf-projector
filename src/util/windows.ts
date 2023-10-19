@@ -27,7 +27,10 @@ import {
 	patchWindowTitleRsrc
 } from './internal/windows/title';
 
-export interface IWindowsPatchProjector {
+/**
+ * Windows projector patch.
+ */
+export interface IWindowsProjectorPatch {
 	/**
 	 * Replace icons if not null.
 	 *
@@ -73,7 +76,7 @@ export interface IWindowsPatchProjector {
  */
 export function windowsProjectorPatch(
 	data: Readonly<Uint8Array>,
-	options: Readonly<IWindowsPatchProjector>
+	options: Readonly<IWindowsProjectorPatch>
 ) {
 	const {
 		iconData,
