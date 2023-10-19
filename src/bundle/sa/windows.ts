@@ -1,4 +1,4 @@
-import {mkdir, open, writeFile} from 'node:fs/promises';
+import {mkdir, open, readFile, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
 import {trimExtension} from '../../util';
@@ -76,14 +76,16 @@ export class BundleSaWindows extends BundleSa {
 		}
 
 		const machine = v.getUint16(0, true);
+		// eslint-disable-next-line jsdoc/require-jsdoc
+		const res = async () => readFile(projector.path);
 		let launcher = null;
 		switch (machine) {
 			case 0x14c: {
-				launcher = await windowsLauncher('i686', projector.path);
+				launcher = await windowsLauncher('i686', res);
 				break;
 			}
 			case 0x8664: {
-				launcher = await windowsLauncher('x86_64', projector.path);
+				launcher = await windowsLauncher('x86_64', res);
 				break;
 			}
 			default: {
