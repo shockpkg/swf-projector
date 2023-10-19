@@ -3,6 +3,25 @@ import {inflateRaw} from 'node:zlib';
 import {LAUNCHERS} from './launchers';
 
 /**
+ * HTML encode.
+ *
+ * @param s Raw strings.
+ * @param dq Double quotes.
+ * @param sq Single quotes.
+ * @returns Encoded strings.
+ */
+export function htmlEncode(s: string, dq = false, sq = false) {
+	s = s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+	if (dq) {
+		s = s.replace(/"/g, '&quot;');
+	}
+	if (sq) {
+		s = s.replace(/'/g, '&#39;');
+	}
+	return s;
+}
+
+/**
  * Trim dot slash from head of path.
  *
  * @param path Path string.
