@@ -700,7 +700,6 @@ export const macProjectTitlePatches: {
 export const macProjectTitlePatchesByCpuType = once(() => {
 	const r = new Map<number, (typeof macProjectTitlePatches)[0][]>();
 	for (const Patcher of macProjectTitlePatches) {
-		// eslint-disable-next-line @typescript-eslint/naming-convention
 		const {CPU_TYPE} = Patcher;
 		const list = r.get(CPU_TYPE) || [];
 		list.push(Patcher);

@@ -14,9 +14,7 @@ import {pipeline} from 'node:stream/promises';
 import {join as pathJoin, dirname, basename, resolve} from 'node:path';
 
 import {
-	fsLchmodSupported,
 	fsLchmod,
-	fsLutimesSupported,
 	fsLutimes,
 	fsWalk,
 	fsLstatExists
@@ -468,12 +466,13 @@ export abstract class Bundle {
 			}
 			return;
 		}
-		for (const p of [this.path, this.resourcePath('')]) {
-			// eslint-disable-next-line no-await-in-loop
-			if (await fsLstatExists(p)) {
-				throw new Error(`Output path already exists: ${p}`);
-			}
-		}
+		await Promise.all(
+			[this.path, this.resourcePath('')].map(async p => {
+				if (await fsLstatExists(p)) {
+					throw new Error(`Output path already exists: ${p}`);
+				}
+			})
+		);
 	}
 
 	/**
@@ -521,14 +520,9 @@ export abstract class Bundle {
 		const {atime, mtime, executable} = options;
 		const st = await lstat(path);
 
-		// Maybe set executable if not a directory and supported.
+		// Maybe set executable if not a directory.
 		if (typeof executable === 'boolean' && !st.isDirectory()) {
-			if (!st.isSymbolicLink()) {
-				await chmod(
-					path,
-					this._setResourceModeExecutable(st.mode, executable)
-				);
-			} else if (fsLchmodSupported) {
+			if (st.isSymbolicLink()) {
 				await fsLchmod(
 					path,
 					this._setResourceModeExecutable(
@@ -538,15 +532,20 @@ export abstract class Bundle {
 						executable
 					)
 				);
+			} else {
+				await chmod(
+					path,
+					this._setResourceModeExecutable(st.mode, executable)
+				);
 			}
 		}
 
-		// Maybe change times if either is set and supported.
+		// Maybe change times if either is set.
 		if (atime || mtime) {
-			if (!st.isSymbolicLink()) {
-				await utimes(path, atime || st.atime, mtime || st.mtime);
-			} else if (fsLutimesSupported) {
+			if (st.isSymbolicLink()) {
 				await fsLutimes(path, atime || st.atime, mtime || st.mtime);
+			} else {
+				await utimes(path, atime || st.atime, mtime || st.mtime);
 			}
 		}
 	}
@@ -575,7 +574,7 @@ export abstract class Bundle {
 	}
 
 	/**
-	 * Open output with data.
+	 * Open output.
 	 */
 	protected async _open() {
 		await this.projector.write();
