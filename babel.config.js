@@ -40,7 +40,7 @@ const asms = (dirs => {
 	const r = [];
 	for (const dir of dirs) {
 		const d = {};
-		for (const f of readdirSync(dir)) {
+		for (const f of readdirSync(dir).sort()) {
 			const m = f.match(/^([^.].*)\.asm$/);
 			if (m) {
 				d[m[1]] = parse(readFileSync(`${dir}/${f}`, 'utf8'));
