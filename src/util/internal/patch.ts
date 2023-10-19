@@ -34,7 +34,7 @@ export function* findExact(
  */
 export function* findFuzzy(
 	data: Readonly<Uint8Array>,
-	find: (number | null)[],
+	find: number[],
 	from = 0,
 	until = -1,
 	backward = false
@@ -46,7 +46,7 @@ export function* findFuzzy(
 		let found = true;
 		for (let j = 0; j < find.length; j++) {
 			const b = find[j];
-			if (b !== null && data[i + j] !== b) {
+			if (!(b < 0) && data[i + j] !== b) {
 				found = false;
 				break;
 			}
@@ -64,10 +64,7 @@ export function* findFuzzy(
  * @param fuzzy Fuzzy data.
  * @returns Index or null.
  */
-export function findFuzzyOnce(
-	data: Readonly<Uint8Array>,
-	fuzzy: (number | null)[]
-) {
+export function findFuzzyOnce(data: Readonly<Uint8Array>, fuzzy: number[]) {
 	let r = null;
 	for (const found of findFuzzy(data, fuzzy)) {
 		if (r !== null) {
@@ -85,14 +82,10 @@ export function findFuzzyOnce(
  * @param offset Offset to write at.
  * @param fuzzy The similar data.
  */
-export function writeFuzzy(
-	data: Uint8Array,
-	offset: number,
-	fuzzy: (number | null)[]
-) {
+export function writeFuzzy(data: Uint8Array, offset: number, fuzzy: number[]) {
 	for (let i = 0; i < fuzzy.length; i++) {
 		const b = fuzzy[i];
-		if (b !== null) {
+		if (!(b < 0)) {
 			data[offset + i] = b;
 		}
 	}
@@ -109,7 +102,7 @@ export function patchHexToBytes(str: string) {
 		if (s.length !== 2) {
 			throw new Error('Internal error');
 		}
-		return /^[0-9A-F]{2}$/i.test(s) ? parseInt(s, 16) : null;
+		return /^[0-9A-F]{2}$/i.test(s) ? parseInt(s, 16) : -1;
 	});
 }
 
@@ -124,8 +117,8 @@ export function patchGroupOffsets(
 	data: Readonly<Uint8Array>,
 	patches: {
 		count: number;
-		find: (number | null)[];
-		replace: (number | null)[];
+		find: number[];
+		replace: number[];
 	}[]
 ) {
 	const offsets = [];
@@ -150,8 +143,8 @@ export function patchOnce(
 	data: Uint8Array,
 	patches: {
 		count: number;
-		find: (number | null)[];
-		replace: (number | null)[];
+		find: number[];
+		replace: number[];
 	}[][],
 	type: string
 ) {

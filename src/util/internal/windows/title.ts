@@ -175,10 +175,10 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 	if (newHeader.is32bit()) {
 		const {imageBase} = newHeader.optionalHeader;
 		const oldA = imageBase + oldAddress;
-		const patches: [number, (number | null)[]][] = [
+		const patches: [number, number[]][] = [
 			// All versions.
 			// push    ...
-			[1, [0x68, null, null, null, null]]
+			[1, [0x68, -1, -1, -1, -1]]
 		];
 		for (const [o, patch] of patches) {
 			for (const i of findFuzzy(data, patch)) {
@@ -192,10 +192,10 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 			}
 		}
 	} else {
-		const patches: [number, (number | null)[]][] = [
+		const patches: [number, number[]][] = [
 			// All versions.
 			// lea     r9, [rip+...]
-			[3, [0x4c, 0x8d, 0x0d, null, null, null, null]]
+			[3, [0x4c, 0x8d, 0x0d, -1, -1, -1, -1]]
 		];
 		for (const [o, patch] of patches) {
 			const l = patch.length;
