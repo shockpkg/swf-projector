@@ -324,7 +324,7 @@ Required in Flash Player 6 and Flash Player 10.1+ to load relative paths (other 
 
 Projectors version 9+ create the main URL with: `"file:" + argv[0]` resolving to a bad URL like `file://file|%2Fpath%2Fto%2Fapplication` causing relative paths to load from the root of the drive. For such projectors this patch replaces the string reference to use `"file://" + argv[0]` instead, which resolves to `file:///path/to/application` when run by an absolute path.
 
-Projector version 6 would use the current working directory for the main URL, causing relative paths to start in the directory above the. For such projectors this patch replaces the directory string reference to use `argv[0]` instead.
+Projector version 6 would use the current working directory for the main URL, causing relative paths to start in the directory above the projector binary. For such projectors this patch replaces the directory string reference to use `argv[0]` instead.
 
 Not a perfect patch because it does not resolve the full path first, if run from relative path would get path like `file://./application`, but an improvement. Recommended to use a shell script or binary that resolves itself and runs projector from an absolute path. Using a (non-flat) Bundle does this automatically.
 
