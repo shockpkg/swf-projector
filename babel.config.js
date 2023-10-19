@@ -29,10 +29,11 @@ const asms = (dirs => {
 		const b = [];
 		for (const line of s.split(/[\r\n]+/)) {
 			const [s] = line.trim().split('  ');
-			if (s) {
-				for (const h of s.split(' ')) {
-					b.push(/^[0-9A-F]{2}$/i.test(h) ? parseInt(h, 16) : -1);
-				}
+			if (!s) {
+				continue;
+			}
+			for (const h of s.split(' ')) {
+				b.push(/^[0-9A-F]{2}$/i.test(h) ? parseInt(h, 16) : -1);
 			}
 		}
 		return b;
