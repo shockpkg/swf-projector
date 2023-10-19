@@ -19,9 +19,10 @@ export class BundleSaWindows extends BundleSa {
 	 * BundleSaWindows constructor.
 	 *
 	 * @param path Output path for the main application.
+	 * @param flat Flat bundle.
 	 */
-	constructor(path: string) {
-		super(path);
+	constructor(path: string, flat = false) {
+		super(path, flat);
 
 		this.projector = this._createProjector();
 	}
@@ -36,17 +37,24 @@ export class BundleSaWindows extends BundleSa {
 	}
 
 	/**
-	 * Create projector instance for the bundle.
-	 *
-	 * @returns Projector instance.
+	 * @inheritdoc
 	 */
-	protected _createProjector() {
+	protected _getProjectorPathNested(): string {
 		const {path, extension} = this;
 		const directory = trimExtension(path, extension, true);
 		if (directory === path) {
 			throw new Error(`Output path must end with: ${extension}`);
 		}
-		return new ProjectorSaWindows(pathJoin(directory, basename(path)));
+		return pathJoin(directory, basename(path));
+	}
+
+	/**
+	 * Create projector instance for the bundle.
+	 *
+	 * @returns Projector instance.
+	 */
+	protected _createProjector() {
+		return new ProjectorSaWindows(this._getProjectorPath());
 	}
 
 	/**

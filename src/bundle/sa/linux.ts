@@ -19,9 +19,10 @@ export class BundleSaLinux extends BundleSa {
 	 * BundleSaLinux constructor.
 	 *
 	 * @param path Output path for the main application.
+	 * @param flat Flat bundle.
 	 */
-	constructor(path: string) {
-		super(path);
+	constructor(path: string, flat = false) {
+		super(path, flat);
 
 		this.projector = this._createProjector();
 	}
@@ -36,13 +37,20 @@ export class BundleSaLinux extends BundleSa {
 	}
 
 	/**
+	 * @inheritdoc
+	 */
+	protected _getProjectorPathNested(): string {
+		const {path} = this;
+		return pathJoin(`${path}.data`, basename(path));
+	}
+
+	/**
 	 * Create projector instance for the bundle.
 	 *
 	 * @returns Projector instance.
 	 */
 	protected _createProjector() {
-		const {path} = this;
-		return new ProjectorSaLinux(pathJoin(`${path}.data`, basename(path)));
+		return new ProjectorSaLinux(this._getProjectorPath());
 	}
 
 	/**

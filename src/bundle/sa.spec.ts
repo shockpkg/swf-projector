@@ -9,8 +9,8 @@ import {BundleSa} from './sa';
 export class BundleSaDummy extends BundleSa {
 	public readonly projector: ProjectorSaDummy;
 
-	constructor(path: string) {
-		super(path);
+	constructor(path: string, flat = false) {
+		super(path, flat);
 
 		this.projector = this._createProjector();
 	}
@@ -19,13 +19,17 @@ export class BundleSaDummy extends BundleSa {
 		return '.exe';
 	}
 
-	protected _createProjector() {
+	protected _getProjectorPathNested(): string {
 		const {path, extension} = this;
 		const directory = trimExtension(path, extension, true);
 		if (directory === path) {
 			throw new Error(`Output path must end with: ${extension}`);
 		}
-		return new ProjectorSaDummy(pathJoin(directory, basename(path)));
+		return pathJoin(directory, basename(path));
+	}
+
+	protected _createProjector() {
+		return new ProjectorSaDummy(this._getProjectorPath());
 	}
 
 	protected async _writeLauncher() {

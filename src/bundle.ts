@@ -3,6 +3,7 @@ import {
 	chmod,
 	lstat,
 	mkdir,
+	readdir,
 	readlink,
 	stat,
 	symlink,
@@ -86,6 +87,11 @@ export abstract class Bundle {
 	public readonly path: string;
 
 	/**
+	 * Flat bundle.
+	 */
+	public readonly flat: boolean;
+
+	/**
 	 * Projector instance.
 	 */
 	public abstract readonly projector: Projector;
@@ -104,9 +110,11 @@ export abstract class Bundle {
 	 * Bundle constructor.
 	 *
 	 * @param path Output path for the main executable.
+	 * @param flat Flat bundle.
 	 */
-	constructor(path: string) {
+	constructor(path: string, flat = false) {
 		this.path = path;
+		this.flat = flat;
 	}
 
 	/**
@@ -449,6 +457,17 @@ export abstract class Bundle {
 	 * Check that output path is valid, else throws.
 	 */
 	protected async _checkOutput() {
+		if (this.flat) {
+			const p = dirname(this.path);
+			if (await fsLstatExists(p)) {
+				for (const n of await readdir(p)) {
+					if (!this.isExcludedFile(n)) {
+						throw new Error(`Output path not empty: ${p}`);
+					}
+				}
+			}
+			return;
+		}
 		for (const p of [this.path, this.resourcePath('')]) {
 			// eslint-disable-next-line no-await-in-loop
 			if (await fsLstatExists(p)) {
@@ -596,4 +615,27 @@ export abstract class Bundle {
 		}
 		return dest;
 	}
+
+	/**
+	 * Get the projector path.
+	 *
+	 * @returns This path or the nested path.
+	 */
+	protected _getProjectorPath() {
+		return this.flat ? this.path : this._getProjectorPathNested();
+	}
+
+	/**
+	 * Get nested projector path.
+	 *
+	 * @returns Output path.
+	 */
+	protected abstract _getProjectorPathNested(): string;
+
+	/**
+	 * Create projector instance for the bundle.
+	 *
+	 * @returns Projector instance.
+	 */
+	protected abstract _createProjector(): Projector;
 }

@@ -246,5 +246,17 @@ void describe('bundle', () => {
 			strictEqual((await st('d/a.txt')).isFile(), true);
 			strictEqual((await st('d/b.txt')).isFile(), true);
 		});
+
+		void it('flat', async () => {
+			const dir = await getDir('flat');
+			const dest = pathJoin(dir, 'application.exe');
+
+			const b = new BundleSaDummy(dest, true);
+			b.projector.player = fixtureFile('dummy.exe');
+			b.projector.movieFile = fixtureFile('swf3.swf');
+			await b.write(async p => {
+				await p.createResourceFile('resource.txt', 'testing123');
+			});
+		});
 	});
 });

@@ -14,16 +14,19 @@ export abstract class BundleSa extends Bundle {
 	 * BundleSa constructor.
 	 *
 	 * @param path Output path.
+	 * @param flat Flat bundle.
 	 */
-	constructor(path: string) {
-		super(path);
+	constructor(path: string, flat = false) {
+		super(path, flat);
 	}
 
 	/**
 	 * @inheritdoc
 	 */
 	protected async _close(): Promise<void> {
-		await this._writeLauncher();
+		if (!this.flat) {
+			await this._writeLauncher();
+		}
 		await super._close();
 	}
 

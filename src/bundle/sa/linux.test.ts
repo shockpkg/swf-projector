@@ -70,6 +70,35 @@ void describe('bundle/sa/linux', () => {
 						);
 					});
 				});
+
+				void it('flat', async () => {
+					const dir = await getDir('flat');
+					const dest = pathJoin(dir, 'application');
+
+					const b = new BundleSaLinux(dest, true);
+					b.projector.patchProjectorOffset = pkg.patchProjectorOffset;
+					b.projector.patchProjectorPath = true;
+					b.projector.player = await getPlayer();
+					b.projector.movieData = loader(
+						6,
+						600,
+						400,
+						30,
+						0xffffff,
+						'main.swf',
+						30 / 2
+					);
+					await b.write(async b => {
+						await b.copyResource(
+							'main.swf',
+							fixtureFile('swf6-loadmovie.swf')
+						);
+						await b.copyResource(
+							'image.jpg',
+							fixtureFile('image.jpg')
+						);
+					});
+				});
 			});
 		}
 	});

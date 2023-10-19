@@ -22,9 +22,10 @@ export class BundleSaMac extends BundleSa {
 	 * BundleSaMac constructor.
 	 *
 	 * @param path Output path for the main application.
+	 * @param flat Flat bundle.
 	 */
-	constructor(path: string) {
-		super(path);
+	constructor(path: string, flat = false) {
+		super(path, flat);
 
 		this.projector = this._createProjector();
 	}
@@ -48,14 +49,20 @@ export class BundleSaMac extends BundleSa {
 	}
 
 	/**
+	 *@inheritdoc
+	 */
+	protected _getProjectorPathNested(): string {
+		const projName = `${this._getLauncherName()}${this.extension}`;
+		return pathJoin(this.path, 'Contents', 'Resources', projName);
+	}
+
+	/**
 	 * Create projector instance for the bundle.
 	 *
 	 * @returns Projector instance.
 	 */
 	protected _createProjector() {
-		const projName = `${this._getLauncherName()}${this.extension}`;
-		const projPath = pathJoin(this.path, 'Contents', 'Resources', projName);
-		return new ProjectorSaMac(projPath);
+		return new ProjectorSaMac(this._getProjectorPath());
 	}
 
 	/**

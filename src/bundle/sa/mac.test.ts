@@ -77,6 +77,33 @@ void describe('bundle/sa/mac', () => {
 						);
 					});
 				});
+
+				void it('flat', async () => {
+					const dir = await getDir('flat');
+					const dest = pathJoin(dir, 'application.app');
+
+					const b = new BundleSaMac(dest, true);
+					b.projector.removeCodeSignature = true;
+					b.projector.player = await getPlayer();
+					b.projector.movieData = loader(
+						6,
+						600,
+						400,
+						30,
+						0xffffff,
+						'main.swf'
+					);
+					await b.write(async b => {
+						await b.copyResource(
+							'main.swf',
+							fixtureFile('swf6-loadmovie.swf')
+						);
+						await b.copyResource(
+							'image.jpg',
+							fixtureFile('image.jpg')
+						);
+					});
+				});
 			});
 		}
 	});
