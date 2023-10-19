@@ -53,9 +53,17 @@ export function getInstalledPackagesSync() {
 				if (d.name.startsWith('.') || !d.isDirectory()) {
 					continue;
 				}
-				const st = statSync(`${dir}/${d.name}/.shockpkg/package.json`);
-				if (st.isFile()) {
-					getInstalledPackagesCache.push(d.name);
+				try {
+					const st = statSync(
+						`${dir}/${d.name}/.shockpkg/package.json`
+					);
+					if (st.isFile()) {
+						getInstalledPackagesCache.push(d.name);
+					}
+				} catch (err) {
+					if (!(err && (err as {code: string}).code === 'ENOENT')) {
+						throw err;
+					}
 				}
 			}
 		} catch (err) {
