@@ -116,9 +116,7 @@ export class ProjectorSaMac extends ProjectorSa {
 	}
 
 	/**
-	 * Projector file extension.
-	 *
-	 * @returns File extension.
+	 * @inheritdoc
 	 */
 	public get extension() {
 		return '.app';
@@ -318,9 +316,7 @@ export class ProjectorSaMac extends ProjectorSa {
 	}
 
 	/**
-	 * Write the projector player.
-	 *
-	 * @param player Player path.
+	 * @inheritdoc
 	 */
 	protected async _writePlayer(player: string) {
 		const {path, extension} = this;

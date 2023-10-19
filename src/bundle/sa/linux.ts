@@ -28,9 +28,7 @@ export class BundleSaLinux extends BundleSa {
 	}
 
 	/**
-	 * Main application file extension.
-	 *
-	 * @returns File extension.
+	 * @inheritdoc
 	 */
 	public get extension() {
 		return '';
@@ -45,16 +43,14 @@ export class BundleSaLinux extends BundleSa {
 	}
 
 	/**
-	 * Create projector instance for the bundle.
-	 *
-	 * @returns Projector instance.
+	 * @inheritdoc
 	 */
 	protected _createProjector() {
 		return new ProjectorSaLinux(this._getProjectorPath());
 	}
 
 	/**
-	 * Write the launcher file.
+	 * @inheritdoc
 	 */
 	protected async _writeLauncher() {
 		const {path, projector} = this;

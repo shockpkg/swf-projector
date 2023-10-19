@@ -51,9 +51,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 	}
 
 	/**
-	 * Projector file extension.
-	 *
-	 * @returns File extension.
+	 * @inheritdoc
 	 */
 	public get extension() {
 		return '';
@@ -69,9 +67,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 	}
 
 	/**
-	 * Write the projector player.
-	 *
-	 * @param player Player path.
+	 * @inheritdoc
 	 */
 	protected async _writePlayer(player: string) {
 		const {path} = this;

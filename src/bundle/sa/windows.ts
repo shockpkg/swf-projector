@@ -28,9 +28,7 @@ export class BundleSaWindows extends BundleSa {
 	}
 
 	/**
-	 * Main application file extension.
-	 *
-	 * @returns File extension.
+	 * @inheritdoc
 	 */
 	public get extension() {
 		return '.exe';
@@ -49,16 +47,14 @@ export class BundleSaWindows extends BundleSa {
 	}
 
 	/**
-	 * Create projector instance for the bundle.
-	 *
-	 * @returns Projector instance.
+	 * @inheritdoc
 	 */
 	protected _createProjector() {
 		return new ProjectorSaWindows(this._getProjectorPath());
 	}
 
 	/**
-	 * Write the launcher file.
+	 * @inheritdoc
 	 */
 	protected async _writeLauncher() {
 		const {path, projector} = this;

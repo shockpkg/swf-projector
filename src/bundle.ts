@@ -151,7 +151,7 @@ export abstract class Bundle {
 		await this._checkOutput();
 
 		this._closeQueue.clear();
-		await this._openData();
+		await this._open();
 
 		this._isOpen = true;
 	}
@@ -577,7 +577,7 @@ export abstract class Bundle {
 	/**
 	 * Open output with data.
 	 */
-	protected async _openData() {
+	protected async _open() {
 		await this.projector.write();
 	}
 

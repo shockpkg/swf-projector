@@ -29,19 +29,12 @@ export abstract class ProjectorSa extends Projector {
 	public movieFile: string | null = null;
 
 	/**
-	 * Output path.
-	 */
-	public readonly path: string;
-
-	/**
 	 * ProjectorSa constructor.
 	 *
 	 * @param path Output path.
 	 */
 	constructor(path: string) {
 		super(path);
-
-		this.path = path;
 	}
 
 	/**
@@ -54,7 +47,7 @@ export abstract class ProjectorSa extends Projector {
 	}
 
 	/**
-	 * Write out the projector.
+	 * @inheritdoc
 	 */
 	public async write() {
 		const {player} = this;
