@@ -121,6 +121,7 @@ export abstract class ProjectorSa extends Projector {
 				}
 				case 'i':
 				case 'I': {
+					// 32-bit integer, sign extended to 64-bit.
 					const b = new ArrayBuffer(8);
 					const v = new DataView(b);
 					const {movieMagic} = this;
