@@ -108,7 +108,7 @@ export function machoTypesData(data: Readonly<Uint8Array>) {
 			return type(4);
 		}
 		default: {
-			throw new Error(`Unknown header magic: 0x${magic.toString(16)}`);
+			throw new Error(`Unknown header magic: 0x${hex4(magic)}`);
 		}
 	}
 }
@@ -653,7 +653,7 @@ export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
 			break;
 		}
 		default: {
-			throw new Error(`Unknown CPU type: 0x${cpuType.toString(16)}`);
+			throw new Error(`Unknown CPU type: 0x${hex4(cpuType)}`);
 		}
 	}
 	return launcher(id);
