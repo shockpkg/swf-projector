@@ -72,25 +72,25 @@ const swf5 = [
 ].join(' ');
 
 const swf5Complex = [
-	// Magic 'SWF'.
+	// Magic 'SWF'
 	'46 57 53',
-	// Version.
+	// Version
 	'05',
-	// Size.
+	// Size
 	'47 00 00 00',
-	// Frame size.
+	// Frame size
 	'78 00 05 DD 40 00 0F A5 00',
-	// Frame rate.
+	// Frame rate
 	'80 1E',
-	// Frame count.
+	// Frame count
 	'03 00',
-	// SetBackgroundColor.
+	// SetBackgroundColor
 	'43 02 33 66 99',
-	// ShowFrame.
+	// ShowFrame
 	'40 00',
-	// ShowFrame.
+	// ShowFrame
 	'40 00',
-	// DoAction.
+	// DoAction
 	'23 03',
 	// > constants 'other.swf', '_level0'
 	'88 14 00 02 00 6F 74 68 65 72 2E 73 77 66 00 5F 6C 65 76 65 6C 30 00',
@@ -100,9 +100,9 @@ const swf5Complex = [
 	'9A 01 00 40',
 	// > end
 	'00',
-	// ShowFrame.
+	// ShowFrame
 	'40 00',
-	// End.
+	// End
 	'00 00'
 ].join(' ');
 
