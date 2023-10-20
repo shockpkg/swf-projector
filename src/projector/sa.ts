@@ -151,7 +151,11 @@ export abstract class ProjectorSa extends Projector {
 					// 64-bit, just write 32-bit, SWF cannot be larger.
 					const b = new ArrayBuffer(8);
 					const v = new DataView(b);
-					v.setUint32(0, data.length, c === 'l');
+					if (c === 'l') {
+						v.setUint32(0, data.length, true);
+					} else {
+						v.setUint32(4, data.length, false);
+					}
 					buffers.push(new Uint8Array(b));
 					break;
 				}
