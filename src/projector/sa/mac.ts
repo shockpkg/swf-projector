@@ -605,14 +605,10 @@ export class ProjectorSaMac extends ProjectorSa {
 		if (appIconName) {
 			dict.set('CFBundleIconFile', new ValueString(appIconName));
 		} else if (fixBrokenIconPaths) {
-			const iconFile = dict
-				.getValue('CFBundleIconFile')
-				.castAs(ValueString).value;
+			const key = 'CFBundleIconFile';
+			const iconFile = dict.getValue(key).castAs(ValueString).value;
 			if (!iconFile.includes('.')) {
-				dict.set(
-					'CFBundleIconFile',
-					new ValueString(`${iconFile}.icns`)
-				);
+				dict.set(key, new ValueString(`${iconFile}.icns`));
 			}
 		}
 		if (binaryName) {
