@@ -602,10 +602,8 @@ export class ProjectorSaMac extends ProjectorSa {
 		plist.fromXml(xml);
 		const dict = plist.getValue().castAs(ValueDict);
 
-		let changed = false;
 		if (appIconName) {
 			dict.set('CFBundleIconFile', new ValueString(appIconName));
-			changed = true;
 		} else if (fixBrokenIconPaths) {
 			const iconFile = dict
 				.getValue('CFBundleIconFile')
@@ -615,12 +613,10 @@ export class ProjectorSaMac extends ProjectorSa {
 					'CFBundleIconFile',
 					new ValueString(`${iconFile}.icns`)
 				);
-				changed = true;
 			}
 		}
 		if (binaryName) {
 			dict.set('CFBundleExecutable', new ValueString(binaryName));
-			changed = true;
 		}
 		if (bundleName !== false) {
 			const key = 'CFBundleName';
@@ -629,13 +625,11 @@ export class ProjectorSaMac extends ProjectorSa {
 			} else {
 				dict.set(key, new ValueString(bundleName));
 			}
-			changed = true;
 		}
 		if (removeFileAssociations) {
 			dict.delete('CFBundleDocumentTypes');
-			changed = true;
 		}
 
-		return changed ? plist.toXml() : null;
+		return plist.toXml();
 	}
 }
