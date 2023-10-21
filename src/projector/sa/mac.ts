@@ -382,7 +382,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	 * @inheritDoc
 	 */
 	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
-		await this._fixPlayerIconPath();
 		await this._removeInfoPlistStrings();
 		await this._patchProjector();
 		await this._replaceIcon();
@@ -447,39 +446,6 @@ export class ProjectorSaMac extends ProjectorSa {
 		}
 
 		await writeFile(this.moviePath, movieData);
-	}
-
-	/**
-	 * Fix the icon path in some old projectors.
-	 */
-	protected async _fixPlayerIconPath() {
-		const {fixBrokenIconPaths} = this;
-		if (!fixBrokenIconPaths) {
-			return;
-		}
-
-		const plist = new Plist();
-		plist.fromXml(await readFile(this.infoPlistPath, 'utf8'));
-		const dict = plist.getValue().castAs(ValueDict);
-
-		// Add the icon extension or skip if present.
-		const iconFile = dict
-			.getValue('CFBundleIconFile')
-			.castAs(ValueString).value;
-		if (iconFile.includes('.')) {
-			return;
-		}
-		dict.set('CFBundleIconFile', new ValueString(`${iconFile}.icns`));
-
-		const path = this.infoPlistPath;
-		const xml = plist.toXml();
-		if (xml === null) {
-			return;
-		}
-
-		await rm(path, {force: true});
-		await mkdir(dirname(path), {recursive: true});
-		await writeFile(path, xml, 'utf8');
 	}
 
 	/**
@@ -610,9 +576,15 @@ export class ProjectorSaMac extends ProjectorSa {
 	protected async _generateInfoPlist() {
 		const customPlist = await this.getInfoPlistData();
 		const bundleName = this.getBundleName();
-		const {binaryName, appIconName, removeFileAssociations} = this;
+		const {
+			fixBrokenIconPaths,
+			binaryName,
+			appIconName,
+			removeFileAssociations
+		} = this;
 		if (
 			!(
+				fixBrokenIconPaths ||
 				customPlist !== null ||
 				appIconName ||
 				binaryName ||
@@ -630,11 +602,25 @@ export class ProjectorSaMac extends ProjectorSa {
 		plist.fromXml(xml);
 		const dict = plist.getValue().castAs(ValueDict);
 
+		let changed = false;
 		if (appIconName) {
 			dict.set('CFBundleIconFile', new ValueString(appIconName));
+			changed = true;
+		} else if (fixBrokenIconPaths) {
+			const iconFile = dict
+				.getValue('CFBundleIconFile')
+				.castAs(ValueString).value;
+			if (!iconFile.includes('.')) {
+				dict.set(
+					'CFBundleIconFile',
+					new ValueString(`${iconFile}.icns`)
+				);
+				changed = true;
+			}
 		}
 		if (binaryName) {
 			dict.set('CFBundleExecutable', new ValueString(binaryName));
+			changed = true;
 		}
 		if (bundleName !== false) {
 			const key = 'CFBundleName';
@@ -643,11 +629,13 @@ export class ProjectorSaMac extends ProjectorSa {
 			} else {
 				dict.set(key, new ValueString(bundleName));
 			}
+			changed = true;
 		}
 		if (removeFileAssociations) {
 			dict.delete('CFBundleDocumentTypes');
+			changed = true;
 		}
 
-		return plist.toXml();
+		return changed ? plist.toXml() : null;
 	}
 }
