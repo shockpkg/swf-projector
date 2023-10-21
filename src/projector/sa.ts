@@ -6,6 +6,45 @@ import {concat} from '../util/internal/data';
 import {Projector} from '../projector';
 
 /**
+ * File patch.
+ */
+export interface IFilePatch {
+	/**
+	 * Check if player file path matches.
+	 *
+	 * @param file File path.
+	 * @returns If matched.
+	 */
+	match: (file: string) => boolean;
+
+	/**
+	 * Modify data, possibly inplace.
+	 *
+	 * @param data The data to modify.
+	 * @returns Modified data.
+	 */
+	modify: (data: Uint8Array) => Promise<Uint8Array> | Uint8Array;
+
+	/**
+	 * Run after all patches.
+	 */
+	after: () => Promise<void> | void;
+}
+
+/**
+ * File filter.
+ */
+export interface IFileFilter {
+	/**
+	 * Check if player file path matches.
+	 *
+	 * @param file File path.
+	 * @returns If excluded.
+	 */
+	match: (file: string) => boolean;
+}
+
+/**
  * ProjectorSa object.
  */
 export abstract class ProjectorSa extends Projector {

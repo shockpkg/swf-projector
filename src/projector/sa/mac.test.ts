@@ -54,20 +54,6 @@ void describe('projector/sa/mac', () => {
 					await p.write();
 				});
 
-				if (pkg.fixBrokenIconPaths) {
-					void it('fixBrokenIconPaths', async () => {
-						const dir = await getDir('fixBrokenIconPaths');
-						const dest = pathJoin(dir, 'application.app');
-
-						const p = new ProjectorSaMac(dest);
-						p.fixBrokenIconPaths = true;
-						p.removeCodeSignature = true;
-						p.player = await getPlayer();
-						p.movieFile = fixtureFile('swf3.swf');
-						await p.write();
-					});
-				}
-
 				void it('removeFileAssociations', async () => {
 					const dir = await getDir('removeFileAssociations');
 					const dest = pathJoin(dir, 'application.app');
