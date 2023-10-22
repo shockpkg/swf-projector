@@ -448,56 +448,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	}
 
 	/**
-	 * Generate Info.plist XML string, if any.
-	 *
-	 * @returns XML string or null.
-	 */
-	protected async _generateInfoPlist() {
-		const customPlist = await this.getInfoPlistData();
-		const bundleName = this.getBundleName();
-		const {binaryName, appIconName, removeFileAssociations} = this;
-		if (
-			!(
-				customPlist !== null ||
-				appIconName ||
-				binaryName ||
-				bundleName !== false ||
-				removeFileAssociations
-			)
-		) {
-			return null;
-		}
-
-		// Use a custom plist or the existing one.
-		const xml = customPlist ?? (await readFile(this.infoPlistPath, 'utf8'));
-
-		const plist = new Plist();
-		plist.fromXml(xml);
-		const dict = plist.getValue().castAs(ValueDict);
-
-		if (appIconName) {
-			dict.set('CFBundleIconFile', new ValueString(appIconName));
-		}
-		if (binaryName) {
-			const key = 'CFBundleExecutable';
-			dict.set(key, new ValueString(binaryName));
-		}
-		if (bundleName !== false) {
-			const key = 'CFBundleName';
-			if (bundleName === null) {
-				dict.delete(key);
-			} else {
-				dict.set(key, new ValueString(bundleName));
-			}
-		}
-		if (removeFileAssociations) {
-			dict.delete('CFBundleDocumentTypes');
-		}
-
-		return plist.toXml();
-	}
-
-	/**
 	 * Get filters to apply.
 	 *
 	 * @returns Filter list.
@@ -516,7 +466,8 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @returns Filter spec.
 	 */
-	protected _getFilterInfoPlistStrings() {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	protected async _getFilterInfoPlistStrings() {
 		const {removeInfoPlistStrings} = this;
 		if (!removeInfoPlistStrings) {
 			return null;
@@ -534,7 +485,8 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @returns Filter spec.
 	 */
-	protected _getFilterCodeSignature() {
+	// eslint-disable-next-line @typescript-eslint/require-await
+	protected async _getFilterCodeSignature() {
 		const {removeCodeSignature} = this;
 		if (!removeCodeSignature) {
 			return null;
@@ -557,7 +509,6 @@ export class ProjectorSaMac extends ProjectorSa {
 		return (
 			await Promise.all([
 				this._getPatchBinary(),
-				// this._getPatchIcon(),
 				this._getPatchPkgInfo(),
 				this._getPatchInfoPlist()
 			])
@@ -605,8 +556,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getPatchBinary() {
 		const {removeCodeSignature, patchWindowTitle} = this;
-
-		// Skip if no patching was requested.
 		if (!(removeCodeSignature || patchWindowTitle !== null)) {
 			return null;
 		}
@@ -658,6 +607,9 @@ export class ProjectorSaMac extends ProjectorSa {
 			bundleName !== false ||
 			removeFileAssociations
 		);
+		if (!modifyPlist && !iconData) {
+			return null;
+		}
 
 		let count = 0;
 		let xmlOld: string | null = '';
