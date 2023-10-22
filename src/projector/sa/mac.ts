@@ -527,14 +527,22 @@ export class ProjectorSaMac extends ProjectorSa {
 
 		let count = 0;
 		const patch: IFilePatch = {
-			// eslint-disable-next-line jsdoc/require-jsdoc
+			/**
+			 * @inheritdoc
+			 */
 			match: (file: string) => /^[^/]+\/Contents\/PkgInfo$/i.test(file),
-			// eslint-disable-next-line jsdoc/require-jsdoc
+
+			/**
+			 * @inheritdoc
+			 */
 			modify: (data: Uint8Array) => {
 				count++;
 				return infoData;
 			},
-			// eslint-disable-next-line jsdoc/require-jsdoc
+
+			/**
+			 * @inheritdoc
+			 */
 			after: async () => {
 				// Player could omit this file, just write in that case.
 				if (!count) {
@@ -561,10 +569,15 @@ export class ProjectorSaMac extends ProjectorSa {
 
 		let count = 0;
 		const patch: IFilePatch = {
-			// eslint-disable-next-line jsdoc/require-jsdoc
+			/**
+			 * @inheritdoc
+			 */
 			match: (file: string) =>
 				/^[^/]+\/Contents\/MacOS\/[^/]+$/i.test(file),
-			// eslint-disable-next-line jsdoc/require-jsdoc
+
+			/**
+			 * @inheritdoc
+			 */
 			modify: (data: Uint8Array) => {
 				data = macProjectorMachoPatch(data, {
 					removeCodeSignature,
@@ -573,7 +586,10 @@ export class ProjectorSaMac extends ProjectorSa {
 				count++;
 				return data;
 			},
-			// eslint-disable-next-line jsdoc/require-jsdoc
+
+			/**
+			 * @inheritdoc
+			 */
 			after: () => {
 				if (!count) {
 					throw new Error('Failed to locate binary for patching');
@@ -614,11 +630,16 @@ export class ProjectorSaMac extends ProjectorSa {
 		let xmlOld: string | null = '';
 		const lower = modifyPlist ? appPathInfoPlist.toLowerCase() : '';
 		const patch: IFilePatch = {
-			// eslint-disable-next-line jsdoc/require-jsdoc
+			/**
+			 * @inheritdoc
+			 */
 			match: (file: string) =>
 				modifyPlist &&
 				file.substring(file.indexOf('/') + 1).toLowerCase() === lower,
-			// eslint-disable-next-line jsdoc/require-jsdoc
+
+			/**
+			 * @inheritdoc
+			 */
 			modify: (data: Uint8Array) => {
 				// Use a custom plist or the existing one.
 				xmlOld = new TextDecoder().decode(data);
@@ -651,7 +672,10 @@ export class ProjectorSaMac extends ProjectorSa {
 				count++;
 				return data;
 			},
-			// eslint-disable-next-line jsdoc/require-jsdoc
+
+			/**
+			 * @inheritdoc
+			 */
 			after: async () => {
 				if (modifyPlist && !count) {
 					throw new Error(
@@ -691,6 +715,7 @@ export class ProjectorSaMac extends ProjectorSa {
 					if (!appRsrcName) {
 						throw new Error('Internal error');
 					}
+
 					const rsrcPathNew = this.getRsrcPath(appRsrcName);
 					tasks.push(async () =>
 						rename(rsrcPathOld, rsrcPathNew).catch(err => {
