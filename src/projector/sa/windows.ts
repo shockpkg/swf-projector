@@ -1,14 +1,15 @@
-import {stat, readFile, writeFile} from 'node:fs/promises';
+import {stat, readFile, writeFile, mkdir} from 'node:fs/promises';
 import {basename, dirname} from 'node:path';
 
 import {
 	ArchiveDir,
+	Entry,
 	PathType,
 	createArchiveByFileExtensionOrThrow
 } from '@shockpkg/archive-files';
 
 import {windowsProjectorPatch} from '../../util/windows';
-import {ProjectorSa} from '../sa';
+import {IFilePatch, ProjectorSa} from '../sa';
 import {concat} from '../../util/internal/data';
 
 /**
@@ -113,6 +114,51 @@ export class ProjectorSaWindows extends ProjectorSa {
 			isPlayer = (path: string) => path.toLowerCase().endsWith(extLower);
 		}
 
+		const patches = await this._getPatches();
+
+		/**
+		 * Extract entry, and also apply patches if any.
+		 *
+		 * @param entry Archive entry.
+		 * @param dest Output path.
+		 */
+		const extract = async (entry: Entry, dest: string) => {
+			if (entry.type === PathType.FILE) {
+				let data: Uint8Array | null = null;
+				for (const patch of patches) {
+					if (patch.match(entry.volumePath)) {
+						if (!data) {
+							// eslint-disable-next-line no-await-in-loop
+							const d = await entry.read();
+							if (!d) {
+								throw new Error(
+									`Failed to read: ${entry.volumePath}`
+								);
+							}
+							data = new Uint8Array(
+								d.buffer,
+								d.byteOffset,
+								d.byteLength
+							);
+						}
+						// eslint-disable-next-line no-await-in-loop
+						data = await patch.modify(data);
+					}
+				}
+
+				if (data) {
+					await mkdir(dirname(dest), {recursive: true});
+					await writeFile(dest, data);
+					await entry.setAttributes(dest, null, {
+						ignoreTimes: true
+					});
+					return;
+				}
+			}
+
+			await entry.extract(dest);
+		};
+
 		let playerPath = '';
 		await archive.read(async entry => {
 			const {volumePath, type} = entry;
@@ -132,55 +178,114 @@ export class ProjectorSaWindows extends ProjectorSa {
 			}
 			playerPath = volumePath;
 
-			await entry.extract(path);
+			await extract(entry, path);
 			return true;
 		});
 
 		if (!playerPath) {
 			throw new Error(`Failed to locate player in: ${player}`);
 		}
+
+		await Promise.all(patches.map(async p => p.after()));
 	}
 
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer() {
+	protected async _modifyPlayer() {}
+
+	/**
+	 * Get patches to apply.
+	 *
+	 * @returns Patches list.
+	 */
+	protected async _getPatches() {
+		return (
+			await Promise.all([this._getPatchBinary(), this._getPatchMovie()])
+		).filter(p => p) as IFilePatch[];
+	}
+
+	/**
+	 * Get patch for binary.
+	 *
+	 * @returns Patch spec.
+	 */
+	protected async _getPatchBinary() {
 		const {
-			path,
 			versionStrings,
 			removeCodeSignature,
 			patchWindowTitle,
 			patchOutOfDateDisable
 		} = this;
 		const iconData = await this.getIconData();
-		const movieData = await this.getMovieData();
-
-		let data: Uint8Array | null = null;
 
 		if (
-			iconData ||
-			versionStrings ||
-			removeCodeSignature ||
-			patchWindowTitle !== null ||
-			patchOutOfDateDisable
-		) {
-			data = data || (await readFile(path));
-			data = windowsProjectorPatch(data, {
-				iconData,
-				versionStrings,
-				removeCodeSignature,
-				patchWindowTitle,
+			!(
+				iconData ||
+				versionStrings ||
+				removeCodeSignature ||
+				patchWindowTitle !== null ||
 				patchOutOfDateDisable
-			});
+			)
+		) {
+			return null;
 		}
 
-		if (movieData) {
-			data = data || (await readFile(path));
-			data = concat([data, this._encodeMovieData(movieData, 'dms')]);
+		const patch: IFilePatch = {
+			/**
+			 * @inheritdoc
+			 */
+			match: (file: string) => true,
+
+			/**
+			 * @inheritdoc
+			 */
+			modify: (data: Uint8Array) =>
+				windowsProjectorPatch(data, {
+					iconData,
+					versionStrings,
+					removeCodeSignature,
+					patchWindowTitle,
+					patchOutOfDateDisable
+				}),
+
+			/**
+			 * @inheritdoc
+			 */
+			after: () => {}
+		};
+		return patch;
+	}
+
+	/**
+	 * Get patch for movie.
+	 *
+	 * @returns Patch spec.
+	 */
+	// eslint-disable-next-line @typescript-eslint/require-await
+	protected async _getPatchMovie() {
+		const movieData = await this.getMovieData();
+		if (!movieData) {
+			return null;
 		}
 
-		if (data) {
-			await writeFile(path, data);
-		}
+		const patch: IFilePatch = {
+			/**
+			 * @inheritdoc
+			 */
+			match: (file: string) => true,
+
+			/**
+			 * @inheritdoc
+			 */
+			modify: (data: Uint8Array) =>
+				concat([data, this._encodeMovieData(movieData, 'dms')]),
+
+			/**
+			 * @inheritdoc
+			 */
+			after: () => {}
+		};
+		return patch;
 	}
 }
