@@ -430,9 +430,7 @@ export class ProjectorSaMac extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer() {
-		await this._writeMovie();
-	}
+	protected async _modifyPlayer() {}
 
 	/**
 	 * Write out the projector movie file.
@@ -509,7 +507,8 @@ export class ProjectorSaMac extends ProjectorSa {
 			await Promise.all([
 				this._getPatchBinary(),
 				this._getPatchPkgInfo(),
-				this._getPatchInfoPlist()
+				this._getPatchInfoPlist(),
+				this._getPatchMovie()
 			])
 		).filter(p => p) as IFilePatch[];
 	}
@@ -758,6 +757,39 @@ export class ProjectorSaMac extends ProjectorSa {
 				}
 
 				await Promise.all(tasks.map(async f => f()));
+			}
+		};
+		return patch;
+	}
+
+	/**
+	 * Get patch for movie.
+	 *
+	 * @returns Patch spec.
+	 */
+	// eslint-disable-next-line @typescript-eslint/require-await
+	protected async _getPatchMovie() {
+		const movieData = await this.getMovieData();
+		if (!movieData) {
+			return null;
+		}
+
+		const patch: IFilePatch = {
+			/**
+			 * @inheritdoc
+			 */
+			match: (file: string) => false,
+
+			/**
+			 * @inheritdoc
+			 */
+			modify: (data: Uint8Array) => data,
+
+			/**
+			 * @inheritdoc
+			 */
+			after: async () => {
+				await writeFile(this.moviePath, movieData);
 			}
 		};
 		return patch;
