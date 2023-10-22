@@ -9,4 +9,4 @@
 48 8B 76 08                     mov     rsi, QWORD PTR [rsi+0x8]
 48 85 F6                        test    rsi, rsi
 48 0F 44 35 -- -- -- --         cmove   rsi, QWORD PTR [rip+...]
-E8 -- -- -- --                  call    -- -- -- --
+E8 -- -- -- --                  call    _CFStringCreateWithCharacters

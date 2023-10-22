@@ -15,4 +15,4 @@ E8 00 00 00 00                  call    0xd
 89 54 24 08                     mov     DWORD PTR [esp+0x8], edx
 89 44 24 04                     mov     DWORD PTR [esp+0x4], eax
 89 0C 24                        mov     DWORD PTR [esp], ecx
-E8 -- -- -- --                  call    -- -- -- --
+E8 -- -- -- --                  call    _CFStringCreateWithCharacters

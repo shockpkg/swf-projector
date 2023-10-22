@@ -14,4 +14,4 @@
 8B 15 -- -- -- --               mov     edx, DWORD PTR ds:...
 8B 02                           mov     eax, DWORD PTR [edx]
 89 04 24                        mov     DWORD PTR [esp], eax
-E8 -- -- -- --                  call    -- -- -- --
+E8 -- -- -- --                  call    _CFStringCreateWithCharacters

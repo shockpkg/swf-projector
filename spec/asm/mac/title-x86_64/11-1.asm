@@ -9,4 +9,4 @@
 74 --                           je      --
 48 8B 05 -- -- -- --            mov     rax, QWORD PTR [rip+...]
 48 8B 38                        mov     rdi, QWORD PTR [rax]
-E8 -- -- -- --                  call    -- -- -- --
+E8 -- -- -- --                  call    _CFStringCreateWithCharacters

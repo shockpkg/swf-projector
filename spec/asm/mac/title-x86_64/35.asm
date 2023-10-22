@@ -10,4 +10,4 @@
 48 85 F6                        test    rsi, rsi
 75 07                           jne     0x1d
 48 8D 35 -- -- -- --            lea     rsi, [rip+...]
-E8 -- -- -- --                  call    -- -- -- --
+E8 -- -- -- --                  call    _CFStringCreateWithCharacters
