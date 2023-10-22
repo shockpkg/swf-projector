@@ -142,11 +142,11 @@ export abstract class ProjectorSa extends Projector {
 	 * @returns Encoded data.
 	 */
 	protected _encodeMovieData(data: Readonly<Uint8Array>, format: string) {
-		const buffers: Readonly<Uint8Array>[] = [];
+		const parts: Readonly<Uint8Array>[] = [];
 		for (const c of format) {
 			switch (c) {
 				case 'd': {
-					buffers.push(data);
+					parts.push(data);
 					break;
 				}
 				case 'm':
@@ -154,7 +154,7 @@ export abstract class ProjectorSa extends Projector {
 					const b = new ArrayBuffer(4);
 					const v = new DataView(b);
 					v.setUint32(0, this.movieMagic, c === 'm');
-					buffers.push(new Uint8Array(b));
+					parts.push(new Uint8Array(b));
 					break;
 				}
 				case 'i':
@@ -174,7 +174,7 @@ export abstract class ProjectorSa extends Projector {
 						// eslint-disable-next-line no-bitwise
 						v.setInt32(0, movieMagic >> 31, false);
 					}
-					buffers.push(new Uint8Array(b));
+					parts.push(new Uint8Array(b));
 					break;
 				}
 				case 's':
@@ -182,7 +182,7 @@ export abstract class ProjectorSa extends Projector {
 					const b = new ArrayBuffer(4);
 					const v = new DataView(b);
 					v.setUint32(0, data.length, c === 's');
-					buffers.push(new Uint8Array(b));
+					parts.push(new Uint8Array(b));
 					break;
 				}
 				case 'l':
@@ -195,7 +195,7 @@ export abstract class ProjectorSa extends Projector {
 					} else {
 						v.setUint32(4, data.length, false);
 					}
-					buffers.push(new Uint8Array(b));
+					parts.push(new Uint8Array(b));
 					break;
 				}
 				default: {
@@ -203,7 +203,7 @@ export abstract class ProjectorSa extends Projector {
 				}
 			}
 		}
-		return concat(buffers);
+		return concat(parts);
 	}
 
 	/**
