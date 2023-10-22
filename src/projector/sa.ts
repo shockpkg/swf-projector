@@ -96,7 +96,7 @@ export abstract class ProjectorSa extends Projector {
 
 		await this._checkOutput();
 		await this._writePlayer(player);
-		await this._modifyPlayer(await this.getMovieData());
+		await this._modifyPlayer();
 	}
 
 	/**
@@ -223,10 +223,6 @@ export abstract class ProjectorSa extends Projector {
 
 	/**
 	 * Modify the projector player.
-	 *
-	 * @param movieData Movie data or null.
 	 */
-	protected abstract _modifyPlayer(
-		movieData: Readonly<Uint8Array> | null
-	): Promise<void>;
+	protected abstract _modifyPlayer(): Promise<void>;
 }

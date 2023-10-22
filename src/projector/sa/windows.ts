@@ -144,7 +144,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
+	protected async _modifyPlayer() {
 		const {
 			path,
 			versionStrings,
@@ -153,6 +153,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 			patchOutOfDateDisable
 		} = this;
 		const iconData = await this.getIconData();
+		const movieData = await this.getMovieData();
 
 		let data: Uint8Array | null = null;
 

@@ -19,7 +19,8 @@ export class ProjectorSaDummy extends ProjectorSa {
 		await copyFile(player, this.path);
 	}
 
-	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
+	protected async _modifyPlayer() {
+		const movieData = await this.getMovieData();
 		if (movieData) {
 			await writeFile(
 				this.path,

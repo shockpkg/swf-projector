@@ -144,7 +144,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
+	protected async _modifyPlayer() {
 		const {
 			path,
 			patchWindowTitle,
@@ -152,6 +152,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 			patchProjectorPath,
 			patchProjectorOffset
 		} = this;
+		const movieData = await this.getMovieData();
 
 		let data: Uint8Array | null = null;
 

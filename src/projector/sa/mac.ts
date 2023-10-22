@@ -430,16 +430,15 @@ export class ProjectorSaMac extends ProjectorSa {
 	/**
 	 * @inheritDoc
 	 */
-	protected async _modifyPlayer(movieData: Readonly<Uint8Array> | null) {
-		await this._writeMovie(movieData);
+	protected async _modifyPlayer() {
+		await this._writeMovie();
 	}
 
 	/**
 	 * Write out the projector movie file.
-	 *
-	 * @param movieData Movie data or null.
 	 */
-	protected async _writeMovie(movieData: Readonly<Uint8Array> | null) {
+	protected async _writeMovie() {
+		const movieData = await this.getMovieData();
 		if (!movieData) {
 			return;
 		}
