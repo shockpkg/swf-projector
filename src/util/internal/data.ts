@@ -5,7 +5,7 @@
  * @returns Hex string.
  */
 export function hex4(i: number) {
-	return i.toString(16).padStart(8, '0');
+	return i.toString(16).toUpperCase().padStart(8, '0');
 }
 
 /**
