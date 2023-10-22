@@ -428,11 +428,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	protected async _modifyPlayer() {}
-
-	/**
 	 * Write out the projector movie file.
 	 */
 	protected async _writeMovie() {
@@ -604,9 +599,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	 * @returns Patch spec.
 	 */
 	protected async _getPatchInfoPlist() {
-		const bundleName = this.getBundleName();
-		const customPlist = await this.getInfoPlistData();
-		const iconData = await this.getIconData();
 		const {
 			binaryName,
 			appIconName,
@@ -614,6 +606,9 @@ export class ProjectorSaMac extends ProjectorSa {
 			appPathInfoPlist,
 			appRsrcName
 		} = this;
+		const bundleName = this.getBundleName();
+		const customPlist = await this.getInfoPlistData();
+		const iconData = await this.getIconData();
 		const modifyPlist = !!(
 			customPlist !== null ||
 			appIconName ||

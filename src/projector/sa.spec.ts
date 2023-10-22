@@ -1,4 +1,4 @@
-import {mkdir, copyFile, readFile, writeFile} from 'node:fs/promises';
+import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
 import {concat} from '../util/internal/data';
@@ -15,20 +15,12 @@ export class ProjectorSaDummy extends ProjectorSa {
 	}
 
 	protected async _writePlayer(player: string) {
-		await mkdir(dirname(this.path), {recursive: true});
-		await copyFile(player, this.path);
-	}
-
-	protected async _modifyPlayer() {
+		let data: Uint8Array = await readFile(player);
 		const movieData = await this.getMovieData();
 		if (movieData) {
-			await writeFile(
-				this.path,
-				concat([
-					await readFile(this.path),
-					this._encodeMovieData(movieData, 'dms')
-				])
-			);
+			data = concat([data, this._encodeMovieData(movieData, 'dms')]);
 		}
+		await mkdir(dirname(this.path), {recursive: true});
+		await writeFile(this.path, data);
 	}
 }

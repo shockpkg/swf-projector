@@ -191,11 +191,6 @@ export class ProjectorSaLinux extends ProjectorSa {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	protected async _modifyPlayer() {}
-
-	/**
 	 * Get patches to apply.
 	 *
 	 * @returns Patches list.

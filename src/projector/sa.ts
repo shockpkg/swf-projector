@@ -96,7 +96,6 @@ export abstract class ProjectorSa extends Projector {
 
 		await this._checkOutput();
 		await this._writePlayer(player);
-		await this._modifyPlayer();
 	}
 
 	/**
@@ -220,9 +219,4 @@ export abstract class ProjectorSa extends Projector {
 	 * @param player Player path.
 	 */
 	protected abstract _writePlayer(player: string): Promise<void>;
-
-	/**
-	 * Modify the projector player.
-	 */
-	protected abstract _modifyPlayer(): Promise<void>;
 }

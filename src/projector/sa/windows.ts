@@ -190,11 +190,6 @@ export class ProjectorSaWindows extends ProjectorSa {
 	}
 
 	/**
-	 * @inheritDoc
-	 */
-	protected async _modifyPlayer() {}
-
-	/**
 	 * Get patches to apply.
 	 *
 	 * @returns Patches list.
@@ -218,7 +213,6 @@ export class ProjectorSaWindows extends ProjectorSa {
 			patchOutOfDateDisable
 		} = this;
 		const iconData = await this.getIconData();
-
 		if (
 			!(
 				iconData ||
