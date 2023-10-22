@@ -634,29 +634,23 @@ export function macProjectorMachoPatch(
  */
 export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
 	const {cpuType} = type;
-	let id = '';
 	switch (cpuType) {
 		case CPU_TYPE_POWERPC: {
-			id = 'mac-app-ppc';
-			break;
+			return launcher('mac-app-ppc');
 		}
 		case CPU_TYPE_POWERPC64: {
-			id = 'mac-app-ppc64';
-			break;
+			return launcher('mac-app-ppc64');
 		}
 		case CPU_TYPE_I386: {
-			id = 'mac-app-i386';
-			break;
+			return launcher('mac-app-i386');
 		}
 		case CPU_TYPE_X86_64: {
-			id = 'mac-app-x86_64';
-			break;
+			return launcher('mac-app-x86_64');
 		}
 		default: {
 			throw new Error(`Unknown CPU type: 0x${hex4(cpuType)}`);
 		}
 	}
-	return launcher(id);
 }
 
 /**
