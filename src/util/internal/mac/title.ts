@@ -2,8 +2,8 @@
 
 import {findFuzzyOnce} from '../patch';
 
-import {TITLE_I386, TITLE_X8664} from './asm';
-import {CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants';
+import {TITLE_ARM64, TITLE_I386, TITLE_X8664} from './asm';
+import {CPU_TYPE_ARM64, CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants';
 
 /**
  * MacProjectTitlePatch object.
@@ -62,6 +62,13 @@ export abstract class MacProjectTitlePatchI386 extends MacProjectTitlePatch {
  */
 export abstract class MacProjectTitlePatchX8664 extends MacProjectTitlePatch {
 	public static readonly CPU_TYPE = CPU_TYPE_X86_64;
+}
+
+/**
+ * MacProjectTitlePatchARM64 object.
+ */
+export abstract class MacProjectTitlePatchARM64 extends MacProjectTitlePatch {
+	public static readonly CPU_TYPE = CPU_TYPE_ARM64;
 }
 
 export const macProjectTitlePatches: {
@@ -444,6 +451,68 @@ export const macProjectTitlePatches: {
 			v.setUint8(i++, 0x90);
 			v.setUint8(i++, 0x90);
 			v.setUint8(i++, 0x90);
+		}
+	},
+
+	/**
+	 * 35.0.0.60-debug ARM64.
+	 */
+	class extends MacProjectTitlePatchARM64 {
+		private _offset_ = 0;
+
+		/**
+		 * @inheritDoc
+		 */
+		public check() {
+			const found = findFuzzyOnce(this._data, TITLE_ARM64['35-debug']);
+			if (found === null) {
+				return false;
+			}
+			this._offset_ = found;
+			return true;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public patch() {
+			const v = this._view;
+			let i = this._offset_ + 72;
+			const title = this._title;
+
+			// ldr  x0, [sp, #0x20] ; _kCFAllocatorDefault
+			v.setUint32(i, 0xf94013e0, true);
+			i += 4;
+
+			// Calculate PC relative pointer to within 12 bits (added after).
+			const pc = this._vmaddr + i;
+			// eslint-disable-next-line no-bitwise
+			const imm19 = (title >> 12) - (pc >> 12);
+
+			// adrp x1, ? ; _title@PAGE
+			v.setUint32(
+				i,
+				// eslint-disable-next-line no-bitwise
+				(0x90000001 | ((imm19 & 3) << 29) | ((imm19 >> 2) << 5)) >>> 0,
+				true
+			);
+			i += 4;
+
+			// add  x1, x1, ? ; _title@PAGEOFF
+			v.setUint32(
+				i,
+				// eslint-disable-next-line no-bitwise
+				(0x91000021 | ((title & 0xfff) << 10)) >>> 0,
+				true
+			);
+			i += 4;
+
+			// ldr  w2, [x1] ; *((int *)_title)
+			v.setUint32(i, 0xb9400022, true);
+			i += 4;
+
+			// add  x1, x1, 4 ; (char *)(_title + 4)
+			v.setUint32(i, 0x91001021, true);
 		}
 	}
 ];

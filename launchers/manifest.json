@@ -36,6 +36,12 @@
 		"hash": "f5b7625da819324f442cea1f3af83ea4b2bf0af1d185a7747d81b698a6168562"
 	},
 	{
+		"name": "mac-app-arm64",
+		"url": "https://github.com/shockpkg/projector-launcher-mac-app/releases/download/1.1.0/main.arm64",
+		"file": "mac-app-arm64",
+		"hash": "a20cbe0ffd3c3ad6b5ee2a58af81ea33145903847785382e7ef3424f08556312"
+	},
+	{
 		"name": "linux-i386",
 		"url": "https://github.com/shockpkg/projector-launcher-linux/releases/download/2.0.0/main.i386",
 		"file": "linux-i386",

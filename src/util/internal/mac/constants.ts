@@ -34,3 +34,4 @@ export const CPU_TYPE_POWERPC = 0x00000012;
 export const CPU_TYPE_POWERPC64 = 0x01000012;
 export const CPU_TYPE_I386 = 0x00000007;
 export const CPU_TYPE_X86_64 = 0x01000007;
+export const CPU_TYPE_ARM64 = 0x0100000c;

@@ -64,6 +64,7 @@ const asms = (dirs => {
 	'spec/asm/linux/title-x86_64',
 	'spec/asm/mac/title-i386',
 	'spec/asm/mac/title-x86_64',
+	'spec/asm/mac/title-arm64',
 	'spec/asm/windows/ood-i386',
 	'spec/asm/windows/ood-x86_64'
 ]);

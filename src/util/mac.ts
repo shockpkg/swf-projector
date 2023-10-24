@@ -33,7 +33,8 @@ import {
 	CPU_TYPE_POWERPC,
 	CPU_TYPE_POWERPC64,
 	CPU_TYPE_I386,
-	CPU_TYPE_X86_64
+	CPU_TYPE_X86_64,
+	CPU_TYPE_ARM64
 } from './internal/mac/constants';
 import {
 	MacProjectTitlePatch,
@@ -646,6 +647,9 @@ export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
 		}
 		case CPU_TYPE_X86_64: {
 			return launcher('mac-app-x86_64');
+		}
+		case CPU_TYPE_ARM64: {
+			return launcher('mac-app-arm64');
 		}
 		default: {
 			throw new Error(`Unknown CPU type: 0x${hex4(cpuType)}`);
