@@ -487,7 +487,7 @@ export const macProjectTitlePatches: {
 			// Calculate PC relative pointer to within 12 bits (added after).
 			const pc = this._vmaddr + i;
 			// eslint-disable-next-line no-bitwise
-			const imm19 = (title >> 12) - (pc >> 12);
+			const imm19 = Math.floor(title / 4096) - Math.floor(pc / 4096);
 
 			// adrp x1, ? ; _title@PAGE
 			v.setUint32(
