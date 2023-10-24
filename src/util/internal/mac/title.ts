@@ -455,6 +455,64 @@ export const macProjectTitlePatches: {
 	},
 
 	/**
+	 * 35.0.0.60-release ARM64.
+	 */
+	class extends MacProjectTitlePatchARM64 {
+		private _offset_ = 0;
+
+		/**
+		 * @inheritDoc
+		 */
+		public check() {
+			const found = findFuzzyOnce(this._data, TITLE_ARM64['35-release']);
+			if (found === null) {
+				return false;
+			}
+			this._offset_ = found;
+			return true;
+		}
+
+		/**
+		 * @inheritDoc
+		 */
+		public patch() {
+			const v = this._view;
+			let i = this._offset_ + 32;
+			const title = this._title;
+
+			// Calculate PC relative pointer to within 12 bits (added after).
+			const pc = this._vmaddr + i;
+			// eslint-disable-next-line no-bitwise
+			const imm19 = Math.floor(title / 4096) - Math.floor(pc / 4096);
+
+			// adrp x1, ? ; _title@PAGE
+			v.setUint32(
+				i,
+				// eslint-disable-next-line no-bitwise
+				(0x90000001 | ((imm19 & 3) << 29) | ((imm19 >> 2) << 5)) >>> 0,
+				true
+			);
+			i += 4;
+
+			// add  x1, x1, ? ; _title@PAGEOFF
+			v.setUint32(
+				i,
+				// eslint-disable-next-line no-bitwise
+				(0x91000021 | ((title & 0xfff) << 10)) >>> 0,
+				true
+			);
+			i += 4;
+
+			// ldr  w2, [x1] ; *((int *)_title)
+			v.setUint32(i, 0xb9400022, true);
+			i += 4;
+
+			// add  x1, x1, 4 ; (char *)(_title + 4)
+			v.setUint32(i, 0x91001021, true);
+		}
+	},
+
+	/**
 	 * 35.0.0.60-debug ARM64.
 	 */
 	class extends MacProjectTitlePatchARM64 {
