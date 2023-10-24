@@ -93,6 +93,9 @@ jobs:
               # Version 35.0.0.204:
               - flash-player-35.0.0.204-mac-x86_64-sa-2022-07-04
               - flash-player-35.0.0.204-mac-x86_64-sa-debug-2022-07-04
+              # Version 35.0.0.60, first arm64:
+              - flash-player-35.0.0.60-mac-x86_64-arm64-sa-2023-09-23
+              - flash-player-35.0.0.60-mac-x86_64-arm64-sa-debug-2023-09-23
               # Version 35.0.0.1:
               - flash-player-35.0.0.1-mac-x86_64-sa-2022-03-08
               - flash-player-35.0.0.1-mac-x86_64-sa-debug-2022-03-08
