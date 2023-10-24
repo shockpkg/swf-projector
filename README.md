@@ -302,11 +302,27 @@ An option to replace the window title stored in the binary (no length limit sinc
 
 An option to disable the out-of-date check present since version 30 and active (with 90 and 180 day defaults) since version 35.
 
+### Option: `removeCodeSignature`
+
+A Windows projector cannot be properly codesigned, so removing the signature makes it smaller.
+
 ## Mac
 
 ### Option: `patchWindowTitle`
 
 An option to set a custom window title in the binary (no length limit since library version 3).
+
+### Option: `removeCodeSignature`
+
+The code signature will be broken, lightly by adding the movie resource, or heavily by patching the binary. For projectors without an arm64 binary, this can avoid some issues where the code signature is broken.
+
+An application with an arm64 binary however does require a valid code signature to run, even if it's just an ad-hoc one. Currently this library doesn't have a way to ad-hoc codesign, so it must be done after the projector or bundle is produced.
+
+```bash
+codesign --deep -fs - application.app
+```
+
+Alternately the application bundle could be signed with a real code signing certificate.
 
 ## Linux
 
