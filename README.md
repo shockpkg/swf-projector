@@ -319,7 +319,11 @@ The code signature will be broken, lightly by adding the movie resource, or heav
 An application with an arm64 binary however does require a valid code signature to run, even if it's just an ad-hoc one. Currently this library doesn't have a way to ad-hoc codesign, so it must be done after the projector or bundle is produced.
 
 ```bash
-codesign --deep -fs - application.app
+# For non-flat bundles, first sign the nested projector:
+codesign -f -s - application.app/Contents/Resources/*.app
+
+# Then sign the main projector or bundle application:
+codesign -f -s - application.app
 ```
 
 Alternately the application bundle could be signed with a real code signing certificate.
