@@ -10,18 +10,6 @@ import {htmlEncode, trimExtension} from '../util';
  */
 export class BundleHtml extends Bundle {
 	/**
-	 * Custom subdirectory to nest resources into.
-	 * Defaults to a directory of the same name as the launcher file.
-	 */
-	public subdir: string | null = null;
-
-	/**
-	 * Custom subdirectory index file.
-	 * Defaults to index.ext where ext is the same as the launcher file.
-	 */
-	public index: string | null = null;
-
-	/**
 	 * ProjectorHtml instance.
 	 */
 	public readonly projector: ProjectorHtml;
@@ -57,10 +45,8 @@ export class BundleHtml extends Bundle {
 	 *
 	 * @returns Directory name.
 	 */
-	public get nestedSubdir() {
-		return (
-			this.subdir || trimExtension(basename(this.path), this.extension)
-		);
+	public get subdir() {
+		return trimExtension(basename(this.path), this.extension);
 	}
 
 	/**
@@ -68,8 +54,8 @@ export class BundleHtml extends Bundle {
 	 *
 	 * @returns File name.
 	 */
-	public get nestedIndex() {
-		return this.index || `index${this.extension}`;
+	public get index() {
+		return `index${this.extension}`;
 	}
 
 	/**
@@ -78,9 +64,9 @@ export class BundleHtml extends Bundle {
 	 * @returns HTML code.
 	 */
 	public getLauncher() {
-		const {projector, nestedSubdir, nestedIndex} = this;
+		const {projector, subdir, index} = this;
 		const {lang, title} = projector;
-		const path = `${nestedSubdir}/${nestedIndex}`;
+		const path = `${subdir}/${index}`;
 		const url = path.replaceAll('\\', '/');
 		const docAttr = lang === null ? '' : ` lang=${htmlEncode(lang, true)}`;
 
@@ -120,11 +106,7 @@ export class BundleHtml extends Bundle {
 	 * @inheritdoc
 	 */
 	protected _getProjectorPathNested(): string {
-		return pathJoin(
-			dirname(this.path),
-			this.nestedSubdir,
-			this.nestedIndex
-		);
+		return pathJoin(dirname(this.path), this.subdir, this.index);
 	}
 
 	/**
