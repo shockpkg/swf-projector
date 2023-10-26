@@ -49,17 +49,17 @@ export class ProjectorHtml extends Projector {
 	public pluginspage: string | null = null;
 
 	/**
-	 * Required src/movie URL.
+	 * Required src/movie URL (unless using custom HTML).
 	 */
 	public src: string = '';
 
 	/**
-	 * Required movie width.
+	 * Required movie width (unless using custom HTML).
 	 */
 	public width: string | number | null = null;
 
 	/**
-	 * Required movie height.
+	 * Required movie height (unless using custom HTML).
 	 */
 	public height: string | number | null = null;
 
@@ -202,7 +202,7 @@ export class ProjectorHtml extends Projector {
 	public async write() {
 		const {path} = this;
 		await mkdir(dirname(path), {recursive: true});
-		await writeFile(path, this.getHtmlDefault());
+		await writeFile(path, this.getHtml());
 	}
 
 	/**
