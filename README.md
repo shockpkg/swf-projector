@@ -8,7 +8,7 @@ Package for creating Flash Player projectors
 [![size](https://packagephobia.now.sh/badge?p=@shockpkg/swf-projector)](https://packagephobia.now.sh/result?p=@shockpkg/swf-projector)
 [![downloads](https://img.shields.io/npm/dm/@shockpkg/swf-projector.svg)](https://npmcharts.com/compare/@shockpkg/swf-projector?minimal=true)
 
-[![Build Status](https://github.com/shockpkg/swf-projector/workflows/main/badge.svg?branch=master)](https://github.com/shockpkg/swf-projector/actions?query=workflow%3Amain+branch%3Amaster)
+[![Build Status](https://github.com/shockpkg/swf-projector/workflows/main/badge.svg)](https://github.com/shockpkg/swf-projector/actions?query=workflow%3Amain+branch%3Amaster)
 
 # Overview
 
