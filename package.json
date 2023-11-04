@@ -13,6 +13,7 @@
 	"exports": {
 		".": [
 			{
+				"types": "./dts/index.d.ts",
 				"import": "./esm/index.mjs",
 				"require": "./cjs/index.js",
 				"default": "./cjs/index.js"
