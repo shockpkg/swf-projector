@@ -10,19 +10,28 @@ jobs:
       matrix:
         config:
           - node-version: '18.12.0' # LTS
+            CODE_TEST: 'test-legacy'
             PKGSET: ''
             PKG: ''
 
-          - node-version: '18.18.0' # LTS (current)
+          - node-version: '18.18.2' # LTS
+            CODE_TEST: 'test-legacy'
+            PKGSET: ''
+            PKG: ''
+
+          - node-version: '20.9.0' # LTS (current)
+            CODE_TEST: 'test-legacy'
             CODE_CHECK: 1
             PKGSET: ''
             PKG: ''
 
-          - node-version: '20.8.0' # Latest
+          - node-version: '21.1.0' # Latest
+            CODE_TEST: 'test'
             PKGSET: ''
             PKG: ''
 
-          - node-version: '18.18.0' # LTS (current)
+          - node-version: '20.9.0' # LTS (current)
+            CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Windows-versions'
             PKG:
               # Version 35.0.0.204:
@@ -89,7 +98,8 @@ jobs:
               # Only 3.0 32-bit:
               - flash-player-3.0.8.0-windows-32bit-sa
 
-          - node-version: '18.18.0' # LTS (current)
+          - node-version: '20.9.0' # LTS (current)
+            CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Mac-versions'
             PKG:
               # Version 35.0.0.204:
@@ -144,7 +154,8 @@ jobs:
               # First Mac APP bundle, broken icon, DMG:
               - flash-player-9.0.28.0-mac-sa-debug-zip
 
-          - node-version: '18.18.0' # LTS (current)
+          - node-version: '20.9.0' # LTS (current)
+            CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Linux-x86_64-versions'
             PKG:
               # Last version:
@@ -164,7 +175,8 @@ jobs:
               - flash-player-24.0.0.186-linux-x86_64-sa
               - flash-player-24.0.0.186-linux-x86_64-sa-debug
 
-          - node-version: '18.18.0' # LTS (current)
+          - node-version: '20.9.0' # LTS (current)
+            CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Linux-i386-versions'
             PKG:
               # Version 11.2, last version:
@@ -229,11 +241,11 @@ jobs:
       - name: Build
         run: npm run build
 
-      - name: Test CJS
-        run: npm run test:cjs
-
       - name: Test ESM
-        run: npm run test:esm
+        run: npm run ${{ matrix.config.CODE_TEST }}:esm
+
+      - name: Test CJS
+        run: npm run ${{ matrix.config.CODE_TEST }}:cjs
 
       - name: Lint
         run: npm run lint
@@ -256,7 +268,7 @@ jobs:
       - name: Node
         uses: actions/setup-node@v3
         with:
-          node-version: '18.18.0'
+          node-version: '20.9.0'
           registry-url: https://registry.npmjs.org/
 
       - name: Dependencies
