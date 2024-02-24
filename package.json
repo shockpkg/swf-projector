@@ -55,7 +55,7 @@
 	"repository": "https://github.com/shockpkg/swf-projector.git",
 	"bugs": "https://github.com/shockpkg/swf-projector/issues",
 	"author": "JrMasterModelBuilder",
-	"copyright": "Copyright (c) 2019-2023 JrMasterModelBuilder",
+	"copyright": "Copyright (c) 2019-2024 JrMasterModelBuilder",
 	"license": "MPL-2.0",
 	"dependencies": {
 		"@shockpkg/archive-files": "^3.2.2",

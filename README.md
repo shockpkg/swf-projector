@@ -358,7 +358,7 @@ If you find a bug or have compatibility issues, please open a ticket under issue
 
 # License
 
-Copyright (c) 2019-2023 JrMasterModelBuilder
+Copyright (c) 2019-2024 JrMasterModelBuilder
 
 Licensed under the Mozilla Public License, v. 2.0.
 
