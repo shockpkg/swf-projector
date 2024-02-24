@@ -259,7 +259,7 @@ export abstract class Bundle {
 			options
 				? await this._expandResourceOptionsCopy(options, async () =>
 						stat(source)
-				  )
+					)
 				: options
 		);
 
@@ -308,7 +308,7 @@ export abstract class Bundle {
 			options
 				? await this._expandResourceOptionsCopy(options, async () =>
 						stat(source)
-				  )
+					)
 				: options
 		);
 	}
@@ -333,7 +333,7 @@ export abstract class Bundle {
 			options
 				? await this._expandResourceOptionsCopy(options, async () =>
 						lstat(source)
-				  )
+					)
 				: options
 		);
 	}
@@ -420,7 +420,7 @@ export abstract class Bundle {
 						target.buffer,
 						target.byteOffset,
 						target.byteLength
-				  );
+					);
 		await symlink(t, dest);
 
 		if (options) {

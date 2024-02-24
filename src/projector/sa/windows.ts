@@ -109,7 +109,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 				? new ArchiveDir(player)
 				: createArchiveByFileExtensionOrThrow(player, {
 						nobrowse: this.nobrowse
-				  });
+					});
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			isPlayer = (path: string) => path.toLowerCase().endsWith(extLower);
 		}

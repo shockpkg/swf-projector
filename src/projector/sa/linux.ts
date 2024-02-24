@@ -100,7 +100,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 				? new ArchiveDir(player)
 				: createArchiveByFileExtensionOrThrow(player, {
 						nobrowse: this.nobrowse
-				  });
+					});
 			const names = new Set<string>();
 			for (const n of this.getProjectorArchiveNames()) {
 				names.add(n.toLowerCase());
