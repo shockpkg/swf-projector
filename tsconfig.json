@@ -13,7 +13,7 @@
 		"experimentalDecorators": true,
 		"forceConsistentCasingInFileNames": true,
 
-		"strictFunctionTypes": false,
+		"strictFunctionTypes": true,
 		"strictNullChecks": true,
 		"strictPropertyInitialization": true,
 		"strictBindCallApply": true,
