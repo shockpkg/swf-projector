@@ -30,7 +30,7 @@
 	"scripts": {
 		"shockpkg": "shockpkg",
 		"launchers": "node launchers/download.mjs",
-		"clean": "rimraf *.log* dts esm cjs spec/bundles spec/projectors",
+		"clean": "rimraf dts esm cjs spec/bundles spec/projectors",
 		"lint": "eslint .",
 		"format": "prettier -w .",
 		"formatted": "prettier -c .",
