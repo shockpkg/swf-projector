@@ -58,31 +58,31 @@
 	"copyright": "Copyright (c) 2019-2024 JrMasterModelBuilder",
 	"license": "MPL-2.0",
 	"dependencies": {
-		"@shockpkg/archive-files": "^3.2.3",
-		"@shockpkg/plist-dom": "^4.0.5",
+		"@shockpkg/archive-files": "^3.2.4",
+		"@shockpkg/plist-dom": "^4.0.6",
 		"@shockpkg/resedit": "^2.0.2",
-		"macho-unsign": "^2.0.4",
-		"portable-executable-signature": "^2.0.4"
+		"macho-unsign": "^2.0.5",
+		"portable-executable-signature": "^2.0.5"
 	},
 	"devDependencies": {
-		"@babel/cli": "^7.23.9",
-		"@babel/core": "^7.23.9",
-		"@babel/preset-env": "^7.23.9",
-		"@babel/preset-typescript": "^7.23.3",
-		"@shockpkg/cli": "^3.0.7",
-		"@shockpkg/core": "^3.0.6",
-		"@types/node": "^20.11.20",
-		"@typescript-eslint/eslint-plugin": "^7.0.2",
-		"@typescript-eslint/parser": "^7.0.2",
-		"babel-plugin-esm-resolver": "^2.3.2",
+		"@babel/cli": "^7.24.1",
+		"@babel/core": "^7.24.4",
+		"@babel/preset-env": "^7.24.4",
+		"@babel/preset-typescript": "^7.24.1",
+		"@shockpkg/cli": "^3.0.8",
+		"@shockpkg/core": "^3.0.7",
+		"@types/node": "^20.12.7",
+		"@typescript-eslint/eslint-plugin": "^7.7.0",
+		"@typescript-eslint/parser": "^7.7.0",
+		"babel-plugin-esm-resolver": "^2.3.3",
 		"babel-plugin-search-and-replace": "^1.1.1",
 		"eslint": "^8.57.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-import": "^2.29.1",
-		"eslint-plugin-jsdoc": "^48.2.0",
+		"eslint-plugin-jsdoc": "^48.2.3",
 		"prettier": "^3.2.5",
 		"rimraf": "^5.0.5",
 		"source-map-support": "^0.5.21",
-		"typescript": "^5.3.3"
+		"typescript": "^5.4.5"
 	}
 }
