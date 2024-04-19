@@ -14,28 +14,23 @@ jobs:
             PKGSET: ''
             PKG: ''
 
-          - node-version: '18.18.2' # LTS
-            CODE_TEST: 'test-legacy'
-            PKGSET: ''
-            PKG: ''
-
           - node-version: '20.9.0' # LTS
             CODE_TEST: 'test-legacy'
             PKGSET: ''
             PKG: ''
 
-          - node-version: '20.11.1' # LTS (current)
+          - node-version: '20.12.2' # LTS (current)
             CODE_TEST: 'test-legacy'
             CODE_CHECK: 1
             PKGSET: ''
             PKG: ''
 
-          - node-version: '21.6.2' # Latest
+          - node-version: '21.7.3' # Latest
             CODE_TEST: 'test'
             PKGSET: ''
             PKG: ''
 
-          - node-version: '20.11.1' # LTS (current)
+          - node-version: '20.12.2' # LTS (current)
             CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Windows-versions'
             PKG:
@@ -103,7 +98,7 @@ jobs:
               # Only 3.0 32-bit:
               - flash-player-3.0.8.0-windows-32bit-sa
 
-          - node-version: '20.11.1' # LTS (current)
+          - node-version: '20.12.2' # LTS (current)
             CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Mac-versions'
             PKG:
@@ -159,7 +154,7 @@ jobs:
               # First Mac APP bundle, broken icon, DMG:
               - flash-player-9.0.28.0-mac-sa-debug-zip
 
-          - node-version: '20.11.1' # LTS (current)
+          - node-version: '20.12.2' # LTS (current)
             CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Linux-x86_64-versions'
             PKG:
@@ -180,7 +175,7 @@ jobs:
               - flash-player-24.0.0.186-linux-x86_64-sa
               - flash-player-24.0.0.186-linux-x86_64-sa-debug
 
-          - node-version: '20.11.1' # LTS (current)
+          - node-version: '20.12.2' # LTS (current)
             CODE_TEST: 'test-legacy'
             PKGSET: 'Notable-Linux-i386-versions'
             PKG:
@@ -273,7 +268,7 @@ jobs:
       - name: Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20.11.1'
+          node-version: '20.12.2'
           registry-url: https://registry.npmjs.org/
 
       - name: Dependencies
