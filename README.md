@@ -266,7 +266,7 @@ await bundle.write(async b => {
 });
 ```
 
-A bundle can also be made "flat" into an empty directory with nesting the resources or adding a launcher stub by passing true as the second argument to the constructor.
+A bundle can also be made "flat" into an empty directory without nesting the resources or adding a launcher stub by passing true as the second argument to the constructor.
 
 ## Loader Generator
 
