@@ -14,19 +14,19 @@ Package for creating Flash Player projectors
 
 Creates Flash projectors from a standalone Flash Player.
 
-Takes a standalone Flash Player file, a directory containing a standalone Flash Player, or a shockpkg standalone Flash Player package file.
+Takes a standalone Flash Player file, a directory containing a standalone Flash Player, or an archive containing a standalone Flash Player (shockpkg package file). Can also generate HTML files to embed content.
 
 Can also create bundles that group the projector and resources in a directory beside a single launcher for Windows and Linux or within an application bundle for macOS.
 
-Reading DMG projector packages is only supported on macOS.
+Reading DMG projector packages is only supported on macOS, using ZIP packages instead is recommended.
 
 # Usage
 
 ## Projector
 
-### Sa
+### Projector SA
 
-#### Windows
+#### Projector SA Windows
 
 ```js
 import {ProjectorSaWindows} from '@shockpkg/swf-projector';
@@ -68,7 +68,7 @@ projector.patchOutOfDateDisable = true;
 await projector.write();
 ```
 
-#### Mac
+#### Projector SA Mac
 
 ```js
 import {ProjectorSaMac} from '@shockpkg/swf-projector';
@@ -111,7 +111,7 @@ projector.removeCodeSignature = true;
 await projector.write();
 ```
 
-#### Linux
+#### Projector SA Linux
 
 ```js
 import {ProjectorSaLinux} from '@shockpkg/swf-projector';
@@ -139,7 +139,7 @@ projector.patchProjectorOffset = true;
 await projector.write();
 ```
 
-### HTML
+### Projector HTML
 
 ```js
 import {ProjectorHtml} from '@shockpkg/swf-projector';
@@ -190,9 +190,9 @@ await projector.write();
 
 ## Bundle
 
-### Sa
+### Bundle SA
 
-#### Windows
+#### Bundle SA Windows
 
 ```js
 import {BundleSaWindows} from '@shockpkg/swf-projector';
@@ -211,7 +211,7 @@ await bundle.write(async b => {
 });
 ```
 
-#### Mac
+#### Bundle SA Mac
 
 ```js
 import {BundleSaMac} from '@shockpkg/swf-projector';
@@ -229,7 +229,7 @@ await bundle.write(async b => {
 });
 ```
 
-#### Linux
+#### Bundle SA Linux
 
 ```js
 import {BundleSaLinux} from '@shockpkg/swf-projector';
@@ -248,7 +248,7 @@ await bundle.write(async b => {
 });
 ```
 
-### HTML
+### Bundle HTML
 
 ```js
 import {BundleHtml} from '@shockpkg/swf-projector';
@@ -342,11 +342,11 @@ An option to completely disable the menu for the projector.
 
 Required in Flash Player 6 and Flash Player 10.1+ to load relative paths (other versions would try the relative path first, before trying resolved path).
 
-Projectors version 9+ create the main URL with: `"file:" + argv[0]` resolving to a bad URL like `file://file|%2Fpath%2Fto%2Fapplication` causing relative paths to load from the root of the drive. For such projectors this patch replaces the string reference to use `"file://" + argv[0]` instead, which resolves to `file:///path/to/application` when run by an absolute path.
+Projectors version 9+ create the main URL with `"file:" + argv[0]` resolving to a bad URL like `file://file|%2Fpath%2Fto%2Fapplication` causing relative paths to load from the root directory. For such projectors this patch replaces the string reference to use `"file://" + argv[0]` instead, which resolves to `file:///path/to/application` when run by an absolute path.
 
 Projector version 6 would use the current working directory for the main URL, causing relative paths to start in the directory above the projector binary. For such projectors this patch replaces the directory string reference to use `argv[0]` instead.
 
-Not a perfect patch because it does not resolve the full path first, but an useful improvement. If run from relative path it would get a path like `file://./application` so it is recommended to use a shell script or binary to resolve and run the projector from an absolute path. Using a non-flat Bundle does this automatically.
+Not a perfect patch because it does not resolve the full path first, but a useful improvement. If run from a relative path it would get a path like `file://./application` so it is recommended to use a shell script or binary to resolve and run the projector from an absolute path. Using a non-flat Bundle does this automatically.
 
 ### Option: `patchProjectorOffset`
 
