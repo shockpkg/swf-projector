@@ -1,5 +1,5 @@
-import {Elf32, Elf64} from './elf';
-import {Patch} from './patch';
+import {Elf32, Elf64} from './elf.ts';
+import {Patch} from './patch.ts';
 
 // Match all known titles.
 export const titleMatchM = /^Macromedia Flash Player \d$/;

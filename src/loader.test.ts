@@ -1,7 +1,7 @@
 import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 
-import {loader} from './loader';
+import {loader} from './loader.ts';
 
 function hex(buffer: Uint8Array) {
 	return [...buffer]

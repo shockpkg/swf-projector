@@ -1,9 +1,9 @@
 import {describe, it} from 'node:test';
 import {join as pathJoin} from 'node:path';
 
-import {cleanProjectorDir, fixtureFile} from '../util.spec';
+import {cleanProjectorDir, fixtureFile} from '../util.spec.ts';
 
-import {ProjectorSaDummy} from './sa.spec';
+import {ProjectorSaDummy} from './sa.spec.ts';
 
 const getDir = async (d: string) => cleanProjectorDir('sa', 'dummy', d);
 

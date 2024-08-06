@@ -5,6 +5,7 @@
 		"module": "commonjs",
 		"moduleResolution": "Node",
 		"allowSyntheticDefaultImports": true,
+		"allowImportingTsExtensions": true,
 		"lib": ["ESNext"],
 		"newLine": "lf",
 

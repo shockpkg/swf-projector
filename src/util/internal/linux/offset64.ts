@@ -1,10 +1,10 @@
 /* eslint-disable max-classes-per-file */
 
-import {writeFuzzy} from '../patch';
+import {writeFuzzy} from '../patch.ts';
 
-import {OFFSET_X8664} from './asm';
-import {Elf64} from './elf';
-import {Patch} from './patch';
+import {OFFSET_X8664} from './asm.ts';
+import {Elf64} from './elf.ts';
+import {Patch} from './patch.ts';
 
 /**
  * Patch offset 64-bit spec.

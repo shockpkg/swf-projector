@@ -1,9 +1,9 @@
 import {mkdir, readFile, writeFile} from 'node:fs/promises';
 import {dirname} from 'node:path';
 
-import {concat} from '../util/internal/data';
+import {concat} from '../util/internal/data.ts';
 
-import {ProjectorSa} from './sa';
+import {ProjectorSa} from './sa.ts';
 
 export class ProjectorSaDummy extends ProjectorSa {
 	constructor(path: string) {

@@ -1,7 +1,7 @@
-import {findIndex} from '../data';
+import {findIndex} from '../data.ts';
 
-import {Elf32, Elf64} from './elf';
-import {Patch} from './patch';
+import {Elf32, Elf64} from './elf.ts';
+import {Patch} from './patch.ts';
 
 /**
  * PatchPath object.

@@ -1,7 +1,7 @@
-import {Data} from './data';
-import {Rect} from './rect';
-import {Fixed8} from './fixed8';
-import {Tag} from './tag';
+import {Data} from './data.ts';
+import {Rect} from './rect.ts';
+import {Fixed8} from './fixed8.ts';
+import {Tag} from './tag.ts';
 
 /**
  * Swf object.

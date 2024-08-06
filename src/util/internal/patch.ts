@@ -1,4 +1,4 @@
-import {findIndex} from './data';
+import {findIndex} from './data.ts';
 
 /**
  * Find exact matches in data.

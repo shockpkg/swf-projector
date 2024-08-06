@@ -1,9 +1,9 @@
 import {basename, dirname, join as pathJoin} from 'node:path';
 import {mkdir, writeFile} from 'node:fs/promises';
 
-import {Bundle} from '../bundle';
-import {ProjectorHtml} from '../projector/html';
-import {htmlEncode, trimExtension} from '../util';
+import {Bundle} from '../bundle.ts';
+import {ProjectorHtml} from '../projector/html.ts';
+import {htmlEncode, trimExtension} from '../util.ts';
 
 /**
  * BundleHtml object.

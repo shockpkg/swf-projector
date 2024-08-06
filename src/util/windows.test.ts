@@ -2,7 +2,7 @@ import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 import {createHash} from 'node:crypto';
 
-import {windowsLauncher} from './windows';
+import {windowsLauncher} from './windows.ts';
 
 function sha256(data: Uint8Array) {
 	return createHash('sha256').update(data).digest('hex');

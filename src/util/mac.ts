@@ -2,10 +2,10 @@ import {open} from 'node:fs/promises';
 
 import {unsign} from 'macho-unsign';
 
-import {launcher} from '../util';
+import {launcher} from '../util.ts';
 
-import {hex4, align, concat, getCstrN} from './internal/data';
-import {slider} from './internal/patch';
+import {hex4, align, concat, getCstrN} from './internal/data.ts';
+import {slider} from './internal/patch.ts';
 import {
 	VM_PROT_READ,
 	FAT_MAGIC,
@@ -35,11 +35,11 @@ import {
 	CPU_TYPE_I386,
 	CPU_TYPE_X86_64,
 	CPU_TYPE_ARM64
-} from './internal/mac/constants';
+} from './internal/mac/constants.ts';
 import {
 	MacProjectTitlePatch,
 	macProjectorTitlePatchesByCpuType
-} from './internal/mac/title';
+} from './internal/mac/title.ts';
 
 /**
  * Mach-O Type.

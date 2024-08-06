@@ -1,4 +1,4 @@
-import {shouldTest, getInstalledPackagesInfoSync} from '../../util.spec';
+import {shouldTest, getInstalledPackagesInfoSync} from '../../util.spec.ts';
 
 export function listSamples() {
 	const platforms = new Set();

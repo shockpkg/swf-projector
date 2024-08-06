@@ -1,10 +1,10 @@
 import {mkdir, open, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
-import {linuxLauncher} from '../../util/linux';
-import {EM_386, EM_X86_64} from '../../util/internal/linux/elf';
-import {ProjectorSaLinux} from '../../projector/sa/linux';
-import {BundleSa} from '../sa';
+import {linuxLauncher} from '../../util/linux.ts';
+import {EM_386, EM_X86_64} from '../../util/internal/linux/elf.ts';
+import {ProjectorSaLinux} from '../../projector/sa/linux.ts';
+import {BundleSa} from '../sa.ts';
 
 /**
  * BundleSaLinux object.

@@ -1,7 +1,7 @@
 import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
-import {encodeUtf16, getUtf16} from '../data';
-import {findExact, findFuzzy} from '../patch';
+import {encodeUtf16, getUtf16} from '../data.ts';
+import {findExact, findFuzzy} from '../patch.ts';
 
 import {
 	IDD_EXCEPTION,
@@ -9,8 +9,8 @@ import {
 	IMAGE_SCN_MEM_READ,
 	IMAGE_SCN_MEM_SHARED,
 	IMAGE_SCN_MEM_WRITE
-} from './constants';
-import {exeCodeSection} from './exe';
+} from './constants.ts';
+import {exeCodeSection} from './exe.ts';
 
 /**
  * Patch projector window title stored in resources (versions before 11.2).

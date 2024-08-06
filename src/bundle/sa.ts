@@ -1,5 +1,5 @@
-import {ProjectorSa} from '../projector/sa';
-import {Bundle} from '../bundle';
+import {ProjectorSa} from '../projector/sa.ts';
+import {Bundle} from '../bundle.ts';
 
 /**
  * BundleSa object.

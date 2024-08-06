@@ -1,5 +1,5 @@
-import {Data} from './data';
-import {bitCountS, bitCountToBytes, bitWriter} from './util';
+import {Data} from './data.ts';
+import {bitCountS, bitCountToBytes, bitWriter} from './util.ts';
 
 /**
  * Rect object.

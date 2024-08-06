@@ -1,8 +1,8 @@
 import {dirname} from 'node:path';
 import {mkdir, writeFile} from 'node:fs/promises';
 
-import {Projector} from '../projector';
-import {htmlEncode} from '../util';
+import {Projector} from '../projector.ts';
+import {htmlEncode} from '../util.ts';
 
 /**
  * ProjectorHtml object.

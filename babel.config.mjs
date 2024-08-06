@@ -90,13 +90,9 @@ export default api => {
 	);
 	plugins.push(
 		[
-			'esm-resolver',
+			'module-replace',
 			{
-				source: {
-					extensions: [
-						[['.js', '.mjs', '.jsx', '.mjsx', '.ts', '.tsx'], ext]
-					]
-				}
+				replace: [[/^(\.\.?\/.+)\.(m|c)?tsx?$/i, `$1${ext}`]]
 			}
 		],
 		[

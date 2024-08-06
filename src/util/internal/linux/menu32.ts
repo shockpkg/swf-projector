@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
-import {MENU_I386} from './asm';
-import {Elf32} from './elf';
-import {PatchMenu} from './menu';
+import {MENU_I386} from './asm.ts';
+import {Elf32} from './elf.ts';
+import {PatchMenu} from './menu.ts';
 
 /**
  * PatchMenu32 object.

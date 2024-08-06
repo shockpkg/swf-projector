@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
-import {PATH_X8664} from './asm';
-import {Elf64} from './elf';
-import {PatchPath} from './path';
+import {PATH_X8664} from './asm.ts';
+import {Elf64} from './elf.ts';
+import {PatchPath} from './path.ts';
 
 /**
  * PatchPath64 object.

@@ -9,11 +9,11 @@ import {
 	getPackageFile,
 	simpleSwf,
 	testShowMenu
-} from '../../util.spec';
-import {ProjectorSa} from '../sa';
+} from '../../util.spec.ts';
+import {ProjectorSa} from '../sa.ts';
 
-import {ProjectorSaLinux} from './linux';
-import {customWindowTitle, listSamples} from './linux.spec';
+import {ProjectorSaLinux} from './linux.ts';
+import {customWindowTitle, listSamples} from './linux.spec.ts';
 
 void describe('projector/sa/linux', () => {
 	void describe('ProjectorSaLinux', () => {

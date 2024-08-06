@@ -1,6 +1,6 @@
-import {launcher} from '../util';
+import {launcher} from '../util.ts';
 
-import {align, findIndex} from './internal/data';
+import {align, findIndex} from './internal/data.ts';
 import {
 	decode,
 	Elf32,
@@ -12,15 +12,15 @@ import {
 	SHT_NOBITS,
 	SHT_PROGBITS,
 	SHT_STRTAB
-} from './internal/linux/elf';
-import {Patch} from './internal/linux/patch';
-import {title64} from './internal/linux/title64';
-import {title32} from './internal/linux/title32';
-import {menu64} from './internal/linux/menu64';
-import {menu32} from './internal/linux/menu32';
-import {path64} from './internal/linux/path64';
-import {path32} from './internal/linux/path32';
-import {offset64} from './internal/linux/offset64';
+} from './internal/linux/elf.ts';
+import {Patch} from './internal/linux/patch.ts';
+import {title64} from './internal/linux/title64.ts';
+import {title32} from './internal/linux/title32.ts';
+import {menu64} from './internal/linux/menu64.ts';
+import {menu32} from './internal/linux/menu32.ts';
+import {path64} from './internal/linux/path64.ts';
+import {path32} from './internal/linux/path32.ts';
+import {offset64} from './internal/linux/offset64.ts';
 
 /**
  * Add two numbers of bigints assuming same type.

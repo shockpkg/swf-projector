@@ -9,11 +9,15 @@ import {
 	getPackageFile,
 	simpleSwf,
 	testShowMenu
-} from '../../util.spec';
-import {ProjectorSa} from '../sa';
+} from '../../util.spec.ts';
+import {ProjectorSa} from '../sa.ts';
 
-import {ProjectorSaWindows} from './windows';
-import {customWindowTitle, listSamples, versionStrings} from './windows.spec';
+import {ProjectorSaWindows} from './windows.ts';
+import {
+	customWindowTitle,
+	listSamples,
+	versionStrings
+} from './windows.spec.ts';
 
 void describe('projector/sa/windows', () => {
 	void describe('ProjectorSaWindows', () => {

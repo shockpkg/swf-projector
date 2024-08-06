@@ -1,4 +1,4 @@
-import {OOD_I386} from './asm';
+import {OOD_I386} from './asm.ts';
 
 export const ood32 = [
 	// 30.0.0.113

@@ -1,29 +1,29 @@
 import {signatureGet, signatureSet} from 'portable-executable-signature';
 import {NtExecutable, NtExecutableResource, Resource} from '@shockpkg/resedit';
 
-import {launcher} from '../util';
+import {launcher} from '../util.ts';
 
-import {align} from './internal/data';
-import {patchOnce} from './internal/patch';
+import {align} from './internal/data.ts';
+import {patchOnce} from './internal/patch.ts';
 import {
 	IDD_RESERVED,
 	IDD_RESOURCE,
 	IMAGE_SCN_CNT_INITIALIZED_DATA,
 	IMAGE_SCN_MEM_READ
-} from './internal/windows/constants';
+} from './internal/windows/constants.ts';
 import {
 	exeAssertLastSection,
 	exeCodeSection,
 	exeRemoveReloc,
 	exeUpdateSizes
-} from './internal/windows/exe';
-import {ood32} from './internal/windows/ood32';
-import {ood64} from './internal/windows/ood64';
-import {rsrcPatchIcon, rsrcPatchVersion} from './internal/windows/rsrc';
+} from './internal/windows/exe.ts';
+import {ood32} from './internal/windows/ood32.ts';
+import {ood64} from './internal/windows/ood64.ts';
+import {rsrcPatchIcon, rsrcPatchVersion} from './internal/windows/rsrc.ts';
 import {
 	patchWindowTitleData,
 	patchWindowTitleRsrc
-} from './internal/windows/title';
+} from './internal/windows/title.ts';
 
 /**
  * Windows projector patch.

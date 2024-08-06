@@ -1,10 +1,10 @@
 import {mkdir, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
-import {trimExtension} from '../util';
-import {ProjectorSaDummy} from '../projector/sa.spec';
+import {trimExtension} from '../util.ts';
+import {ProjectorSaDummy} from '../projector/sa.spec.ts';
 
-import {BundleSa} from './sa';
+import {BundleSa} from './sa.ts';
 
 export class BundleSaDummy extends BundleSa {
 	public readonly projector: ProjectorSaDummy;

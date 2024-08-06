@@ -9,9 +9,9 @@ import {
 } from '@shockpkg/archive-files';
 import {Plist, ValueDict, ValueString} from '@shockpkg/plist-dom';
 
-import {trimExtension} from '../../util';
-import {macProjectorMachoPatch} from '../../util/mac';
-import {IFileFilter, IFilePatch, ProjectorSa} from '../sa';
+import {trimExtension} from '../../util.ts';
+import {macProjectorMachoPatch} from '../../util/mac.ts';
+import {IFileFilter, IFilePatch, ProjectorSa} from '../sa.ts';
 
 /**
  * ProjectorSaMac object.

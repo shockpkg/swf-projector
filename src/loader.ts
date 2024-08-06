@@ -1,7 +1,7 @@
-import {stringEncode} from './swf/util';
-import {Tag} from './swf/tag';
-import {Swf} from './swf/swf';
-import {concat} from './util/internal/data';
+import {stringEncode} from './swf/util.ts';
+import {Tag} from './swf/tag.ts';
+import {Swf} from './swf/swf.ts';
+import {concat} from './util/internal/data.ts';
 
 /**
  * Type string.

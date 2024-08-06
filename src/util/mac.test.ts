@@ -2,7 +2,7 @@ import {describe, it} from 'node:test';
 import {deepStrictEqual, strictEqual} from 'node:assert';
 import {createHash} from 'node:crypto';
 
-import {machoAppLauncher, machoTypesData} from './mac';
+import {machoAppLauncher, machoTypesData} from './mac.ts';
 
 const unhex = (hex: string) =>
 	new Uint8Array(

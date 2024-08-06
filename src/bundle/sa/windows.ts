@@ -1,10 +1,10 @@
 import {mkdir, open, readFile, writeFile} from 'node:fs/promises';
 import {join as pathJoin, basename, dirname} from 'node:path';
 
-import {trimExtension} from '../../util';
-import {windowsLauncher} from '../../util/windows';
-import {ProjectorSaWindows} from '../../projector/sa/windows';
-import {BundleSa} from '../sa';
+import {trimExtension} from '../../util.ts';
+import {windowsLauncher} from '../../util/windows.ts';
+import {ProjectorSaWindows} from '../../projector/sa/windows.ts';
+import {BundleSa} from '../sa.ts';
 
 /**
  * BundleSaWindows object.

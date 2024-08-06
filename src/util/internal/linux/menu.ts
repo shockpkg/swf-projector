@@ -1,7 +1,7 @@
-import {writeFuzzy} from '../patch';
+import {writeFuzzy} from '../patch.ts';
 
-import {Elf32, Elf64} from './elf';
-import {Patch} from './patch';
+import {Elf32, Elf64} from './elf.ts';
+import {Patch} from './patch.ts';
 
 /**
  * Patch menu spec.

@@ -6,17 +6,17 @@ import {
 	listSamples,
 	customWindowTitle,
 	versionStrings
-} from '../../projector/sa/windows.spec';
+} from '../../projector/sa/windows.spec.ts';
 import {
 	cleanBundlesDir,
 	fixtureFile,
 	getPackageFile,
 	simpleSwf
-} from '../../util.spec';
-import {loader} from '../../loader';
-import {BundleSa} from '../sa';
+} from '../../util.spec.ts';
+import {loader} from '../../loader.ts';
+import {BundleSa} from '../sa.ts';
 
-import {BundleSaWindows} from './windows';
+import {BundleSaWindows} from './windows.ts';
 
 void describe('bundle/sa/windows', () => {
 	void describe('BundleSaWindows', () => {

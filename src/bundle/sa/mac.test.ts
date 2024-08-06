@@ -2,17 +2,17 @@ import {describe, it} from 'node:test';
 import {ok} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
-import {listSamples, customWindowTitle} from '../../projector/sa/mac.spec';
+import {listSamples, customWindowTitle} from '../../projector/sa/mac.spec.ts';
 import {
 	cleanBundlesDir,
 	fixtureFile,
 	getPackageFile,
 	simpleSwf
-} from '../../util.spec';
-import {loader} from '../../loader';
-import {BundleSa} from '../sa';
+} from '../../util.spec.ts';
+import {loader} from '../../loader.ts';
+import {BundleSa} from '../sa.ts';
 
-import {BundleSaMac} from './mac';
+import {BundleSaMac} from './mac.ts';
 
 void describe('bundle/sa/mac', () => {
 	void describe('BundleSaMac', () => {

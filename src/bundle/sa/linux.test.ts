@@ -2,17 +2,17 @@ import {describe, it} from 'node:test';
 import {ok} from 'node:assert';
 import {join as pathJoin} from 'node:path';
 
-import {listSamples} from '../../projector/sa/linux.spec';
+import {listSamples} from '../../projector/sa/linux.spec.ts';
 import {
 	cleanBundlesDir,
 	fixtureFile,
 	getPackageFile,
 	simpleSwf
-} from '../../util.spec';
-import {loader} from '../../loader';
-import {BundleSa} from '../sa';
+} from '../../util.spec.ts';
+import {loader} from '../../loader.ts';
+import {BundleSa} from '../sa.ts';
 
-import {BundleSaLinux} from './linux';
+import {BundleSaLinux} from './linux.ts';
 
 void describe('bundle/sa/linux', () => {
 	void describe('BundleSaLinux', () => {

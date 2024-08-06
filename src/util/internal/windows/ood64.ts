@@ -1,4 +1,4 @@
-import {OOD_X8664} from './asm';
+import {OOD_X8664} from './asm.ts';
 
 export const ood64 = [
 	// 26.0.0.137, 32.0.0.270

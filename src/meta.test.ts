@@ -1,7 +1,7 @@
 import {describe, it} from 'node:test';
 import {match} from 'node:assert';
 
-import {NAME, VERSION} from './meta';
+import {NAME, VERSION} from './meta.ts';
 
 void describe('meta', () => {
 	void it('NAME', () => {

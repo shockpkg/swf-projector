@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
-import {PATH_I386} from './asm';
-import {Elf32} from './elf';
-import {PatchPath} from './path';
+import {PATH_I386} from './asm.ts';
+import {Elf32} from './elf.ts';
+import {PatchPath} from './path.ts';
 
 /**
  * PatchPath32 object.

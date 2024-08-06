@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file */
 
-import {findFuzzyOnce} from '../patch';
+import {findFuzzyOnce} from '../patch.ts';
 
-import {TITLE_ARM64, TITLE_I386, TITLE_X8664} from './asm';
-import {CPU_TYPE_ARM64, CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants';
+import {TITLE_ARM64, TITLE_I386, TITLE_X8664} from './asm.ts';
+import {CPU_TYPE_ARM64, CPU_TYPE_I386, CPU_TYPE_X86_64} from './constants.ts';
 
 /**
  * MacProjectTitlePatch object.

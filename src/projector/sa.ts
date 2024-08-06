@@ -2,8 +2,8 @@ import {readFile} from 'node:fs/promises';
 
 import {fsLstatExists} from '@shockpkg/archive-files';
 
-import {concat} from '../util/internal/data';
-import {Projector} from '../projector';
+import {concat} from '../util/internal/data.ts';
+import {Projector} from '../projector.ts';
 
 /**
  * File patch.

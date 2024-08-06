@@ -1,7 +1,7 @@
-import {findFuzzy} from '../patch';
+import {findFuzzy} from '../patch.ts';
 
-import {PATCH_I386} from './asm';
-import {Elf32, Elf32Shdr, Elf64, EM_386} from './elf';
+import {PATCH_I386} from './asm.ts';
+import {Elf32, Elf32Shdr, Elf64, EM_386} from './elf.ts';
 
 type Unpacked<T> = T extends (infer U)[] ? U : T;
 

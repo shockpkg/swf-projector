@@ -9,11 +9,11 @@ import {
 	getPackageFile,
 	simpleSwf,
 	testShowMenu
-} from '../../util.spec';
-import {ProjectorSa} from '../sa';
+} from '../../util.spec.ts';
+import {ProjectorSa} from '../sa.ts';
 
-import {ProjectorSaMac} from './mac';
-import {customWindowTitle, listSamples} from './mac.spec';
+import {ProjectorSaMac} from './mac.ts';
+import {customWindowTitle, listSamples} from './mac.spec.ts';
 
 void describe('projector/sa/mac', () => {
 	void describe('ProjectorSaMac', () => {

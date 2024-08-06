@@ -1,6 +1,6 @@
 import {inflateRaw} from 'node:zlib';
 
-import {LAUNCHERS} from './launchers';
+import {LAUNCHERS} from './launchers.ts';
 
 /**
  * HTML encode.

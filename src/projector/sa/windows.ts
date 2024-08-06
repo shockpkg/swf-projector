@@ -8,9 +8,9 @@ import {
 	createArchiveByFileExtensionOrThrow
 } from '@shockpkg/archive-files';
 
-import {windowsProjectorPatch} from '../../util/windows';
-import {IFilePatch, ProjectorSa} from '../sa';
-import {concat} from '../../util/internal/data';
+import {windowsProjectorPatch} from '../../util/windows.ts';
+import {IFilePatch, ProjectorSa} from '../sa.ts';
+import {concat} from '../../util/internal/data.ts';
 
 /**
  * ProjectorSaWindows object.

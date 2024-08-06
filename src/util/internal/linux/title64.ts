@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
-import {TITLE_X8664} from './asm';
-import {Elf64} from './elf';
-import {PatchTitle, titleMatchA} from './title';
+import {TITLE_X8664} from './asm.ts';
+import {Elf64} from './elf.ts';
+import {PatchTitle, titleMatchA} from './title.ts';
 
 /**
  * PatchTitle64 object.

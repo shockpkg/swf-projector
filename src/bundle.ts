@@ -20,8 +20,8 @@ import {
 	fsLstatExists
 } from '@shockpkg/archive-files';
 
-import {Queue} from './queue';
-import {Projector} from './projector';
+import {Queue} from './queue.ts';
+import {Projector} from './projector.ts';
 
 const userExec = 0b001000000;
 

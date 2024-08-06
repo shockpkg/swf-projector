@@ -8,10 +8,10 @@ import {
 	createArchiveByFileExtensionOrThrow
 } from '@shockpkg/archive-files';
 
-import {linuxProjectorPatch} from '../../util/linux';
-import {EM_X86_64} from '../../util/internal/linux/elf';
-import {IFilePatch, ProjectorSa} from '../sa';
-import {concat} from '../../util/internal/data';
+import {linuxProjectorPatch} from '../../util/linux.ts';
+import {EM_X86_64} from '../../util/internal/linux/elf.ts';
+import {IFilePatch, ProjectorSa} from '../sa.ts';
+import {concat} from '../../util/internal/data.ts';
 
 /**
  * ProjectorSaLinux object.

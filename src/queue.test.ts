@@ -2,7 +2,7 @@
 import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 
-import {Queue} from './queue';
+import {Queue} from './queue.ts';
 
 void describe('queue', () => {
 	void describe('Queue', () => {

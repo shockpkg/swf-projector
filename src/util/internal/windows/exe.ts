@@ -1,13 +1,13 @@
 import {NtExecutable} from '@shockpkg/resedit';
 
-import {align} from '../data';
+import {align} from '../data.ts';
 
 import {
 	IDD_BASE_RELOCATION,
 	IMAGE_SCN_CNT_CODE,
 	IMAGE_SCN_CNT_INITIALIZED_DATA,
 	IMAGE_SCN_CNT_UNINITIALIZED_DATA
-} from './constants';
+} from './constants.ts';
 
 /**
  * Get the EXE section that includes an address.

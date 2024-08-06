@@ -1,8 +1,8 @@
 /* eslint-disable max-classes-per-file */
 
-import {TITLE_I386} from './asm';
-import {Elf32} from './elf';
-import {PatchTitle, titleMatchM, titleMatchA} from './title';
+import {TITLE_I386} from './asm.ts';
+import {Elf32} from './elf.ts';
+import {PatchTitle, titleMatchM, titleMatchA} from './title.ts';
 
 /**
  * PatchTitle32 object.

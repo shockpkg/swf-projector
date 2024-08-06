@@ -1,4 +1,4 @@
-import {subview} from './util';
+import {subview} from './util.ts';
 
 /**
  * Data object.
