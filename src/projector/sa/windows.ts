@@ -126,6 +126,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 			if (entry.type === PathType.FILE) {
 				let data: Uint8Array | null = null;
 				for (const patch of patches) {
+					// eslint-disable-next-line unicorn/prefer-regexp-test
 					if (patch.match(entry.volumePath)) {
 						if (!data) {
 							// eslint-disable-next-line no-await-in-loop
@@ -197,7 +198,7 @@ export class ProjectorSaWindows extends ProjectorSa {
 	protected async _getPatches() {
 		return (
 			await Promise.all([this._getPatchBinary(), this._getPatchMovie()])
-		).filter(p => p) as IFilePatch[];
+		).filter(Boolean) as IFilePatch[];
 	}
 
 	/**
@@ -256,7 +257,6 @@ export class ProjectorSaWindows extends ProjectorSa {
 	 *
 	 * @returns Patch spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getPatchMovie() {
 		const movieData = await this.getMovieData();
 		if (!movieData) {

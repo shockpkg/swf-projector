@@ -1,5 +1,3 @@
-/* eslint-disable max-classes-per-file */
-
 import {findFuzzy} from '../patch';
 
 import {PATCH_I386} from './asm';
@@ -115,6 +113,7 @@ export abstract class Patch<T extends Elf32 | Elf64> {
 		const e = d.length;
 		for (let i = s; i < e; i++) {
 			if (!d[i]) {
+				// eslint-disable-next-line unicorn/prefer-code-point
 				return String.fromCharCode(...d.subarray(s, i));
 			}
 		}

@@ -77,6 +77,7 @@ export abstract class Bundle {
 	/**
 	 * File and directory names to exclude when adding a directory.
 	 */
+	// eslint-disable-next-line unicorn/better-regex
 	public excludes = [/^\./, /^ehthumbs\.db$/i, /^Thumbs\.db$/i];
 
 	/**
@@ -270,7 +271,7 @@ export abstract class Bundle {
 
 		// Any directories we add should not be recursive.
 		const opts = {
-			...(options || {}),
+			...options,
 			noRecurse: true
 		};
 		await fsWalk(source, async (path, stat) => {
@@ -522,6 +523,7 @@ export abstract class Bundle {
 
 		// Maybe set executable if not a directory.
 		if (typeof executable === 'boolean' && !st.isDirectory()) {
+			// eslint-disable-next-line unicorn/prefer-ternary
 			if (st.isSymbolicLink()) {
 				await fsLchmod(
 					path,
@@ -542,6 +544,7 @@ export abstract class Bundle {
 
 		// Maybe change times if either is set.
 		if (atime || mtime) {
+			// eslint-disable-next-line unicorn/prefer-ternary
 			if (st.isSymbolicLink()) {
 				await fsLutimes(path, atime || st.atime, mtime || st.mtime);
 			} else {

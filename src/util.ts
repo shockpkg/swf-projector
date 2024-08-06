@@ -46,7 +46,7 @@ export function pathRelativeBase(path: string, start: string, nocase = false) {
 		return '';
 	}
 	if (p.startsWith(`${s}/`)) {
-		return path.substring(s.length + 1);
+		return path.slice(s.length + 1);
 	}
 	return null;
 }
@@ -78,7 +78,7 @@ export function pathRelativeBaseMatch(
 export function trimExtension(path: string, ext: string, nocase = false) {
 	const p = nocase ? path.toLowerCase() : path;
 	const e = nocase ? ext.toLowerCase() : ext;
-	return p.endsWith(e) ? path.substring(0, p.length - e.length) : path;
+	return p.endsWith(e) ? path.slice(0, p.length - e.length) : path;
 }
 
 /**
@@ -90,6 +90,7 @@ export function trimExtension(path: string, ext: string, nocase = false) {
 export async function launcher(id: string) {
 	const b64 = LAUNCHERS[id];
 	if (typeof b64 !== 'string') {
+		// eslint-disable-next-line unicorn/prefer-type-error
 		throw new Error(`Invalid launcher id: ${id}`);
 	}
 

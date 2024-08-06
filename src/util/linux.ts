@@ -239,6 +239,7 @@ function linuxProjectorAddSection(
 			continue;
 		}
 		sectionOffset = align(sectionOffset, Number(shdr.shAddralign));
+		// eslint-disable-next-line unicorn/prefer-ternary
 		if (elf.bits === 64) {
 			shdr.shOffset = BigInt(sectionOffset);
 		} else {
@@ -247,6 +248,7 @@ function linuxProjectorAddSection(
 		sectionOffset += Number(shdr.fileSize);
 	}
 	sectionOffset = align(sectionOffset, 16);
+	// eslint-disable-next-line unicorn/prefer-ternary
 	if (elf.bits === 64) {
 		elf.elfHeader.eShoff = BigInt(sectionOffset);
 	} else {

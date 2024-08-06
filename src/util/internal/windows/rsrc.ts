@@ -7,7 +7,7 @@ import {NtExecutableResource, Resource, Data} from '@shockpkg/resedit';
  * @returns Version integers ([MS, LS]) or null.
  */
 function peVersionInts(version: string): [number, number] | null {
-	const parts = version.split(/[.,]/);
+	const parts = version.split(/[,.]/);
 	const numbers = [];
 	for (const part of parts) {
 		const n = /^\d+$/.test(part) ? +part : -1;

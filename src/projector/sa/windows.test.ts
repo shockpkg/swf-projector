@@ -22,6 +22,7 @@ void describe('projector/sa/windows', () => {
 		});
 
 		void describe('dummy', () => {
+			// eslint-disable-next-line unicorn/consistent-function-scoping
 			const getDir = async (d: string) =>
 				cleanProjectorDir('sa', 'windows', 'dummy', d);
 

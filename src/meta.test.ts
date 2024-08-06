@@ -5,7 +5,7 @@ import {NAME, VERSION} from './meta';
 
 void describe('meta', () => {
 	void it('NAME', () => {
-		match(NAME, /^(@[a-z0-9._-]+\/)?[a-z0-9._-]+/);
+		match(NAME, /^(@[\d._a-z-]+\/)?[\d._a-z-]+/);
 	});
 
 	void it('VERSION', () => {

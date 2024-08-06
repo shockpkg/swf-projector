@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/require-await */
+/* eslint-disable unicorn/no-array-push-push */
 import {describe, it} from 'node:test';
 import {strictEqual} from 'node:assert';
 

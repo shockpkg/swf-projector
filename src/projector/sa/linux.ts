@@ -110,9 +110,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 				// The file should be user executable, if mode is available.
 				// eslint-disable-next-line no-bitwise
 				(mode === null || !!(mode & 0b001000000)) &&
-				names.has(
-					path.substring(path.lastIndexOf('/') + 1).toLowerCase()
-				);
+				names.has(path.slice(path.lastIndexOf('/') + 1).toLowerCase());
 		}
 
 		const patches = await this._getPatches();
@@ -127,6 +125,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 			if (entry.type === PathType.FILE) {
 				let data: Uint8Array | null = null;
 				for (const patch of patches) {
+					// eslint-disable-next-line unicorn/prefer-regexp-test
 					if (patch.match(entry.volumePath)) {
 						if (!data) {
 							// eslint-disable-next-line no-await-in-loop
@@ -198,7 +197,7 @@ export class ProjectorSaLinux extends ProjectorSa {
 	protected async _getPatches() {
 		return (
 			await Promise.all([this._getPatchBinary(), this._getPatchMovie()])
-		).filter(p => p) as IFilePatch[];
+		).filter(Boolean) as IFilePatch[];
 	}
 
 	/**
@@ -206,7 +205,6 @@ export class ProjectorSaLinux extends ProjectorSa {
 	 *
 	 * @returns Patch spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getPatchBinary() {
 		const {
 			patchWindowTitle,
@@ -255,7 +253,6 @@ export class ProjectorSaLinux extends ProjectorSa {
 	 *
 	 * @returns Patch spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getPatchMovie() {
 		const movieData = await this.getMovieData();
 		if (!movieData) {

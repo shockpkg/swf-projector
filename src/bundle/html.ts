@@ -67,7 +67,7 @@ export class BundleHtml extends Bundle {
 		const {projector, subdir, index} = this;
 		const {lang, title} = projector;
 		const path = `${subdir}/${index}`;
-		const url = path.split(/[\\/]/).map(encodeURIComponent).join('/');
+		const url = path.split(/[/\\]/).map(encodeURIComponent).join('/');
 		const hAttr = lang === null ? '' : ` lang="${htmlEncode(lang, true)}"`;
 
 		return [

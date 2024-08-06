@@ -7,6 +7,7 @@ import {machoAppLauncher, machoTypesData} from './mac';
 const unhex = (hex: string) =>
 	new Uint8Array(
 		[...(hex.replace(/\s/g, '').match(/../g) || [])].map(h =>
+			// eslint-disable-next-line unicorn/prefer-number-properties
 			parseInt(h, 16)
 		)
 	);

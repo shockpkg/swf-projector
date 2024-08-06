@@ -25,7 +25,7 @@ export function patchWindowTitleRsrc(
 ) {
 	// Match all known titles.
 	const titleMatch =
-		/^((Shockwave )?Flash|(Adobe|Macromedia) Flash Player \d+([.,]\d+)*)$/;
+		/^((Shockwave )?Flash|(Adobe|Macromedia) Flash Player \d+([,.]\d+)*)$/;
 
 	// Find ID of string table with the title and ID of title if present.
 	const typeStringTable = 6;
@@ -133,7 +133,7 @@ export function patchWindowTitleData(exe: NtExecutable, address: number) {
 
 	// Search for known titles (only one format known).
 	const titles: [string, RegExp][] = [
-		['Adobe Flash Player ', /^Adobe Flash Player \d+([.,]\d+)*$/]
+		['Adobe Flash Player ', /^Adobe Flash Player \d+([,.]\d+)*$/]
 	];
 	let oldAddress = 0;
 	for (const {

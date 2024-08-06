@@ -164,12 +164,12 @@ export abstract class ProjectorSa extends Projector {
 					const v = new DataView(b);
 					const {movieMagic} = this;
 					if (c === 'i') {
-						// eslint-disable-next-line no-bitwise
+						// eslint-disable-next-line no-bitwise, unicorn/prefer-math-trunc
 						v.setInt32(0, movieMagic >> 0, true);
 						// eslint-disable-next-line no-bitwise
 						v.setInt32(4, movieMagic >> 31, true);
 					} else {
-						// eslint-disable-next-line no-bitwise
+						// eslint-disable-next-line no-bitwise, unicorn/prefer-math-trunc
 						v.setInt32(4, movieMagic >> 0, false);
 						// eslint-disable-next-line no-bitwise
 						v.setInt32(0, movieMagic >> 31, false);

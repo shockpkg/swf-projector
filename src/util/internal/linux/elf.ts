@@ -320,10 +320,12 @@ export class Elf32 {
 			64,
 			elfHeader.ePhoff + elfHeader.ePhnum * elfHeader.ePhentsize,
 			elfHeader.eShoff + elfHeader.eShnum * elfHeader.eShentsize,
+			// eslint-disable-next-line unicorn/no-array-reduce
 			this.programHeaders.reduce(
 				(i, p) => Math.max(p.pOffset + p.pFilesz, i),
 				0
 			),
+			// eslint-disable-next-line unicorn/no-array-reduce
 			this.sectionHeaders.reduce(
 				(i, s) => Math.max(s.shOffset + s.fileSize, i),
 				0
@@ -536,10 +538,12 @@ export class Elf64 {
 			64,
 			Number(elfHeader.ePhoff) + elfHeader.ePhnum * elfHeader.ePhentsize,
 			Number(elfHeader.eShoff) + elfHeader.eShnum * elfHeader.eShentsize,
+			// eslint-disable-next-line unicorn/no-array-reduce
 			this.programHeaders.reduce(
 				(i, p) => Math.max(Number(p.pOffset + p.pFilesz), i),
 				0
 			),
+			// eslint-disable-next-line unicorn/no-array-reduce
 			this.sectionHeaders.reduce(
 				(i, s) => Math.max(Number(s.shOffset + s.fileSize), i),
 				0

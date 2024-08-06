@@ -163,9 +163,7 @@ export function loader(
 	doAction.code = 12;
 	doAction.data =
 		swfv < 5 ? bytecodeLoadMovieSwf4(url) : bytecodeLoadMovieSwf5(url);
-	swf.tags.push(doAction);
-
-	swf.tags.push(showFrame);
+	swf.tags.push(doAction, showFrame);
 
 	const end = new Tag();
 	end.code = 0;

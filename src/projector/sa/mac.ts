@@ -349,6 +349,7 @@ export class ProjectorSaMac extends ProjectorSa {
 		 */
 		const extract = async (entry: Entry, dest: string) => {
 			for (const filter of filters) {
+				// eslint-disable-next-line unicorn/prefer-regexp-test
 				if (filter.match(entry.volumePath)) {
 					return;
 				}
@@ -357,6 +358,7 @@ export class ProjectorSaMac extends ProjectorSa {
 			if (entry.type === PathType.FILE) {
 				let data: Uint8Array | null = null;
 				for (const patch of patches) {
+					// eslint-disable-next-line unicorn/prefer-regexp-test
 					if (patch.match(entry.volumePath)) {
 						if (!data) {
 							// eslint-disable-next-line no-await-in-loop
@@ -415,7 +417,7 @@ export class ProjectorSaMac extends ProjectorSa {
 				return true;
 			}
 
-			const dest = path + volumePath.substring(playerPath.length);
+			const dest = path + volumePath.slice(playerPath.length);
 			await extract(entry, dest);
 			return true;
 		});
@@ -450,7 +452,7 @@ export class ProjectorSaMac extends ProjectorSa {
 				this._getFilterInfoPlistStrings(),
 				this._getFilterCodeSignature()
 			])
-		).filter(p => p) as IFileFilter[];
+		).filter(Boolean) as IFileFilter[];
 	}
 
 	/**
@@ -458,7 +460,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @returns Filter spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getFilterInfoPlistStrings() {
 		const {removeInfoPlistStrings} = this;
 		if (!removeInfoPlistStrings) {
@@ -466,7 +467,7 @@ export class ProjectorSaMac extends ProjectorSa {
 		}
 
 		const filter: IFileFilter = {
-			// eslint-disable-next-line jsdoc/require-jsdoc
+			// eslint-disable-next-line jsdoc/require-jsdoc, unicorn/better-regex
 			match: (file: string) => /\.lproj\/InfoPlist\.strings$/i.test(file)
 		};
 		return filter;
@@ -477,7 +478,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @returns Filter spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getFilterCodeSignature() {
 		const {removeCodeSignature} = this;
 		if (!removeCodeSignature) {
@@ -487,6 +487,7 @@ export class ProjectorSaMac extends ProjectorSa {
 		const filter: IFileFilter = {
 			// eslint-disable-next-line jsdoc/require-jsdoc
 			match: (file: string) =>
+				// eslint-disable-next-line unicorn/better-regex
 				/\/(_CodeSignature|CodeResources)(\/|$)/i.test(file)
 		};
 		return filter;
@@ -505,7 +506,7 @@ export class ProjectorSaMac extends ProjectorSa {
 				this._getPatchInfoPlist(),
 				this._getPatchMovie()
 			])
-		).filter(p => p) as IFilePatch[];
+		).filter(Boolean) as IFilePatch[];
 	}
 
 	/**
@@ -524,6 +525,7 @@ export class ProjectorSaMac extends ProjectorSa {
 			/**
 			 * @inheritdoc
 			 */
+			// eslint-disable-next-line unicorn/better-regex
 			match: (file: string) => /^[^/]+\/Contents\/PkgInfo$/i.test(file),
 
 			/**
@@ -554,7 +556,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @returns Patch spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getPatchBinary() {
 		const {removeCodeSignature, patchWindowTitle} = this;
 		if (!(removeCodeSignature || patchWindowTitle !== null)) {
@@ -567,6 +568,7 @@ export class ProjectorSaMac extends ProjectorSa {
 			 * @inheritdoc
 			 */
 			match: (file: string) =>
+				// eslint-disable-next-line unicorn/better-regex
 				/^[^/]+\/Contents\/MacOS\/[^/]+$/i.test(file),
 
 			/**
@@ -629,7 +631,7 @@ export class ProjectorSaMac extends ProjectorSa {
 			 */
 			match: (file: string) =>
 				modifyPlist &&
-				file.substring(file.indexOf('/') + 1).toLowerCase() === lower,
+				file.slice(file.indexOf('/') + 1).toLowerCase() === lower,
 
 			/**
 			 * @inheritdoc
@@ -762,7 +764,6 @@ export class ProjectorSaMac extends ProjectorSa {
 	 *
 	 * @returns Patch spec.
 	 */
-	// eslint-disable-next-line @typescript-eslint/require-await
 	protected async _getPatchMovie() {
 		const movieData = await this.getMovieData();
 		if (!movieData) {

@@ -152,7 +152,7 @@ export async function machoTypesFile(path: string) {
  * @param machos Mach-O binary datas.
  * @returns FAT binary.
  */
-export function machoFat(machos: Readonly<Readonly<Uint8Array>[]>) {
+export function machoFat(machos: readonly Readonly<Uint8Array>[]) {
 	// The lipo utility always uses 12/4096 for ppc, ppc64, i386, and x86_64.
 	const align = 12;
 	// eslint-disable-next-line no-bitwise
@@ -196,6 +196,7 @@ export function machoFat(machos: Readonly<Readonly<Uint8Array>[]>) {
 	for (const body of machos) {
 		const type = machoTypesData(body);
 		if (Array.isArray(type)) {
+			// eslint-disable-next-line unicorn/prefer-type-error
 			throw new Error('Cannot nest FAT binary');
 		}
 		const headD = new Uint8Array(20);
@@ -342,7 +343,8 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 
 	// Find the closing segment.
 	let linkeditI = -1;
-	for (let i = 0; i < commands.length; i++) {
+	const {length} = commands;
+	for (let i = 0; i < length; i++) {
 		const command = commands[i];
 		const commandV = new DataView(
 			command.buffer,
@@ -389,6 +391,7 @@ function macProjectorMachoPatchEach(data: Uint8Array, title: string) {
 	const secview = new DataView(secdata);
 	secview.setUint32(0, title.length, le);
 	for (let i = 0; i < title.length; i++) {
+		// eslint-disable-next-line unicorn/prefer-code-point
 		secview.setUint16(4 + i * 2, title.charCodeAt(i), le);
 	}
 	const seg = new Uint8Array(lp ? 152 : 124);
@@ -664,7 +667,7 @@ export async function machoAppLauncherThin(type: Readonly<IMachoType>) {
  * @returns Launcher data.
  */
 export async function machoAppLauncherFat(
-	types: Readonly<Readonly<IMachoType>[]>
+	types: readonly Readonly<IMachoType>[]
 ) {
 	return machoFat(await Promise.all(types.map(machoAppLauncherThin)));
 }
@@ -676,7 +679,7 @@ export async function machoAppLauncherFat(
  * @returns Launcher data.
  */
 export async function machoAppLauncher(
-	types: Readonly<IMachoType> | Readonly<Readonly<IMachoType>[]>
+	types: Readonly<IMachoType> | readonly Readonly<IMachoType>[]
 ) {
 	return Array.isArray(types)
 		? machoAppLauncherFat(types as IMachoType[])

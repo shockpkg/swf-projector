@@ -3,7 +3,7 @@ import {Patch} from './patch';
 
 // Match all known titles.
 export const titleMatchM = /^Macromedia Flash Player \d$/;
-export const titleMatchA = /^Adobe Flash Player \d+(,\d+,\d+,\d+)?$/;
+export const titleMatchA = /^Adobe Flash Player \d+((?:,\d+){3})?$/;
 
 /**
  * PatchTitle object.

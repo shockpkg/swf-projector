@@ -34,7 +34,7 @@ export function* findExact(
  */
 export function* findFuzzy(
 	data: Readonly<Uint8Array>,
-	find: Readonly<number[]>,
+	find: readonly number[],
 	from = 0,
 	until = -1,
 	backward = false
@@ -44,7 +44,8 @@ export function* findFuzzy(
 	const stop = backward ? -1 : end + 1;
 	for (let i = backward ? end : from; i !== stop; i += add) {
 		let found = true;
-		for (let j = 0; j < find.length; j++) {
+		const {length} = find;
+		for (let j = 0; j < length; j++) {
 			const b = find[j];
 			if (!(b < 0) && data[i + j] !== b) {
 				found = false;
@@ -66,7 +67,7 @@ export function* findFuzzy(
  */
 export function findFuzzyOnce(
 	data: Readonly<Uint8Array>,
-	fuzzy: Readonly<number[]>
+	fuzzy: readonly number[]
 ) {
 	let r = null;
 	for (const found of findFuzzy(data, fuzzy)) {
@@ -88,9 +89,10 @@ export function findFuzzyOnce(
 export function writeFuzzy(
 	data: Uint8Array,
 	offset: number,
-	fuzzy: Readonly<number[]>
+	fuzzy: readonly number[]
 ) {
-	for (let i = 0; i < fuzzy.length; i++) {
+	const {length} = fuzzy;
+	for (let i = 0; i < length; i++) {
 		const b = fuzzy[i];
 		if (!(b < 0)) {
 			data[offset + i] = b;
@@ -109,8 +111,8 @@ export function patchGroupOffsets(
 	data: Readonly<Uint8Array>,
 	patches: {
 		count: number;
-		find: Readonly<number[]>;
-		replace: Readonly<number[]>;
+		find: readonly number[];
+		replace: readonly number[];
 	}[]
 ) {
 	const offsets = [];
@@ -135,8 +137,8 @@ export function patchOnce(
 	data: Uint8Array,
 	patches: {
 		count: number;
-		find: Readonly<number[]>;
-		replace: Readonly<number[]>;
+		find: readonly number[];
+		replace: readonly number[];
 	}[][],
 	type: string
 ) {
@@ -159,7 +161,8 @@ export function patchOnce(
 	}
 
 	// Apply the patches to the buffer.
-	for (let i = 0; i < foundGroup.length; i++) {
+	const {length} = foundGroup;
+	for (let i = 0; i < length; i++) {
 		for (const offset of foundOffsets[i]) {
 			writeFuzzy(data, offset, foundGroup[i].replace);
 		}

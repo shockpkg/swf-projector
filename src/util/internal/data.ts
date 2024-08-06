@@ -26,7 +26,7 @@ export function align(i: number, align: number) {
  * @param pieces The pieces to merge.
  * @returns Merged data.
  */
-export function concat(pieces: Readonly<Readonly<Uint8Array>[]>) {
+export function concat(pieces: readonly Readonly<Uint8Array>[]) {
 	let l = 0;
 	for (const piece of pieces) {
 		l += piece.length;
@@ -131,6 +131,7 @@ export function getCstrN(data: Readonly<Uint8Array>, i: number, l: number) {
 			break;
 		}
 	}
+	// eslint-disable-next-line unicorn/prefer-code-point
 	return String.fromCharCode(...data.subarray(i, i + c));
 }
 
@@ -146,6 +147,7 @@ export function encodeUtf16(str: string, le = false) {
 	const d = new ArrayBuffer(l * 2);
 	const v = new DataView(d);
 	for (let i = 0; i < l; i++) {
+		// eslint-disable-next-line unicorn/prefer-code-point
 		v.setUint16(i * 2, str.charCodeAt(i), le);
 	}
 	return new Uint8Array(d);
@@ -165,6 +167,7 @@ export function getUtf16(data: Readonly<Uint8Array>, i: number, le = false) {
 	for (const a = []; i < e; i += 2) {
 		const c = v.getUint16(i, le);
 		if (!c) {
+			// eslint-disable-next-line unicorn/prefer-code-point
 			return String.fromCharCode(...a);
 		}
 		a.push(c);

@@ -1,9 +1,7 @@
-'use strict';
+import {readFileSync, readdirSync} from 'node:fs';
+import {deflateRawSync} from 'node:zlib';
 
-const {readFileSync, readdirSync} = require('node:fs');
-const {deflateRawSync} = require('node:zlib');
-
-const {name, version, engines} = require('./package.json');
+const {name, version, engines} = JSON.parse(readFileSync('./package.json'));
 
 const node = engines.node
 	.split(/[^\d.]+/)
@@ -22,18 +20,19 @@ const launchers = (manifest => {
 		}).toString('base64');
 	}
 	return r;
-})(require('./launchers/manifest.json'));
+})(JSON.parse(readFileSync('./launchers/manifest.json')));
 
 const asms = (dirs => {
 	const parse = s => {
 		const b = [];
-		for (const line of s.split(/[\r\n]+/)) {
+		for (const line of s.split(/[\n\r]+/)) {
 			const [s] = line.split(/[#;]/)[0].trim().split('  ');
 			if (!s) {
 				continue;
 			}
 			for (const h of s.split(' ')) {
-				b.push(/^[0-9A-F]{2}$/i.test(h) ? parseInt(h, 16) : -1);
+				// eslint-disable-next-line unicorn/prefer-number-properties
+				b.push(/^[\da-f]{2}$/i.test(h) ? parseInt(h, 16) : -1);
 			}
 		}
 		return b;
@@ -69,24 +68,58 @@ const asms = (dirs => {
 	'spec/asm/windows/ood-x86_64'
 ]);
 
-module.exports = api => {
+export default api => {
 	const env = api.env();
 	api.cache(() => env);
 	const modules = env === 'esm' ? false : 'commonjs';
 	const ext = modules ? '.js' : '.mjs';
 	const presets = [];
 	const plugins = [];
-	presets.push([
-		'@babel/preset-env',
-		{
-			modules,
-			exclude: ['proposal-dynamic-import'],
-			targets: {
-				node
+	presets.push(
+		[
+			'@babel/preset-env',
+			{
+				modules,
+				exclude: ['proposal-dynamic-import'],
+				targets: {
+					node
+				}
 			}
-		}
-	]);
-	presets.push(['@babel/preset-typescript']);
+		],
+		['@babel/preset-typescript']
+	);
+	plugins.push(
+		[
+			'esm-resolver',
+			{
+				source: {
+					extensions: [
+						[['.js', '.mjs', '.jsx', '.mjsx', '.ts', '.tsx'], ext]
+					]
+				}
+			}
+		],
+		[
+			'search-and-replace',
+			{
+				rules: [
+					{
+						search: '#{NAME}',
+						replace: name
+					},
+					{
+						search: '#{VERSION}',
+						replace: version
+					},
+					{
+						search: '#{LAUNCHERS}',
+						replace: launchers
+					},
+					...asms
+				]
+			}
+		]
+	);
 	if (modules === 'commonjs') {
 		plugins.push([
 			'@babel/plugin-transform-modules-commonjs',
@@ -95,36 +128,6 @@ module.exports = api => {
 			}
 		]);
 	}
-	plugins.push([
-		'esm-resolver',
-		{
-			source: {
-				extensions: [
-					[['.js', '.mjs', '.jsx', '.mjsx', '.ts', '.tsx'], ext]
-				]
-			}
-		}
-	]);
-	plugins.push([
-		'search-and-replace',
-		{
-			rules: [
-				{
-					search: '#{NAME}',
-					replace: name
-				},
-				{
-					search: '#{VERSION}',
-					replace: version
-				},
-				{
-					search: '#{LAUNCHERS}',
-					replace: launchers
-				},
-				...asms
-			]
-		}
-	]);
 	return {
 		presets,
 		plugins

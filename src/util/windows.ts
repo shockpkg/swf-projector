@@ -136,6 +136,7 @@ export function windowsProjectorPatch(
 			sdTitle = new ArrayBuffer(align((l + 1) * 2, 16));
 			const v = new DataView(sdTitle);
 			for (let i = 0; i < l; i++) {
+				// eslint-disable-next-line unicorn/prefer-code-point
 				v.setUint16(i * 2, patchWindowTitle.charCodeAt(i), true);
 			}
 		}
