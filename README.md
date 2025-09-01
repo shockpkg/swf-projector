@@ -152,38 +152,38 @@ projector.width = 600;
 projector.height = 400;
 
 // Optionally configure HTML document.
-p.lang = 'en-US';
-p.title = 'A "special" title with <html> characters';
-p.background = '#000000';
-p.color = '#999999';
+projector.lang = 'en-US';
+projector.title = 'A "special" title with <html> characters';
+projector.background = '#000000';
+projector.color = '#999999';
 
 // Optionally configure object/param/embed elements.
-p.bgcolor = '#000000';
-p.id = 'element-id';
-p.name = 'element-name';
-p.codebase =
+projector.bgcolor = '#000000';
+projector.id = 'element-id';
+projector.name = 'element-name';
+projector.codebase =
 	'https://fpdownload.macromedia.com/pub/shockwave/cabs/flash/swflash.cab#version=32,0,0,0';
-p.pluginspage = 'https://www.adobe.com/go/getflashplayer';
-p.play = true;
-p.loop = true;
-p.menu = true;
-p.quality = 'high';
-p.scale = 'default';
-p.align = 'l';
-p.salign = 'l';
-p.wmode = 'opaque';
-p.base = '.';
-p.allowFullScreen = true;
-p.allowFullScreenInteractive = true;
-p.allowScriptAccess = 'always';
-p.allowNetworking = 'all';
-p.fullScreenAspectRatio = 'landscape';
-p.flashvars = 'param1=value1&param2=value2';
-p.browserzoom = 'scale';
-p.devicefont = false;
-p.swliveconnect = true;
-p.expressinstall = 'expressinstall.swf';
-p.swfversion = 32;
+projector.pluginspage = 'https://www.adobe.com/go/getflashplayer';
+projector.play = true;
+projector.loop = true;
+projector.menu = true;
+projector.quality = 'high';
+projector.scale = 'default';
+projector.align = 'l';
+projector.salign = 'l';
+projector.wmode = 'opaque';
+projector.base = '.';
+projector.allowFullScreen = true;
+projector.allowFullScreenInteractive = true;
+projector.allowScriptAccess = 'always';
+projector.allowNetworking = 'all';
+projector.fullScreenAspectRatio = 'landscape';
+projector.flashvars = 'param1=value1&param2=value2';
+projector.browserzoom = 'scale';
+projector.devicefont = false;
+projector.swliveconnect = true;
+projector.expressinstall = 'expressinstall.swf';
+projector.swfversion = 32;
 
 await projector.write();
 ```
